@@ -14,7 +14,7 @@
   --orange:#d97706;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;position:relative;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;position:relative;}
 body::before{content:'';position:fixed;top:-80px;right:-60px;width:320px;height:320px;background:linear-gradient(135deg,rgba(20,184,166,.18),rgba(124,58,237,.10));border-radius:40% 60% 55% 45%/45% 40% 60% 55%;pointer-events:none;z-index:0;}
 body::after{content:'';position:fixed;bottom:-100px;left:-80px;width:280px;height:280px;background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(20,184,166,.08));border-radius:55% 45% 40% 60%/60% 55% 45% 40%;pointer-events:none;z-index:0;}
 
@@ -42,27 +42,36 @@ body::after{content:'';position:fixed;bottom:-100px;left:-80px;width:280px;heigh
 .section.active{display:block;}
 
 /* CONTROLS */
-.controls{padding:12px 40px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:var(--surface);border-bottom:1px solid var(--border);position:relative;z-index:10;}
-.search-wrap{position:relative;flex:1;min-width:180px;max-width:250px;}
+.controls{padding:14px 40px 16px;display:flex;flex-direction:column;gap:9px;background:var(--surface);border-bottom:1px solid var(--border);position:relative;z-index:10;}
+.controls-left{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.controls-right{display:flex;flex-direction:column;gap:7px;}
+.controls-footer{display:flex;align-items:center;gap:10px;}
+.search-wrap{position:relative;min-width:180px;max-width:250px;}
 .search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
 input[type=text],select,input[type=number]{background:var(--surface2);border:1.5px solid var(--border);color:var(--text);border-radius:8px;padding:7px 11px;font-size:.82rem;outline:none;font-family:inherit;transition:border-color .2s,box-shadow .2s;}
 input[type=text]{padding-left:32px;width:100%;}
-input[type=number]{width:84px;}
+input[type=number]{width:80px;}
 input:focus,select:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,.10);}
 .fg{display:flex;align-items:center;gap:7px;flex-shrink:0;}
 .fg label{font-size:.71rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;}
-.sep{width:1px;height:22px;background:var(--border);}
-.stat-count{font-size:.81rem;color:var(--muted);margin-left:auto;}
+.sep{width:1px;height:22px;background:var(--border);align-self:center;}
+.stat-count{font-size:.81rem;color:var(--muted);}
 .stat-count span{color:var(--purple);font-weight:700;}
-.attr-filter{display:flex;align-items:center;gap:6px;}
-.attr-filter select{min-width:128px;}
-.op-select{min-width:58px;}
-.clear-btn{background:transparent;border:1.5px solid var(--border);color:var(--muted);border-radius:7px;padding:6px 10px;font-size:.74rem;cursor:pointer;font-family:inherit;transition:all .15s;font-weight:500;}
+.filter-row{display:flex;align-items:center;gap:7px;}
+.filter-row .flbl{font-size:.69rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;width:46px;}
+.filter-row select{min-width:136px;}
+.filter-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;}
+.op-select{min-width:56px;}
+.filter-row input[type=number]{width:76px;}
+.clear-btn{background:transparent;border:1.5px solid var(--border);color:var(--muted);border-radius:7px;padding:6px 11px;font-size:.74rem;cursor:pointer;font-family:inherit;transition:all .15s;font-weight:500;}
 .clear-btn:hover{border-color:var(--purple);color:var(--purple);background:var(--purple-soft);}
 
 /* TABLE */
-.table-wrap{overflow-x:auto;padding:20px 40px 40px;position:relative;z-index:1;}
-.table-card{background:var(--surface);border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07);border:1px solid var(--border);}
+.table-wrap{padding:12px 40px 4px;position:relative;z-index:1;}
+.table-card{background:var(--surface);border-radius:14px;overflow-x:auto;overflow-y:visible;box-shadow:0 2px 12px rgba(0,0,0,.07);border:1px solid var(--border);transform:scaleY(-1);}
+.table-card>table{transform:scaleY(-1);}
+.scroll-bar-outer{display:none;}
+.scroll-bar-inner{display:none;}
 table{width:100%;border-collapse:collapse;font-size:.8rem;}
 thead th{position:sticky;top:0;z-index:10;background:#f4f5fb;color:var(--muted);text-transform:uppercase;font-size:.66rem;letter-spacing:.7px;font-weight:700;padding:11px 10px;text-align:right;cursor:pointer;white-space:nowrap;border-bottom:2px solid var(--border);transition:color .15s;user-select:none;}
 thead th:first-child,thead th:nth-child(2){text-align:left;}
@@ -111,10 +120,266 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .tt .tx span:first-child{color:var(--teal);}
 .tt .ty span:first-child{color:var(--purple);}
 
-::-webkit-scrollbar{height:5px;width:5px;}
-::-webkit-scrollbar-track{background:var(--surface2);}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+::-webkit-scrollbar{height:8px;width:8px;}
+::-webkit-scrollbar-track{background:#eef0f6;border-radius:4px;}
+::-webkit-scrollbar-thumb{background:#c4c9d9;border-radius:4px;}
 ::-webkit-scrollbar-thumb:hover{background:var(--purple-l);}
+.table-card::-webkit-scrollbar{height:10px;}
+.table-card::-webkit-scrollbar-track{background:#f0f2f7;}
+.table-card::-webkit-scrollbar-thumb{background:#a5b4d0;border-radius:5px;}
+.table-card::-webkit-scrollbar-thumb:hover{background:var(--purple);}
+thead .rank-th{text-align:center!important;background:#f4f5fb;color:var(--muted);min-width:32px;width:32px;}
+.rank-cell{color:var(--muted);font-size:.72rem;font-weight:700;text-align:center!important;min-width:32px;width:32px;background:#fafbfe;}
+.filter2-row{display:flex;align-items:center;gap:6px;}
+
+/* TABLE VIEW TOGGLE */
+.tbl-toggle-wrap{padding:10px 40px 0;background:var(--surface);}
+.tbl-toggle{display:inline-flex;background:var(--bg);border:1px solid var(--border);border-radius:30px;padding:3px;gap:2px;}
+.tbl-toggle button{border:none;background:transparent;padding:6px 18px;border-radius:24px;font-size:.78rem;font-weight:600;cursor:pointer;color:var(--muted);font-family:inherit;transition:all .18s;}
+.tbl-toggle button.active{background:var(--purple);color:#fff;box-shadow:0 2px 8px rgba(124,58,237,.3);}
+/* TC columns */
+.tc-group{background:#faf7ff;}
+/* advanced table badge cells */
+.adv-hi{color:var(--green);font-weight:700;}
+.adv-lo{color:var(--red);}
+/* LEADERS */
+.leaders-outer{padding:28px 40px 48px;min-height:calc(100vh - 120px);}
+.leaders-header{margin-bottom:28px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+.leaders-header h2{font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:1px;text-transform:uppercase;}
+.leaders-header h2 span{color:var(--purple);}
+.leaders-header p{font-size:.72rem;color:var(--muted);margin-top:5px;}
+.leaders-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(274px,1fr));gap:16px;}
+.leader-card{background:var(--surface);border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 10px rgba(0,0,0,.06);transition:box-shadow .2s,border-color .2s;}
+.leader-card:hover{box-shadow:0 4px 20px rgba(124,58,237,.12);border-color:rgba(124,58,237,.25);}
+.leader-card-header{padding:13px 16px 11px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface2);}
+.leader-card-header h3{font-size:.7rem;font-weight:700;color:var(--purple);letter-spacing:1.5px;text-transform:uppercase;}
+.lc-bar{width:20px;height:2px;background:linear-gradient(90deg,var(--purple),var(--teal));border-radius:2px;opacity:.5;}
+.leader-card-body{padding:0;}
+.leader-row{display:flex;align-items:center;gap:11px;padding:10px 16px;border-bottom:1px solid #f0f2f7;position:relative;transition:background .12s;}
+.leader-row:last-child{border-bottom:none;}
+.leader-row:hover{background:#f7f5ff;}
+.leader-row.rank-1{background:linear-gradient(90deg,rgba(124,58,237,.05),transparent);}
+.leader-row.rank-1::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--purple),var(--teal));}
+.leader-rank{font-size:.68rem;font-weight:800;width:14px;text-align:center;flex-shrink:0;color:#cbd5e1;}
+.leader-rank.r1{color:var(--purple);font-size:.78rem;}
+.leader-rank.r2{color:var(--teal);}
+.leader-rank.r3{color:var(--orange);}
+.leader-avatar{width:30px;height:30px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:800;letter-spacing:.3px;background:var(--surface2);border:1.5px solid var(--border);color:var(--muted);}
+.leader-avatar.av1{background:var(--purple-soft);border-color:rgba(124,58,237,.2);color:var(--purple);}
+.leader-info{flex:1;min-width:0;}
+.leader-name{font-size:.76rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.leader-row.rank-1 .leader-name{font-weight:700;}
+.leader-team{font-size:.62rem;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+.leader-row.rank-1 .leader-team{color:var(--teal);}
+.leader-val-wrap{flex-shrink:0;text-align:right;}
+.leader-val{font-size:1.05rem;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums;}
+.leader-row.rank-1 .leader-val{color:var(--purple);font-size:1.18rem;}
+.leader-gp{font-size:.58rem;color:var(--muted);text-align:right;margin-top:2px;opacity:.6;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;position:relative;}
+body::before{content:'';position:fixed;top:-120px;right:-80px;width:420px;height:420px;background:radial-gradient(circle,rgba(124,58,237,.12) 0%,transparent 70%);pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;bottom:-120px;left:-80px;width:360px;height:360px;background:radial-gradient(circle,rgba(13,148,136,.08) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+/* HEADER */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 40px;display:flex;align-items:center;justify-content:space-between;position:relative;z-index:10;box-shadow:0 1px 0 var(--border);}
+.header-left{display:flex;align-items:center;gap:14px;}
+.ball-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--purple-d),var(--purple));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 20px rgba(124,58,237,.4);}
+.title{font-size:1.2rem;font-weight:800;color:var(--text);letter-spacing:-.3px;line-height:1;}
+.title span{color:var(--purple);}
+.subtitle{font-size:.71rem;color:var(--muted);margin-top:3px;letter-spacing:.3px;}
+.header-badges{display:flex;gap:8px;}
+.badge{font-size:.68rem;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:.5px;}
+.badge-p{background:var(--purple-soft);color:var(--purple);border:1px solid rgba(167,139,250,.25);}
+.badge-t{background:var(--teal-soft);color:var(--teal);border:1px solid rgba(45,212,191,.2);}
+
+/* MAIN TABS */
+.main-tabs{background:var(--surface);border-bottom:1px solid var(--border);padding:0 40px;position:relative;z-index:10;display:flex;gap:0;}
+.main-tab{padding:13px 22px;font-size:.8rem;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s;font-family:inherit;display:flex;align-items:center;gap:7px;letter-spacing:.2px;}
+.main-tab:hover{color:var(--text);}
+.main-tab.active{color:var(--purple);border-bottom-color:var(--purple);}
+.main-tab .tab-cat{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;opacity:.5;margin-right:2px;}
+
+/* SECTION */
+.section{display:none;}
+.section.active{display:block;}
+
+/* CONTROLS */
+.controls{padding:14px 40px 16px;display:flex;flex-direction:column;gap:9px;background:var(--surface);border-bottom:1px solid var(--border);position:relative;z-index:10;}
+.controls-left{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.controls-right{display:flex;flex-direction:column;gap:7px;}
+.controls-footer{display:flex;align-items:center;gap:10px;}
+.search-wrap{position:relative;min-width:180px;max-width:250px;}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+input[type=text],select,input[type=number]{background:var(--surface2);border:1.5px solid var(--border);color:var(--text);border-radius:8px;padding:7px 11px;font-size:.82rem;outline:none;font-family:inherit;transition:border-color .2s,box-shadow .2s;}
+input[type=text]{padding-left:32px;width:100%;}
+input[type=number]{width:80px;}
+input:focus,select:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,.10);}
+.fg{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.fg label{font-size:.71rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;}
+.sep{width:1px;height:22px;background:var(--border);align-self:center;}
+.stat-count{font-size:.81rem;color:var(--muted);}
+.stat-count span{color:var(--purple);font-weight:700;}
+.filter-row{display:flex;align-items:center;gap:7px;}
+.filter-row .flbl{font-size:.69rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;width:46px;}
+.filter-row select{min-width:136px;}
+.filter-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;}
+.op-select{min-width:56px;}
+.filter-row input[type=number]{width:76px;}
+.clear-btn{background:transparent;border:1.5px solid var(--border);color:var(--muted);border-radius:7px;padding:6px 11px;font-size:.74rem;cursor:pointer;font-family:inherit;transition:all .15s;font-weight:500;}
+.clear-btn:hover{border-color:var(--purple);color:var(--purple);background:var(--purple-soft);}
+
+/* TABLE */
+.table-wrap{padding:12px 40px 4px;position:relative;z-index:1;}
+.table-card{background:var(--surface);border-radius:14px;overflow-x:auto;overflow-y:visible;box-shadow:0 2px 12px rgba(0,0,0,.07);border:1px solid var(--border);transform:scaleY(-1);}
+.table-card>table{transform:scaleY(-1);}
+.scroll-bar-outer{display:none;}
+.scroll-bar-inner{display:none;}
+table{width:100%;border-collapse:collapse;font-size:.8rem;}
+thead th{position:sticky;top:0;z-index:10;background:#f4f5fb;color:var(--muted);text-transform:uppercase;font-size:.66rem;letter-spacing:.7px;font-weight:700;padding:11px 10px;text-align:right;cursor:pointer;white-space:nowrap;border-bottom:2px solid var(--border);transition:color .15s;user-select:none;}
+thead th:first-child,thead th:nth-child(2){text-align:left;}
+thead th:hover{color:var(--purple);}
+thead th.sd::after{content:' ▼';color:var(--purple);font-size:.58rem;}
+thead th.sa::after{content:' ▲';color:var(--purple);font-size:.58rem;}
+tbody tr{border-bottom:1px solid #f0f2f7;transition:background .12s;}
+tbody tr:hover{background:#f7f5ff;}
+tbody td{padding:9px 10px;text-align:right;white-space:nowrap;}
+tbody td:first-child{text-align:left;font-weight:600;}
+tbody td:nth-child(2){text-align:left;color:var(--muted);font-size:.76rem;}
+.pts-cell{color:var(--purple);font-weight:700;}
+.val-pos{color:var(--green);font-weight:600;}
+.val-neg{color:var(--red);font-weight:600;}
+.pct-hi{color:var(--teal);font-weight:600;}
+.top1 td:first-child::before{content:'🥇 ';}
+.top2 td:first-child::before{content:'🥈 ';}
+.top3 td:first-child::before{content:'🥉 ';}
+.win-rate-high{color:var(--green);font-weight:700;}
+.win-rate-mid{color:var(--orange);font-weight:600;}
+.win-rate-low{color:var(--red);font-weight:600;}
+.ortg-hi{color:var(--purple);font-weight:700;}
+.drtg-lo{color:var(--teal);font-weight:700;}
+.netrtg-pos{color:var(--green);font-weight:700;}
+.netrtg-neg{color:var(--red);font-weight:700;}
+
+/* CHART */
+.chart-outer{padding:22px 40px 40px;position:relative;z-index:1;}
+.chart-controls{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:18px;box-shadow:0 1px 6px rgba(0,0,0,.05);}
+.axis-group{display:flex;flex-direction:column;gap:5px;min-width:148px;}
+.axis-group label{font-size:.68rem;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:700;}
+.ax-x{color:var(--teal)!important;}
+.ax-y{color:var(--purple)!important;}
+.axis-group select{padding:7px 11px;}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.07);}
+canvas{display:block;width:100%;cursor:crosshair;}
+.chart-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:.72rem;color:var(--muted);}
+.ldot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:4px;}
+
+/* TOOLTIP */
+.tt{position:fixed;pointer-events:none;z-index:1000;background:#fff;border:1.5px solid var(--purple);border-radius:10px;padding:10px 14px;font-size:.79rem;min-width:180px;box-shadow:0 8px 32px rgba(124,58,237,.15);display:none;color:var(--text);}
+.tt .tn{font-weight:700;margin-bottom:3px;}
+.tt .ts{color:var(--muted);font-size:.71rem;margin-bottom:7px;}
+.tt .tr{display:flex;justify-content:space-between;gap:16px;color:var(--muted);margin-bottom:2px;}
+.tt .tr span:last-child{color:var(--text);font-weight:600;}
+.tt .tx span:first-child{color:var(--teal);}
+.tt .ty span:first-child{color:var(--purple);}
+
+::-webkit-scrollbar{height:8px;width:8px;}
+::-webkit-scrollbar-track{background:#eef0f6;border-radius:4px;}
+::-webkit-scrollbar-thumb{background:#c4c9d9;border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background:var(--purple-l);}
+.table-card::-webkit-scrollbar{height:10px;}
+.table-card::-webkit-scrollbar-track{background:#f0f2f7;}
+.table-card::-webkit-scrollbar-thumb{background:#a5b4d0;border-radius:5px;}
+.table-card::-webkit-scrollbar-thumb:hover{background:var(--purple);}
+thead .rank-th{text-align:center!important;background:#f4f5fb;color:var(--muted);min-width:32px;width:32px;}
+.rank-cell{color:var(--muted);font-size:.72rem;font-weight:700;text-align:center!important;min-width:32px;width:32px;background:#fafbfe;}
+.filter2-row{display:flex;align-items:center;gap:6px;}
+
+/* TABLE VIEW TOGGLE */
+.tbl-toggle-wrap{padding:10px 40px 0;background:var(--surface);}
+.tbl-toggle{display:inline-flex;background:var(--bg);border:1px solid var(--border);border-radius:30px;padding:3px;gap:2px;}
+.tbl-toggle button{border:none;background:transparent;padding:6px 18px;border-radius:24px;font-size:.78rem;font-weight:600;cursor:pointer;color:var(--muted);font-family:inherit;transition:all .18s;}
+.tbl-toggle button.active{background:var(--purple);color:#fff;box-shadow:0 2px 8px rgba(124,58,237,.3);}
+/* TC columns */
+.tc-group{background:#faf7ff;}
+/* advanced table badge cells */
+.adv-hi{color:var(--green);font-weight:700;}
+.adv-lo{color:var(--red);}
+
+/* LEADERS */
+.leaders-outer{padding:28px 40px 48px;min-height:calc(100vh - 120px);}
+.leaders-header{margin-bottom:28px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+.leaders-header h2{font-size:1.05rem;font-weight:700;color:var(--text);letter-spacing:.5px;}
+.leaders-header h2 span{color:var(--purple);}
+.leaders-header p{font-size:.72rem;color:var(--muted);margin-top:5px;}
+.leaders-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(274px,1fr));gap:16px;}
+.leader-card{background:var(--surface);border-radius:14px;overflow:hidden;border:1px solid var(--border);box-shadow:0 2px 10px rgba(0,0,0,.06);transition:box-shadow .2s,border-color .2s;}
+.leader-card:hover{box-shadow:0 4px 20px rgba(124,58,237,.12);border-color:rgba(124,58,237,.25);}
+.leader-card-header{padding:13px 16px 11px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface2);}
+.leader-card-header h3{font-size:.7rem;font-weight:700;color:var(--purple);letter-spacing:1.5px;text-transform:uppercase;}
+.lc-bar{width:20px;height:2px;background:linear-gradient(90deg,var(--purple),var(--teal));border-radius:2px;opacity:.5;}
+.leader-card-body{padding:0;}
+.leader-row{display:flex;align-items:center;gap:11px;padding:10px 16px;border-bottom:1px solid #f0f2f7;position:relative;transition:background .12s;}
+.leader-row:last-child{border-bottom:none;}
+.leader-row:hover{background:#f7f5ff;}
+.leader-row.rank-1{background:linear-gradient(90deg,rgba(124,58,237,.05),transparent);}
+.leader-row.rank-1::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--purple),var(--teal));}
+.leader-rank{font-size:.68rem;font-weight:800;width:14px;text-align:center;flex-shrink:0;color:#cbd5e1;}
+.leader-rank.r1{color:var(--purple);font-size:.78rem;}
+.leader-rank.r2{color:var(--teal);}
+.leader-rank.r3{color:var(--orange);}
+.leader-avatar{width:30px;height:30px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:800;letter-spacing:.3px;background:var(--surface2);border:1.5px solid var(--border);color:var(--muted);}
+.leader-avatar.av1{background:var(--purple-soft);border-color:rgba(124,58,237,.2);color:var(--purple);}
+.leader-info{flex:1;min-width:0;}
+.leader-name{font-size:.76rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.leader-row.rank-1 .leader-name{font-weight:700;}
+.leader-team{font-size:.62rem;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+.leader-row.rank-1 .leader-team{color:var(--teal);}
+.leader-val-wrap{flex-shrink:0;text-align:right;}
+.leader-val{font-size:1.05rem;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums;}
+.leader-row.rank-1 .leader-val{color:var(--purple);font-size:1.18rem;}
+.leader-gp{font-size:.58rem;color:var(--muted);text-align:right;margin-top:2px;opacity:.6;}
+/* ===== TEAM COMPARISON ===== */
+.cmp-toggle-btn{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:7px 16px;font-size:.82rem;font-weight:600;color:var(--text);cursor:pointer;transition:all .18s;margin-left:auto;}
+.cmp-toggle-btn:hover,.cmp-toggle-btn.cmp-active{background:#f0ecff;border-color:#7c3aed;color:#7c3aed;}
+.cmp-panel{background:var(--surface);border:1.5px solid #d8d0f5;border-radius:14px;padding:20px 24px 16px;margin-bottom:18px;box-shadow:0 2px 12px rgba(124,58,237,.08);}
+.cmp-panel-title{font-size:.85rem;font-weight:700;color:#7c3aed;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.cmp-chips-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px;min-height:32px;}
+.cmp-chips-empty{font-size:.78rem;color:var(--muted);font-style:italic;}
+.cmp-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:.78rem;font-weight:700;color:#fff;cursor:pointer;transition:opacity .15s;}
+.cmp-chip:hover{opacity:.8;}
+.cmp-chip-x{font-size:.9rem;line-height:1;opacity:.75;}
+.team-row-selectable{cursor:pointer;transition:background .12s;}
+.team-row-selectable:hover{background:rgba(124,58,237,.05)!important;}
+.team-sel-0{border-left:4px solid #7c3aed!important;}
+.team-sel-1{border-left:4px solid #0d9488!important;}
+.team-sel-2{border-left:4px solid #d97706!important;}
+.team-sel-3{border-left:4px solid #dc2626!important;}
+.team-sel-indicator{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:.64rem;font-weight:800;color:#fff;margin-right:4px;vertical-align:middle;flex-shrink:0;}
+.cmp-selectors{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:18px;}
+.cmp-sel-wrap{display:flex;flex-direction:column;gap:4px;}
+.cmp-sel-wrap label{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.cmp-sel-wrap select{min-width:150px;border-radius:8px;border:1.5px solid var(--border);padding:6px 10px;font-size:.82rem;color:var(--text);background:var(--bg);}
+.cmp-clear-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:6px 14px;font-size:.78rem;color:var(--muted);cursor:pointer;align-self:flex-end;}
+.cmp-clear-btn:hover{border-color:#7c3aed;color:#7c3aed;}
+.cmp-content{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.cmp-cards{display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;}
+.cmp-card{min-width:200px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;flex:1;}
+.cmp-card-header{padding:9px 14px;font-size:.8rem;font-weight:800;color:#fff;letter-spacing:.01em;}
+.cmp-stat-list{padding:6px 0;}
+.cmp-stat-row{display:flex;justify-content:space-between;align-items:center;padding:4px 14px;font-size:.77rem;}
+.cmp-stat-row:nth-child(even){background:rgba(0,0,0,.025);}
+.cmp-stat-label{color:var(--muted);font-weight:500;}
+.cmp-stat-val{font-weight:700;color:var(--text);}
+.cmp-stat-val.best{color:#059669;font-size:.82rem;}
+.cmp-chart-wrap{background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:16px;}
+.cmp-chart-title{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;}
+.cmp-bar-group{margin-bottom:10px;}
+.cmp-bar-lbl{font-size:.7rem;font-weight:600;color:var(--text);margin-bottom:4px;}
+.cmp-bar-track{height:8px;background:#e8ecf4;border-radius:999px;position:relative;overflow:hidden;}
+.cmp-bar-fill{height:8px;border-radius:999px;position:absolute;left:0;transition:width .4s ease;}
+.cmp-bar-vals{display:flex;gap:8px;margin-top:3px;flex-wrap:wrap;}
+.cmp-bar-chip{font-size:.66rem;font-weight:700;padding:1px 6px;border-radius:4px;color:#fff;}
+.cmp-empty-msg{color:var(--muted);font-size:.83rem;font-style:italic;}
 </style>
 </head>
 <body>
@@ -151,20 +416,25 @@ canvas{display:block;width:100%;cursor:crosshair;}
     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="5" cy="18" r="2"/><circle cx="12" cy="10" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="8" cy="14" r="2"/><circle cx="16" cy="16" r="2"/></svg>
     <span class="tab-cat">Equipos</span> Comparar
   </button>
+  <button class="main-tab" onclick="switchSection('lideres')">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M17 3l-5 5-4-3-5 4M2 7l5-4 4 3 5-5 5 3"/></svg>
+    <span class="tab-cat">Jugadores</span> Líderes
+  </button>
 </div>
 
 <!-- ============================= JUGADORES TABLA ============================= -->
 <div class="section active" id="sec-j-tabla">
+  <div class="scroll-bar-outer" id="jScrollOuter"><div class="scroll-bar-inner" id="jScrollInner"></div></div>
   <div class="controls">
-    <div class="search-wrap">
-      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" id="jSearch" placeholder="Buscar jugador..." oninput="onJFilter()"/>
-    </div>
-    <div class="fg">
-      <label>Equipo</label>
-      <select id="jTeam" onchange="onJFilter()">
-        <option value="">Todos</option>
-        <option value="AMANCAY (LR)">AMANCAY (LR)</option>
+    <div class="controls-left">
+      <div class="search-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="jSearch" placeholder="Buscar jugador..." oninput="onJFilter()"/>
+      </div>
+      <div class="fg">
+        <label>Equipo</label>
+        <select id="jTeam" onchange="onJFilter()"><option value="">Todos</option>
+          <option value="AMANCAY (LR)">AMANCAY (LR)</option>
 <option value="BARRIO PARQUE">BARRIO PARQUE</option>
 <option value="BOCHAS (CC)">BOCHAS (CC)</option>
 <option value="CENTENARIO (VT)">CENTENARIO (VT)</option>
@@ -197,55 +467,110 @@ canvas{display:block;width:100%;cursor:crosshair;}
 <option value="SP. SUARDI">SP. SUARDI</option>
 <option value="UNION (MDP)">UNION (MDP)</option>
 <option value="VILLA MITRE (BB)">VILLA MITRE (BB)</option>
-<option value="VILLA SAN MARTIN">VILLA SAN MARTIN</option>
-      </select>
+<option value="VILLA SAN MARTIN">VILLA SAN MARTIN</option></select>
+      </div>
+      <div class="fg">
+        <label>Mín. PJ</label>
+        <select id="jMinG" onchange="onJFilter()" style="min-width:68px">
+          <option value="0">Todos</option><option value="10">10+</option>
+          <option value="15">15+</option><option value="20" selected>20+</option>
+          <option value="23">23+</option>
+        </select>
+      </div>
     </div>
-    <div class="fg">
-      <label>Mín. PJ</label>
-      <select id="jMinG" onchange="onJFilter()" style="min-width:68px">
-        <option value="0">Todos</option>
-        <option value="10">10+</option>
-        <option value="15">15+</option>
-        <option value="20" selected>20+</option>
-        <option value="23">23+</option>
-      </select>
+    <div class="controls-right">
+      <div class="filter-grid">
+        <div class="filter-row">
+          <span class="flbl">Filtro 1</span>
+          <select id="jAttr" onchange="onJFilter()"><option value="">— Atributo —</option>
+            <option value="PPG">Pts/partido</option><option value="MPG">Min/partido</option>
+            <option value="VPG">Val/partido</option><option value="APG">Ast/partido</option>
+            <option value="RPG">Reb Tot/partido</option><option value="RDPG">Reb Def/partido</option>
+            <option value="ROPG">Reb Of/partido</option><option value="SPG">Rec/partido</option>
+            <option value="BPG">Tap/partido</option><option value="TPG">Pér/partido</option>
+            <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
+            <option value="ORtg">ORtg</option><option value="USG%">USG%</option>
+            <option value="ORB%">ORB%</option><option value="EFG%">EFG%</option>
+            <option value="TS%">TS%</option><option value="POS">Posesiones/p</option>
+            <option value="PJ">PJ</option></select>
+          <select id="jOp" class="op-select" onchange="onJFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+          <input type="number" id="jAttrVal" placeholder="valor" step="0.1" oninput="onJFilter()"/>
+        </div>
+        <div class="filter-row">
+          <span class="flbl">Filtro 2</span>
+          <select id="jAttr2" onchange="onJFilter()"><option value="">— Atributo —</option>
+            <option value="PPG">Pts/partido</option><option value="MPG">Min/partido</option>
+            <option value="VPG">Val/partido</option><option value="APG">Ast/partido</option>
+            <option value="RPG">Reb Tot/partido</option><option value="RDPG">Reb Def/partido</option>
+            <option value="ROPG">Reb Of/partido</option><option value="SPG">Rec/partido</option>
+            <option value="BPG">Tap/partido</option><option value="TPG">Pér/partido</option>
+            <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
+            <option value="ORtg">ORtg</option><option value="USG%">USG%</option>
+            <option value="ORB%">ORB%</option><option value="EFG%">EFG%</option>
+            <option value="TS%">TS%</option><option value="POS">Posesiones/p</option>
+            <option value="PJ">PJ</option></select>
+          <select id="jOp2" class="op-select" onchange="onJFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+          <input type="number" id="jAttrVal2" placeholder="valor" step="0.1" oninput="onJFilter()"/>
+        </div>
+        <div class="filter-row">
+          <span class="flbl">Filtro 3</span>
+          <select id="jAttr3" onchange="onJFilter()"><option value="">— Atributo —</option>
+            <option value="PPG">Pts/partido</option><option value="MPG">Min/partido</option>
+            <option value="VPG">Val/partido</option><option value="APG">Ast/partido</option>
+            <option value="RPG">Reb Tot/partido</option><option value="RDPG">Reb Def/partido</option>
+            <option value="ROPG">Reb Of/partido</option><option value="SPG">Rec/partido</option>
+            <option value="BPG">Tap/partido</option><option value="TPG">Pér/partido</option>
+            <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
+            <option value="ORtg">ORtg</option><option value="USG%">USG%</option>
+            <option value="ORB%">ORB%</option><option value="EFG%">EFG%</option>
+            <option value="TS%">TS%</option><option value="POS">Posesiones/p</option>
+            <option value="PJ">PJ</option></select>
+          <select id="jOp3" class="op-select" onchange="onJFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+          <input type="number" id="jAttrVal3" placeholder="valor" step="0.1" oninput="onJFilter()"/>
+        </div>
+        <div class="filter-row">
+          <span class="flbl">Filtro 4</span>
+          <select id="jAttr4" onchange="onJFilter()"><option value="">— Atributo —</option>
+            <option value="PPG">Pts/partido</option><option value="MPG">Min/partido</option>
+            <option value="VPG">Val/partido</option><option value="APG">Ast/partido</option>
+            <option value="RPG">Reb Tot/partido</option><option value="RDPG">Reb Def/partido</option>
+            <option value="ROPG">Reb Of/partido</option><option value="SPG">Rec/partido</option>
+            <option value="BPG">Tap/partido</option><option value="TPG">Pér/partido</option>
+            <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
+            <option value="ORtg">ORtg</option><option value="USG%">USG%</option>
+            <option value="ORB%">ORB%</option><option value="EFG%">EFG%</option>
+            <option value="TS%">TS%</option><option value="POS">Posesiones/p</option>
+            <option value="PJ">PJ</option></select>
+          <select id="jOp4" class="op-select" onchange="onJFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+          <input type="number" id="jAttrVal4" placeholder="valor" step="0.1" oninput="onJFilter()"/>
+        </div>
+      </div>
     </div>
-    <div class="sep"></div>
-    <div class="attr-filter">
-      <label style="font-size:.71rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Filtro</label>
-      <select id="jAttr" onchange="onJFilter()">
-        <option value="">— Atributo —</option>
-        <option value="PPG">Pts/partido</option>
-        <option value="APG">Ast/partido</option>
-        <option value="RPG">Reb/partido</option>
-        <option value="SPG">Rec/partido</option>
-        <option value="BPG">Tap/partido</option>
-        <option value="TPG">Pér/partido</option>
-        <option value="MPG">Min/partido</option>
-        <option value="VPG">Val/partido</option>
-        <option value="T2%">% T2</option>
-        <option value="T3%">% T3</option>
-        <option value="T1%">% T1</option>
-        <option value="PJ">PJ</option>
-      </select>
-      <select id="jOp" class="op-select" onchange="onJFilter()">
-        <option value="gte">≥</option>
-        <option value="lte">≤</option>
-        <option value="eq">=</option>
-      </select>
-      <input type="number" id="jAttrVal" placeholder="valor" step="0.1" oninput="onJFilter()"/>
-      <button class="clear-btn" onclick="clearJFilter()">✕ Limpiar</button>
+    <div class="controls-footer">
+      <button class="clear-btn" onclick="clearJFilter()">✕ Limpiar filtros</button>
+      <div class="stat-count">Mostrando <span id="jCount">—</span> jugadores</div>
     </div>
-    <div class="stat-count">Mostrando <span id="jCount">—</span> jugadores</div>
   </div>
-  <div class="table-wrap">
-    <div class="table-card">
+    <div class="tbl-toggle-wrap">
+      <div class="tbl-toggle">
+        <button class="active" id="jToggleBasic" onclick="toggleJTable('basic')">📊 Básica</button>
+        <button id="jToggleAdv" onclick="toggleJTable('adv')">🔬 Avanzada</button>
+      </div>
+    </div>
+    <div class="table-wrap" id="jTableWrap">
+    <div class="table-card" id="jCardBasic">
       <table>
         <thead><tr>
+          <th class="rank-th">#</th>
           <th data-c="name" data-d="asc">Jugador</th>
           <th data-c="Equipo" data-d="asc">Equipo</th>
           <th data-c="PJ" data-d="desc">PJ</th>
+          <th data-c="MPG" data-d="desc">MIN</th>
+          <th data-c="VPG" data-d="desc">VAL</th>
           <th data-c="PPG" data-d="desc">PTS</th>
+          <th data-c="TCAPG" data-d="desc" class="tc-group">TCC</th>
+          <th data-c="TCIPG" data-d="desc" class="tc-group">TCI</th>
+          <th data-c="TC%" data-d="desc" class="tc-group">TC%</th>
           <th data-c="T2APG" data-d="desc">T2C</th>
           <th data-c="T2IPG" data-d="desc">T2I</th>
           <th data-c="T2%" data-d="desc">T2%</th>
@@ -262,16 +587,34 @@ canvas{display:block;width:100%;cursor:crosshair;}
           <th data-c="SPG" data-d="desc">REC</th>
           <th data-c="TPG" data-d="desc">PÉR</th>
           <th data-c="BPG" data-d="desc">TAP</th>
-          <th data-c="VPG" data-d="desc">VAL</th>
-          <th data-c="MPG" data-d="desc">MIN</th>
         </tr></thead>
         <tbody id="jTbody"></tbody>
       </table>
     </div>
+    <div class="table-card" id="jCardAdv" style="display:none">
+      <table>
+        <thead><tr>
+          <th class="rank-th">#</th>
+          <th data-ca="name" data-da="asc">Jugador</th>
+          <th data-ca="Equipo" data-da="asc">Equipo</th>
+          <th data-ca="PJ" data-da="desc">PJ</th>
+          <th data-ca="MPG" data-da="desc">MIN</th>
+          <th data-ca="POS" data-da="desc">POS</th>
+          <th data-ca="PTS/POS" data-da="desc">PTS/POS</th>
+          <th data-ca="EFG%" data-da="desc">EFG%</th>
+          <th data-ca="TS%" data-da="desc">TS%</th>
+          <th data-ca="TO%" data-da="asc">TO%</th>
+          <th data-ca="AST/TO" data-da="desc">AST/TO</th>
+          <th data-ca="3PI/TI" data-da="desc">3PI/TI</th>
+          <th data-ca="ORtg" data-da="desc" title="Puntos producidos por 100 posesiones individuales">ORtg</th>
+          <th data-ca="USG%" data-da="desc" title="% de posesiones del equipo usadas por el jugador">USG%</th>
+          <th data-ca="ORB%" data-da="desc" title="% de rebotes ofensivos disponibles capturados">ORB%</th>
+        </tr></thead>
+        <tbody id="jTbodyAdv"></tbody>
+      </table>
+    </div>
   </div>
 </div>
-
-<!-- ============================= JUGADORES CHART ============================= -->
 <div class="section" id="sec-j-chart">
   <div class="chart-outer">
     <div class="chart-controls">
@@ -294,6 +637,11 @@ canvas{display:block;width:100%;cursor:crosshair;}
           <option value="RDPG">Reb. Def./partido</option>
           <option value="ROPG">Reb. Of./partido</option>
           <option value="MPG">Minutos/partido</option>
+          <option value="ORtg">ORtg (indiv.)</option>
+          <option value="USG%">USG%</option>
+          <option value="ORB%">ORB%</option>
+          <option value="EFG%">EFG%</option>
+          <option value="TS%">TS%</option>
           <option value="PJ">PJ</option>
         </select>
       </div>
@@ -316,6 +664,11 @@ canvas{display:block;width:100%;cursor:crosshair;}
           <option value="T1%">% T1</option>
           <option value="RDPG">Reb. Def./partido</option>
           <option value="ROPG">Reb. Of./partido</option>
+          <option value="ORtg">ORtg (indiv.)</option>
+          <option value="USG%">USG%</option>
+          <option value="ORB%">ORB%</option>
+          <option value="EFG%">EFG%</option>
+          <option value="TS%">TS%</option>
           <option value="PJ">PJ</option>
         </select>
       </div>
@@ -349,58 +702,118 @@ canvas{display:block;width:100%;cursor:crosshair;}
 <!-- ============================= EQUIPOS TABLA ============================= -->
 <div class="section" id="sec-t-tabla">
   <div class="controls">
-    <div class="fg">
-      <label>Ordenar por</label>
-      <select id="tSort" onchange="onTFilter()">
-        <option value="NetRtg">Net Rating</option>
-        <option value="ORtg">ORtg</option>
-        <option value="DRtg-asc">DRtg (menor = mejor)</option>
-        <option value="W%">W%</option>
-        <option value="Ganados">Victorias</option>
-        <option value="PTSPG">PTS/partido</option>
-        <option value="RTPG">REB/partido</option>
-        <option value="ASTPG">AST/partido</option>
-        <option value="POSPG">Posesiones/partido</option>
-      </select>
+    <div class="controls-left">
+      <div class="fg">
+        <label>Ordenar por</label>
+        <select id="tSort" onchange="onTFilter()">
+          <option value="NetRtg">Net Rating</option>
+          <option value="ORtg">ORtg</option>
+          <option value="DRtg-asc">DRtg (menor = mejor)</option>
+          <option value="EFG%">EFG%</option>
+          <option value="TS%">TS%</option>
+          <option value="TOV%-asc">TOV% (menor = mejor)</option>
+          <option value="ORB%">ORB%</option>
+          <option value="PACE">PACE</option>
+          <option value="W%">W%</option>
+          <option value="Ganados">Victorias</option>
+          <option value="PTSPG">PTS/partido</option>
+          <option value="RTPG">REB/partido</option>
+          <option value="ASTPG">AST/partido</option>
+          <option value="POSPG">Posesiones/partido</option>
+        </select>
+      </div>
     </div>
-    <div class="sep"></div>
-    <div class="attr-filter">
-      <label style="font-size:.71rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Filtro</label>
-      <select id="tAttr" onchange="onTFilter()">
-        <option value="">— Atributo —</option>
-        <option value="ORtg">ORtg</option>
-        <option value="DRtg">DRtg</option>
-        <option value="NetRtg">Net Rating</option>
-        <option value="W%">W%</option>
-        <option value="PTSPG">PTS/partido</option>
-        <option value="POSPG">Posesiones/partido</option>
-        <option value="T2%">% T2</option>
-        <option value="T3%">% T3</option>
-        <option value="PJ">PJ</option>
-      </select>
-      <select id="tOp" class="op-select" onchange="onTFilter()">
-        <option value="gte">≥</option>
-        <option value="lte">≤</option>
-        <option value="eq">=</option>
-      </select>
-      <input type="number" id="tAttrVal" placeholder="valor" step="0.1" oninput="onTFilter()"/>
-      <button class="clear-btn" onclick="clearTFilter()">✕ Limpiar</button>
+    <div class="controls-right">
+      <div class="filter-grid">
+        <div class="filter-row">
+          <span class="flbl">Filtro 1</span>
+          <select id="tAttr" onchange="onTFilter()"><option value="">— Atributo —</option>
+          <option value="ORtg">ORtg</option><option value="DRtg">DRtg</option><option value="NetRtg">Net Rating</option>
+          <option value="EFG%">EFG%</option><option value="TS%">TS%</option><option value="TOV%">TOV%</option><option value="ORB%">ORB%</option><option value="PACE">PACE</option>
+          <option value="W%">W%</option><option value="Ganados">Victorias</option><option value="POSPG">Posesiones/p</option>
+          <option value="PTSPG">PTS/p</option><option value="RTPG">REB/p</option>
+          <option value="RDPG">Reb Def/p</option><option value="ROPG">Reb Of/p</option>
+          <option value="ASTPG">AST/p</option><option value="RECPG">REC/p</option>
+          <option value="PERPG">PÉR/p</option><option value="T2%">% T2</option>
+          <option value="T3%">% T3</option><option value="T1%">% T1</option>
+          <option value="PJ">PJ</option></select>
+          <select id="tOp" class="op-select" onchange="onTFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+          <input type="number" id="tAttrVal" placeholder="valor" step="0.1" oninput="onTFilter()"/>
+        </div>
+        <div class="filter-row">
+          <span class="flbl">Filtro 2</span>
+          <select id="tAttr2" onchange="onTFilter()"><option value="">— Atributo —</option>
+          <option value="ORtg">ORtg</option><option value="DRtg">DRtg</option><option value="NetRtg">Net Rating</option>
+          <option value="EFG%">EFG%</option><option value="TS%">TS%</option><option value="TOV%">TOV%</option><option value="ORB%">ORB%</option><option value="PACE">PACE</option>
+          <option value="W%">W%</option><option value="Ganados">Victorias</option><option value="POSPG">Posesiones/p</option>
+          <option value="PTSPG">PTS/p</option><option value="RTPG">REB/p</option>
+          <option value="RDPG">Reb Def/p</option><option value="ROPG">Reb Of/p</option>
+          <option value="ASTPG">AST/p</option><option value="RECPG">REC/p</option>
+          <option value="PERPG">PÉR/p</option><option value="T2%">% T2</option>
+          <option value="T3%">% T3</option><option value="T1%">% T1</option>
+          <option value="PJ">PJ</option></select>
+          <select id="tOp2" class="op-select" onchange="onTFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+          <input type="number" id="tAttrVal2" placeholder="valor" step="0.1" oninput="onTFilter()"/>
+        </div>
+        <div class="filter-row">
+          <span class="flbl">Filtro 3</span>
+          <select id="tAttr3" onchange="onTFilter()"><option value="">— Atributo —</option>
+          <option value="ORtg">ORtg</option><option value="DRtg">DRtg</option><option value="NetRtg">Net Rating</option>
+          <option value="EFG%">EFG%</option><option value="TS%">TS%</option><option value="TOV%">TOV%</option><option value="ORB%">ORB%</option><option value="PACE">PACE</option>
+          <option value="W%">W%</option><option value="Ganados">Victorias</option>
+          <option value="PTSPG">PTS/p</option><option value="RTPG">REB/p</option>
+          <option value="ASTPG">AST/p</option><option value="PERPG">PÉR/p</option>
+          <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
+          <option value="PJ">PJ</option></select>
+          <select id="tOp3" class="op-select" onchange="onTFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+          <input type="number" id="tAttrVal3" placeholder="valor" step="0.1" oninput="onTFilter()"/>
+        </div>
+        <div class="filter-row">
+          <span class="flbl">Filtro 4</span>
+          <select id="tAttr4" onchange="onTFilter()"><option value="">— Atributo —</option>
+          <option value="ORtg">ORtg</option><option value="DRtg">DRtg</option><option value="NetRtg">Net Rating</option>
+          <option value="EFG%">EFG%</option><option value="TS%">TS%</option><option value="TOV%">TOV%</option><option value="ORB%">ORB%</option><option value="PACE">PACE</option>
+          <option value="W%">W%</option><option value="Ganados">Victorias</option>
+          <option value="PTSPG">PTS/p</option><option value="RTPG">REB/p</option>
+          <option value="ASTPG">AST/p</option><option value="PERPG">PÉR/p</option>
+          <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
+          <option value="PJ">PJ</option></select>
+          <select id="tOp4" class="op-select" onchange="onTFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+          <input type="number" id="tAttrVal4" placeholder="valor" step="0.1" oninput="onTFilter()"/>
+        </div>
+      </div>
     </div>
-    <div class="stat-count">Mostrando <span id="tCount">—</span> equipos</div>
+    <div class="controls-footer">
+      <button class="clear-btn" onclick="clearTFilter()">✕ Limpiar filtros</button>
+      <div class="stat-count">Mostrando <span id="tCount">—</span> equipos</div>
+    </div>
   </div>
-  <div class="table-wrap">
-    <div class="table-card">
+  <div class="scroll-bar-outer" id="tScrollOuter"><div class="scroll-bar-inner" id="tScrollInner"></div></div>
+  <div class="tbl-toggle-wrap">
+    <div class="tbl-toggle">
+      <button class="active" id="tToggleBasic" onclick="toggleTTable('basic')">📊 Básica</button>
+      <button id="tToggleAdv" onclick="toggleTTable('adv')">🔬 Avanzada</button>
+    </div>
+    <button class="cmp-toggle-btn" id="cmpToggleBtn" onclick="toggleCmpPanel()">⚔️ Comparar equipos</button>
+  </div>
+  <!-- TEAM COMPARISON PANEL -->
+  <div id="cmpPanel" class="cmp-panel" style="display:none">
+    <div class="cmp-panel-title">⚔️ Comparador de Equipos <span style="font-size:.72rem;font-weight:500;color:var(--muted);margin-left:4px">— hacé clic en filas de la tabla para seleccionar hasta 4 equipos</span></div>
+    <div id="cmpChips" class="cmp-chips-row">
+      <span class="cmp-chips-empty">Ningún equipo seleccionado — hacé clic en las filas de la tabla ↓</span>
+    </div>
+    <div id="cmpResult"><p class="cmp-empty-msg">Seleccioná al menos 2 equipos para ver la comparación.</p></div>
+  </div>
+  <div class="table-wrap" id="tTableWrap">
+    <div class="table-card" id="tCardBasic">
       <table>
         <thead><tr>
+          <th class="rank-th">#</th>
           <th data-c="Equipo" data-d="asc">Equipo</th>
           <th data-c="PJ" data-d="desc">PJ</th>
           <th data-c="Ganados" data-d="desc">G</th>
           <th data-c="Perdidos" data-d="asc">P</th>
           <th data-c="W%" data-d="desc">W%</th>
-          <th data-c="POSPG" data-d="desc" title="Posesiones por partido">POS</th>
-          <th data-c="ORtg" data-d="desc" title="Eficiencia Ofensiva: Puntos por 100 posesiones">ORtg</th>
-          <th data-c="DRtg" data-d="asc" title="Eficiencia Defensiva: Puntos rivales por 100 posesiones">DRtg</th>
-          <th data-c="NetRtg" data-d="desc" title="Net Rating = ORtg - DRtg">NetRtg</th>
           <th data-c="PTSPG" data-d="desc">PTS</th>
           <th data-c="T2APG" data-d="desc">T2C</th>
           <th data-c="T2IPG" data-d="desc">T2I</th>
@@ -423,10 +836,33 @@ canvas{display:block;width:100%;cursor:crosshair;}
         <tbody id="tTbody"></tbody>
       </table>
     </div>
+    <div class="table-card" id="tCardAdv" style="display:none">
+      <table>
+        <thead><tr>
+          <th class="rank-th">#</th>
+          <th data-ca="Equipo" data-da="asc">Equipo</th>
+          <th data-ca="PJ" data-da="desc">PJ</th>
+          <th data-ca="Ganados" data-da="desc">G</th>
+          <th data-ca="W%" data-da="desc">W%</th>
+          <th data-ca="PACE" data-da="desc" title="Posesiones por partido (40')">PACE</th>
+          <th data-ca="ORtg" data-da="desc" title="Puntos anotados por 100 posesiones">ORtg</th>
+          <th data-ca="DRtg" data-da="asc" title="Puntos rivales por 100 posesiones (menor = mejor)">DRtg</th>
+          <th data-ca="NetRtg" data-da="desc" title="ORtg − DRtg">NetRtg</th>
+          <th data-ca="EFG%" data-da="desc" title="Efectividad de campo ajustada por triples">EFG%</th>
+          <th data-ca="TS%" data-da="desc" title="True Shooting: eficiencia real incluyendo TL">TS%</th>
+          <th data-ca="TOV%" data-da="asc" title="Pérdidas por cada 100 posesiones">TOV%</th>
+          <th data-ca="ORB%" data-da="desc" title="% de rebotes ofensivos disponibles capturados">ORB%</th>
+          <th data-ca="PTSPG" data-da="desc">PTS</th>
+          <th data-ca="ASTPG" data-da="desc">AST</th>
+          <th data-ca="PERPG" data-da="desc">PÉR</th>
+          <th data-ca="RECPG" data-da="desc">REC</th>
+          <th data-ca="TAPPG" data-da="desc">TAP</th>
+        </tr></thead>
+        <tbody id="tTbodyAdv"></tbody>
+      </table>
+    </div>
   </div>
 </div>
-
-<!-- ============================= EQUIPOS CHART ============================= -->
 <div class="section" id="sec-t-chart">
   <div class="chart-outer">
     <div class="chart-controls">
@@ -436,6 +872,11 @@ canvas{display:block;width:100%;cursor:crosshair;}
           <option value="ORtg" selected>ORtg (Ef. Ofensiva)</option>
           <option value="DRtg">DRtg (Ef. Defensiva)</option>
           <option value="NetRtg">Net Rating</option>
+          <option value="EFG%">EFG%</option>
+          <option value="TS%">TS%</option>
+          <option value="TOV%">TOV%</option>
+          <option value="ORB%">ORB%</option>
+          <option value="PACE">PACE</option>
           <option value="W%">W% (% Victorias)</option>
           <option value="PTSPG">Puntos/partido</option>
           <option value="POSPG">Posesiones/partido</option>
@@ -458,6 +899,11 @@ canvas{display:block;width:100%;cursor:crosshair;}
           <option value="DRtg" selected>DRtg (Ef. Defensiva)</option>
           <option value="ORtg">ORtg (Ef. Ofensiva)</option>
           <option value="NetRtg">Net Rating</option>
+          <option value="EFG%">EFG%</option>
+          <option value="TS%">TS%</option>
+          <option value="TOV%">TOV%</option>
+          <option value="ORB%">ORB%</option>
+          <option value="PACE">PACE</option>
           <option value="W%">W% (% Victorias)</option>
           <option value="PTSPG">Puntos/partido</option>
           <option value="POSPG">Posesiones/partido</option>
@@ -497,6 +943,17 @@ canvas{display:block;width:100%;cursor:crosshair;}
 
 <div class="tt" id="tooltip"></div>
 
+<!-- ============================= LÍDERES ============================= -->
+<div class="section" id="sec-lideres">
+  <div class="leaders-outer">
+    <div class="leaders-header">
+      <h2>Líderes <span>·</span> Últimos 5 partidos</h2>
+      <p>Promedio por partido · mín. 3 partidos jugados · porcentajes con mín. 10 intentos</p>
+    </div>
+    <div class="leaders-grid" id="leadersGrid"></div>
+  </div>
+</div>
+
 <script>
 // ============================================================
 // DATA
@@ -505,12 +962,50 @@ const RAW_J = [{"Nombre completo": "FEDER PONCE, HANS PAULO", "Equipo": "COLON (
 const RAW_T = [{"Equipo": "AMANCAY (LR)", "PJ": 26, "PTS": 2038, "T2A": 527, "T2I": 942, "T3A": 231, "T3I": 662, "T1A": 291, "T1I": 411, "RD": 691, "RO": 197, "AST": 394, "PER": 285, "REC": 186, "TAP": 42, "VAL": 2253, "Ganados": 18, "POS": 1872.84, "OPP_PTS": 1945, "OPP_POS": 1869.04, "T2%": 55.9, "T3%": 34.9, "T1%": 70.8, "W%": 69.2, "Perdidos": 8, "RT": 888, "PTSPG": 78.38, "T2APG": 20.27, "T2IPG": 36.23, "T3APG": 8.88, "T3IPG": 25.46, "T1APG": 11.19, "T1IPG": 15.81, "RDPG": 26.58, "ROPG": 7.58, "RTPG": 34.15, "ASTPG": 15.15, "PERPG": 10.96, "RECPG": 7.15, "TAPPG": 1.62, "VALPG": 86.65, "POSPG": 72.0, "ORtg": 108.8, "DRtg": 104.1, "NetRtg": 4.7}, {"Equipo": "BARRIO PARQUE", "PJ": 26, "PTS": 2109, "T2A": 534, "T2I": 934, "T3A": 239, "T3I": 746, "T1A": 324, "T1I": 451, "RD": 692, "RO": 210, "AST": 403, "PER": 277, "REC": 203, "TAP": 56, "VAL": 2248, "Ganados": 18, "POS": 1945.44, "OPP_PTS": 1925, "OPP_POS": 1914.4, "T2%": 57.2, "T3%": 32.0, "T1%": 71.8, "W%": 69.2, "Perdidos": 8, "RT": 902, "PTSPG": 81.12, "T2APG": 20.54, "T2IPG": 35.92, "T3APG": 9.19, "T3IPG": 28.69, "T1APG": 12.46, "T1IPG": 17.35, "RDPG": 26.62, "ROPG": 8.08, "RTPG": 34.69, "ASTPG": 15.5, "PERPG": 10.65, "RECPG": 7.81, "TAPPG": 2.15, "VALPG": 86.46, "POSPG": 74.8, "ORtg": 108.4, "DRtg": 100.6, "NetRtg": 7.8}, {"Equipo": "BOCHAS (CC)", "PJ": 26, "PTS": 2045, "T2A": 491, "T2I": 875, "T3A": 250, "T3I": 763, "T1A": 313, "T1I": 478, "RD": 712, "RO": 219, "AST": 393, "PER": 300, "REC": 132, "TAP": 30, "VAL": 2059, "Ganados": 14, "POS": 1929.32, "OPP_PTS": 2059, "OPP_POS": 1925.6, "T2%": 56.1, "T3%": 32.8, "T1%": 65.5, "W%": 53.8, "Perdidos": 12, "RT": 931, "PTSPG": 78.65, "T2APG": 18.88, "T2IPG": 33.65, "T3APG": 9.62, "T3IPG": 29.35, "T1APG": 12.04, "T1IPG": 18.38, "RDPG": 27.38, "ROPG": 8.42, "RTPG": 35.81, "ASTPG": 15.12, "PERPG": 11.54, "RECPG": 5.08, "TAPPG": 1.15, "VALPG": 79.19, "POSPG": 74.2, "ORtg": 106.0, "DRtg": 106.9, "NetRtg": -0.9}, {"Equipo": "CENTENARIO (VT)", "PJ": 24, "PTS": 1976, "T2A": 442, "T2I": 774, "T3A": 266, "T3I": 709, "T1A": 294, "T1I": 415, "RD": 649, "RO": 189, "AST": 442, "PER": 289, "REC": 158, "TAP": 25, "VAL": 2198, "Ganados": 13, "POS": 1765.6, "OPP_PTS": 1886, "OPP_POS": 1795.32, "T2%": 57.1, "T3%": 37.5, "T1%": 70.8, "W%": 54.2, "Perdidos": 11, "RT": 838, "PTSPG": 82.33, "T2APG": 18.42, "T2IPG": 32.25, "T3APG": 11.08, "T3IPG": 29.54, "T1APG": 12.25, "T1IPG": 17.29, "RDPG": 27.04, "ROPG": 7.88, "RTPG": 34.92, "ASTPG": 18.42, "PERPG": 12.04, "RECPG": 6.58, "TAPPG": 1.04, "VALPG": 91.58, "POSPG": 73.6, "ORtg": 111.9, "DRtg": 105.1, "NetRtg": 6.8}, {"Equipo": "CENTRAL ENTRERRIANO", "PJ": 24, "PTS": 1970, "T2A": 496, "T2I": 929, "T3A": 217, "T3I": 623, "T1A": 327, "T1I": 527, "RD": 634, "RO": 197, "AST": 327, "PER": 252, "REC": 207, "TAP": 56, "VAL": 2039, "Ganados": 18, "POS": 1838.88, "OPP_PTS": 1833, "OPP_POS": 1785.64, "T2%": 53.4, "T3%": 34.8, "T1%": 62.0, "W%": 75.0, "Perdidos": 6, "RT": 831, "PTSPG": 82.08, "T2APG": 20.67, "T2IPG": 38.71, "T3APG": 9.04, "T3IPG": 25.96, "T1APG": 13.62, "T1IPG": 21.96, "RDPG": 26.42, "ROPG": 8.21, "RTPG": 34.62, "ASTPG": 13.62, "PERPG": 10.5, "RECPG": 8.62, "TAPPG": 2.33, "VALPG": 84.96, "POSPG": 76.6, "ORtg": 107.1, "DRtg": 102.7, "NetRtg": 4.4}, {"Equipo": "CICLISTA (J)", "PJ": 26, "PTS": 1822, "T2A": 423, "T2I": 787, "T3A": 204, "T3I": 654, "T1A": 364, "T1I": 512, "RD": 635, "RO": 181, "AST": 297, "PER": 247, "REC": 159, "TAP": 47, "VAL": 1928, "Ganados": 8, "POS": 1732.28, "OPP_PTS": 1930, "OPP_POS": 1745.6, "T2%": 53.7, "T3%": 31.2, "T1%": 71.1, "W%": 30.8, "Perdidos": 18, "RT": 816, "PTSPG": 70.08, "T2APG": 16.27, "T2IPG": 30.27, "T3APG": 7.85, "T3IPG": 25.15, "T1APG": 14.0, "T1IPG": 19.69, "RDPG": 24.42, "ROPG": 6.96, "RTPG": 31.38, "ASTPG": 11.42, "PERPG": 9.5, "RECPG": 6.12, "TAPPG": 1.81, "VALPG": 74.15, "POSPG": 66.6, "ORtg": 105.2, "DRtg": 110.6, "NetRtg": -5.4}, {"Equipo": "COLON (SF)", "PJ": 23, "PTS": 1824, "T2A": 455, "T2I": 888, "T3A": 202, "T3I": 571, "T1A": 308, "T1I": 439, "RD": 571, "RO": 165, "AST": 270, "PER": 219, "REC": 164, "TAP": 19, "VAL": 1779, "Ganados": 7, "POS": 1706.16, "OPP_PTS": 1876, "OPP_POS": 1734.24, "T2%": 51.2, "T3%": 35.4, "T1%": 70.2, "W%": 30.4, "Perdidos": 16, "RT": 736, "PTSPG": 79.3, "T2APG": 19.78, "T2IPG": 38.61, "T3APG": 8.78, "T3IPG": 24.83, "T1APG": 13.39, "T1IPG": 19.09, "RDPG": 24.83, "ROPG": 7.17, "RTPG": 32.0, "ASTPG": 11.74, "PERPG": 9.52, "RECPG": 7.13, "TAPPG": 0.83, "VALPG": 77.35, "POSPG": 74.2, "ORtg": 106.9, "DRtg": 108.2, "NetRtg": -1.3}, {"Equipo": "COMUNICACIONES", "PJ": 22, "PTS": 1766, "T2A": 453, "T2I": 807, "T3A": 188, "T3I": 586, "T1A": 296, "T1I": 433, "RD": 594, "RO": 186, "AST": 290, "PER": 248, "REC": 157, "TAP": 54, "VAL": 1813, "Ganados": 10, "POS": 1645.52, "OPP_PTS": 1730, "OPP_POS": 1644.2, "T2%": 56.1, "T3%": 32.1, "T1%": 68.4, "W%": 45.5, "Perdidos": 12, "RT": 780, "PTSPG": 80.27, "T2APG": 20.59, "T2IPG": 36.68, "T3APG": 8.55, "T3IPG": 26.64, "T1APG": 13.45, "T1IPG": 19.68, "RDPG": 27.0, "ROPG": 8.45, "RTPG": 35.45, "ASTPG": 13.18, "PERPG": 11.27, "RECPG": 7.14, "TAPPG": 2.45, "VALPG": 82.41, "POSPG": 74.8, "ORtg": 107.3, "DRtg": 105.2, "NetRtg": 2.1}, {"Equipo": "DEP. NORTE", "PJ": 25, "PTS": 1791, "T2A": 406, "T2I": 767, "T3A": 229, "T3I": 753, "T1A": 292, "T1I": 477, "RD": 685, "RO": 170, "AST": 319, "PER": 316, "REC": 170, "TAP": 48, "VAL": 1796, "Ganados": 5, "POS": 1875.88, "OPP_PTS": 1957, "OPP_POS": 1884.32, "T2%": 52.9, "T3%": 30.4, "T1%": 61.2, "W%": 20.0, "Perdidos": 20, "RT": 855, "PTSPG": 71.64, "T2APG": 16.24, "T2IPG": 30.68, "T3APG": 9.16, "T3IPG": 30.12, "T1APG": 11.68, "T1IPG": 19.08, "RDPG": 27.4, "ROPG": 6.8, "RTPG": 34.2, "ASTPG": 12.76, "PERPG": 12.64, "RECPG": 6.8, "TAPPG": 1.92, "VALPG": 71.84, "POSPG": 75.0, "ORtg": 95.5, "DRtg": 103.9, "NetRtg": -8.4}, {"Equipo": "DEP. VIEDMA", "PJ": 25, "PTS": 1999, "T2A": 515, "T2I": 927, "T3A": 210, "T3I": 644, "T1A": 339, "T1I": 476, "RD": 669, "RO": 186, "AST": 317, "PER": 303, "REC": 162, "TAP": 26, "VAL": 1980, "Ganados": 13, "POS": 1897.44, "OPP_PTS": 2010, "OPP_POS": 1896.16, "T2%": 55.6, "T3%": 32.6, "T1%": 71.2, "W%": 52.0, "Perdidos": 12, "RT": 855, "PTSPG": 79.96, "T2APG": 20.6, "T2IPG": 37.08, "T3APG": 8.4, "T3IPG": 25.76, "T1APG": 13.56, "T1IPG": 19.04, "RDPG": 26.76, "ROPG": 7.44, "RTPG": 34.2, "ASTPG": 12.68, "PERPG": 12.12, "RECPG": 6.48, "TAPPG": 1.04, "VALPG": 79.2, "POSPG": 75.9, "ORtg": 105.4, "DRtg": 106.0, "NetRtg": -0.6}, {"Equipo": "EL TALAR", "PJ": 26, "PTS": 1930, "T2A": 462, "T2I": 888, "T3A": 221, "T3I": 704, "T1A": 343, "T1I": 527, "RD": 687, "RO": 184, "AST": 335, "PER": 273, "REC": 152, "TAP": 41, "VAL": 1904, "Ganados": 11, "POS": 1912.88, "OPP_PTS": 2004, "OPP_POS": 1908.8, "T2%": 52.0, "T3%": 31.4, "T1%": 65.1, "W%": 42.3, "Perdidos": 15, "RT": 871, "PTSPG": 74.23, "T2APG": 17.77, "T2IPG": 34.15, "T3APG": 8.5, "T3IPG": 27.08, "T1APG": 13.19, "T1IPG": 20.27, "RDPG": 26.42, "ROPG": 7.08, "RTPG": 33.5, "ASTPG": 12.88, "PERPG": 10.5, "RECPG": 5.85, "TAPPG": 1.58, "VALPG": 73.23, "POSPG": 73.6, "ORtg": 100.9, "DRtg": 105.0, "NetRtg": -4.1}, {"Equipo": "ESTUDIANTES (T)", "PJ": 23, "PTS": 1795, "T2A": 436, "T2I": 885, "T3A": 196, "T3I": 577, "T1A": 335, "T1I": 497, "RD": 617, "RO": 186, "AST": 301, "PER": 276, "REC": 177, "TAP": 34, "VAL": 1783, "Ganados": 12, "POS": 1770.68, "OPP_PTS": 1912, "OPP_POS": 1781.3600000000001, "T2%": 49.3, "T3%": 34.0, "T1%": 67.4, "W%": 52.2, "Perdidos": 11, "RT": 803, "PTSPG": 78.04, "T2APG": 18.96, "T2IPG": 38.48, "T3APG": 8.52, "T3IPG": 25.09, "T1APG": 14.57, "T1IPG": 21.61, "RDPG": 26.83, "ROPG": 8.09, "RTPG": 34.91, "ASTPG": 13.09, "PERPG": 12.0, "RECPG": 7.7, "TAPPG": 1.48, "VALPG": 77.52, "POSPG": 77.0, "ORtg": 101.4, "DRtg": 107.3, "NetRtg": -5.9}, {"Equipo": "FUSION RIOJANA", "PJ": 25, "PTS": 2048, "T2A": 530, "T2I": 966, "T3A": 202, "T3I": 637, "T1A": 382, "T1I": 550, "RD": 691, "RO": 210, "AST": 384, "PER": 330, "REC": 182, "TAP": 42, "VAL": 2146, "Ganados": 10, "POS": 1965.0, "OPP_PTS": 2151, "OPP_POS": 1977.2, "T2%": 54.9, "T3%": 31.7, "T1%": 69.5, "W%": 40.0, "Perdidos": 15, "RT": 901, "PTSPG": 81.92, "T2APG": 21.2, "T2IPG": 38.64, "T3APG": 8.08, "T3IPG": 25.48, "T1APG": 15.28, "T1IPG": 22.0, "RDPG": 27.64, "ROPG": 8.4, "RTPG": 36.04, "ASTPG": 15.36, "PERPG": 13.2, "RECPG": 7.28, "TAPPG": 1.68, "VALPG": 85.84, "POSPG": 78.6, "ORtg": 104.2, "DRtg": 108.8, "NetRtg": -4.6}, {"Equipo": "GIMNASIA (LP)", "PJ": 25, "PTS": 2000, "T2A": 482, "T2I": 878, "T3A": 217, "T3I": 696, "T1A": 385, "T1I": 549, "RD": 704, "RO": 210, "AST": 382, "PER": 292, "REC": 160, "TAP": 58, "VAL": 2091, "Ganados": 16, "POS": 1897.56, "OPP_PTS": 1960, "OPP_POS": 1891.52, "T2%": 54.9, "T3%": 31.2, "T1%": 70.1, "W%": 64.0, "Perdidos": 9, "RT": 914, "PTSPG": 80.0, "T2APG": 19.28, "T2IPG": 35.12, "T3APG": 8.68, "T3IPG": 27.84, "T1APG": 15.4, "T1IPG": 21.96, "RDPG": 28.16, "ROPG": 8.4, "RTPG": 36.56, "ASTPG": 15.28, "PERPG": 11.68, "RECPG": 6.4, "TAPPG": 2.32, "VALPG": 83.64, "POSPG": 75.9, "ORtg": 105.4, "DRtg": 103.6, "NetRtg": 1.8}, {"Equipo": "HINDU (C)", "PJ": 25, "PTS": 1950, "T2A": 426, "T2I": 806, "T3A": 245, "T3I": 710, "T1A": 363, "T1I": 539, "RD": 677, "RO": 159, "AST": 332, "PER": 301, "REC": 163, "TAP": 66, "VAL": 2007, "Ganados": 9, "POS": 1895.16, "OPP_PTS": 2019, "OPP_POS": 1832.76, "T2%": 52.9, "T3%": 34.5, "T1%": 67.3, "W%": 36.0, "Perdidos": 16, "RT": 836, "PTSPG": 78.0, "T2APG": 17.04, "T2IPG": 32.24, "T3APG": 9.8, "T3IPG": 28.4, "T1APG": 14.52, "T1IPG": 21.56, "RDPG": 27.08, "ROPG": 6.36, "RTPG": 33.44, "ASTPG": 13.28, "PERPG": 12.04, "RECPG": 6.52, "TAPPG": 2.64, "VALPG": 80.28, "POSPG": 75.8, "ORtg": 102.9, "DRtg": 110.2, "NetRtg": -7.3}, {"Equipo": "HURACAN (LH)", "PJ": 25, "PTS": 2002, "T2A": 518, "T2I": 972, "T3A": 217, "T3I": 665, "T1A": 315, "T1I": 451, "RD": 635, "RO": 194, "AST": 357, "PER": 255, "REC": 171, "TAP": 40, "VAL": 2006, "Ganados": 6, "POS": 1896.44, "OPP_PTS": 2192, "OPP_POS": 1903.12, "T2%": 53.3, "T3%": 32.6, "T1%": 69.8, "W%": 24.0, "Perdidos": 19, "RT": 829, "PTSPG": 80.08, "T2APG": 20.72, "T2IPG": 38.88, "T3APG": 8.68, "T3IPG": 26.6, "T1APG": 12.6, "T1IPG": 18.04, "RDPG": 25.4, "ROPG": 7.76, "RTPG": 33.16, "ASTPG": 14.28, "PERPG": 10.2, "RECPG": 6.84, "TAPPG": 1.6, "VALPG": 80.24, "POSPG": 75.9, "ORtg": 105.6, "DRtg": 115.2, "NetRtg": -9.6}, {"Equipo": "INDEPENDIENTE (SDE)", "PJ": 26, "PTS": 2120, "T2A": 636, "T2I": 1132, "T3A": 166, "T3I": 492, "T1A": 350, "T1I": 523, "RD": 694, "RO": 182, "AST": 355, "PER": 312, "REC": 163, "TAP": 24, "VAL": 2233, "Ganados": 10, "POS": 1984.12, "OPP_PTS": 2198, "OPP_POS": 1997.52, "T2%": 56.2, "T3%": 33.7, "T1%": 66.9, "W%": 38.5, "Perdidos": 16, "RT": 876, "PTSPG": 81.54, "T2APG": 24.46, "T2IPG": 43.54, "T3APG": 6.38, "T3IPG": 18.92, "T1APG": 13.46, "T1IPG": 20.12, "RDPG": 26.69, "ROPG": 7.0, "RTPG": 33.69, "ASTPG": 13.65, "PERPG": 12.0, "RECPG": 6.27, "TAPPG": 0.92, "VALPG": 85.88, "POSPG": 76.3, "ORtg": 106.8, "DRtg": 110.0, "NetRtg": -3.2}, {"Equipo": "JUJUY BASQUET", "PJ": 26, "PTS": 2127, "T2A": 452, "T2I": 896, "T3A": 294, "T3I": 885, "T1A": 341, "T1I": 535, "RD": 663, "RO": 327, "AST": 427, "PER": 305, "REC": 218, "TAP": 46, "VAL": 2143, "Ganados": 15, "POS": 1994.4, "OPP_PTS": 2111, "OPP_POS": 1990.4, "T2%": 50.4, "T3%": 33.2, "T1%": 63.7, "W%": 57.7, "Perdidos": 11, "RT": 990, "PTSPG": 81.81, "T2APG": 17.38, "T2IPG": 34.46, "T3APG": 11.31, "T3IPG": 34.04, "T1APG": 13.12, "T1IPG": 20.58, "RDPG": 25.5, "ROPG": 12.58, "RTPG": 38.08, "ASTPG": 16.42, "PERPG": 11.73, "RECPG": 8.38, "TAPPG": 1.77, "VALPG": 82.42, "POSPG": 76.7, "ORtg": 106.6, "DRtg": 106.1, "NetRtg": 0.5}, {"Equipo": "LA UNI\u00d3N (C)", "PJ": 24, "PTS": 1949, "T2A": 560, "T2I": 1047, "T3A": 167, "T3I": 566, "T1A": 328, "T1I": 486, "RD": 621, "RO": 253, "AST": 386, "PER": 289, "REC": 249, "TAP": 73, "VAL": 2109, "Ganados": 16, "POS": 1862.84, "OPP_PTS": 1860, "OPP_POS": 1858.04, "T2%": 53.5, "T3%": 29.5, "T1%": 67.5, "W%": 66.7, "Perdidos": 8, "RT": 874, "PTSPG": 81.21, "T2APG": 23.33, "T2IPG": 43.62, "T3APG": 6.96, "T3IPG": 23.58, "T1APG": 13.67, "T1IPG": 20.25, "RDPG": 25.88, "ROPG": 10.54, "RTPG": 36.42, "ASTPG": 16.08, "PERPG": 12.04, "RECPG": 10.38, "TAPPG": 3.04, "VALPG": 87.88, "POSPG": 77.6, "ORtg": 104.6, "DRtg": 100.1, "NetRtg": 4.5}, {"Equipo": "LAN\u00daS", "PJ": 27, "PTS": 2182, "T2A": 548, "T2I": 1037, "T3A": 247, "T3I": 758, "T1A": 345, "T1I": 478, "RD": 733, "RO": 287, "AST": 422, "PER": 313, "REC": 243, "TAP": 50, "VAL": 2375, "Ganados": 16, "POS": 2031.32, "OPP_PTS": 1969, "OPP_POS": 2037.76, "T2%": 52.8, "T3%": 32.6, "T1%": 72.2, "W%": 59.3, "Perdidos": 11, "RT": 1020, "PTSPG": 80.81, "T2APG": 20.3, "T2IPG": 38.41, "T3APG": 9.15, "T3IPG": 28.07, "T1APG": 12.78, "T1IPG": 17.7, "RDPG": 27.15, "ROPG": 10.63, "RTPG": 37.78, "ASTPG": 15.63, "PERPG": 11.59, "RECPG": 9.0, "TAPPG": 1.85, "VALPG": 87.96, "POSPG": 75.2, "ORtg": 107.4, "DRtg": 96.6, "NetRtg": 10.8}, {"Equipo": "PERGAMINO BASQUET", "PJ": 27, "PTS": 1926, "T2A": 472, "T2I": 916, "T3A": 212, "T3I": 763, "T1A": 346, "T1I": 504, "RD": 687, "RO": 271, "AST": 359, "PER": 368, "REC": 153, "TAP": 31, "VAL": 1839, "Ganados": 5, "POS": 1997.76, "OPP_PTS": 2197, "OPP_POS": 2008.6, "T2%": 51.5, "T3%": 27.8, "T1%": 68.7, "W%": 18.5, "Perdidos": 22, "RT": 958, "PTSPG": 71.33, "T2APG": 17.48, "T2IPG": 33.93, "T3APG": 7.85, "T3IPG": 28.26, "T1APG": 12.81, "T1IPG": 18.67, "RDPG": 25.44, "ROPG": 10.04, "RTPG": 35.48, "ASTPG": 13.3, "PERPG": 13.63, "RECPG": 5.67, "TAPPG": 1.15, "VALPG": 68.11, "POSPG": 74.0, "ORtg": 96.4, "DRtg": 109.4, "NetRtg": -13.0}, {"Equipo": "PICO F.C.", "PJ": 25, "PTS": 2013, "T2A": 471, "T2I": 873, "T3A": 260, "T3I": 725, "T1A": 291, "T1I": 457, "RD": 736, "RO": 233, "AST": 366, "PER": 262, "REC": 154, "TAP": 38, "VAL": 2127, "Ganados": 16, "POS": 1828.08, "OPP_PTS": 1892, "OPP_POS": 1853.04, "T2%": 54.0, "T3%": 35.9, "T1%": 63.7, "W%": 64.0, "Perdidos": 9, "RT": 969, "PTSPG": 80.52, "T2APG": 18.84, "T2IPG": 34.92, "T3APG": 10.4, "T3IPG": 29.0, "T1APG": 11.64, "T1IPG": 18.28, "RDPG": 29.44, "ROPG": 9.32, "RTPG": 38.76, "ASTPG": 14.64, "PERPG": 10.48, "RECPG": 6.16, "TAPPG": 1.52, "VALPG": 85.08, "POSPG": 73.1, "ORtg": 110.1, "DRtg": 102.1, "NetRtg": 8.0}, {"Equipo": "PROVINCIAL (R)", "PJ": 25, "PTS": 2093, "T2A": 550, "T2I": 961, "T3A": 219, "T3I": 614, "T1A": 336, "T1I": 485, "RD": 651, "RO": 202, "AST": 436, "PER": 298, "REC": 213, "TAP": 54, "VAL": 2310, "Ganados": 19, "POS": 1884.4, "OPP_PTS": 1888, "OPP_POS": 1849.56, "T2%": 57.2, "T3%": 35.7, "T1%": 69.3, "W%": 76.0, "Perdidos": 6, "RT": 853, "PTSPG": 83.72, "T2APG": 22.0, "T2IPG": 38.44, "T3APG": 8.76, "T3IPG": 24.56, "T1APG": 13.44, "T1IPG": 19.4, "RDPG": 26.04, "ROPG": 8.08, "RTPG": 34.12, "ASTPG": 17.44, "PERPG": 11.92, "RECPG": 8.52, "TAPPG": 2.16, "VALPG": 92.4, "POSPG": 75.4, "ORtg": 111.1, "DRtg": 102.1, "NetRtg": 9.0}, {"Equipo": "QUILMES (MDP)", "PJ": 24, "PTS": 1821, "T2A": 431, "T2I": 817, "T3A": 212, "T3I": 648, "T1A": 323, "T1I": 488, "RD": 640, "RO": 213, "AST": 372, "PER": 271, "REC": 173, "TAP": 32, "VAL": 1922, "Ganados": 15, "POS": 1737.72, "OPP_PTS": 1776, "OPP_POS": 1736.44, "T2%": 52.8, "T3%": 32.7, "T1%": 66.2, "W%": 62.5, "Perdidos": 9, "RT": 853, "PTSPG": 75.88, "T2APG": 17.96, "T2IPG": 34.04, "T3APG": 8.83, "T3IPG": 27.0, "T1APG": 13.46, "T1IPG": 20.33, "RDPG": 26.67, "ROPG": 8.88, "RTPG": 35.54, "ASTPG": 15.5, "PERPG": 11.29, "RECPG": 7.21, "TAPPG": 1.33, "VALPG": 80.08, "POSPG": 72.4, "ORtg": 104.8, "DRtg": 102.3, "NetRtg": 2.5}, {"Equipo": "RACING (A)", "PJ": 25, "PTS": 1900, "T2A": 474, "T2I": 970, "T3A": 161, "T3I": 589, "T1A": 469, "T1I": 675, "RD": 627, "RO": 253, "AST": 309, "PER": 257, "REC": 206, "TAP": 56, "VAL": 1901, "Ganados": 13, "POS": 1860.0, "OPP_PTS": 1901, "OPP_POS": 1865.28, "T2%": 48.9, "T3%": 27.3, "T1%": 69.5, "W%": 52.0, "Perdidos": 12, "RT": 880, "PTSPG": 76.0, "T2APG": 18.96, "T2IPG": 38.8, "T3APG": 6.44, "T3IPG": 23.56, "T1APG": 18.76, "T1IPG": 27.0, "RDPG": 25.08, "ROPG": 10.12, "RTPG": 35.2, "ASTPG": 12.36, "PERPG": 10.28, "RECPG": 8.24, "TAPPG": 2.24, "VALPG": 76.04, "POSPG": 74.4, "ORtg": 102.2, "DRtg": 101.9, "NetRtg": 0.3}, {"Equipo": "RIVADAVIA (MZA)", "PJ": 27, "PTS": 2010, "T2A": 568, "T2I": 1051, "T3A": 172, "T3I": 577, "T1A": 358, "T1I": 514, "RD": 719, "RO": 213, "AST": 348, "PER": 337, "REC": 203, "TAP": 70, "VAL": 2144, "Ganados": 10, "POS": 1978.16, "OPP_PTS": 2149, "OPP_POS": 2013.92, "T2%": 54.0, "T3%": 29.8, "T1%": 69.6, "W%": 37.0, "Perdidos": 17, "RT": 932, "PTSPG": 74.44, "T2APG": 21.04, "T2IPG": 38.93, "T3APG": 6.37, "T3IPG": 21.37, "T1APG": 13.26, "T1IPG": 19.04, "RDPG": 26.63, "ROPG": 7.89, "RTPG": 34.52, "ASTPG": 12.89, "PERPG": 12.48, "RECPG": 7.52, "TAPPG": 2.59, "VALPG": 79.41, "POSPG": 73.3, "ORtg": 101.6, "DRtg": 106.7, "NetRtg": -5.1}, {"Equipo": "ROCAMORA", "PJ": 22, "PTS": 1652, "T2A": 464, "T2I": 943, "T3A": 136, "T3I": 477, "T1A": 316, "T1I": 488, "RD": 639, "RO": 163, "AST": 347, "PER": 299, "REC": 153, "TAP": 50, "VAL": 1691, "Ganados": 8, "POS": 1770.72, "OPP_PTS": 1790, "OPP_POS": 1719.6, "T2%": 49.2, "T3%": 28.5, "T1%": 64.8, "W%": 36.4, "Perdidos": 14, "RT": 802, "PTSPG": 75.09, "T2APG": 21.09, "T2IPG": 42.86, "T3APG": 6.18, "T3IPG": 21.68, "T1APG": 14.36, "T1IPG": 22.18, "RDPG": 29.05, "ROPG": 7.41, "RTPG": 36.45, "ASTPG": 15.77, "PERPG": 13.59, "RECPG": 6.95, "TAPPG": 2.27, "VALPG": 76.86, "POSPG": 80.5, "ORtg": 93.3, "DRtg": 104.1, "NetRtg": -10.8}, {"Equipo": "SALTA BASKET", "PJ": 23, "PTS": 1882, "T2A": 474, "T2I": 871, "T3A": 177, "T3I": 499, "T1A": 403, "T1I": 540, "RD": 648, "RO": 148, "AST": 272, "PER": 275, "REC": 145, "TAP": 66, "VAL": 1999, "Ganados": 14, "POS": 1734.6, "OPP_PTS": 1853, "OPP_POS": 1743.68, "T2%": 54.4, "T3%": 35.5, "T1%": 74.6, "W%": 60.9, "Perdidos": 9, "RT": 796, "PTSPG": 81.83, "T2APG": 20.61, "T2IPG": 37.87, "T3APG": 7.7, "T3IPG": 21.7, "T1APG": 17.52, "T1IPG": 23.48, "RDPG": 28.17, "ROPG": 6.43, "RTPG": 34.61, "ASTPG": 11.83, "PERPG": 11.96, "RECPG": 6.3, "TAPPG": 2.87, "VALPG": 86.91, "POSPG": 75.4, "ORtg": 108.5, "DRtg": 106.3, "NetRtg": 2.2}, {"Equipo": "SAN ISIDRO", "PJ": 24, "PTS": 2019, "T2A": 581, "T2I": 983, "T3A": 169, "T3I": 515, "T1A": 350, "T1I": 498, "RD": 656, "RO": 184, "AST": 389, "PER": 265, "REC": 168, "TAP": 48, "VAL": 2236, "Ganados": 17, "POS": 1798.12, "OPP_PTS": 1883, "OPP_POS": 1804.64, "T2%": 59.1, "T3%": 32.8, "T1%": 70.3, "W%": 70.8, "Perdidos": 7, "RT": 840, "PTSPG": 84.12, "T2APG": 24.21, "T2IPG": 40.96, "T3APG": 7.04, "T3IPG": 21.46, "T1APG": 14.58, "T1IPG": 20.75, "RDPG": 27.33, "ROPG": 7.67, "RTPG": 35.0, "ASTPG": 16.21, "PERPG": 11.04, "RECPG": 7.0, "TAPPG": 2.0, "VALPG": 93.17, "POSPG": 74.9, "ORtg": 112.3, "DRtg": 104.3, "NetRtg": 8.0}, {"Equipo": "SANTA PAULA (G)", "PJ": 26, "PTS": 2212, "T2A": 472, "T2I": 880, "T3A": 324, "T3I": 908, "T1A": 296, "T1I": 464, "RD": 731, "RO": 258, "AST": 438, "PER": 258, "REC": 183, "TAP": 67, "VAL": 2382, "Ganados": 15, "POS": 1992.16, "OPP_PTS": 2094, "OPP_POS": 1990.16, "T2%": 53.6, "T3%": 35.7, "T1%": 63.8, "W%": 57.7, "Perdidos": 11, "RT": 989, "PTSPG": 85.08, "T2APG": 18.15, "T2IPG": 33.85, "T3APG": 12.46, "T3IPG": 34.92, "T1APG": 11.38, "T1IPG": 17.85, "RDPG": 28.12, "ROPG": 9.92, "RTPG": 38.04, "ASTPG": 16.85, "PERPG": 9.92, "RECPG": 7.04, "TAPPG": 2.58, "VALPG": 91.62, "POSPG": 76.6, "ORtg": 111.0, "DRtg": 105.2, "NetRtg": 5.8}, {"Equipo": "SP. SUARDI", "PJ": 25, "PTS": 2080, "T2A": 543, "T2I": 991, "T3A": 220, "T3I": 615, "T1A": 334, "T1I": 452, "RD": 688, "RO": 162, "AST": 381, "PER": 268, "REC": 202, "TAP": 31, "VAL": 2248, "Ganados": 14, "POS": 1910.88, "OPP_PTS": 1982, "OPP_POS": 1904.84, "T2%": 54.8, "T3%": 35.8, "T1%": 73.9, "W%": 56.0, "Perdidos": 11, "RT": 850, "PTSPG": 83.2, "T2APG": 21.72, "T2IPG": 39.64, "T3APG": 8.8, "T3IPG": 24.6, "T1APG": 13.36, "T1IPG": 18.08, "RDPG": 27.52, "ROPG": 6.48, "RTPG": 34.0, "ASTPG": 15.24, "PERPG": 10.72, "RECPG": 8.08, "TAPPG": 1.24, "VALPG": 89.92, "POSPG": 76.4, "ORtg": 108.9, "DRtg": 104.1, "NetRtg": 4.8}, {"Equipo": "UNION (MDP)", "PJ": 25, "PTS": 1974, "T2A": 531, "T2I": 1037, "T3A": 189, "T3I": 589, "T1A": 345, "T1I": 562, "RD": 628, "RO": 269, "AST": 399, "PER": 298, "REC": 182, "TAP": 40, "VAL": 1945, "Ganados": 9, "POS": 1902.28, "OPP_PTS": 2091, "OPP_POS": 1909.92, "T2%": 51.2, "T3%": 32.1, "T1%": 61.4, "W%": 36.0, "Perdidos": 16, "RT": 897, "PTSPG": 78.96, "T2APG": 21.24, "T2IPG": 41.48, "T3APG": 7.56, "T3IPG": 23.56, "T1APG": 13.8, "T1IPG": 22.48, "RDPG": 25.12, "ROPG": 10.76, "RTPG": 35.88, "ASTPG": 15.96, "PERPG": 11.92, "RECPG": 7.28, "TAPPG": 1.6, "VALPG": 77.8, "POSPG": 76.1, "ORtg": 103.8, "DRtg": 109.5, "NetRtg": -5.7}, {"Equipo": "VILLA MITRE (BB)", "PJ": 25, "PTS": 1950, "T2A": 426, "T2I": 815, "T3A": 234, "T3I": 719, "T1A": 396, "T1I": 536, "RD": 721, "RO": 185, "AST": 381, "PER": 321, "REC": 173, "TAP": 41, "VAL": 2092, "Ganados": 10, "POS": 1905.8400000000001, "OPP_PTS": 2004, "OPP_POS": 1955.8799999999999, "T2%": 52.3, "T3%": 32.5, "T1%": 73.9, "W%": 40.0, "Perdidos": 15, "RT": 906, "PTSPG": 78.0, "T2APG": 17.04, "T2IPG": 32.6, "T3APG": 9.36, "T3IPG": 28.76, "T1APG": 15.84, "T1IPG": 21.44, "RDPG": 28.84, "ROPG": 7.4, "RTPG": 36.24, "ASTPG": 15.24, "PERPG": 12.84, "RECPG": 6.92, "TAPPG": 1.64, "VALPG": 83.68, "POSPG": 76.2, "ORtg": 102.3, "DRtg": 102.5, "NetRtg": -0.2}, {"Equipo": "VILLA SAN MARTIN", "PJ": 24, "PTS": 1758, "T2A": 461, "T2I": 894, "T3A": 179, "T3I": 559, "T1A": 299, "T1I": 447, "RD": 666, "RO": 201, "AST": 353, "PER": 276, "REC": 156, "TAP": 62, "VAL": 1945, "Ganados": 12, "POS": 1724.68, "OPP_PTS": 1706, "OPP_POS": 1716.6, "T2%": 51.6, "T3%": 32.0, "T1%": 66.9, "W%": 50.0, "Perdidos": 12, "RT": 867, "PTSPG": 73.25, "T2APG": 19.21, "T2IPG": 37.25, "T3APG": 7.46, "T3IPG": 23.29, "T1APG": 12.46, "T1IPG": 18.62, "RDPG": 27.75, "ROPG": 8.38, "RTPG": 36.12, "ASTPG": 14.71, "PERPG": 11.5, "RECPG": 6.5, "TAPPG": 2.58, "VALPG": 81.04, "POSPG": 71.9, "ORtg": 101.9, "DRtg": 99.4, "NetRtg": 2.5}];
 
 // Player per-game averages
+// Build team lookup for advanced per-player ratings
+const TEAM_MAP = {};
+RAW_T.forEach(t => { TEAM_MAP[t.Equipo] = t; });
+
 const MAP_J = {T2A:'T2APG',T2I:'T2IPG',T3A:'T3APG',T3I:'T3IPG',T1A:'T1APG',T1I:'T1IPG',
                RD:'RDPG',RO:'ROPG',RT:'RPG',AST:'APG',REC:'SPG',PER:'TPG',TAP:'BPG',VAL:'VPG',PTS:'PPG'};
 const PLAYERS = RAW_J.map(p=>{
   const pj=p.PJ||1; const d={...p, name:p['Nombre completo']};
   Object.entries(MAP_J).forEach(([k,v])=>d[v]=Math.round((p[k]/pj)*100)/100);
   d.MPG=Math.round((p.SEG/pj/60)*10)/10;
+  // TC (tiros de campo = T2 + T3)
+  d.TCAPG = Math.round(((p.T2A+p.T3A)/pj)*100)/100;
+  d.TCIPG = Math.round(((p.T2I+p.T3I)/pj)*100)/100;
+  const tci = p.T2I+p.T3I;
+  d['TC%'] = tci>0 ? Math.round((p.T2A+p.T3A)/tci*1000)/10 : null;
+  // Advanced stats
+  const tm = TEAM_MAP[p.Equipo] || {};
+  const pos = tci + 0.44*(p.T1I||0) + (p.PER||0);
+  d.POS = Math.round((pos/pj)*10)/10;
+  d['PTS/POS'] = pos>0 ? Math.round(p.PTS/pos*100)/100 : null;
+  const efgNum = (p.T2A||0) + 1.5*(p.T3A||0);
+  d['EFG%'] = tci>0 ? Math.round(efgNum/tci*1000)/10 : null;
+  const tsAdj = 2*(tci + 0.44*(p.T1I||0));
+  d['TS%'] = tsAdj>0 ? Math.round((p.PTS||0)/tsAdj*1000)/10 : null;
+  const toPct_denom = tci + 0.44*(p.T1I||0) + (p.AST||0) + (p.PER||0);
+  d['TO%'] = toPct_denom>0 ? Math.round((p.PER||0)/toPct_denom*1000)/10 : null;
+  d['AST/TO'] = (p.PER||0)>0 ? Math.round((p.AST||0)/(p.PER)*100)/100 : null;
+  d['3PI/TI'] = tci>0 ? Math.round((p.T3I||0)/tci*1000)/10 : null;
+  // Ratings & role metrics (using team context)
+  // ORtg individual = 100 × PTS / individual_possessions_used
+  d['ORtg'] = pos>0 ? Math.round(p.PTS/pos*100*10)/10 : null;
+  // DRtg ≈ equipo (sin datos on/off individuales)
+  d['DRtg'] = tm.DRtg || null;
+  // NetRtg
+  d['NetRtg'] = (d['ORtg']!=null && d['DRtg']!=null) ? Math.round((d['ORtg']-d['DRtg'])*10)/10 : null;
+  // USG% = 100 × (FGA+0.44*FTA+TO) × TmMinTotal / (5 × PlayerMin × (TmFGA+0.44*TmFTA+TmTO))
+  const tmFGA = (tm.T2I||0)+(tm.T3I||0);
+  const tmPossUsed = tmFGA + 0.44*(tm.T1I||0) + (tm.PER||0);
+  const playerMinTotal = p.SEG/60;
+  const tmMinTotal = (tm.PJ||1)*200;
+  d['USG%'] = (tmPossUsed>0 && playerMinTotal>0) ? Math.round(pos*tmMinTotal/(5*playerMinTotal*tmPossUsed)*1000)/10 : null;
+  // ORB% = RO × (TmMinTotal/5) / (PlayerMin × TmTotalRO)
+  const tmRO = tm.RO||0;
+  d['ORB%'] = (tmRO>0 && playerMinTotal>0) ? Math.round((p.RO||0)*(tmMinTotal/5)/(playerMinTotal*tmRO)*1000)/10 : null;
   return d;
 });
 
@@ -527,6 +1022,17 @@ const TEAMS = RAW_T.map(t=>{
   d.VALPG=d['VALPG']||Math.round((t.VAL/pj)*100)/100;
   d.RDPG=Math.round((t.RD/pj)*100)/100;
   d.ROPG=Math.round((t.RO/pj)*100)/100;
+  // Advanced team metrics
+  const tci = (t.T2I||0)+(t.T3I||0);
+  const efgNum = (t.T2A||0)+1.5*(t.T3A||0);
+  d['EFG%'] = tci>0 ? Math.round(efgNum/tci*1000)/10 : null;
+  const tsAdj = 2*(tci+0.44*(t.T1I||0));
+  d['TS%'] = tsAdj>0 ? Math.round((t.PTS||0)/tsAdj*1000)/10 : null;
+  const tovDenom = tci+0.44*(t.T1I||0)+(t.PER||0);
+  d['TOV%'] = tovDenom>0 ? Math.round((t.PER||0)/tovDenom*1000)/10 : null;
+  const totReb = (t.RO||0)+(t.RD||0);
+  d['ORB%'] = totReb>0 ? Math.round((t.RO||0)/totReb*1000)/10 : null;
+  d['PACE'] = d.POSPG || (tovDenom>0 ? Math.round(tovDenom/pj*10)/10 : null);
   return d;
 });
 
@@ -540,12 +1046,13 @@ const PALETTE=['#7c3aed','#0d9488','#d97706','#dc2626','#2563eb','#db2777',
 const TEAM_COLORS={};
 [...new Set(PLAYERS.map(p=>p.Equipo))].sort().forEach((t,i)=>TEAM_COLORS[t]=PALETTE[i%PALETTE.length]);
 
-const LBL_J={PPG:'PTS/p',VPG:'VAL/p',RPG:'REB/p',APG:'AST/p',SPG:'REC/p',BPG:'TAP/p',TPG:'PÉR/p',
+const LBL_J={PPG:'PTS/p',VPG:'VAL/p',RPG:'REB/p',APG:'AST/p',SPG:'REC/p',BPG:'TAP/p',TPG:'PÉR/p',ORtg:'ORtg',DRtg:'DRtg',NetRtg:'NetRtg','USG%':'USG%','ORB%':'ORB%',
   T2APG:'T2C/p',T3APG:'T3C/p',T1APG:'T1C/p','T2%':'% T2','T3%':'% T3','T1%':'% T1',
   RDPG:'RD/p',ROPG:'RO/p',MPG:'MIN/p',PJ:'PJ',T2IPG:'T2I/p',T3IPG:'T3I/p'};
-const LBL_T={ORtg:'ORtg',DRtg:'DRtg',NetRtg:'NetRtg','W%':'W%',PTSPG:'PTS/p',POSPG:'POS/p',
+const LBL_T={ORtg:'ORtg',DRtg:'DRtg',NetRtg:'NetRtg','W%':'W%',PTSPG:'PTS/p',POSPG:'POS/p',PACE:'PACE',
   RTPG:'REB/p',ASTPG:'AST/p',RECPG:'REC/p',PERPG:'PÉR/p','T2%':'% T2','T3%':'% T3','T1%':'% T1',
-  T3IPG:'T3I/p',TAPPG:'TAP/p',VALPG:'VAL/p',PJ:'PJ'};
+  T3IPG:'T3I/p',TAPPG:'TAP/p',VALPG:'VAL/p',PJ:'PJ',
+  'EFG%':'EFG%','TS%':'TS%','TOV%':'TOV%','ORB%':'ORB%'};
 
 // ============================================================
 // STATE
@@ -569,6 +1076,8 @@ function switchSection(id) {
   document.getElementById('sec-'+id).classList.add('active');
   if(id==='j-chart') setTimeout(drawJChart,30);
   if(id==='t-chart') setTimeout(drawTChart,30);
+  if(id==='j-tabla') setTimeout(()=>remeasureScroll('jTableWrap'), 50);
+  if(id==='t-tabla') setTimeout(()=>remeasureScroll('tTableWrap'), 50);
 }
 
 // ============================================================
@@ -581,17 +1090,32 @@ function getJFiltered() {
   const ak=document.getElementById('jAttr').value;
   const op=document.getElementById('jOp').value;
   const av=parseFloat(document.getElementById('jAttrVal').value);
+  const ak2=document.getElementById('jAttr2').value;
+  const op2=document.getElementById('jOp2').value;
+  const av2=parseFloat(document.getElementById('jAttrVal2').value);
+  const ak3=document.getElementById('jAttr3').value;
+  const op3=document.getElementById('jOp3').value;
+  const av3=parseFloat(document.getElementById('jAttrVal3').value);
+  const ak4=document.getElementById('jAttr4').value;
+  const op4=document.getElementById('jOp4').value;
+  const av4=parseFloat(document.getElementById('jAttrVal4').value);
+  function chk(v,op,av){if(op==='gte'&&v<av)return false;if(op==='lte'&&v>av)return false;if(op==='eq'&&Math.abs(v-av)>0.01)return false;return true;}
   return PLAYERS.filter(p=>{
     if(team&&p.Equipo!==team)return false;
     if(p.PJ<minG)return false;
     if(s&&!p.name.toLowerCase().includes(s)&&!p.Equipo.toLowerCase().includes(s))return false;
-    if(ak&&!isNaN(av)){
-      const v=p[ak]; if(op==='gte'&&v<av)return false; if(op==='lte'&&v>av)return false; if(op==='eq'&&Math.abs(v-av)>0.01)return false;
-    }
+    if(ak&&!isNaN(av)&&!chk(p[ak],op,av))return false;
+    if(ak2&&!isNaN(av2)&&!chk(p[ak2],op2,av2))return false;
+    if(ak3&&!isNaN(av3)&&!chk(p[ak3],op3,av3))return false;
+    if(ak4&&!isNaN(av4)&&!chk(p[ak4],op4,av4))return false;
     return true;
   });
 }
-function clearJFilter(){document.getElementById('jAttr').value='';document.getElementById('jAttrVal').value='';onJFilter();}
+function clearJFilter(){
+  ['jAttr','jAttr2','jAttr3','jAttr4'].forEach(id=>document.getElementById(id).value='');
+  ['jAttrVal','jAttrVal2','jAttrVal3','jAttrVal4'].forEach(id=>document.getElementById(id).value='');
+  onJFilter();
+}
 function onJFilter(){
   jFiltered=getJFiltered();
   document.getElementById('jCount').textContent=jFiltered.length;
@@ -600,6 +1124,7 @@ function onJFilter(){
 }
 
 function renderJTable() {
+  if(document.getElementById('jCardAdv').style.display!=='none'){renderJAdvTable();}
   let rows=[...jFiltered];
   rows.sort((a,b)=>{
     let av=a[jSort],bv=b[jSort];
@@ -611,8 +1136,14 @@ function renderJTable() {
     const tr=document.createElement('tr');
     if(jSort==='PPG'||jSort==='VPG'){if(i===0)tr.className='top1';else if(i===1)tr.className='top2';else if(i===2)tr.className='top3';}
     const vc=p.VPG>=0?'val-pos':'val-neg';
-    tr.innerHTML=`<td>${p.name}</td><td>${p.Equipo}</td><td>${p.PJ}</td>
+    const tcc=p['TC%'];
+    tr.innerHTML=`<td class="rank-cell">${i+1}</td><td>${p.name}</td><td>${p.Equipo}</td>
+      <td>${p.PJ}</td>
+      <td style="color:var(--muted)">${f1(p.MPG)}</td>
+      <td class="${vc}">${f2(p.VPG)}</td>
       <td class="pts-cell">${f2(p.PPG)}</td>
+      <td class="tc-group">${f2(p.TCAPG)}</td><td class="tc-group">${f2(p.TCIPG)}</td>
+      <td class="tc-group ${tcc>=50?'pct-hi':''}">${tcc!=null?f1(tcc)+'%':'—'}</td>
       <td>${f2(p.T2APG)}</td><td>${f2(p.T2IPG)}</td>
       <td class="${p['T2%']>=60?'pct-hi':''}">${f1(p['T2%'])}%</td>
       <td>${f2(p.T3APG)}</td><td>${f2(p.T3IPG)}</td>
@@ -620,9 +1151,7 @@ function renderJTable() {
       <td>${f2(p.T1APG)}</td><td>${f2(p.T1IPG)}</td>
       <td class="${p['T1%']>=80?'pct-hi':''}">${f1(p['T1%'])}%</td>
       <td>${f2(p.RDPG)}</td><td>${f2(p.ROPG)}</td><td>${f2(p.RPG)}</td>
-      <td>${f2(p.APG)}</td><td>${f2(p.SPG)}</td><td>${f2(p.TPG)}</td><td>${f2(p.BPG)}</td>
-      <td class="${vc}">${f2(p.VPG)}</td>
-      <td style="color:var(--muted)">${f1(p.MPG)}</td>`;
+      <td>${f2(p.APG)}</td><td>${f2(p.SPG)}</td><td>${f2(p.TPG)}</td><td>${f2(p.BPG)}</td>`;
     tbody.appendChild(tr);
   });
   document.querySelectorAll('#sec-j-tabla thead th').forEach(th=>{
@@ -639,6 +1168,71 @@ document.querySelectorAll('#sec-j-tabla thead th').forEach(th=>{
   });
 });
 
+
+// ============================================================
+// ADVANCED TABLE
+// ============================================================
+let jAdvSort='EFG%', jAdvDir='desc';
+
+function toggleJTable(mode) {
+  const basic = document.getElementById('jCardBasic');
+  const adv = document.getElementById('jCardAdv');
+  const btnB = document.getElementById('jToggleBasic');
+  const btnA = document.getElementById('jToggleAdv');
+  if(mode==='basic'){
+    basic.style.display=''; adv.style.display='none';
+    btnB.classList.add('active'); btnA.classList.remove('active');
+  } else {
+    basic.style.display='none'; adv.style.display='';
+    btnB.classList.remove('active'); btnA.classList.add('active');
+    renderJAdvTable();
+  }
+  setTimeout(()=>remeasureScroll('jTableWrap'), 30);
+}
+
+function renderJAdvTable() {
+  let rows=[...jFiltered];
+  rows.sort((a,b)=>{
+    let av=a[jAdvSort],bv=b[jAdvSort];
+    if(av==null&&bv==null)return 0;
+    if(av==null)return 1; if(bv==null)return -1;
+    return jAdvDir==='desc'?(bv-av):(av-bv);
+  });
+  const tbody=document.getElementById('jTbodyAdv'); tbody.innerHTML='';
+  rows.forEach((p,i)=>{
+    const tr=document.createElement('tr');
+    const fPct=v=>v==null||isNaN(v)?'—':v.toFixed(1)+'%';
+    const fVal=v=>v==null||isNaN(v)?'—':v.toFixed(2);
+    const efg=p['EFG%'], ts=p['TS%'], toP=p['TO%'];
+    tr.innerHTML=`<td class="rank-cell">${i+1}</td>
+      <td>${p.name}</td><td>${p.Equipo}</td>
+      <td>${p.PJ}</td>
+      <td style="color:var(--muted)">${f1(p.MPG)}</td>
+      <td>${f1(p.POS)}</td>
+      <td class="${p['PTS/POS']>=1.1?'adv-hi':p['PTS/POS']<0.85?'adv-lo':''}">${fVal(p['PTS/POS'])}</td>
+      <td class="${efg>=55?'adv-hi':efg<45?'adv-lo':''}">${fPct(efg)}</td>
+      <td class="${ts>=58?'adv-hi':ts<48?'adv-lo':''}">${fPct(ts)}</td>
+      <td class="${toP<=12?'adv-hi':toP>=20?'adv-lo':''}">${fPct(toP)}</td>
+      <td class="${p['AST/TO']>=2.5?'adv-hi':''}">${fVal(p['AST/TO'])}</td>
+      <td>${fPct(p['3PI/TI'])}</td>
+      <td class="${p['ORtg']>=110?'adv-hi':p['ORtg']<90?'adv-lo':''}">${p['ORtg']!=null?p['ORtg'].toFixed(1):'—'}</td>
+      <td class="${p['USG%']>=28?'adv-hi':''}">${fPct(p['USG%'])}</td>
+      <td class="${p['ORB%']>=12?'adv-hi':''}">${fPct(p['ORB%'])}</td>`;
+    tbody.appendChild(tr);
+  });
+  document.querySelectorAll('#jCardAdv thead th').forEach(th=>{
+    th.classList.remove('sd','sa');
+    if(th.dataset.ca===jAdvSort)th.classList.add(jAdvDir==='desc'?'sd':'sa');
+  });
+}
+
+document.querySelectorAll('#jCardAdv thead th').forEach(th=>{
+  th.addEventListener('click',()=>{
+    if(jAdvSort===th.dataset.ca)jAdvDir=jAdvDir==='desc'?'asc':'desc';
+    else{jAdvSort=th.dataset.ca;jAdvDir=th.dataset.da||'desc';}
+    renderJAdvTable();
+  });
+});
 // ============================================================
 // TEAM FILTERS
 // ============================================================
@@ -646,25 +1240,60 @@ function getTFiltered() {
   const ak=document.getElementById('tAttr').value;
   const op=document.getElementById('tOp').value;
   const av=parseFloat(document.getElementById('tAttrVal').value);
+  const ak2=document.getElementById('tAttr2').value;
+  const op2=document.getElementById('tOp2').value;
+  const av2=parseFloat(document.getElementById('tAttrVal2').value);
+  const ak3=document.getElementById('tAttr3').value;
+  const op3=document.getElementById('tOp3').value;
+  const av3=parseFloat(document.getElementById('tAttrVal3').value);
+  const ak4=document.getElementById('tAttr4').value;
+  const op4=document.getElementById('tOp4').value;
+  const av4=parseFloat(document.getElementById('tAttrVal4').value);
+  function chk(v,op,av){if(op==='gte'&&v<av)return false;if(op==='lte'&&v>av)return false;if(op==='eq'&&Math.abs(v-av)>0.01)return false;return true;}
   return TEAMS.filter(t=>{
-    if(ak&&!isNaN(av)){
-      const v=t[ak]; if(op==='gte'&&v<av)return false; if(op==='lte'&&v>av)return false; if(op==='eq'&&Math.abs(v-av)>0.01)return false;
-    }
+    if(ak&&!isNaN(av)&&!chk(t[ak],op,av))return false;
+    if(ak2&&!isNaN(av2)&&!chk(t[ak2],op2,av2))return false;
+    if(ak3&&!isNaN(av3)&&!chk(t[ak3],op3,av3))return false;
+    if(ak4&&!isNaN(av4)&&!chk(t[ak4],op4,av4))return false;
     return true;
   });
 }
-function clearTFilter(){document.getElementById('tAttr').value='';document.getElementById('tAttrVal').value='';onTFilter();}
+function clearTFilter(){
+  ['tAttr','tAttr2','tAttr3','tAttr4'].forEach(id=>document.getElementById(id).value='');
+  ['tAttrVal','tAttrVal2','tAttrVal3','tAttrVal4'].forEach(id=>document.getElementById(id).value='');
+  onTFilter();
+}
 function onTFilter(){
   tFiltered=getTFiltered();
   document.getElementById('tCount').textContent=tFiltered.length;
   const sv=document.getElementById('tSort').value;
   if(sv==='DRtg-asc'){tSort='DRtg';tDir='asc';}
+  else if(sv==='TOV%-asc'){tSort='TOV%';tDir='asc';}
   else{tSort=sv;tDir='desc';}
   renderTTable();
   if(document.getElementById('sec-t-chart').classList.contains('active'))drawTChart();
 }
 
+function toggleTTable(mode) {
+  const basic = document.getElementById('tCardBasic');
+  const adv = document.getElementById('tCardAdv');
+  const btnB = document.getElementById('tToggleBasic');
+  const btnA = document.getElementById('tToggleAdv');
+  if(mode==='basic'){
+    basic.style.display=''; adv.style.display='none';
+    btnB.classList.add('active'); btnA.classList.remove('active');
+  } else {
+    basic.style.display='none'; adv.style.display='';
+    btnB.classList.remove('active'); btnA.classList.add('active');
+    renderTAdvTable();
+  }
+  setTimeout(()=>remeasureScroll('tTableWrap'), 30);
+}
+
+let tAdvSort='NetRtg', tAdvDir='desc';
+
 function renderTTable() {
+  if(document.getElementById('tCardAdv')&&document.getElementById('tCardAdv').style.display!=='none'){renderTAdvTable();}
   let rows=[...tFiltered];
   rows.sort((a,b)=>{
     let av=a[tSort],bv=b[tSort];
@@ -673,18 +1302,20 @@ function renderTTable() {
   const tbody=document.getElementById('tTbody'); tbody.innerHTML='';
   rows.forEach((t,i)=>{
     const tr=document.createElement('tr');
-    if(i===0)tr.className='top1';else if(i===1)tr.className='top2';else if(i===2)tr.className='top3';
+    const selIdx = selectedTeams.indexOf(t.Equipo);
+    const selClass = selIdx >= 0 ? ` team-sel-${selIdx}` : '';
+    if(i===0)tr.className='top1 team-row-selectable'+selClass;
+    else if(i===1)tr.className='top2 team-row-selectable'+selClass;
+    else if(i===2)tr.className='top3 team-row-selectable'+selClass;
+    else tr.className='team-row-selectable'+selClass;
+    tr.addEventListener('click', ()=>toggleTeamSelection(t.Equipo));
+    const indicator = selIdx >= 0 ? `<span class="team-sel-indicator" style="background:${CMP_COLORS[selIdx]}">${selIdx+1}</span>` : '';
     const wc=t['W%']>=60?'win-rate-high':t['W%']>=40?'win-rate-mid':'win-rate-low';
-    const nc=t.NetRtg>=0?'netrtg-pos':'netrtg-neg';
-    tr.innerHTML=`<td>${t.Equipo}</td>
+    tr.innerHTML=`<td class="rank-cell">${i+1}</td><td>${indicator}${t.Equipo}</td>
       <td>${t.PJ}</td>
       <td style="color:var(--green);font-weight:700">${t.Ganados}</td>
       <td style="color:var(--red)">${t.Perdidos}</td>
       <td class="${wc}">${t['W%'].toFixed(1)}%</td>
-      <td style="color:var(--muted)">${f1(t.POSPG)}</td>
-      <td class="ortg-hi">${f1(t.ORtg)}</td>
-      <td class="drtg-lo">${f1(t.DRtg)}</td>
-      <td class="${nc}">${t.NetRtg>=0?'+':''}${f1(t.NetRtg)}</td>
       <td class="pts-cell">${f2(t.PTSPG)}</td>
       <td>${f2(t.T2APG)}</td><td>${f2(t.T2IPG)}</td>
       <td class="${t['T2%']>=57?'pct-hi':''}">${f1(t['T2%'])}%</td>
@@ -697,17 +1328,69 @@ function renderTTable() {
       <td class="${t.VALPG>=0?'val-pos':'val-neg'}">${f2(t.VALPG)}</td>`;
     tbody.appendChild(tr);
   });
-  document.querySelectorAll('#sec-t-tabla thead th').forEach(th=>{
+  document.querySelectorAll('#tCardBasic thead th').forEach(th=>{
     th.classList.remove('sd','sa');
-    if(th.dataset.c===tSort)th.classList.add(tSort==='DRtg'&&tDir==='asc'?'sa':jDir==='desc'?'sd':'sa');
+    if(th.dataset.c===tSort)th.classList.add(tDir==='desc'?'sd':'sa');
   });
 }
 
-document.querySelectorAll('#sec-t-tabla thead th').forEach(th=>{
+function renderTAdvTable() {
+  let rows=[...tFiltered];
+  rows.sort((a,b)=>{
+    let av=a[tAdvSort],bv=b[tAdvSort];
+    if(av==null&&bv==null)return 0;
+    if(av==null)return 1; if(bv==null)return -1;
+    return tAdvDir==='desc'?(bv-av):(av-bv);
+  });
+  const tbody=document.getElementById('tTbodyAdv'); if(!tbody)return; tbody.innerHTML='';
+  const fPct=v=>v==null||isNaN(v)?'—':v.toFixed(1)+'%';
+  rows.forEach((t,i)=>{
+    const tr=document.createElement('tr');
+    const selIdx = selectedTeams.indexOf(t.Equipo);
+    const selClass = selIdx >= 0 ? ` team-sel-${selIdx}` : '';
+    if(i===0)tr.className='top1 team-row-selectable'+selClass;
+    else if(i===1)tr.className='top2 team-row-selectable'+selClass;
+    else if(i===2)tr.className='top3 team-row-selectable'+selClass;
+    else tr.className='team-row-selectable'+selClass;
+    tr.addEventListener('click', ()=>toggleTeamSelection(t.Equipo));
+    const indicator = selIdx >= 0 ? `<span class="team-sel-indicator" style="background:${CMP_COLORS[selIdx]}">${selIdx+1}</span>` : '';
+    const wc=t['W%']>=60?'win-rate-high':t['W%']>=40?'win-rate-mid':'win-rate-low';
+    const nc=t.NetRtg>=0?'netrtg-pos':'netrtg-neg';
+    tr.innerHTML=`<td class="rank-cell">${i+1}</td><td>${indicator}${t.Equipo}</td>
+      <td>${t.PJ}</td>
+      <td style="color:var(--green);font-weight:700">${t.Ganados}</td>
+      <td class="${wc}">${t['W%'].toFixed(1)}%</td>
+      <td style="color:var(--muted)">${f1(t.PACE||t.POSPG)}</td>
+      <td class="ortg-hi">${f1(t.ORtg)}</td>
+      <td class="drtg-lo">${f1(t.DRtg)}</td>
+      <td class="${nc}">${t.NetRtg>=0?'+':''}${f1(t.NetRtg)}</td>
+      <td class="${t['EFG%']>=54?'adv-hi':t['EFG%']<48?'adv-lo':''}">${fPct(t['EFG%'])}</td>
+      <td class="${t['TS%']>=57?'adv-hi':t['TS%']<50?'adv-lo':''}">${fPct(t['TS%'])}</td>
+      <td class="${t['TOV%']<=12?'adv-hi':t['TOV%']>=18?'adv-lo':''}">${fPct(t['TOV%'])}</td>
+      <td class="${t['ORB%']>=30?'adv-hi':t['ORB%']<22?'adv-lo':''}">${fPct(t['ORB%'])}</td>
+      <td class="pts-cell">${f2(t.PTSPG)}</td>
+      <td>${f2(t.ASTPG)}</td><td>${f2(t.PERPG)}</td><td>${f2(t.RECPG)}</td><td>${f2(t.TAPPG)}</td>`;
+    tbody.appendChild(tr);
+  });
+  document.querySelectorAll('#tCardAdv thead th').forEach(th=>{
+    th.classList.remove('sd','sa');
+    if(th.dataset.ca===tAdvSort)th.classList.add(tAdvDir==='desc'?'sd':'sa');
+  });
+}
+
+document.querySelectorAll('#tCardBasic thead th').forEach(th=>{
   th.addEventListener('click',()=>{
     if(tSort===th.dataset.c)tDir=tDir==='desc'?'asc':'desc';
     else{tSort=th.dataset.c;tDir=th.dataset.d||'desc';}
     renderTTable();
+  });
+});
+
+document.querySelectorAll('#tCardAdv thead th').forEach(th=>{
+  th.addEventListener('click',()=>{
+    if(tAdvSort===th.dataset.ca)tAdvDir=tAdvDir==='desc'?'asc':'desc';
+    else{tAdvSort=th.dataset.ca;tAdvDir=th.dataset.da||'desc';}
+    renderTAdvTable();
   });
 });
 
@@ -749,39 +1432,6 @@ function drawScatter(canvasId, pts_ref, data, xKey, yKey, sizeKey, colorFn, labe
   ctx.font='bold 12px Inter,sans-serif';ctx.textAlign='center';
   ctx.fillStyle='#0d9488';ctx.fillText(lblMap[xKey]||xKey,PAD.left+plotW/2,H-7);
   ctx.save();ctx.translate(14,PAD.top+plotH/2);ctx.rotate(-Math.PI/2);ctx.fillStyle='#7c3aed';ctx.fillText(lblMap[yKey]||yKey,0,0);ctx.restore();
-
-  // Average dotted lines
-  const avgX=xs.reduce((a,b)=>a+b,0)/xs.length;
-  const avgY=ys.reduce((a,b)=>a+b,0)/ys.length;
-  const axX=toX(avgX), axY=toY(avgY);
-
-  ctx.save();
-  ctx.setLineDash([5,4]);
-  ctx.lineWidth=1.5;
-
-  // Vertical line at avgX (teal)
-  ctx.strokeStyle='rgba(13,148,136,0.5)';
-  ctx.beginPath();ctx.moveTo(axX,PAD.top);ctx.lineTo(axX,PAD.top+plotH);ctx.stroke();
-  // Label avgX
-  ctx.font='600 10px Inter,sans-serif';ctx.textAlign='center';ctx.fillStyle='rgba(13,148,136,0.8)';
-  const lbX=avgX%1===0?Math.round(avgX):avgX.toFixed(1);
-  const twX=ctx.measureText('Ø '+lbX).width;
-  ctx.fillStyle='rgba(13,148,136,0.12)';ctx.fillRect(axX-twX/2-3,PAD.top+3,twX+6,15);
-  ctx.fillStyle='rgba(13,148,136,0.9)';ctx.fillText('Ø '+lbX,axX,PAD.top+13);
-
-  // Horizontal line at avgY (purple)
-  ctx.strokeStyle='rgba(124,58,237,0.5)';
-  ctx.beginPath();ctx.moveTo(PAD.left,axY);ctx.lineTo(PAD.left+plotW,axY);ctx.stroke();
-  // Label avgY
-  ctx.textAlign='left';ctx.fillStyle='rgba(124,58,237,0.9)';
-  const lbY=avgY%1===0?Math.round(avgY):avgY.toFixed(1);
-  const twY=ctx.measureText('Ø '+lbY).width;
-  ctx.fillStyle='rgba(124,58,237,0.12)';ctx.fillRect(PAD.left+4,axY-13,twY+6,15);
-  ctx.fillStyle='rgba(124,58,237,0.9)';ctx.fillText('Ø '+lbY,PAD.left+7,axY-3);
-
-  ctx.setLineDash([]);
-  ctx.restore();
-
   pts_ref.length=0;
   pts.forEach(p=>pts_ref.push({cx:toX(p[xKey]),cy:toY(p[yKey]),r:getR(p),d:p}));
   pts_ref.forEach((pt,i)=>{
@@ -832,7 +1482,8 @@ function drawJChart(){
   const sKey=document.getElementById('jSize').value;
   const cBy=document.getElementById('jColor').value;
   const colorFn=p=>cBy==='team'?TEAM_COLORS[p.Equipo]:'#7c3aed';
-  drawScatter('jCanvas',jPts,jFiltered,xKey,yKey,sKey,colorFn,p=>p.name.split(',')[0].trim(),jHov,jPin,LBL_J);
+  const scatterData=jFiltered;
+  drawScatter('jCanvas',jPts,scatterData,xKey,yKey,sKey,colorFn,p=>p.name.split(',')[0].trim(),jHov,jPin,LBL_J);
   buildJLegend(cBy);
 }
 function buildJLegend(cBy){
@@ -906,10 +1557,235 @@ window.addEventListener('resize',()=>{
 });
 
 // ============================================================
+// TEAM COMPARISON
+// ============================================================
+// TEAM COMPARISON — click-to-select
+// ============================================================
+const CMP_COLORS = ['#7c3aed','#0d9488','#d97706','#dc2626'];
+let selectedTeams = []; // array of team names, max 4
+
+function toggleTeamSelection(teamName) {
+  const idx = selectedTeams.indexOf(teamName);
+  if (idx >= 0) {
+    selectedTeams.splice(idx, 1);
+  } else {
+    if (selectedTeams.length >= 4) return; // max 4
+    selectedTeams.push(teamName);
+  }
+  updateCmpBtn();
+  updateCmpChips();
+  renderTTable();
+  if (selectedTeams.length >= 2) {
+    const panel = document.getElementById('cmpPanel');
+    if (panel.style.display === 'none') {
+      panel.style.display = 'block';
+      document.getElementById('cmpToggleBtn').classList.add('cmp-active');
+    }
+    renderCmp();
+  } else if (selectedTeams.length < 2) {
+    renderCmp();
+  }
+}
+
+function updateCmpBtn() {
+  const btn = document.getElementById('cmpToggleBtn');
+  if (selectedTeams.length > 0) {
+    btn.textContent = `⚔️ Comparar equipos (${selectedTeams.length})`;
+  } else {
+    btn.textContent = '⚔️ Comparar equipos';
+  }
+}
+
+function updateCmpChips() {
+  const el = document.getElementById('cmpChips');
+  if (!el) return;
+  if (selectedTeams.length === 0) {
+    el.innerHTML = '<span class="cmp-chips-empty">Ningún equipo seleccionado — hacé clic en las filas de la tabla ↓</span>';
+    return;
+  }
+  el.innerHTML = selectedTeams.map((name, i) => {
+    const color = CMP_COLORS[i];
+    return `<span class="cmp-chip" style="background:${color}" onclick="toggleTeamSelection('${name.replace(/'/g,"\\'")}')">
+      <span>${name}</span><span class="cmp-chip-x">×</span>
+    </span>`;
+  }).join('') + (selectedTeams.length > 0 ? `<span style="font-size:.73rem;color:var(--muted);margin-left:6px;cursor:pointer;text-decoration:underline" onclick="clearCmp()">Limpiar todo</span>` : '');
+}
+
+function toggleCmpPanel(){
+  const panel = document.getElementById('cmpPanel');
+  const btn = document.getElementById('cmpToggleBtn');
+  const visible = panel.style.display !== 'none';
+  panel.style.display = visible ? 'none' : 'block';
+  btn.classList.toggle('cmp-active', !visible);
+}
+
+function clearCmp(){
+  selectedTeams = [];
+  updateCmpBtn();
+  updateCmpChips();
+  renderTTable();
+  renderCmp();
+  const panel = document.getElementById('cmpPanel');
+  panel.style.display = 'none';
+  document.getElementById('cmpToggleBtn').classList.remove('cmp-active');
+}
+
+function renderCmp(){
+  const el = document.getElementById('cmpResult');
+  if (selectedTeams.length < 2) {
+    el.innerHTML='<p class="cmp-empty-msg">Seleccioná al menos 2 equipos para ver la comparación.</p>';
+    return;
+  }
+  const teams = selectedTeams.map(name=>TEAMS.find(t=>t.Equipo===name)).filter(Boolean);
+  const colors = CMP_COLORS;
+
+  const stats = [
+    {key:'W%', label:'W%', fmt:v=>v!=null?v.toFixed(1)+'%':'—', higher:true},
+    {key:'ORtg', label:'ORtg', fmt:v=>v!=null?v.toFixed(1):'—', higher:true},
+    {key:'DRtg', label:'DRtg', fmt:v=>v!=null?v.toFixed(1):'—', higher:false},
+    {key:'NetRtg', label:'Net Rtg', fmt:v=>v!=null?(v>=0?'+':'')+v.toFixed(1):'—', higher:true},
+    {key:'EFG%', label:'EFG%', fmt:v=>v!=null?v.toFixed(1)+'%':'—', higher:true},
+    {key:'TS%', label:'TS%', fmt:v=>v!=null?v.toFixed(1)+'%':'—', higher:true},
+    {key:'TOV%', label:'TOV%', fmt:v=>v!=null?v.toFixed(1)+'%':'—', higher:false},
+    {key:'ORB%', label:'ORB%', fmt:v=>v!=null?v.toFixed(1)+'%':'—', higher:true},
+    {key:'PTSPG', label:'PTS/p', fmt:v=>v!=null?v.toFixed(1):'—', higher:true},
+    {key:'ASTPG', label:'AST/p', fmt:v=>v!=null?v.toFixed(1):'—', higher:true},
+    {key:'RTPG', label:'REB/p', fmt:v=>v!=null?v.toFixed(1):'—', higher:true},
+    {key:'PACE', label:'PACE', fmt:v=>v!=null?v.toFixed(1):'—', higher:true},
+  ];
+
+  const cardsHtml = teams.map((t,i)=>{
+    const hdr = `<div class="cmp-card-header" style="background:${colors[i]}">${t.Equipo} <span style="font-weight:500;font-size:.72rem;opacity:.85">${t.Ganados}G-${t.Perdidos}P</span></div>`;
+    const rows = stats.map(s=>{
+      const vals = teams.map(tt=>tt[s.key]);
+      const best = s.higher ? Math.max(...vals.filter(v=>v!=null)) : Math.min(...vals.filter(v=>v!=null));
+      const isBest = t[s.key] != null && Math.abs(t[s.key] - best) < 0.001;
+      return `<div class="cmp-stat-row"><span class="cmp-stat-label">${s.label}</span><span class="cmp-stat-val${isBest?' best':''}">${s.fmt(t[s.key])}</span></div>`;
+    }).join('');
+    return `<div class="cmp-card">${hdr}<div class="cmp-stat-list">${rows}</div></div>`;
+  }).join('');
+
+  const barStats = [
+    {key:'ORtg',label:'ORtg'},
+    {key:'DRtg',label:'DRtg (↓mejor)'},
+    {key:'EFG%',label:'EFG%'},
+    {key:'TS%',label:'TS%'},
+    {key:'ORB%',label:'ORB%'},
+    {key:'PTSPG',label:'PTS/p'},
+  ];
+  const barsHtml = barStats.map(s=>{
+    const vals = teams.map(t=>t[s.key]||0);
+    const maxV = Math.max(...vals)||1;
+    const chips = teams.map((t,i)=>{
+      const w = Math.round((vals[i]/maxV)*100);
+      return `<div style="margin-bottom:4px">
+        <div style="font-size:.66rem;color:${colors[i]};font-weight:700;margin-bottom:2px">${t.Equipo.split(' ')[0]}: ${vals[i].toFixed(1)}</div>
+        <div class="cmp-bar-track"><div class="cmp-bar-fill" style="width:${w}%;background:${colors[i]}"></div></div>
+      </div>`;
+    }).join('');
+    return `<div class="cmp-bar-group"><div class="cmp-bar-lbl">${s.label}</div>${chips}</div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div style="overflow-x:auto;margin-bottom:16px"><div class="cmp-cards">${cardsHtml}</div></div>
+    <div class="cmp-chart-wrap">
+      <div class="cmp-chart-title">Comparación visual de métricas clave</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">${barsHtml}</div>
+    </div>`;
+}
+
+
+// ============================================================
+// SYNC SCROLLBARS
+// ============================================================
+const scrollPairs = {};
+
+function setupScrollSync(wrapId, outerBarId, innerBarId) {
+  const wrap  = document.getElementById(wrapId);
+  const outer = document.getElementById(outerBarId);
+  const inner = document.getElementById(innerBarId);
+  if (!wrap || !outer || !inner) return;
+
+  scrollPairs[wrapId] = { wrap, outer, inner };
+
+  function measureAndSet() {
+    const tbl = wrap.querySelector('table');
+    const w = tbl ? tbl.offsetWidth : 0;
+    if (w > 0) inner.style.width = w + 'px';
+  }
+
+  // Try immediately and after delays (handles hidden sections)
+  measureAndSet();
+  setTimeout(measureAndSet, 200);
+  setTimeout(measureAndSet, 800);
+  window.addEventListener('resize', measureAndSet);
+
+  // Re-measure whenever rows change
+  new MutationObserver(() => setTimeout(measureAndSet, 50))
+    .observe(wrap, { childList: true, subtree: true });
+
+  // Sync: no flags needed — setting scrollLeft to same value won't re-fire scroll
+  wrap.addEventListener('scroll',  () => { outer.scrollLeft = wrap.scrollLeft; });
+  outer.addEventListener('scroll', () => { wrap.scrollLeft  = outer.scrollLeft; });
+}
+
+function remeasureScroll(wrapId) {
+  const p = scrollPairs[wrapId];
+  if (!p) return;
+  const tbl = p.wrap.querySelector('table');
+  const w = tbl ? tbl.offsetWidth : 0;
+  if (w > 0) p.inner.style.width = w + 'px';
+}
+
+// ============================================================
 // INIT
 // ============================================================
 onJFilter();
 onTFilter();
+setupScrollSync('jTableWrap','jScrollOuter','jScrollInner');
+setupScrollSync('tTableWrap','tScrollOuter','tScrollInner');
+// ============================================================
+// LEADERS
+// ============================================================
+const LEADERS_DATA = {"VAL": {"label": "Valoraci\u00f3n", "key": "VAL", "entries": [{"name": "CENTENO GARCIA, E.", "equipo": "VILLA SAN MARTIN", "val": 27.2, "gp": 5}, {"name": "BUEMO, C.", "equipo": "HINDU (C)", "val": 26.0, "gp": 5}, {"name": "ABEIRO, J.", "equipo": "FUSION RIOJANA", "val": 25.8, "gp": 5}, {"name": "BEIGIER, M.", "equipo": "FUSION RIOJANA", "val": 25.8, "gp": 5}, {"name": "MARTINEZ, P.", "equipo": "SP. SUARDI", "val": 25.8, "gp": 5}]}, "PTS": {"label": "Puntos", "key": "PTS", "entries": [{"name": "BUEMO, C.", "equipo": "HINDU (C)", "val": 22.4, "gp": 5}, {"name": "ALONSO, M.", "equipo": "DEP. NORTE", "val": 19.8, "gp": 5}, {"name": "JULIEN, K.", "equipo": "INDEPENDIENTE (SDE)", "val": 19.6, "gp": 5}, {"name": "MARTINEZ, P.", "equipo": "SP. SUARDI", "val": 19.6, "gp": 5}, {"name": "CENTENO GARCIA, E.", "equipo": "VILLA SAN MARTIN", "val": 19.2, "gp": 5}]}, "REB": {"label": "Rebotes", "key": "REB", "entries": [{"name": "ABEIRO, J.", "equipo": "FUSION RIOJANA", "val": 11.6, "gp": 5}, {"name": "CENTENO GARCIA, E.", "equipo": "VILLA SAN MARTIN", "val": 11.4, "gp": 5}, {"name": "GRYTSAK, A.", "equipo": "JUJUY BASQUET", "val": 11.2, "gp": 5}, {"name": "BONFIGLI, F.", "equipo": "PICO F.C.", "val": 9.2, "gp": 5}, {"name": "ROSENDE, R.", "equipo": "RACING (A)", "val": 9.0, "gp": 5}]}, "AST": {"label": "Asistencias", "key": "AST", "entries": [{"name": "DIAZ MULLER, J.", "equipo": "SANTA PAULA (G)", "val": 7.4, "gp": 5}, {"name": "LUGLI, A.", "equipo": "INDEPENDIENTE (SDE)", "val": 7.0, "gp": 5}, {"name": "VIETA STECHINA, F.", "equipo": "VILLA SAN MARTIN", "val": 6.6, "gp": 5}, {"name": "GOMEZ, M.", "equipo": "CENTENARIO (VT)", "val": 6.0, "gp": 5}, {"name": "MIGNANI, S.", "equipo": "DEP. NORTE", "val": 6.0, "gp": 5}]}, "REC": {"label": "Robos", "key": "REC", "entries": [{"name": "LUGLI, A.", "equipo": "INDEPENDIENTE (SDE)", "val": 3.2, "gp": 5}, {"name": "BELLOZAS, J.", "equipo": "UNION (MDP)", "val": 2.6, "gp": 5}, {"name": "LAMBRISCA, M.", "equipo": "SAN ISIDRO", "val": 2.4, "gp": 5}, {"name": "MIGNANI, S.", "equipo": "DEP. NORTE", "val": 2.4, "gp": 5}, {"name": "PIVIDORI, L.", "equipo": "CENTRAL ENTRERRIANO", "val": 2.4, "gp": 5}]}, "TAP": {"label": "Tapones", "key": "TAP", "entries": [{"name": "BARAHONA ARROYO, A.", "equipo": "PROVINCIAL (R)", "val": 2.4, "gp": 5}, {"name": "BRUERA, S.", "equipo": "HINDU (C)", "val": 1.8, "gp": 5}, {"name": "CENTENO GARCIA, E.", "equipo": "VILLA SAN MARTIN", "val": 1.6, "gp": 5}, {"name": "GARRETT II, Z.", "equipo": "RIVADAVIA (MZA)", "val": 1.4, "gp": 5}, {"name": "ALVAREZ, W.", "equipo": "SALTA BASKET", "val": 1.2, "gp": 5}]}, "PER": {"label": "P\u00e9rdidas", "key": "PER", "entries": [{"name": "LUGLI, A.", "equipo": "INDEPENDIENTE (SDE)", "val": 4.4, "gp": 5}, {"name": "PELOROSSO, R.", "equipo": "GIMNASIA (LP)", "val": 4.0, "gp": 5}, {"name": "OSORES, P.", "equipo": "AMANCAY (LR)", "val": 3.8, "gp": 5}, {"name": "DIAZ MULLER, J.", "equipo": "SANTA PAULA (G)", "val": 3.4, "gp": 5}, {"name": "FEDER PONCE, H.", "equipo": "COLON (SF)", "val": 3.4, "gp": 5}]}, "T3PCT": {"label": "% Triple", "key": "T3PCT", "entries": [{"name": "ORTIZ, L.", "equipo": "SAN ISIDRO", "val": 65.0, "gp": 5}, {"name": "VENTURA, A.", "equipo": "DEP. VIEDMA", "val": 64.3, "gp": 5}, {"name": "CHEESEMAN, A.", "equipo": "DEP. VIEDMA", "val": 61.9, "gp": 5}, {"name": "MARTINEZ, M.", "equipo": "INDEPENDIENTE (SDE)", "val": 61.5, "gp": 5}, {"name": "BALBO, G.", "equipo": "SANTA PAULA (G)", "val": 59.3, "gp": 5}]}, "T2PCT": {"label": "% Doble", "key": "T2PCT", "entries": [{"name": "GERBAUDO, G.", "equipo": "PROVINCIAL (R)", "val": 88.9, "gp": 5}, {"name": "DIARRA, N.", "equipo": "QUILMES (MDP)", "val": 87.5, "gp": 5}, {"name": "SCAVOLINI, S.", "equipo": "BARRIO PARQUE", "val": 87.5, "gp": 5}, {"name": "GAGLIARDI, L.", "equipo": "RACING (A)", "val": 85.7, "gp": 5}, {"name": "NALLY, J.", "equipo": "QUILMES (MDP)", "val": 83.3, "gp": 5}]}, "T1PCT": {"label": "% Libre", "key": "T1PCT", "entries": [{"name": "ALONSO, G.", "equipo": "AMANCAY (LR)", "val": 100.0, "gp": 5}, {"name": "BASTARDO JOSE, R.", "equipo": "COMUNICACIONES", "val": 100.0, "gp": 5}, {"name": "BERNAN, M.", "equipo": "AMANCAY (LR)", "val": 100.0, "gp": 5}, {"name": "BOFFELLI, J.", "equipo": "GIMNASIA (LP)", "val": 100.0, "gp": 5}, {"name": "GOMEZ, M.", "equipo": "CENTENARIO (VT)", "val": 100.0, "gp": 5}]}};
+
+const LEADER_ICONS = {};
+const LEADER_COLORS = ['r1','r2','r3','',''];
+
+function buildLeaders() {
+  const grid = document.getElementById('leadersGrid');
+  if(!grid) return;
+  grid.innerHTML = '';
+  Object.values(LEADERS_DATA).forEach(cat => {
+    const card = document.createElement('div');
+    card.className = 'leader-card';
+    const rows = cat.entries.map((e,i) => {
+      const isPct = cat.key.endsWith('PCT');
+      const displayVal = isPct ? e.val.toFixed(1)+'%' : (e.val % 1 === 0 ? e.val.toFixed(0) : e.val.toFixed(1));
+      const initials = e.name.split(',')[0].trim().slice(0,2);
+      return `<div class="leader-row ${i===0?'rank-1':''}">
+        <span class="leader-rank ${LEADER_COLORS[i]||''}">${i+1}</span>
+        <div class="leader-avatar ${i===0?'av1':''}">${initials}</div>
+        <div class="leader-info">
+          <div class="leader-name">${e.name}</div>
+          <div class="leader-team">${e.equipo}</div>
+        </div>
+        <div class="leader-val-wrap">
+          <div class="leader-val">${displayVal}</div>
+          <div class="leader-gp">${e.gp} PJ</div>
+        </div>
+      </div>`;
+    }).join('');
+    card.innerHTML = `<div class="leader-card-header">
+      <h3>${cat.label}</h3>
+      <div class="lc-bar"></div>
+    </div>
+    <div class="leader-card-body">${rows}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+buildLeaders();
 </script>
 </body>
 </html>
