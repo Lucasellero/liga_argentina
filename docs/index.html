@@ -562,7 +562,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .tgm-tab.active{color:var(--purple-l);border-bottom-color:var(--purple);}
 
 /* ── SHOT MAP ──────────────────────────────────────── */
-.tgm-map-panel{flex:1;padding:10px 16px 8px;display:flex;flex-direction:column;overflow:hidden;min-height:0;gap:10px;}
+.tgm-map-panel{overflow-y:auto;flex:1;padding:10px 16px 8px;display:flex;flex-direction:column;gap:10px;}
 .sm-controls{display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-shrink:0;}
 .sm-toggle{
   display:inline-flex;background:rgba(0,0,0,.3);
@@ -574,8 +574,8 @@ canvas{display:block;width:100%;cursor:crosshair;}
   cursor:pointer;transition:all .15s;font-family:inherit;white-space:nowrap;
 }
 .sm-toggle button.active{background:rgba(139,92,246,.2);color:var(--purple-l);}
-.sm-court-wrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;}
-#shotMapCanvas{display:block;max-height:100%;max-width:100%;border-radius:8px;}
+.sm-court-wrap{width:72%;margin:0 auto;}
+#shotMapCanvas{display:block;width:100%;border-radius:8px;}
 .sm-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;font-size:.67rem;color:var(--muted);align-items:center;justify-content:center;flex-shrink:0;}
 .sm-ld{display:flex;align-items:center;gap:5px;}
 .sm-ld-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
@@ -2291,15 +2291,10 @@ function renderShotMap() {
   const legend = document.getElementById('smLegend');
   const { gameId, local, visit, filter } = _smState;
 
-  // Fit canvas within available space maintaining 28:15 aspect ratio
-  const wrap = canvas.parentElement;
-  const maxW = wrap.offsetWidth || 600;
-  const maxH = wrap.offsetHeight || 400;
-  let W = maxW, H = Math.round(W * 15 / 28);
-  if (H > maxH) { H = maxH; W = Math.round(H * 28 / 15); }
+  // Size canvas to match CSS width, derive height from 28:15 aspect ratio
+  const W = canvas.offsetWidth || 600;
+  const H = Math.round(W * 15 / 28);
   canvas.width = W; canvas.height = H;
-  canvas.style.width  = W + 'px';
-  canvas.style.height = H + 'px';
 
   const shots = SHOTS_MAP ? (SHOTS_MAP.get(gameId) || []) : [];
 
