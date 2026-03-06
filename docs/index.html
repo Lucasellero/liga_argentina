@@ -546,6 +546,43 @@ canvas{display:block;width:100%;cursor:crosshair;}
 /* Progressive filter reveal */
 .filter-row{transition:opacity .22s ease,transform .22s ease;}
 .filter-row[style*="display:none"]{opacity:0;transform:translateY(-4px);}
+
+/* ── GAME DETAIL TABS ──────────────────────────────── */
+.tgm-detail-tabs{
+  display:flex;border-bottom:1px solid var(--border2);
+  padding:0 18px;flex-shrink:0;background:var(--bg);
+}
+.tgm-tab{
+  padding:10px 16px;font-size:.77rem;font-weight:600;
+  border:none;background:transparent;color:var(--muted);
+  cursor:pointer;border-bottom:2px solid transparent;
+  transition:all .18s;font-family:inherit;letter-spacing:.2px;
+}
+.tgm-tab:hover{color:var(--text);}
+.tgm-tab.active{color:var(--purple-l);border-bottom-color:var(--purple);}
+
+/* ── SHOT MAP ──────────────────────────────────────── */
+.tgm-map-panel{flex:1;padding:10px 16px 8px;display:flex;flex-direction:column;overflow:hidden;min-height:0;gap:10px;}
+.sm-controls{display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-shrink:0;}
+.sm-toggle{
+  display:inline-flex;background:rgba(0,0,0,.3);
+  border:1px solid var(--border2);border-radius:20px;padding:2px;
+}
+.sm-toggle button{
+  border:none;background:transparent;color:var(--muted);
+  padding:3px 10px;border-radius:16px;font-size:.67rem;font-weight:600;
+  cursor:pointer;transition:all .15s;font-family:inherit;white-space:nowrap;
+}
+.sm-toggle button.active{background:rgba(139,92,246,.2);color:var(--purple-l);}
+.sm-court-wrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;}
+#shotMapCanvas{display:block;max-height:100%;max-width:100%;border-radius:8px;}
+.sm-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;font-size:.67rem;color:var(--muted);align-items:center;justify-content:center;flex-shrink:0;}
+.sm-ld{display:flex;align-items:center;gap:5px;}
+.sm-ld-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.sm-ld-x{width:9px;height:9px;display:inline-block;flex-shrink:0;position:relative;}
+.sm-ld-x::before,.sm-ld-x::after{content:'';position:absolute;width:100%;height:1.5px;top:50%;left:0;border-radius:1px;}
+.sm-ld-x::before{transform:translateY(-50%) rotate(45deg);}
+.sm-ld-x::after{transform:translateY(-50%) rotate(-45deg);}
 </style>
 </head>
 <body>
@@ -1107,7 +1144,37 @@ canvas{display:block;width:100%;cursor:crosshair;}
     <div id="tgmDetail">
       <button class="tgm-back" onclick="closeGameDetail()">‹ Volver</button>
       <div class="tgm-scoreboard" id="tgmScoreboard"></div>
+      <div class="tgm-detail-tabs">
+        <button class="tgm-tab active" id="tgmTabStats" onclick="switchGameTab('stats')">Estadísticas</button>
+        <button class="tgm-tab" id="tgmTabMap" onclick="switchGameTab('map')">Mapa de tiro</button>
+      </div>
       <div class="tgm-detail-body" id="tgmDetailBody"></div>
+      <div class="tgm-map-panel" id="tgmMapPanel" style="display:none">
+        <div class="sm-controls" id="smControls">
+          <div class="sm-toggle" id="smTeamToggle">
+            <button class="active" data-filter="team" data-val="all">Ambos</button>
+            <button id="smBtnLocal" data-filter="team" data-val="local">Local</button>
+            <button id="smBtnVisit" data-filter="team" data-val="visit">Visitante</button>
+          </div>
+          <div class="sm-toggle">
+            <button class="active" data-filter="tipo" data-val="all">Todos</button>
+            <button data-filter="tipo" data-val="TIRO2">Dobles</button>
+            <button data-filter="tipo" data-val="TIRO3">Triples</button>
+          </div>
+          <div class="sm-toggle">
+            <button class="active" data-filter="result" data-val="all">Conv. y Fall.</button>
+            <button data-filter="result" data-val="CONVERTIDO">Convertidos</button>
+            <button data-filter="result" data-val="FALLADO">Fallados</button>
+          </div>
+        </div>
+        <div class="sm-court-wrap">
+          <canvas id="shotMapCanvas"></canvas>
+        </div>
+        <div class="sm-legend" id="smLegend"></div>
+        <div id="smNoData" style="display:none;padding:24px;text-align:center;color:var(--muted);font-size:.82rem">
+          No hay datos de mapa de tiro para este partido.
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -1255,6 +1322,7 @@ function buildRAW_T(rows) {
             tap:  parseFloat(r['Tapones cometidos'])||0, val: parseFloat(r['Valoracion'])||0,
           });
           map[my['Equipo']]._gamelog.push({
+            gameId: my['IdPartido'],
             fecha: my['Fecha'],
             rival: opp['Equipo'],
             condicion: my['Condicion equipos'],
@@ -1322,6 +1390,11 @@ let jSort='PPG', jDir='desc';
 let tSort='NetRtg', tDir='desc';
 let jPts=[], tPts=[];
 let jHov=-1, jPin=new Set(), tHov=-1, tPin=-1;
+
+// ── SHOTS DATA ──────────────────────────────────────
+const SHOTS_CSV = 'liga_argentina_shots.csv';
+let SHOTS_MAP = null; // null=not loaded, Map keyed by gameId
+let _smState = { gameId: null, local: '', visit: '', filter: { team: 'all', tipo: 'all', result: 'all' } };
 
 const f2=v=>v==null||isNaN(v)?'—':v.toFixed(2);
 const f1=v=>v==null||isNaN(v)?'—':v.toFixed(1);
@@ -2169,6 +2242,218 @@ function renderStandings() {
 }
 
 // ============================================================
+// SHOT MAP
+// ============================================================
+
+async function loadShots() {
+  if (SHOTS_MAP !== null) return;
+  try {
+    const resp = await fetch(SHOTS_CSV + '?v=' + Date.now(), { cache: 'no-store' });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const text = await resp.text();
+    const rows = parseCSV(text);
+    SHOTS_MAP = new Map();
+    rows.forEach(r => {
+      const gid = r['IdPartido'];
+      if (!gid) return;
+      if (!SHOTS_MAP.has(gid)) SHOTS_MAP.set(gid, []);
+      SHOTS_MAP.get(gid).push(r);
+    });
+  } catch(e) {
+    SHOTS_MAP = new Map(); // empty map on error
+  }
+}
+
+function switchGameTab(tab) {
+  document.getElementById('tgmTabStats').classList.toggle('active', tab === 'stats');
+  document.getElementById('tgmTabMap').classList.toggle('active', tab === 'map');
+  document.getElementById('tgmDetailBody').style.display = tab === 'stats' ? '' : 'none';
+  document.getElementById('tgmMapPanel').style.display = tab === 'map' ? '' : 'none';
+  if (tab === 'map') {
+    const doRender = () => requestAnimationFrame(renderShotMap);
+    if (SHOTS_MAP === null) loadShots().then(doRender); else doRender();
+  }
+}
+
+document.getElementById('smControls').addEventListener('click', function(e) {
+  const btn = e.target.closest('button[data-filter]');
+  if (!btn) return;
+  const filter = btn.dataset.filter, val = btn.dataset.val;
+  _smState.filter[filter] = val;
+  // Update active state within the toggle group
+  btn.closest('.sm-toggle').querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+  renderShotMap();
+});
+
+function renderShotMap() {
+  const canvas = document.getElementById('shotMapCanvas');
+  const noData = document.getElementById('smNoData');
+  const legend = document.getElementById('smLegend');
+  const { gameId, local, visit, filter } = _smState;
+
+  // Fit canvas within available space maintaining 28:15 aspect ratio
+  const wrap = canvas.parentElement;
+  const maxW = wrap.offsetWidth || 600;
+  const maxH = wrap.offsetHeight || 400;
+  let W = maxW, H = Math.round(W * 15 / 28);
+  if (H > maxH) { H = maxH; W = Math.round(H * 28 / 15); }
+  canvas.width = W; canvas.height = H;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+
+  const shots = SHOTS_MAP ? (SHOTS_MAP.get(gameId) || []) : [];
+
+  if (!shots.length) {
+    noData.style.display = '';
+    canvas.style.display = 'none';
+    legend.style.display = 'none';
+    return;
+  }
+  noData.style.display = 'none';
+  canvas.style.display = '';
+  legend.style.display = '';
+
+  // Filter shots
+  const filtered = shots.filter(s => {
+    const isLocal = s['Local'] === 'True';
+    if (filter.team === 'local' && !isLocal) return false;
+    if (filter.team === 'visit' && isLocal) return false;
+    if (filter.tipo !== 'all' && s['Tipo'] !== filter.tipo) return false;
+    if (filter.result !== 'all' && s['Resultado'] !== filter.result) return false;
+    return true;
+  });
+
+  const ctx = canvas.getContext('2d');
+  drawCourt(ctx, W, H);
+  drawShots(ctx, W, H, filtered, local, visit);
+
+  // Legend — matches rendering: filled circle=convertido, empty circle+X=fallado, color=equipo
+  const lc = '#a78bfa', vc = '#5eead4';
+  const svgMade  = c => `<svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="${c}" opacity=".85"/></svg>`;
+  const svgMiss  = c => `<svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="none" stroke="${c}" stroke-width="1.4" opacity=".75"/><line x1="2.5" y1="2.5" x2="7.5" y2="7.5" stroke="${c}" stroke-width="1.5" opacity=".75"/><line x1="7.5" y1="2.5" x2="2.5" y2="7.5" stroke="${c}" stroke-width="1.5" opacity=".75"/></svg>`;
+  legend.innerHTML = `
+    <div class="sm-ld">${svgMade(lc)}${svgMiss(lc)}&nbsp;${local}</div>
+    <div class="sm-ld">${svgMade(vc)}${svgMiss(vc)}&nbsp;${visit}</div>
+    <div style="width:1px;height:12px;background:var(--border2)"></div>
+    <div class="sm-ld">${svgMade('#94a3b8')}&nbsp;Convertido</div>
+    <div class="sm-ld">${svgMiss('#94a3b8')}&nbsp;Fallado</div>
+    <div style="color:var(--muted2);margin-left:2px">${filtered.length} tiros</div>`;
+}
+
+function drawCourt(ctx, W, H) {
+  const m = W / 28; // pixels per meter (FIBA full court 28m)
+
+  // Background
+  ctx.fillStyle = '#0d1117';
+  ctx.fillRect(0, 0, W, H);
+  // Court surface tint
+  ctx.fillStyle = 'rgba(139,92,246,.04)';
+  ctx.fillRect(0, 0, W, H);
+
+  const lc = 'rgba(139,92,246,.35)';
+  ctx.strokeStyle = lc;
+  ctx.lineWidth = Math.max(1, W / 700);
+
+  // Outer boundary
+  ctx.strokeRect(0.5, 0.5, W - 1, H - 1);
+
+  // Center line
+  ctx.beginPath(); ctx.moveTo(W/2, 0); ctx.lineTo(W/2, H); ctx.stroke();
+
+  // Center circle (r=1.8m)
+  ctx.beginPath(); ctx.arc(W/2, H/2, 1.8*m, 0, Math.PI*2); ctx.stroke();
+
+  // Both ends
+  [[0, 1], [W, -1]].forEach(([bx, dir]) => {
+    const basketX = bx + dir * 1.575 * m;
+    const cy = H / 2;
+    const paintD = 5.8 * m;
+    const paintW = 4.9 * m;
+
+    // Paint area
+    ctx.strokeRect(bx, cy - paintW/2, dir * paintD, paintW);
+
+    // Free throw circle — back half only (facing court)
+    ctx.beginPath();
+    const ftX = bx + dir * 5.8 * m;
+    ctx.arc(ftX, cy, 1.8*m, dir > 0 ? Math.PI/2 : -Math.PI/2, dir > 0 ? 3*Math.PI/2 : Math.PI/2, dir < 0);
+    ctx.stroke();
+    // Front half dashed
+    ctx.save(); ctx.setLineDash([4, 5]);
+    ctx.beginPath();
+    ctx.arc(ftX, cy, 1.8*m, dir > 0 ? -Math.PI/2 : Math.PI/2, dir > 0 ? Math.PI/2 : 3*Math.PI/2, dir < 0);
+    ctx.stroke(); ctx.restore();
+
+    // Restricted area arc (r=1.25m)
+    ctx.beginPath();
+    ctx.arc(basketX, cy, 1.25*m, dir > 0 ? Math.PI/2 : -Math.PI/2, dir > 0 ? 3*Math.PI/2 : Math.PI/2, dir < 0);
+    ctx.stroke();
+
+    // Basket ring
+    ctx.strokeStyle = 'rgba(251,146,60,.7)';
+    ctx.beginPath(); ctx.arc(basketX, cy, 0.23*m, 0, Math.PI*2); ctx.stroke();
+    ctx.strokeStyle = lc;
+
+    // 3-point line
+    const r3 = 6.75 * m;
+    const cornerY1 = 0.9 * m;
+    const cornerY2 = H - 0.9 * m;
+    const dy1 = cornerY1 - cy, dy2 = cornerY2 - cy;
+    const dx1 = Math.sqrt(Math.max(0, r3*r3 - dy1*dy1));
+    const ang1 = Math.atan2(dy1, dir * dx1);
+    const ang2 = Math.atan2(dy2, dir * dx1);
+
+    // Corner straight segments
+    ctx.beginPath(); ctx.moveTo(bx, cornerY1); ctx.lineTo(basketX + dir*dx1, cornerY1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(bx, cornerY2); ctx.lineTo(basketX + dir*dx1, cornerY2); ctx.stroke();
+
+    // Arc
+    ctx.beginPath();
+    ctx.arc(basketX, cy, r3, ang1, ang2, dir < 0);
+    ctx.stroke();
+  });
+}
+
+function drawShots(ctx, W, H, shots, local, visit) {
+  const r = Math.max(4, W / 100); // dot radius scales with canvas
+
+  shots.forEach(s => {
+    const x = parseFloat(s['Left_pct']) / 100 * W;
+    const y = parseFloat(s['Top_pct'])  / 100 * H;
+    if (isNaN(x) || isNaN(y)) return;
+
+    const isLocal = s['Local'] === 'True';
+    const made    = s['Resultado'] === 'CONVERTIDO';
+    const baseColor = isLocal ? '#8b5cf6' : '#2dd4bf';
+    const fillColor = made
+      ? (isLocal ? 'rgba(139,92,246,.85)' : 'rgba(45,212,191,.85)')
+      : 'rgba(0,0,0,0)';
+    const strokeColor = made
+      ? (isLocal ? '#a78bfa' : '#5eead4')
+      : (isLocal ? 'rgba(139,92,246,.7)' : 'rgba(45,212,191,.7)');
+
+    ctx.beginPath();
+    ctx.arc(x, y, r * (made ? 1 : 0.85), 0, Math.PI*2);
+    ctx.fillStyle = fillColor;
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = 1.2;
+    ctx.fill();
+    ctx.stroke();
+
+    // X mark for missed shots
+    if (!made) {
+      const d = r * 0.5;
+      ctx.beginPath();
+      ctx.moveTo(x-d, y-d); ctx.lineTo(x+d, y+d);
+      ctx.moveTo(x+d, y-d); ctx.lineTo(x-d, y+d);
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+  });
+}
+
+// ============================================================
 // TEAM GAMES MODAL
 // ============================================================
 let _currentTeamName = '';
@@ -2212,6 +2497,31 @@ function showTeamGames(teamName) {
 }
 
 function showGameDetail(g, teamName) {
+  // Store state for shot map
+  const isLocal = g.condicion === 'LOCAL';
+  _smState.gameId = g.gameId || null;
+  _smState.local  = isLocal ? teamName : g.rival;
+  _smState.visit  = isLocal ? g.rival  : teamName;
+  _smState.filter = { team: 'all', tipo: 'all', result: 'all' };
+
+  // Update local/visit button labels
+  document.getElementById('smBtnLocal').textContent = _smState.local;
+  document.getElementById('smBtnVisit').textContent = _smState.visit;
+
+  // Reset toggles to "all"
+  document.querySelectorAll('#smControls .sm-toggle button').forEach(b => {
+    b.classList.toggle('active', b.dataset.val === 'all');
+  });
+
+  // Reset to stats tab
+  document.getElementById('tgmTabStats').classList.add('active');
+  document.getElementById('tgmTabMap').classList.remove('active');
+  document.getElementById('tgmDetailBody').style.display = '';
+  document.getElementById('tgmMapPanel').style.display = 'none';
+
+  // Load shots in background
+  if (SHOTS_MAP === null) loadShots();
+
   // Scoreboard
   const myWinner = g.ganado;
   const myLogo  = LOGOS[teamName] ? `<img src="${LOGOS[teamName]}" class="tgm-sb-logo" alt="" onerror="this.style.display='none'">` : '';
