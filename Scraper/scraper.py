@@ -39,11 +39,18 @@ HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/122.0.0.0 Safari/537.36"
+        "Chrome/123.0.0.0 Safari/537.36"
     ),
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Language": "es-AR,es;q=0.9,en;q=0.8",
-    "Referer": f"{BASE_URL}{LEAGUE_PATH}/fixture",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+    "Accept-Language": "es-AR,es;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "same-origin",
+    "Sec-Fetch-User": "?1",
+    "Cache-Control": "max-age=0",
 }
 
 CSV_COLUMNS = [
@@ -132,6 +139,20 @@ log = logging.getLogger(__name__)
 def make_session() -> requests.Session:
     s = requests.Session()
     s.headers.update(HEADERS)
+    # Warm up: visit homepage first to get cookies and avoid 403 on direct API calls
+    try:
+        log.info("Warming up session...")
+        warmup = s.get(BASE_URL, timeout=REQUEST_TIMEOUT)
+        warmup.raise_for_status()
+        time.sleep(REQUEST_DELAY)
+        # Visit the fixture page as a human would before querying it
+        s.headers.update({"Referer": BASE_URL})
+        fixture_page = s.get(f"{BASE_URL}{LEAGUE_PATH}/fixture", timeout=REQUEST_TIMEOUT)
+        fixture_page.raise_for_status()
+        s.headers.update({"Referer": f"{BASE_URL}{LEAGUE_PATH}/fixture"})
+        time.sleep(REQUEST_DELAY)
+    except Exception as e:
+        log.warning(f"Session warmup failed (continuing anyway): {e}")
     return s
 
 
