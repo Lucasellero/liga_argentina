@@ -19,6 +19,7 @@ from datetime import datetime
 from pathlib import Path
 
 import requests
+import cloudscraper
 from bs4 import BeautifulSoup
 import pandas as pd
 
@@ -136,27 +137,13 @@ log = logging.getLogger(__name__)
 # HTTP helpers
 # ---------------------------------------------------------------------------
 
-def make_session() -> requests.Session:
-    s = requests.Session()
-    s.headers.update(HEADERS)
-    # Warm up: visit homepage first to get cookies and avoid 403 on direct API calls
-    try:
-        log.info("Warming up session...")
-        warmup = s.get(BASE_URL, timeout=REQUEST_TIMEOUT)
-        warmup.raise_for_status()
-        time.sleep(REQUEST_DELAY)
-        # Visit the fixture page as a human would before querying it
-        s.headers.update({"Referer": BASE_URL})
-        fixture_page = s.get(f"{BASE_URL}{LEAGUE_PATH}/fixture", timeout=REQUEST_TIMEOUT)
-        fixture_page.raise_for_status()
-        s.headers.update({"Referer": f"{BASE_URL}{LEAGUE_PATH}/fixture"})
-        time.sleep(REQUEST_DELAY)
-    except Exception as e:
-        log.warning(f"Session warmup failed (continuing anyway): {e}")
+def make_session() -> cloudscraper.CloudScraper:
+    s = cloudscraper.create_scraper(browser={"browser": "chrome", "platform": "windows", "mobile": False})
+    s.headers.update({"Accept-Language": "es-AR,es;q=0.9,en-US;q=0.8,en;q=0.7"})
     return s
 
 
-def get(session: requests.Session, url: str, **kwargs) -> requests.Response:
+def get(session, url: str, **kwargs) -> requests.Response:
     resp = session.get(url, timeout=REQUEST_TIMEOUT, **kwargs)
     resp.raise_for_status()
     resp.encoding = resp.apparent_encoding or "utf-8"
