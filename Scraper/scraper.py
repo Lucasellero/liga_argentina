@@ -657,14 +657,12 @@ def _split_name(full: str) -> tuple[str, str]:
 # Cache helpers
 # ---------------------------------------------------------------------------
 
+CSV_FILE = OUTPUT_DIR / "liga_argentina.csv"
+
+
 def find_latest_csv() -> Path | None:
-    """Return the most recently modified liga_argentina_todos_partidos_*.csv in OUTPUT_DIR."""
-    candidates = sorted(
-        OUTPUT_DIR.glob("liga_argentina_todos_partidos_*.csv"),
-        key=lambda p: p.stat().st_mtime,
-        reverse=True,
-    )
-    return candidates[0] if candidates else None
+    """Return the fixed CSV file if it exists."""
+    return CSV_FILE if CSV_FILE.exists() else None
 
 
 def load_cached_game_ids(csv_path: Path) -> set[str]:
@@ -769,13 +767,9 @@ def main():
 
     log.info(f"Total rows: {len(merged_df)} ({len(new_rows)} new + {len(merged_df) - len(new_rows)} cached)")
 
-    # 5. Save with date-based filename
-    if args.output:
-        csv_path = Path(args.output)
-    else:
-        today = datetime.now().strftime("%d-%m-%Y")
-        csv_path = OUTPUT_DIR / f"liga_argentina_todos_partidos_{today}.csv"
-
+    # 5. Save to fixed filename
+    csv_path = Path(args.output) if args.output else CSV_FILE
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     merged_df.to_csv(csv_path, index=False, encoding="utf-8-sig")
     log.info(f"Saved -> {csv_path}")
 
