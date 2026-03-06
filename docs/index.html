@@ -81,13 +81,14 @@ body{
 }
 .header-left{display:flex;align-items:center;gap:16px;}
 .ball-icon{
-  width:50px;height:50px;
+  width:90px;height:90px;
   background:linear-gradient(135deg,var(--purple-d),var(--purple));
-  border-radius:15px;
+  border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   font-size:25px;
   box-shadow:0 4px 20px rgba(139,92,246,.55),0 0 0 1px rgba(139,92,246,.35);
   position:relative;z-index:1;
+  overflow:hidden;
 }
 .title{font-size:1.25rem;font-weight:800;color:#fff;letter-spacing:-.4px;line-height:1.1;}
 .title span{color:var(--purple-l);}
@@ -97,7 +98,7 @@ body{
 .badge-p{background:rgba(139,92,246,.18);color:var(--purple-l);border:1px solid rgba(139,92,246,.32);}
 .badge-t{background:rgba(45,212,191,.13);color:var(--teal-l);border:1px solid rgba(45,212,191,.28);}
 
-/* ── MAIN TABS ───────────────────────────────────── */
+/* ��─ MAIN TABS ───────────────────────���───────────── */
 .main-tabs{
   background:var(--surface);
   border-bottom:1px solid var(--border2);
@@ -121,54 +122,81 @@ body{
 .main-tab.active{color:var(--purple-l);border-bottom-color:var(--purple);background:rgba(139,92,246,.09);}
 .main-tab .tab-cat{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;opacity:.45;margin-right:2px;}
 
-/* ── SECTION ─────────────────────────────────────── */
+/* ── SECTION ───────���─────────────────────────────── */
 .section{display:none;}
 .section.active{display:block;}
 
 /* ── CONTROLS ────────────────────────────────────── */
 .controls{
-  padding:14px 40px 16px;
-  display:flex;flex-direction:column;gap:10px;
-  background:var(--surface2);
+  padding:0 40px;
+  background:var(--bg2);
   border-bottom:1px solid var(--border2);
   position:relative;z-index:10;
 }
+/* legacy layout classes kept for team section */
 .controls-left{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
 .controls-right{display:flex;flex-direction:column;gap:7px;}
-.controls-footer{display:flex;align-items:center;gap:10px;}
-.search-wrap{position:relative;min-width:180px;max-width:250px;}
-.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+.controls-footer{display:flex;align-items:center;gap:10px;padding-bottom:12px;}
+
+/* ── NEW CTRL BAR ────────────────────────────────── */
+.ctrl-bar{display:flex;align-items:center;gap:8px;padding:11px 0;flex-wrap:wrap;}
+.ctrl-filters{display:flex;flex-direction:column;gap:6px;padding-bottom:11px;}
+.ctrl-sep{width:1px;height:22px;background:var(--border2);flex-shrink:0;margin:0 2px;}
+.ctrl-spacer{flex:1;}
+.ctrl-filter-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:16px;height:16px;border-radius:50%;
+  background:rgba(139,92,246,.25);color:var(--purple-l);
+  font-size:.6rem;font-weight:800;flex-shrink:0;
+}
+
+.search-wrap{position:relative;width:210px;flex-shrink:0;}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
 
 input[type=text],select,input[type=number]{
-  background:rgba(255,255,255,.05);
+  background:rgba(255,255,255,.04);
   border:1.5px solid var(--border2);
-  color:var(--text);border-radius:8px;
-  padding:7px 11px;font-size:.82rem;
+  color:var(--text);border-radius:9px;
+  padding:7px 12px;font-size:.83rem;
   outline:none;font-family:inherit;
-  transition:border-color .2s,box-shadow .2s;
+  transition:border-color .18s,box-shadow .18s;
 }
-input[type=text]{padding-left:32px;width:100%;}
+input[type=text]{padding-left:34px;width:100%;}
 input[type=number]{width:80px;}
-input:focus,select:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(139,92,246,.15);}
+input:focus,select:focus{
+  border-color:var(--purple);
+  box-shadow:0 0 0 3px rgba(139,92,246,.14);
+  background:rgba(139,92,246,.05);
+}
 select option{background:var(--surface2);color:var(--text);}
 
 .fg{display:flex;align-items:center;gap:7px;flex-shrink:0;}
 .fg label{font-size:.71rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;}
 .sep{width:1px;height:22px;background:var(--border2);align-self:center;}
-.stat-count{font-size:.81rem;color:var(--muted);}
+
+.stat-count{
+  font-size:.81rem;color:var(--muted);
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border2);
+  border-radius:20px;padding:4px 11px;white-space:nowrap;
+}
 .stat-count span{color:var(--purple-l);font-weight:700;}
+
 .filter-row{display:flex;align-items:center;gap:7px;}
 .filter-row .flbl{font-size:.69rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;width:46px;}
-.filter-row select{min-width:136px;}
+.filter-row select{min-width:140px;}
 .filter-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;}
-.op-select{min-width:56px;}
-.filter-row input[type=number]{width:76px;}
+.op-select{min-width:58px;}
+.filter-row input[type=number]{width:78px;}
+
 .clear-btn{
+  display:flex;align-items:center;gap:5px;
   background:transparent;border:1.5px solid var(--border2);
-  color:var(--muted);border-radius:7px;padding:6px 11px;
-  font-size:.74rem;cursor:pointer;font-family:inherit;transition:all .15s;font-weight:500;
+  color:var(--muted);border-radius:8px;padding:6px 12px;
+  font-size:.76rem;cursor:pointer;font-family:inherit;transition:all .15s;font-weight:500;
+  white-space:nowrap;
 }
-.clear-btn:hover{border-color:var(--purple);color:var(--purple-l);background:var(--purple-soft);}
+.clear-btn:hover{border-color:rgba(239,68,68,.5);color:#f87171;background:rgba(239,68,68,.06);}
 .filter2-row{display:flex;align-items:center;gap:6px;}
 
 /* ── TABLE TOGGLE ────────────────────────────────── */
@@ -372,7 +400,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .leader-row.rank-1 .leader-val{color:var(--purple-l);font-size:1.18rem;}
 .leader-gp{font-size:.58rem;color:var(--muted);text-align:right;margin-top:2px;opacity:.6;}
 
-/* ── TEAM COMPARISON ─────────────────────────────── */
+/* ── TEAM COMPARISON ────────��────────────────────── */
 .cmp-toggle-btn{
   display:inline-flex;align-items:center;gap:6px;
   background:var(--surface);border:1.5px solid var(--border);
@@ -429,6 +457,92 @@ canvas{display:block;width:100%;cursor:crosshair;}
 
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* ── TEAM GAMES MODAL ────────────────────────────── */
+#teamGamesBackdrop{
+  display:none;position:fixed;inset:0;z-index:5000;
+  background:rgba(0,0,0,.72);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;
+}
+#teamGamesBackdrop.open{display:flex;}
+#teamGamesModal{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;width:90%;max-width:860px;
+  max-height:82vh;display:flex;flex-direction:column;
+  box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 0 1px rgba(139,92,246,.25);
+  overflow:hidden;
+}
+#teamGamesModal .tgm-header{
+  padding:16px 20px;display:flex;align-items:center;gap:12px;
+  background:var(--bg2);border-bottom:1px solid var(--border2);flex-shrink:0;
+}
+#teamGamesModal .tgm-logo{width:36px;height:36px;object-fit:contain;}
+#teamGamesModal .tgm-title{font-size:.95rem;font-weight:800;color:#fff;flex:1;}
+#teamGamesModal .tgm-record{font-size:.78rem;color:var(--muted);margin-left:4px;}
+#teamGamesModal .tgm-close{
+  background:none;border:1px solid var(--border2);border-radius:8px;
+  color:var(--muted);font-size:1rem;width:30px;height:30px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;
+}
+#teamGamesModal .tgm-close:hover{border-color:var(--purple);color:var(--purple-l);}
+#teamGamesModal .tgm-body{overflow-y:auto;flex:1;}
+#teamGamesModal table{width:100%;border-collapse:collapse;font-size:.8rem;}
+#teamGamesModal thead th{
+  background:var(--bg);color:var(--muted);font-size:.62rem;font-weight:700;
+  letter-spacing:.6px;text-transform:uppercase;padding:9px 12px;text-align:right;
+  border-bottom:1px solid var(--border2);position:sticky;top:0;
+}
+#teamGamesModal thead th:first-child,#teamGamesModal thead th:nth-child(2),
+#teamGamesModal thead th:nth-child(3),#teamGamesModal thead th:nth-child(4){text-align:left;}
+#teamGamesModal tbody td{padding:9px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,.04);}
+#teamGamesModal tbody td:first-child{text-align:left;color:var(--muted);font-size:.74rem;}
+#teamGamesModal tbody td:nth-child(2){text-align:center;}
+#teamGamesModal tbody td:nth-child(3),#teamGamesModal tbody td:nth-child(4){text-align:left;}
+#teamGamesModal tbody tr:hover{background:rgba(139,92,246,.06);}
+.tgm-win{color:var(--green);font-weight:700;}
+.tgm-loss{color:var(--red);font-weight:700;}
+.tgm-cond{font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:4px;}
+.tgm-cond-l{background:rgba(139,92,246,.18);color:var(--purple-l);}
+.tgm-cond-v{background:rgba(45,212,191,.12);color:var(--teal-l);}
+#teamGamesModal tbody tr.tgm-clickable{cursor:pointer;}
+/* ── GAME DETAIL ── */
+#tgmDetail{display:none;flex-direction:column;flex:1;overflow:hidden;}
+#tgmDetail.visible{display:flex;}
+.tgm-back{
+  background:none;border:none;color:var(--purple-l);font-size:.8rem;font-weight:700;
+  cursor:pointer;padding:10px 18px;text-align:left;display:flex;align-items:center;gap:6px;
+  border-bottom:1px solid var(--border2);flex-shrink:0;font-family:inherit;
+}
+.tgm-back:hover{color:#fff;}
+.tgm-scoreboard{
+  display:flex;align-items:center;justify-content:space-around;
+  padding:20px 24px 16px;background:var(--bg);flex-shrink:0;
+  border-bottom:1px solid var(--border2);
+}
+.tgm-sb-team{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;}
+.tgm-sb-logo{width:52px;height:52px;object-fit:contain;background:var(--bg);border-radius:8px;padding:5px;}
+.tgm-sb-name{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;text-align:center;}
+.tgm-sb-score{font-size:2.4rem;font-weight:900;color:#fff;line-height:1;}
+.tgm-sb-score.winner{color:var(--purple-l);}
+.tgm-sb-divider{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;padding:0 12px;}
+.tgm-sb-date{font-size:.68rem;color:var(--muted);letter-spacing:.3px;}
+.tgm-sb-cond{font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:4px;margin-top:2px;}
+.tgm-detail-body{overflow-y:auto;flex:1;}
+.tgm-stat-section{padding:8px 0;}
+.tgm-stat-group-title{
+  font-size:.58rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);padding:6px 18px 4px;opacity:.6;
+}
+.tgm-stat-row{
+  display:grid;grid-template-columns:1fr 160px 1fr;
+  align-items:center;padding:11px 28px;
+  border-bottom:1px solid rgba(255,255,255,.03);
+}
+.tgm-stat-row:hover{background:rgba(139,92,246,.05);}
+.tgm-stat-label{font-size:.72rem;color:var(--muted);text-align:center;white-space:nowrap;}
+.tgm-val-l{text-align:right;font-size:1.1rem;font-weight:800;color:var(--text);}
+.tgm-val-r{text-align:left;font-size:1.1rem;font-weight:800;color:var(--text);}
+.tgm-val-winner{color:var(--purple-l);}
+
 /* Progressive filter reveal */
 .filter-row{transition:opacity .22s ease,transform .22s ease;}
 .filter-row[style*="display:none"]{opacity:0;transform:translateY(-4px);}
@@ -444,10 +558,10 @@ canvas{display:block;width:100%;cursor:crosshair;}
 
 <div class="header">
   <div class="header-left">
-    <div class="ball-icon">🏀</div>
+    <img src="logos/scouteado_logo.png" style="width:90px;height:90px;object-fit:contain;position:relative;z-index:1;" alt="Scouteado">
     <div>
-      <div class="title">Liga Argentina <span>Básquet</span></div>
-      <div class="subtitle">Temporada Regular 2025/26 · Estadísticas avanzadas</div>
+      <div class="title">SCOUTEADO</div>
+      <div class="subtitle">Liga Argentina · Temporada Regular 2025/2026</div>
     </div>
   </div>
   <div class="header-badges">
@@ -488,101 +602,100 @@ canvas{display:block;width:100%;cursor:crosshair;}
 <div class="section" id="sec-j-tabla">
   <div class="scroll-bar-outer" id="jScrollOuter"><div class="scroll-bar-inner" id="jScrollInner"></div></div>
   <div class="controls">
-    <div class="controls-left">
+    <!-- Primary bar -->
+    <div class="ctrl-bar">
       <div class="search-wrap">
         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="text" id="jSearch" placeholder="Buscar jugador..." oninput="onJFilter()"/>
       </div>
-      <div class="fg">
-        <label>Equipo</label>
-        <select id="jTeam" onchange="onJFilter()"><option value="">Todos</option></select>
-      </div>
-      <div class="fg">
-        <label>Mín. PJ</label>
-        <select id="jMinG" onchange="onJFilter()" style="min-width:68px">
-          <option value="0">Todos</option><option value="10">10+</option>
-          <option value="15">15+</option><option value="20" selected>20+</option>
-          <option value="23">23+</option>
-        </select>
-      </div>
-    </div>
-    <div class="controls-right">
-      <div class="filter-grid">
-        <div class="filter-row">
-          <span class="flbl">Filtro 1</span>
-          <select id="jAttr" onchange="onJFilter()"><option value="">— Atributo —</option>
-            <option value="PPG">Pts/partido</option><option value="MPG">Min/partido</option>
-            <option value="VPG">Val/partido</option><option value="APG">Ast/partido</option>
-            <option value="RPG">Reb Tot/partido</option><option value="RDPG">Reb Def/partido</option>
-            <option value="ROPG">Reb Of/partido</option><option value="SPG">Rec/partido</option>
-            <option value="BPG">Tap/partido</option><option value="TPG">Pér/partido</option>
-            <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
-            <option value="ORtg">ORtg</option><option value="USG%">USG%</option>
-            <option value="ORB%">ORB%</option><option value="EFG%">EFG%</option>
-            <option value="TS%">TS%</option><option value="POS">Posesiones/p</option>
-            <option value="PJ">PJ</option></select>
-          <select id="jOp" class="op-select" onchange="onJFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
-          <input type="number" id="jAttrVal" placeholder="valor" step="0.1" oninput="onJFilter()"/>
-        </div>
-        <div class="filter-row" id="jFilterRow2" style="display:none">
-          <span class="flbl">Filtro 2</span>
-          <select id="jAttr2" onchange="onJFilter()"><option value="">— Atributo —</option>
-            <option value="PPG">Pts/partido</option><option value="MPG">Min/partido</option>
-            <option value="VPG">Val/partido</option><option value="APG">Ast/partido</option>
-            <option value="RPG">Reb Tot/partido</option><option value="RDPG">Reb Def/partido</option>
-            <option value="ROPG">Reb Of/partido</option><option value="SPG">Rec/partido</option>
-            <option value="BPG">Tap/partido</option><option value="TPG">Pér/partido</option>
-            <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
-            <option value="ORtg">ORtg</option><option value="USG%">USG%</option>
-            <option value="ORB%">ORB%</option><option value="EFG%">EFG%</option>
-            <option value="TS%">TS%</option><option value="POS">Posesiones/p</option>
-            <option value="PJ">PJ</option></select>
-          <select id="jOp2" class="op-select" onchange="onJFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
-          <input type="number" id="jAttrVal2" placeholder="valor" step="0.1" oninput="onJFilter()"/>
-        </div>
-        <div class="filter-row" id="jFilterRow3" style="display:none">
-          <span class="flbl">Filtro 3</span>
-          <select id="jAttr3" onchange="onJFilter()"><option value="">— Atributo —</option>
-            <option value="PPG">Pts/partido</option><option value="MPG">Min/partido</option>
-            <option value="VPG">Val/partido</option><option value="APG">Ast/partido</option>
-            <option value="RPG">Reb Tot/partido</option><option value="RDPG">Reb Def/partido</option>
-            <option value="ROPG">Reb Of/partido</option><option value="SPG">Rec/partido</option>
-            <option value="BPG">Tap/partido</option><option value="TPG">Pér/partido</option>
-            <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
-            <option value="ORtg">ORtg</option><option value="USG%">USG%</option>
-            <option value="ORB%">ORB%</option><option value="EFG%">EFG%</option>
-            <option value="TS%">TS%</option><option value="POS">Posesiones/p</option>
-            <option value="PJ">PJ</option></select>
-          <select id="jOp3" class="op-select" onchange="onJFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
-          <input type="number" id="jAttrVal3" placeholder="valor" step="0.1" oninput="onJFilter()"/>
-        </div>
-        <div class="filter-row" id="jFilterRow4" style="display:none">
-          <span class="flbl">Filtro 4</span>
-          <select id="jAttr4" onchange="onJFilter()"><option value="">— Atributo —</option>
-            <option value="PPG">Pts/partido</option><option value="MPG">Min/partido</option>
-            <option value="VPG">Val/partido</option><option value="APG">Ast/partido</option>
-            <option value="RPG">Reb Tot/partido</option><option value="RDPG">Reb Def/partido</option>
-            <option value="ROPG">Reb Of/partido</option><option value="SPG">Rec/partido</option>
-            <option value="BPG">Tap/partido</option><option value="TPG">Pér/partido</option>
-            <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
-            <option value="ORtg">ORtg</option><option value="USG%">USG%</option>
-            <option value="ORB%">ORB%</option><option value="EFG%">EFG%</option>
-            <option value="TS%">TS%</option><option value="POS">Posesiones/p</option>
-            <option value="PJ">PJ</option></select>
-          <select id="jOp4" class="op-select" onchange="onJFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
-          <input type="number" id="jAttrVal4" placeholder="valor" step="0.1" oninput="onJFilter()"/>
-        </div>
-      </div>
-    </div>
-    <div class="controls-footer">
-      <button class="clear-btn" onclick="clearJFilter()">✕ Limpiar filtros</button>
+      <div class="ctrl-sep"></div>
+      <select id="jTeam" onchange="onJFilter()"><option value="">Todos los equipos</option></select>
+      <select id="jMinG" onchange="onJFilter()">
+        <option value="0">Todos los PJ</option>
+        <option value="10">10+ PJ</option>
+        <option value="15">15+ PJ</option>
+        <option value="20" selected>20+ PJ</option>
+        <option value="23">23+ PJ</option>
+      </select>
+      <div class="ctrl-spacer"></div>
       <div class="stat-count">Mostrando <span id="jCount">—</span> jugadores</div>
+      <button class="clear-btn" onclick="clearJFilter()">
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        Limpiar
+      </button>
+    </div>
+    <!-- Filter rows -->
+    <div class="ctrl-filters">
+      <div class="filter-row">
+        <span class="ctrl-filter-badge">1</span>
+        <select id="jAttr" onchange="onJFilter()"><option value="">— Atributo —</option>
+          <option value="PPG">Pts/partido</option><option value="MPG">Min/partido</option>
+          <option value="VPG">Val/partido</option><option value="APG">Ast/partido</option>
+          <option value="RPG">Reb Tot/partido</option><option value="RDPG">Reb Def/partido</option>
+          <option value="ROPG">Reb Of/partido</option><option value="SPG">Rec/partido</option>
+          <option value="BPG">Tap/partido</option><option value="TPG">Pér/partido</option>
+          <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
+          <option value="ORtg">ORtg</option><option value="USG%">USG%</option>
+          <option value="ORB%">ORB%</option><option value="EFG%">EFG%</option>
+          <option value="TS%">TS%</option><option value="POS">Posesiones/p</option>
+          <option value="PJ">PJ</option></select>
+        <select id="jOp" class="op-select" onchange="onJFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+        <input type="number" id="jAttrVal" placeholder="valor" step="0.1" oninput="onJFilter()"/>
+      </div>
+      <div class="filter-row" id="jFilterRow2" style="display:none">
+        <span class="ctrl-filter-badge">2</span>
+        <select id="jAttr2" onchange="onJFilter()"><option value="">— Atributo —</option>
+          <option value="PPG">Pts/partido</option><option value="MPG">Min/partido</option>
+          <option value="VPG">Val/partido</option><option value="APG">Ast/partido</option>
+          <option value="RPG">Reb Tot/partido</option><option value="RDPG">Reb Def/partido</option>
+          <option value="ROPG">Reb Of/partido</option><option value="SPG">Rec/partido</option>
+          <option value="BPG">Tap/partido</option><option value="TPG">Pér/partido</option>
+          <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
+          <option value="ORtg">ORtg</option><option value="USG%">USG%</option>
+          <option value="ORB%">ORB%</option><option value="EFG%">EFG%</option>
+          <option value="TS%">TS%</option><option value="POS">Posesiones/p</option>
+          <option value="PJ">PJ</option></select>
+        <select id="jOp2" class="op-select" onchange="onJFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+        <input type="number" id="jAttrVal2" placeholder="valor" step="0.1" oninput="onJFilter()"/>
+      </div>
+      <div class="filter-row" id="jFilterRow3" style="display:none">
+        <span class="ctrl-filter-badge">3</span>
+        <select id="jAttr3" onchange="onJFilter()"><option value="">— Atributo —</option>
+          <option value="PPG">Pts/partido</option><option value="MPG">Min/partido</option>
+          <option value="VPG">Val/partido</option><option value="APG">Ast/partido</option>
+          <option value="RPG">Reb Tot/partido</option><option value="RDPG">Reb Def/partido</option>
+          <option value="ROPG">Reb Of/partido</option><option value="SPG">Rec/partido</option>
+          <option value="BPG">Tap/partido</option><option value="TPG">Pér/partido</option>
+          <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
+          <option value="ORtg">ORtg</option><option value="USG%">USG%</option>
+          <option value="ORB%">ORB%</option><option value="EFG%">EFG%</option>
+          <option value="TS%">TS%</option><option value="POS">Posesiones/p</option>
+          <option value="PJ">PJ</option></select>
+        <select id="jOp3" class="op-select" onchange="onJFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+        <input type="number" id="jAttrVal3" placeholder="valor" step="0.1" oninput="onJFilter()"/>
+      </div>
+      <div class="filter-row" id="jFilterRow4" style="display:none">
+        <span class="ctrl-filter-badge">4</span>
+        <select id="jAttr4" onchange="onJFilter()"><option value="">— Atributo —</option>
+          <option value="PPG">Pts/partido</option><option value="MPG">Min/partido</option>
+          <option value="VPG">Val/partido</option><option value="APG">Ast/partido</option>
+          <option value="RPG">Reb Tot/partido</option><option value="RDPG">Reb Def/partido</option>
+          <option value="ROPG">Reb Of/partido</option><option value="SPG">Rec/partido</option>
+          <option value="BPG">Tap/partido</option><option value="TPG">Pér/partido</option>
+          <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
+          <option value="ORtg">ORtg</option><option value="USG%">USG%</option>
+          <option value="ORB%">ORB%</option><option value="EFG%">EFG%</option>
+          <option value="TS%">TS%</option><option value="POS">Posesiones/p</option>
+          <option value="PJ">PJ</option></select>
+        <select id="jOp4" class="op-select" onchange="onJFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+        <input type="number" id="jAttrVal4" placeholder="valor" step="0.1" oninput="onJFilter()"/>
+      </div>
     </div>
   </div>
     <div class="tbl-toggle-wrap">
       <div class="tbl-toggle">
-        <button class="active" id="jToggleBasic" onclick="toggleJTable('basic')">📊 Básica</button>
-        <button id="jToggleAdv" onclick="toggleJTable('adv')">🔬 Avanzada</button>
+        <button class="active" id="jToggleBasic" onclick="toggleJTable('basic')">Básica</button>
+        <button id="jToggleAdv" onclick="toggleJTable('adv')">Avanzada</button>
       </div>
     </div>
     <div class="table-wrap" id="jTableWrap">
@@ -730,103 +843,105 @@ canvas{display:block;width:100%;cursor:crosshair;}
 <!-- ============================= EQUIPOS TABLA ============================= -->
 <div class="section" id="sec-t-tabla">
   <div class="controls">
-    <div class="controls-left">
+    <!-- Primary bar -->
+    <div class="ctrl-bar">
       <div class="fg">
-        <label>Ordenar por</label>
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--muted)"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
         <select id="tSort" onchange="onTFilter()">
-          <option value="NetRtg">Net Rating</option>
-          <option value="ORtg">ORtg</option>
-          <option value="DRtg-asc">DRtg (menor = mejor)</option>
-          <option value="EFG%">EFG%</option>
-          <option value="TS%">TS%</option>
-          <option value="TOV%-asc">TOV% (menor = mejor)</option>
-          <option value="ORB%">ORB%</option>
-          <option value="PACE">PACE</option>
-          <option value="W%">W%</option>
-          <option value="Ganados">Victorias</option>
-          <option value="PTSPG">PTS/partido</option>
-          <option value="RTPG">REB/partido</option>
-          <option value="ASTPG">AST/partido</option>
-          <option value="POSPG">Posesiones/partido</option>
+          <option value="NetRtg">Ordenar: Net Rating</option>
+          <option value="ORtg">Ordenar: ORtg</option>
+          <option value="DRtg-asc">Ordenar: DRtg</option>
+          <option value="EFG%">Ordenar: EFG%</option>
+          <option value="TS%">Ordenar: TS%</option>
+          <option value="TOV%-asc">Ordenar: TOV%</option>
+          <option value="ORB%">Ordenar: ORB%</option>
+          <option value="PACE">Ordenar: PACE</option>
+          <option value="W%">Ordenar: W%</option>
+          <option value="Ganados">Ordenar: Victorias</option>
+          <option value="PTSPG">Ordenar: PTS/partido</option>
+          <option value="RTPG">Ordenar: REB/partido</option>
+          <option value="ASTPG">Ordenar: AST/partido</option>
+          <option value="POSPG">Ordenar: Posesiones/partido</option>
         </select>
       </div>
-    </div>
-    <div class="controls-right">
-      <div class="filter-grid">
-        <div class="filter-row">
-          <span class="flbl">Filtro 1</span>
-          <select id="tAttr" onchange="onTFilter()"><option value="">— Atributo —</option>
-          <option value="ORtg">ORtg</option><option value="DRtg">DRtg</option><option value="NetRtg">Net Rating</option>
-          <option value="EFG%">EFG%</option><option value="TS%">TS%</option><option value="TOV%">TOV%</option><option value="ORB%">ORB%</option><option value="PACE">PACE</option>
-          <option value="W%">W%</option><option value="Ganados">Victorias</option><option value="POSPG">Posesiones/p</option>
-          <option value="PTSPG">PTS/p</option><option value="RTPG">REB/p</option>
-          <option value="RDPG">Reb Def/p</option><option value="ROPG">Reb Of/p</option>
-          <option value="ASTPG">AST/p</option><option value="RECPG">REC/p</option>
-          <option value="PERPG">PÉR/p</option><option value="T2%">% T2</option>
-          <option value="T3%">% T3</option><option value="T1%">% T1</option>
-          <option value="PJ">PJ</option></select>
-          <select id="tOp" class="op-select" onchange="onTFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
-          <input type="number" id="tAttrVal" placeholder="valor" step="0.1" oninput="onTFilter()"/>
-        </div>
-        <div class="filter-row" id="tFilterRow2" style="display:none">
-          <span class="flbl">Filtro 2</span>
-          <select id="tAttr2" onchange="onTFilter()"><option value="">— Atributo —</option>
-          <option value="ORtg">ORtg</option><option value="DRtg">DRtg</option><option value="NetRtg">Net Rating</option>
-          <option value="EFG%">EFG%</option><option value="TS%">TS%</option><option value="TOV%">TOV%</option><option value="ORB%">ORB%</option><option value="PACE">PACE</option>
-          <option value="W%">W%</option><option value="Ganados">Victorias</option><option value="POSPG">Posesiones/p</option>
-          <option value="PTSPG">PTS/p</option><option value="RTPG">REB/p</option>
-          <option value="RDPG">Reb Def/p</option><option value="ROPG">Reb Of/p</option>
-          <option value="ASTPG">AST/p</option><option value="RECPG">REC/p</option>
-          <option value="PERPG">PÉR/p</option><option value="T2%">% T2</option>
-          <option value="T3%">% T3</option><option value="T1%">% T1</option>
-          <option value="PJ">PJ</option></select>
-          <select id="tOp2" class="op-select" onchange="onTFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
-          <input type="number" id="tAttrVal2" placeholder="valor" step="0.1" oninput="onTFilter()"/>
-        </div>
-        <div class="filter-row" id="tFilterRow3" style="display:none">
-          <span class="flbl">Filtro 3</span>
-          <select id="tAttr3" onchange="onTFilter()"><option value="">— Atributo —</option>
-          <option value="ORtg">ORtg</option><option value="DRtg">DRtg</option><option value="NetRtg">Net Rating</option>
-          <option value="EFG%">EFG%</option><option value="TS%">TS%</option><option value="TOV%">TOV%</option><option value="ORB%">ORB%</option><option value="PACE">PACE</option>
-          <option value="W%">W%</option><option value="Ganados">Victorias</option>
-          <option value="PTSPG">PTS/p</option><option value="RTPG">REB/p</option>
-          <option value="ASTPG">AST/p</option><option value="PERPG">PÉR/p</option>
-          <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
-          <option value="PJ">PJ</option></select>
-          <select id="tOp3" class="op-select" onchange="onTFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
-          <input type="number" id="tAttrVal3" placeholder="valor" step="0.1" oninput="onTFilter()"/>
-        </div>
-        <div class="filter-row" id="tFilterRow4" style="display:none">
-          <span class="flbl">Filtro 4</span>
-          <select id="tAttr4" onchange="onTFilter()"><option value="">— Atributo —</option>
-          <option value="ORtg">ORtg</option><option value="DRtg">DRtg</option><option value="NetRtg">Net Rating</option>
-          <option value="EFG%">EFG%</option><option value="TS%">TS%</option><option value="TOV%">TOV%</option><option value="ORB%">ORB%</option><option value="PACE">PACE</option>
-          <option value="W%">W%</option><option value="Ganados">Victorias</option>
-          <option value="PTSPG">PTS/p</option><option value="RTPG">REB/p</option>
-          <option value="ASTPG">AST/p</option><option value="PERPG">PÉR/p</option>
-          <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
-          <option value="PJ">PJ</option></select>
-          <select id="tOp4" class="op-select" onchange="onTFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
-          <input type="number" id="tAttrVal4" placeholder="valor" step="0.1" oninput="onTFilter()"/>
-        </div>
-      </div>
-    </div>
-    <div class="controls-footer">
-      <button class="clear-btn" onclick="clearTFilter()">✕ Limpiar filtros</button>
+      <div class="ctrl-spacer"></div>
       <div class="stat-count">Mostrando <span id="tCount">—</span> equipos</div>
+      <button class="clear-btn" onclick="clearTFilter()">
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        Limpiar
+      </button>
+    </div>
+    <!-- Filter rows -->
+    <div class="ctrl-filters">
+      <div class="filter-row">
+        <span class="ctrl-filter-badge">1</span>
+        <select id="tAttr" onchange="onTFilter()"><option value="">— Atributo —</option>
+        <option value="ORtg">ORtg</option><option value="DRtg">DRtg</option><option value="NetRtg">Net Rating</option>
+        <option value="EFG%">EFG%</option><option value="TS%">TS%</option><option value="TOV%">TOV%</option><option value="ORB%">ORB%</option><option value="PACE">PACE</option>
+        <option value="W%">W%</option><option value="Ganados">Victorias</option><option value="POSPG">Posesiones/p</option>
+        <option value="PTSPG">PTS/p</option><option value="RTPG">REB/p</option>
+        <option value="RDPG">Reb Def/p</option><option value="ROPG">Reb Of/p</option>
+        <option value="ASTPG">AST/p</option><option value="RECPG">REC/p</option>
+        <option value="PERPG">PÉR/p</option><option value="T2%">% T2</option>
+        <option value="T3%">% T3</option><option value="T1%">% T1</option>
+        <option value="PJ">PJ</option></select>
+        <select id="tOp" class="op-select" onchange="onTFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+        <input type="number" id="tAttrVal" placeholder="valor" step="0.1" oninput="onTFilter()"/>
+      </div>
+      <div class="filter-row" id="tFilterRow2" style="display:none">
+        <span class="ctrl-filter-badge">2</span>
+        <select id="tAttr2" onchange="onTFilter()"><option value="">— Atributo —</option>
+        <option value="ORtg">ORtg</option><option value="DRtg">DRtg</option><option value="NetRtg">Net Rating</option>
+        <option value="EFG%">EFG%</option><option value="TS%">TS%</option><option value="TOV%">TOV%</option><option value="ORB%">ORB%</option><option value="PACE">PACE</option>
+        <option value="W%">W%</option><option value="Ganados">Victorias</option><option value="POSPG">Posesiones/p</option>
+        <option value="PTSPG">PTS/p</option><option value="RTPG">REB/p</option>
+        <option value="RDPG">Reb Def/p</option><option value="ROPG">Reb Of/p</option>
+        <option value="ASTPG">AST/p</option><option value="RECPG">REC/p</option>
+        <option value="PERPG">PÉR/p</option><option value="T2%">% T2</option>
+        <option value="T3%">% T3</option><option value="T1%">% T1</option>
+        <option value="PJ">PJ</option></select>
+        <select id="tOp2" class="op-select" onchange="onTFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+        <input type="number" id="tAttrVal2" placeholder="valor" step="0.1" oninput="onTFilter()"/>
+      </div>
+      <div class="filter-row" id="tFilterRow3" style="display:none">
+        <span class="ctrl-filter-badge">3</span>
+        <select id="tAttr3" onchange="onTFilter()"><option value="">— Atributo —</option>
+        <option value="ORtg">ORtg</option><option value="DRtg">DRtg</option><option value="NetRtg">Net Rating</option>
+        <option value="EFG%">EFG%</option><option value="TS%">TS%</option><option value="TOV%">TOV%</option><option value="ORB%">ORB%</option><option value="PACE">PACE</option>
+        <option value="W%">W%</option><option value="Ganados">Victorias</option>
+        <option value="PTSPG">PTS/p</option><option value="RTPG">REB/p</option>
+        <option value="ASTPG">AST/p</option><option value="PERPG">PÉR/p</option>
+        <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
+        <option value="PJ">PJ</option></select>
+        <select id="tOp3" class="op-select" onchange="onTFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+        <input type="number" id="tAttrVal3" placeholder="valor" step="0.1" oninput="onTFilter()"/>
+      </div>
+      <div class="filter-row" id="tFilterRow4" style="display:none">
+        <span class="ctrl-filter-badge">4</span>
+        <select id="tAttr4" onchange="onTFilter()"><option value="">— Atributo —</option>
+        <option value="ORtg">ORtg</option><option value="DRtg">DRtg</option><option value="NetRtg">Net Rating</option>
+        <option value="EFG%">EFG%</option><option value="TS%">TS%</option><option value="TOV%">TOV%</option><option value="ORB%">ORB%</option><option value="PACE">PACE</option>
+        <option value="W%">W%</option><option value="Ganados">Victorias</option>
+        <option value="PTSPG">PTS/p</option><option value="RTPG">REB/p</option>
+        <option value="ASTPG">AST/p</option><option value="PERPG">PÉR/p</option>
+        <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
+        <option value="PJ">PJ</option></select>
+        <select id="tOp4" class="op-select" onchange="onTFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+        <input type="number" id="tAttrVal4" placeholder="valor" step="0.1" oninput="onTFilter()"/>
+      </div>
     </div>
   </div>
   <div class="scroll-bar-outer" id="tScrollOuter"><div class="scroll-bar-inner" id="tScrollInner"></div></div>
   <div class="tbl-toggle-wrap">
     <div class="tbl-toggle">
-      <button class="active" id="tToggleBasic" onclick="toggleTTable('basic')">📊 Básica</button>
-      <button id="tToggleAdv" onclick="toggleTTable('adv')">🔬 Avanzada</button>
+      <button class="active" id="tToggleBasic" onclick="toggleTTable('basic')">Básica</button>
+      <button id="tToggleAdv" onclick="toggleTTable('adv')">Avanzada</button>
     </div>
-    <button class="cmp-toggle-btn" id="cmpToggleBtn" onclick="toggleCmpPanel()">⚔️ Comparar equipos</button>
+    <button class="cmp-toggle-btn" id="cmpToggleBtn" onclick="toggleCmpPanel()">Comparar equipos</button>
   </div>
   <!-- TEAM COMPARISON PANEL -->
   <div id="cmpPanel" class="cmp-panel" style="display:none">
-    <div class="cmp-panel-title">⚔️ Comparador de Equipos <span style="font-size:.72rem;font-weight:500;color:var(--muted);margin-left:4px">— hacé clic en filas de la tabla para seleccionar hasta 4 equipos</span></div>
+    <div class="cmp-panel-title">Comparador de Equipos <span style="font-size:.72rem;font-weight:500;color:var(--muted);margin-left:4px">— hacé clic en filas de la tabla para seleccionar hasta 4 equipos</span></div>
     <div id="cmpChips" class="cmp-chips-row">
       <span class="cmp-chips-empty">Ningún equipo seleccionado — hacé clic en las filas de la tabla ↓</span>
     </div>
@@ -971,6 +1086,32 @@ canvas{display:block;width:100%;cursor:crosshair;}
 
 <div class="tt" id="tooltip"></div>
 
+<!-- TEAM GAMES MODAL -->
+<div id="teamGamesBackdrop" onclick="closeTeamGames(event)">
+  <div id="teamGamesModal">
+    <div class="tgm-header">
+      <img id="tgmLogo" class="tgm-logo" alt="" onerror="this.style.display='none'">
+      <div class="tgm-title" id="tgmTitle"></div>
+      <span class="tgm-record" id="tgmRecord"></span>
+      <button class="tgm-close" onclick="closeTeamGames()">✕</button>
+    </div>
+    <div class="tgm-body" id="tgmBody">
+      <table>
+        <thead><tr>
+          <th>Fecha</th><th>Cond.</th><th>Rival</th>
+          <th>PTS</th><th>PTS RIV</th><th>Res.</th>
+        </tr></thead>
+        <tbody id="tgmTbody"></tbody>
+      </table>
+    </div>
+    <div id="tgmDetail">
+      <button class="tgm-back" onclick="closeGameDetail()">‹ Volver</button>
+      <div class="tgm-scoreboard" id="tgmScoreboard"></div>
+      <div class="tgm-detail-body" id="tgmDetailBody"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ============================= POSICIONES ============================= -->
 <div class="section active" id="sec-posiciones">
   <div class="pos-outer">
@@ -1077,7 +1218,7 @@ function buildRAW_T(rows) {
     if (!map[eq]) map[eq] = {
       Equipo: eq, PJ: 0, Ganados: 0, Perdidos: 0, OPP_PTS: 0,
       LocalG: 0, LocalP: 0, VisitG: 0, VisitP: 0,
-      _games: [],
+      _games: [], _gamelog: [],
       PTS: 0, T2A: 0, T2I: 0, T3A: 0, T3I: 0,
       T1A: 0, T1I: 0, RD: 0, RO: 0, RT: 0, AST: 0, REC: 0, PER: 0, TAP: 0, VAL: 0
     };
@@ -1099,8 +1240,31 @@ function buildRAW_T(rows) {
   });
   Object.values(byGame).forEach(gr => {
     if (gr.length === 2) {
-      if (map[gr[0]['Equipo']]) map[gr[0]['Equipo']].OPP_PTS += parseFloat(gr[1]['Puntos']) || 0;
-      if (map[gr[1]['Equipo']]) map[gr[1]['Equipo']].OPP_PTS += parseFloat(gr[0]['Puntos']) || 0;
+      [0, 1].forEach(i => {
+        const my = gr[i], opp = gr[1-i];
+        if (map[my['Equipo']]) {
+          map[my['Equipo']].OPP_PTS += parseFloat(opp['Puntos']) || 0;
+          const extractS = r => ({
+            pts:  parseFloat(r['Puntos'])||0,
+            t2a:  parseFloat(r['T2A'])||0,   t2i: parseFloat(r['T2I'])||0,
+            t3a:  parseFloat(r['T3A'])||0,   t3i: parseFloat(r['T3I'])||0,
+            t1a:  parseFloat(r['T1A'])||0,   t1i: parseFloat(r['T1I'])||0,
+            dreb: parseFloat(r['DReb'])||0,  oreb: parseFloat(r['OReb'])||0,
+            treb: parseFloat(r['TReb'])||0,  ast:  parseFloat(r['Asistencias'])||0,
+            rec:  parseFloat(r['Recuperos'])||0, per: parseFloat(r['Perdidas'])||0,
+            tap:  parseFloat(r['Tapones cometidos'])||0, val: parseFloat(r['Valoracion'])||0,
+          });
+          map[my['Equipo']]._gamelog.push({
+            fecha: my['Fecha'],
+            rival: opp['Equipo'],
+            condicion: my['Condicion equipos'],
+            ptsFor: parseFloat(my['Puntos']) || 0,
+            ptsAgainst: parseFloat(opp['Puntos']) || 0,
+            ganado: my['Ganado'] === 'True',
+            myS: extractS(my), oppS: extractS(opp),
+          });
+        }
+      });
     }
   });
   Object.values(map).forEach(t => {
@@ -1115,12 +1279,12 @@ function buildRAW_T(rows) {
     t['T2%'] = t.T2I > 0 ? Math.round(t.T2A/t.T2I*1000)/10 : null;
     t['T3%'] = t.T3I > 0 ? Math.round(t.T3A/t.T3I*1000)/10 : null;
     t['T1%'] = t.T1I > 0 ? Math.round(t.T1A/t.T1I*1000)/10 : null;
-    t.last5 = t._games
-      .sort((a, b) => {
-        const [ad,am,ay] = a.fecha.split('/'); const [bd,bm,by] = b.fecha.split('/');
-        return new Date(ay,am-1,ad) - new Date(by,bm-1,bd);
-      })
-      .slice(-5).map(g => g.ganado);
+    const sortByFecha = (a, b) => {
+      const [ad,am,ay] = a.fecha.split('/'); const [bd,bm,by] = b.fecha.split('/');
+      return new Date(ay,am-1,ad) - new Date(by,bm-1,bd);
+    };
+    t.last5 = t._games.sort(sortByFecha).slice(-5).map(g => g.ganado);
+    t._gamelog.sort(sortByFecha);
   });
   return Object.values(map);
 }
@@ -1157,7 +1321,7 @@ let jFiltered=[], tFiltered=[];
 let jSort='PPG', jDir='desc';
 let tSort='NetRtg', tDir='desc';
 let jPts=[], tPts=[];
-let jHov=-1, jPin=-1, tHov=-1, tPin=-1;
+let jHov=-1, jPin=new Set(), tHov=-1, tPin=-1;
 
 const f2=v=>v==null||isNaN(v)?'—':v.toFixed(2);
 const f1=v=>v==null||isNaN(v)?'—':v.toFixed(1);
@@ -1210,6 +1374,7 @@ function getJFiltered() {
 function clearJFilter(){
   ['jAttr','jAttr2','jAttr3','jAttr4'].forEach(id=>document.getElementById(id).value='');
   ['jAttrVal','jAttrVal2','jAttrVal3','jAttrVal4'].forEach(id=>document.getElementById(id).value='');
+  jPin.clear();
   updateJFilterVisibility();
   onJFilter();
 }
@@ -1532,27 +1697,37 @@ function drawScatter(canvasId, pts_ref, data, xKey, yKey, sizeKey, colorFn, labe
   ctx.font='bold 12px Inter,sans-serif';ctx.textAlign='center';
   ctx.fillStyle='#2dd4bf';ctx.fillText(lblMap[xKey]||xKey,PAD.left+plotW/2,H-7);
   ctx.save();ctx.translate(14,PAD.top+plotH/2);ctx.rotate(-Math.PI/2);ctx.fillStyle='#a78bfa';ctx.fillText(lblMap[yKey]||yKey,0,0);ctx.restore();
+  const pinSet = pin instanceof Set ? pin : (pin >= 0 ? new Set([pin]) : new Set());
   pts_ref.length=0;
   pts.forEach(p=>pts_ref.push({cx:toX(p[xKey]),cy:toY(p[yKey]),r:getR(p),d:p}));
+  // Draw normal (non-highlighted) dots first
   pts_ref.forEach((pt,i)=>{
-    if(i===hov||i===pin)return;
+    if(i===hov||pinSet.has(i))return;
     const c=colorFn(pt.d);
     ctx.beginPath();ctx.arc(pt.cx,pt.cy,pt.r,0,Math.PI*2);
     ctx.fillStyle=c+'55';ctx.strokeStyle=c+'99';ctx.lineWidth=1;ctx.fill();ctx.stroke();
   });
-  [pin,hov].forEach(idx=>{
-    if(idx<0)return;
-    const pt=pts_ref[idx]; if(!pt)return;
+  // Draw pinned dots with labels
+  const drawHighlight=(pt,withLabel)=>{
     const c=colorFn(pt.d);
     ctx.beginPath();ctx.arc(pt.cx,pt.cy,pt.r+3,0,Math.PI*2);
     ctx.fillStyle=c+'cc';ctx.strokeStyle=c;ctx.lineWidth=2;ctx.fill();ctx.stroke();
-    const nm=labelFn(pt.d);
-    ctx.font='bold 11px Inter,sans-serif';ctx.textAlign='left';
-    const tw=ctx.measureText(nm).width;
-    const lx=pt.cx+pt.r+5,ly=pt.cy-2;
-    ctx.fillStyle='rgba(24,24,46,.92)';ctx.strokeStyle='rgba(139,92,246,.5)';ctx.lineWidth=1;ctx.fillRect(lx-2,ly-11,tw+8,16);ctx.strokeRect(lx-2,ly-11,tw+8,16);
-    ctx.fillStyle='#f1f5f9';ctx.fillText(nm,lx+2,ly+1);
+    if(withLabel){
+      const nm=labelFn(pt.d);
+      ctx.font='bold 11px Inter,sans-serif';ctx.textAlign='left';
+      const tw=ctx.measureText(nm).width;
+      const lx=pt.cx+pt.r+5,ly=pt.cy-2;
+      ctx.fillStyle='rgba(24,24,46,.92)';ctx.strokeStyle='rgba(139,92,246,.5)';ctx.lineWidth=1;
+      ctx.fillRect(lx-2,ly-11,tw+8,16);ctx.strokeRect(lx-2,ly-11,tw+8,16);
+      ctx.fillStyle='#f1f5f9';ctx.fillText(nm,lx+2,ly+1);
+    }
+  };
+  [...pinSet].forEach(idx=>{
+    const pt=pts_ref[idx]; if(!pt||idx===hov)return;
+    drawHighlight(pt,true);
   });
+  // Draw hov last (on top), with label only if also pinned
+  if(hov>=0){const pt=pts_ref[hov];if(pt)drawHighlight(pt,pinSet.has(hov));}
 }
 
 function hitTest(pts, mx, my) {
@@ -1561,13 +1736,13 @@ function hitTest(pts, mx, my) {
   return found;
 }
 
-function showTooltip(e, d, xKey, yKey, lblMap, extra) {
+function showTooltip(e, d, xKey, yKey, lblMap, extra, title) {
   const tt=document.getElementById('tooltip');
   const xv=d[xKey],yv=d[yKey];
   const fmt=v=>typeof v==='number'&&v%1!==0?v.toFixed(2):v;
   tt.style.display='block';
   tt.style.left=(e.clientX+14)+'px';tt.style.top=(e.clientY-10)+'px';
-  tt.innerHTML=`<div class="tn">${d.Equipo||d.name}</div>
+  tt.innerHTML=`<div class="tn">${title||d.Equipo||d.name}</div>
     <div class="ts">${extra}</div>
     <div class="tr tx"><span>→ ${lblMap[xKey]||xKey}</span><span>${fmt(xv)}</span></div>
     <div class="tr ty"><span>↑ ${lblMap[yKey]||yKey}</span><span>${fmt(yv)}</span></div>`;
@@ -1599,14 +1774,16 @@ jCv.addEventListener('mousemove',e=>{
   if(found!==jHov){jHov=found;drawJChart();}
   if(found>=0){
     const p=jPts[found].d;
-    showTooltip(e,p,document.getElementById('jX').value,document.getElementById('jY').value,LBL_J,`${p.Equipo} · ${p.PJ} PJ`);
+    const playerName=p.name.split(',')[0].trim();
+    showTooltip(e,p,document.getElementById('jX').value,document.getElementById('jY').value,LBL_J,`${p.Equipo} · ${p.PJ} PJ`,playerName);
   }else document.getElementById('tooltip').style.display='none';
 });
 jCv.addEventListener('mouseleave',()=>{jHov=-1;document.getElementById('tooltip').style.display='none';drawJChart();});
 jCv.addEventListener('click',e=>{
   const r=jCv.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
   const found=hitTest(jPts,mx,my);
-  jPin=(found===jPin)?-1:found; drawJChart();
+  if(found>=0){if(jPin.has(found))jPin.delete(found);else jPin.add(found);}
+  drawJChart();
 });
 
 // ============================================================
@@ -1689,9 +1866,9 @@ function toggleTeamSelection(teamName) {
 function updateCmpBtn() {
   const btn = document.getElementById('cmpToggleBtn');
   if (selectedTeams.length > 0) {
-    btn.textContent = `⚔️ Comparar equipos (${selectedTeams.length})`;
+    btn.textContent = `Comparar equipos (${selectedTeams.length})`;
   } else {
-    btn.textContent = '⚔️ Comparar equipos';
+    btn.textContent = 'Comparar equipos';
   }
 }
 
@@ -1970,7 +2147,7 @@ function renderStandings() {
         : '<span class="pos-logo-ph"></span>';
       tbody.innerHTML += `<tr class="${topClass}">
         <td>${pos}</td>
-        <td style="background:var(--bg)">${logoHtml}${t.Equipo}</td>
+        <td style="background:var(--bg);cursor:pointer" onclick="showTeamGames('${t.Equipo.replace(/'/g,"\\'")}')" title="Ver partidos">${logoHtml}${t.Equipo}</td>
         <td>${t.PJ}</td>
         <td style="color:var(--green);font-weight:700">${t.Ganados}</td>
         <td style="color:var(--red)">${t.Perdidos}</td>
@@ -1989,6 +2166,137 @@ function renderStandings() {
   }
   fillTable('posNorteTbody', CONF_NORTE);
   fillTable('posSurTbody',   CONF_SUR);
+}
+
+// ============================================================
+// TEAM GAMES MODAL
+// ============================================================
+let _currentTeamName = '';
+
+function showTeamGames(teamName) {
+  const t = TEAMS.find(t => t.Equipo === teamName);
+  if (!t) return;
+  _currentTeamName = teamName;
+  closeGameDetail();
+  const logoSrc = LOGOS[teamName];
+  const logo = document.getElementById('tgmLogo');
+  logo.src = logoSrc || ''; logo.style.display = logoSrc ? '' : 'none';
+  document.getElementById('tgmTitle').textContent = teamName;
+  document.getElementById('tgmRecord').textContent = `${t.Ganados}G - ${t.Perdidos}P`;
+  const tbody = document.getElementById('tgmTbody');
+  tbody.innerHTML = '';
+  (t._gamelog || []).slice().reverse().forEach((g, idx) => {
+    const rivalLogo = LOGOS[g.rival]
+      ? `<img src="${LOGOS[g.rival]}" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;margin-right:5px" onerror="this.style.display='none'">`
+      : '';
+    const condHtml = g.condicion === 'LOCAL'
+      ? '<span class="tgm-cond tgm-cond-l">Local</span>'
+      : '<span class="tgm-cond tgm-cond-v">Visita</span>';
+    const resHtml = g.ganado
+      ? '<span class="tgm-win">V</span>'
+      : '<span class="tgm-loss">D</span>';
+    const scoreColor = g.ganado ? 'var(--green)' : 'var(--red)';
+    const tr = document.createElement('tr');
+    tr.className = 'tgm-clickable';
+    tr.innerHTML = `
+      <td>${g.fecha}</td>
+      <td style="text-align:left">${condHtml}</td>
+      <td>${rivalLogo}${g.rival}</td>
+      <td style="font-weight:700;color:${scoreColor}">${g.ptsFor}</td>
+      <td style="color:var(--muted)">${g.ptsAgainst}</td>
+      <td>${resHtml}</td>`;
+    tr.addEventListener('click', () => showGameDetail(g, teamName));
+    tbody.appendChild(tr);
+  });
+  document.getElementById('teamGamesBackdrop').classList.add('open');
+}
+
+function showGameDetail(g, teamName) {
+  // Scoreboard
+  const myWinner = g.ganado;
+  const myLogo  = LOGOS[teamName] ? `<img src="${LOGOS[teamName]}" class="tgm-sb-logo" alt="" onerror="this.style.display='none'">` : '';
+  const oppLogo = LOGOS[g.rival]  ? `<img src="${LOGOS[g.rival]}"  class="tgm-sb-logo" alt="" onerror="this.style.display='none'">` : '';
+  const condBadge = g.condicion === 'LOCAL'
+    ? `<span class="tgm-sb-cond tgm-cond-l">Local vs Visita</span>`
+    : `<span class="tgm-sb-cond tgm-cond-v">Visita vs Local</span>`;
+  document.getElementById('tgmScoreboard').innerHTML = `
+    <div class="tgm-sb-team">
+      ${myLogo}
+      <div class="tgm-sb-name">${teamName}</div>
+      <div class="tgm-sb-score ${myWinner ? 'winner' : ''}">${g.ptsFor}</div>
+    </div>
+    <div class="tgm-sb-divider">
+      <div class="tgm-sb-date">${g.fecha}</div>
+      ${condBadge}
+    </div>
+    <div class="tgm-sb-team">
+      ${oppLogo}
+      <div class="tgm-sb-name">${g.rival}</div>
+      <div class="tgm-sb-score ${!myWinner ? 'winner' : ''}">${g.ptsAgainst}</div>
+    </div>`;
+
+  // Stats comparison
+  const m = g.myS, o = g.oppS;
+  const pct = (a, i) => i > 0 ? (a/i*100).toFixed(1) : '—';
+
+  // row(label, mDisplay, oDisplay, higherBetter, mCmp?, oCmp?)
+  // mCmp/oCmp son los valores numéricos para comparar cuando mDisplay es HTML
+  function row(label, mDisplay, oDisplay, higherBetter = true, mCmp, oCmp) {
+    const mNum = parseFloat(mCmp !== undefined ? mCmp : mDisplay) || 0;
+    const oNum = parseFloat(oCmp !== undefined ? oCmp : oDisplay) || 0;
+    const mWins = mNum !== oNum && (higherBetter ? mNum > oNum : mNum < oNum);
+    const oWins = mNum !== oNum && (higherBetter ? oNum > mNum : oNum < mNum);
+    return `<div class="tgm-stat-row">
+      <div class="tgm-val-l ${mWins ? 'tgm-val-winner' : ''}">${mDisplay}</div>
+      <div class="tgm-stat-label">${label}</div>
+      <div class="tgm-val-r ${oWins ? 'tgm-val-winner' : ''}">${oDisplay}</div>
+    </div>`;
+  }
+
+  const groups = [
+    { title: 'Tiros', rows: [
+      row('Puntos', m.pts, o.pts),
+      row('Dobles', `${m.t2a}/${m.t2i}`, `${o.t2a}/${o.t2i}`, true, m.t2a, o.t2a),
+      row('% Dobles', pct(m.t2a,m.t2i)+'%', pct(o.t2a,o.t2i)+'%', true, pct(m.t2a,m.t2i), pct(o.t2a,o.t2i)),
+      row('Triples', `${m.t3a}/${m.t3i}`, `${o.t3a}/${o.t3i}`, true, m.t3a, o.t3a),
+      row('% Triples', pct(m.t3a,m.t3i)+'%', pct(o.t3a,o.t3i)+'%', true, pct(m.t3a,m.t3i), pct(o.t3a,o.t3i)),
+      row('Libres', `${m.t1a}/${m.t1i}`, `${o.t1a}/${o.t1i}`, true, m.t1a, o.t1a),
+      row('% Libres', pct(m.t1a,m.t1i)+'%', pct(o.t1a,o.t1i)+'%', true, pct(m.t1a,m.t1i), pct(o.t1a,o.t1i)),
+    ]},
+    { title: 'Rebotes', rows: [
+      row('Total rebotes', m.treb, o.treb),
+      row('Reb. ofensivos', m.oreb, o.oreb),
+      row('Reb. defensivos', m.dreb, o.dreb),
+    ]},
+    { title: 'Otros', rows: [
+      row('Asistencias', m.ast, o.ast),
+      row('Recuperos', m.rec, o.rec),
+      row('Pérdidas', m.per, o.per, false),
+      row('Tapones', m.tap, o.tap),
+      row('Valoración', m.val, o.val),
+    ]},
+  ];
+
+  document.getElementById('tgmDetailBody').innerHTML = groups.map(g =>
+    `<div class="tgm-stat-section">
+      <div class="tgm-stat-group-title">${g.title}</div>
+      ${g.rows.join('')}
+    </div>`
+  ).join('');
+
+  document.getElementById('tgmBody').style.display = 'none';
+  document.getElementById('tgmDetail').classList.add('visible');
+}
+
+function closeGameDetail() {
+  document.getElementById('tgmDetail').classList.remove('visible');
+  document.getElementById('tgmBody').style.display = '';
+}
+
+function closeTeamGames(e) {
+  if (e && e.target !== document.getElementById('teamGamesBackdrop')) return;
+  document.getElementById('teamGamesBackdrop').classList.remove('open');
+  closeGameDetail();
 }
 
 async function initApp() {
