@@ -722,12 +722,16 @@ def main():
 
     # Filter to only games not yet scraped
     # A game is considered "played" when it has scores in the fixture
+    no_score = [g for g in all_fixture_games if g.get("home_score") is None]
+    already_cached = [g for g in all_fixture_games if g["game_id"] in cached_ids]
     new_games = [
         g for g in all_fixture_games
         if g["game_id"] not in cached_ids
         and g.get("home_score") is not None   # played games only
     ]
-    log.info(f"{len(new_games)} new games to scrape (skipping {len(cached_ids)} cached)")
+    log.info(f"Fixture total: {len(all_fixture_games)} | Sin resultado: {len(no_score)} | Ya cacheados: {len(already_cached)} | A scrapear: {len(new_games)}")
+    for g in new_games:
+        log.info(f"  NUEVO: {g.get('date','?')} {g.get('home_team','?')} {g.get('home_score')}-{g.get('away_score')} {g.get('away_team','?')} [{g['game_id']}]")
 
     # 3. Scrape new games
     new_rows: list[dict] = []
