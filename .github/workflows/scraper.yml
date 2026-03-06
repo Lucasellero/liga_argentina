@@ -24,18 +24,8 @@ jobs:
       - name: Instalar dependencias
         run: pip install -r Scraper/requirements.txt
 
-      - name: Diagnostico (partidos disponibles)
-        run: python Scraper/scraper.py --dry-run
-
       - name: Ejecutar scraper
         run: python Scraper/scraper.py
-
-      - name: Resumen CSV
-        run: |
-          echo "=== Filas en CSV ==="
-          wc -l docs/liga_argentina.csv || echo "CSV no encontrado"
-          echo "=== Ultimas 5 lineas ==="
-          tail -5 docs/liga_argentina.csv || true
 
       - name: Commitear CSV actualizado
         run: |

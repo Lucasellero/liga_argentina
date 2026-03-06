@@ -98,7 +98,7 @@ body{
 .badge-p{background:rgba(139,92,246,.18);color:var(--purple-l);border:1px solid rgba(139,92,246,.32);}
 .badge-t{background:rgba(45,212,191,.13);color:var(--teal-l);border:1px solid rgba(45,212,191,.28);}
 
-/* ��─ MAIN TABS ───────────────────────���───────────── */
+/* ��─ MAIN TABS ────────��──────────────���───────────── */
 .main-tabs{
   background:var(--surface);
   border-bottom:1px solid var(--border2);
@@ -2302,7 +2302,7 @@ function closeTeamGames(e) {
 async function initApp() {
   document.getElementById('loadingOverlay').style.display = 'flex';
   try {
-    const resp = await fetch(CSV_PATH);
+    const resp = await fetch(CSV_PATH + '?v=' + Date.now(), { cache: 'no-store' });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const text = await resp.text();
     const rows = parseCSV(text);
