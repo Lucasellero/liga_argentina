@@ -605,7 +605,16 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .szc-canvas-wrap{flex:0 0 auto;width:min(420px,100%);}
 #szcCanvas{display:block;width:100%;border-radius:10px;}
 .szc-legend{display:flex;flex-direction:column;gap:8px;font-size:.73rem;color:var(--muted);padding-top:8px;}
-.szc-legend-title{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:2px;}
+.szc-legend-title{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:4px;}
+.szc-legend-grad-wrap{display:flex;gap:8px;align-items:stretch;}
+.szc-legend-grad{width:16px;min-height:140px;border-radius:6px;flex-shrink:0;
+  background:linear-gradient(to bottom,
+    rgb(220,38,38) 0%,
+    rgb(251,146,60) 25%,
+    rgb(203,213,225) 50%,
+    rgb(96,165,250) 75%,
+    rgb(29,78,216) 100%);}
+.szc-legend-grad-labels{display:flex;flex-direction:column;justify-content:space-between;font-size:.65rem;color:var(--muted);padding:1px 0;}
 .szc-ld{display:flex;align-items:center;gap:8px;}
 .szc-ld-swatch{width:13px;height:13px;border-radius:3px;flex-shrink:0;}
 .szc-empty{color:var(--muted);font-size:.88rem;text-align:center;padding:64px 20px;font-style:italic;}
@@ -689,7 +698,16 @@ canvas{display:block;width:100%;cursor:crosshair;}
   .szc-outer{padding:16px 10px 32px;}
   .szc-search-wrap{width:100%;}
   .szc-body{flex-direction:column;}
-  .szc-legend{flex-direction:row;flex-wrap:wrap;gap:10px;}
+  .szc-legend{flex-direction:row;gap:10px;}
+  .szc-legend-grad{width:100%;min-height:14px;
+    background:linear-gradient(to right,
+      rgb(220,38,38) 0%,
+      rgb(251,146,60) 25%,
+      rgb(203,213,225) 50%,
+      rgb(96,165,250) 75%,
+      rgb(29,78,216) 100%) !important;}
+  .szc-legend-grad-wrap{flex-direction:column;gap:5px;width:100%;}
+  .szc-legend-grad-labels{flex-direction:row;justify-content:space-between;}
 }
 </style>
 </head>
@@ -1342,12 +1360,16 @@ canvas{display:block;width:100%;cursor:crosshair;}
         <div class="szc-canvas-wrap"><canvas id="szcCanvas"></canvas></div>
         <div class="szc-legend">
           <div class="szc-legend-title">vs Promedio Liga</div>
-          <div class="szc-ld"><div class="szc-ld-swatch" style="background:#4ade80"></div>+8% o más</div>
-          <div class="szc-ld"><div class="szc-ld-swatch" style="background:#86efac"></div>+4% a +8%</div>
-          <div class="szc-ld"><div class="szc-ld-swatch" style="background:#fde047"></div>Cerca del promedio</div>
-          <div class="szc-ld"><div class="szc-ld-swatch" style="background:#fca5a5"></div>-4% a -8%</div>
-          <div class="szc-ld"><div class="szc-ld-swatch" style="background:#f87171"></div>-8% o menos</div>
-          <div class="szc-ld"><div class="szc-ld-swatch" style="background:rgba(100,116,139,.45)"></div>Sin datos</div>
+          <div class="szc-legend-grad-wrap">
+            <div class="szc-legend-grad"></div>
+            <div class="szc-legend-grad-labels">
+              <span>+12%</span>
+              <span>+6%</span>
+              <span>0%</span>
+              <span>-6%</span>
+              <span>-12%</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2909,19 +2931,17 @@ initApp();
 // ============================================================
 // SHOT ZONE CHART
 // ============================================================
-const SZC_ZONES = ['RA','PAINT','MID_TOP','MID_BOT','CORNER_TOP','CORNER_BOT','WING_TOP','WING_BOT','CENTER_3'];
+const SZC_ZONES = ['PAINT','MID_TOP','MID_CENTER','MID_BOT','CORNER_TOP','CORNER_BOT','ABOVE_BREAK'];
 
 // Approximate label centers in court meters [x, y] (basket at x=1.575, y=7.5)
 const SZC_CENTERS = {
-  RA:          [2.3,  7.5 ],
-  PAINT:       [4.0,  7.5 ],
-  MID_TOP:     [7.4,  4.0 ],
-  MID_BOT:     [7.4, 11.0 ],
-  CORNER_TOP:  [5.5,  0.45],
-  CORNER_BOT:  [5.5, 14.55],
-  WING_TOP:    [9.8,  2.8 ],
-  WING_BOT:    [9.8, 12.2 ],
-  CENTER_3:    [10.8, 7.5 ],
+  PAINT:       [2.8,  7.5 ],
+  MID_TOP:     [6.8,  3.8 ],
+  MID_CENTER:  [6.9,  7.5 ],
+  MID_BOT:     [6.8, 11.2 ],
+  CORNER_TOP:  [7.0,  1.5 ],
+  CORNER_BOT:  [7.0, 13.5 ],
+  ABOVE_BREAK: [11.5, 7.5 ],
 };
 
 function szcClassifyCoord(x, y) {
@@ -2930,28 +2950,55 @@ function szcClassifyCoord(x, y) {
   const bx = 1.575, by = 7.5;
   const dx = x - bx, dy = y - by;
   const dist = Math.sqrt(dx*dx + dy*dy);
-  const is3 = dist > 6.75 || y < 0.9 || y > 14.1;
-  if (y < 0.9)  return 'CORNER_TOP';
-  if (y > 14.1) return 'CORNER_BOT';
-  if (!is3) {
-    if (dist <= 1.25) return 'RA';
-    if (x <= 5.8 && Math.abs(dy) <= 2.45) return 'PAINT';
-    return dy < 0 ? 'MID_TOP' : 'MID_BOT';
+  if (dist > 6.75) {
+    if (dy < -dx) return 'CORNER_TOP';
+    if (dy >  dx) return 'CORNER_BOT';
+    return 'ABOVE_BREAK';
   }
-  return dy < -3 ? 'WING_TOP' : dy > 3 ? 'WING_BOT' : 'CENTER_3';
+  // 2pt territory
+  if (x <= 5.8 && Math.abs(dy) <= 2.45) return 'PAINT';
+  if (dist <= 1.25) return 'PAINT';
+  if (dy < -1.5) return 'MID_TOP';
+  if (dy >  1.5) return 'MID_BOT';
+  return 'MID_CENTER';
 }
 
 function szcClassifyShot(s) {
-  // Normalize: LOCAL attacks left basket, VISIT attacks right basket → mirror VISIT
+  // Use Tipo as source of truth for 2pt/3pt — coordinates only determine sub-zone.
+  // This ensures zone totals match T2I/T3I from the stats table.
+  const tipo = s['Tipo'];
+  if (!tipo || tipo === 'TIRO1') return null;
+  const is3 = tipo === 'TIRO3';
+
   const isLocal = s['Local'] === 'True';
   const lPct = parseFloat(s['Left_pct']);
   const tPct = parseFloat(s['Top_pct']);
-  if (isNaN(lPct) || isNaN(tPct)) return null;
-  const normLeft = isLocal ? lPct : 100 - lPct;
-  if (normLeft > 53 || normLeft < 0) return null;
-  const x = (normLeft - 6.51) * 0.3219;
-  const y = tPct * 0.15;
-  return szcClassifyCoord(x, y);
+  const normLeft = isNaN(lPct) || isNaN(tPct) ? null : (isLocal ? lPct : 100 - lPct);
+
+  if (normLeft !== null && normLeft >= 0 && normLeft <= 53) {
+    const x = (normLeft - 6.51) * 0.3219;
+    const y = tPct * 0.15;
+    const bx = 1.575, by = 7.5;
+    const dy = y - by;
+
+    if (is3) {
+      const dx = x - bx;
+      if (dy < -dx) return 'CORNER_TOP';
+      if (dy >  dx) return 'CORNER_BOT';
+      return 'ABOVE_BREAK';
+    } else {
+      const dx = x - bx;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (x <= 5.8 && Math.abs(dy) <= 2.45) return 'PAINT';
+      if (dist <= 1.25) return 'PAINT';
+      if (dy < -1.5) return 'MID_TOP';
+      if (dy >  1.5) return 'MID_BOT';
+      return 'MID_CENTER';
+    }
+  }
+
+  // Fallback for missing/out-of-range coordinates
+  return is3 ? 'ABOVE_BREAK' : 'PAINT';
 }
 
 function szcComputeStats(shots) {
@@ -2972,11 +3019,26 @@ function szcZoneColor(ps, ls) {
   const pPct = ps.makes / ps.att;
   const lPct = ls && ls.att > 0 ? ls.makes / ls.att : 0.44;
   const diff = pPct - lPct;
-  if (diff >  0.08) return [74,  222, 128, 220];
-  if (diff >  0.04) return [134, 239, 172, 190];
-  if (diff > -0.04) return [253, 224,  71, 190];
-  if (diff > -0.08) return [252, 165, 165, 190];
-  return [248, 113, 113, 220];
+  // Interpolación continua entre anclas de color (diff en tanto por uno)
+  const stops = [
+    [-0.12, 29,  78, 216],   // azul oscuro
+    [-0.06, 96, 165, 250],   // azul medio
+    [-0.02, 147, 197, 253],  // azul muy claro
+    [ 0.00, 203, 213, 225],  // gris claro (promedio)
+    [ 0.02, 253, 186, 116],  // naranja muy claro
+    [ 0.06, 251, 146,  60],  // naranja
+    [ 0.12, 220,  38,  38],  // rojo oscuro
+  ];
+  if (diff <= stops[0][0])   return [...stops[0].slice(1), 220];
+  if (diff >= stops[stops.length-1][0]) return [...stops[stops.length-1].slice(1), 220];
+  for (let i = 0; i < stops.length - 1; i++) {
+    const [d0,r0,g0,b0] = stops[i], [d1,r1,g1,b1] = stops[i+1];
+    if (diff >= d0 && diff <= d1) {
+      const t = (diff - d0) / (d1 - d0);
+      return [Math.round(r0+t*(r1-r0)), Math.round(g0+t*(g1-g0)), Math.round(b0+t*(b1-b0)), 215];
+    }
+  }
+  return [203, 213, 225, 215];
 }
 
 function szcDrawZoneColors(ctx, W, H, m, playerStats, leagueStats) {
@@ -3036,15 +3098,18 @@ function szcDrawCourtLines(ctx, W, H, m) {
   ctx.strokeStyle = 'rgba(255,255,255,.45)';
   ctx.setLineDash([5, 4]);
 
-  // MID_TOP / MID_BOT: horizontal center through mid-range (paint edge → 3pt arc)
-  const arcCenterX = bx + R3; // arc intersection at y=by (dy=0)
-  ctx.beginPath(); ctx.moveTo(paintD, by); ctx.lineTo(arcCenterX, by); ctx.stroke();
+  // MID_TOP/MID_CENTER and MID_CENTER/MID_BOT: at dy = ±1.5m from basket center
+  const dy15 = 1.5*m;
+  const arcMidX = bx + Math.sqrt(R3*R3 - dy15*dy15);
+  ctx.beginPath(); ctx.moveTo(paintD, by - dy15); ctx.lineTo(arcMidX, by - dy15); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(paintD, by + dy15); ctx.lineTo(arcMidX, by + dy15); ctx.stroke();
 
-  // WING_TOP / CENTER_3 and WING_BOT / CENTER_3: at dy = ±3m from basket center
-  const dy3 = 3*m;
-  const arcWingX = bx + Math.sqrt(R3*R3 - dy3*dy3);
-  ctx.beginPath(); ctx.moveTo(arcWingX, by - dy3); ctx.lineTo(W, by - dy3); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(arcWingX, by + dy3); ctx.lineTo(W, by + dy3); ctx.stroke();
+  // CORNER_TOP/ABOVE_BREAK and CORNER_BOT/ABOVE_BREAK: diagonal ~45° from basket
+  // Starts from paint right edge so the line spans the full visual diagonal
+  const diagEdgeX = bx + by; // where the diagonal hits y=0 or y=H (= 9.075*m)
+  const diagPaintY = diagEdgeX - paintD; // y at x=paintD along the diagonal
+  ctx.beginPath(); ctx.moveTo(paintD, diagPaintY); ctx.lineTo(diagEdgeX, 0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(paintD, H - diagPaintY); ctx.lineTo(diagEdgeX, H); ctx.stroke();
 
   ctx.setLineDash([]);
 }
@@ -3070,11 +3135,13 @@ function szcDrawLabels(ctx, W, H, m, playerStats) {
     const ps = playerStats[zone];
     if (!ps || ps.att === 0) return;
     const [cx_m, cy_m] = SZC_CENTERS[zone];
-    const cx = cx_m * m, cy = cy_m * m;
+    const cx = cx_m * m;
     const pct = (ps.makes / ps.att * 100).toFixed(1);
     const l1 = `${ps.makes}/${ps.att}`, l2 = `${pct}%`;
     const bw = Math.max(ctx.measureText(l1).width, ctx.measureText(l2).width) + 14;
     const bh = fs * 2.9;
+    // Clamp cy so labels never go off-canvas (important for thin corner zones)
+    const cy = Math.max(bh/2 + 2, Math.min(H - bh/2 - 2, cy_m * m));
     ctx.fillStyle = 'rgba(10,10,22,.75)';
     szcRoundRect(ctx, cx - bw/2, cy - bh/2, bw, bh, 5);
     ctx.fill();

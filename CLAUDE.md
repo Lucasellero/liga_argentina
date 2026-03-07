@@ -54,10 +54,32 @@ SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades 
 
 **Sección "Tiro" (`j-tiro`):**
 - Media cancha coloreada por zonas de eficiencia vs promedio de liga
-- 9 zonas: `RA`, `PAINT`, `MID_TOP`, `MID_BOT`, `CORNER_TOP`, `CORNER_BOT`, `WING_TOP`, `WING_BOT`, `CENTER_3`
+- **7 zonas** (1 pintura + 3 mid-range 2pt + 3 triples):
+  - `PAINT` — dentro del rectángulo de la pintura + área restringida (RA fusionada)
+  - `MID_TOP` — mid-range techo (dy < -1.5m desde el aro, fuera de pintura, dentro del arco)
+  - `MID_CENTER` — mid-range centro (|dy| ≤ 1.5m, fuera de pintura, dentro del arco)
+  - `MID_BOT` — mid-range fondo (dy > 1.5m)
+  - `CORNER_TOP` — triple esquina superior: ángulo > 45° hacia arriba desde el aro (`dy < -dx`)
+  - `CORNER_BOT` — triple esquina inferior: ángulo > 45° hacia abajo desde el aro (`dy > dx`)
+  - `ABOVE_BREAK` — todo el arco de 3pt dentro de los ±45° (wings + centro)
 - Coloreado pixel-a-pixel con `ImageData` (rápido, sin paths de canvas por zona)
+- Paleta de zonas: interpolación continua entre anclas (rojo = mejor, azul = peor vs promedio liga):
+  - diff ≤ −12%: `[29, 78, 216]` azul oscuro
+  - diff = −6%:  `[96, 165, 250]` azul medio
+  - diff = −2%:  `[147, 197, 253]` azul muy claro
+  - diff =  0%:  `[203, 213, 225]` gris claro (promedio)
+  - diff = +2%:  `[253, 186, 116]` naranja muy claro
+  - diff = +6%:  `[251, 146, 60]`  naranja
+  - diff ≥ +12%: `[220, 38, 38]`   rojo oscuro
+  - sin datos:   `[55, 58, 90]`    oscuro
+  - Implementado en `szcZoneColor()` con lerp lineal entre anclas adyacentes
+- Leyenda: barra de gradiente CSS continua (vertical en desktop, horizontal en mobile)
 - Normalización: LOCAL ataca aro izquierdo (Left_pct < 50), VISIT se espeja (100 - Left_pct)
-- Lineas divisorias entre zonas: sólidas para líneas de cancha, punteadas (`rgba(255,255,255,.45)`) para separadores de zona
+- Separadores de zona punteados (`rgba(255,255,255,.45)`):
+  - dy = ±1.5m (límites MID_TOP/CENTER/BOT): línea horizontal desde el paint hasta el arco
+  - Diagonal 45° (límites CORNER/ABOVE_BREAK): línea desde el borde del paint hasta el borde del canvas (`diagEdgeX = bx + by = 9.075m`)
+- Clasificación de corners: `szcClassifyCoord` usa arc check primero (`dist > 6.75`), luego diagonal. `szcClassifyShot` ídem — ambas funciones deben mantenerse consistentes
+- **Totales garantizados**: `szcClassifyShot` usa `Tipo` del CSV (TIRO2/TIRO3) como fuente de verdad para 2pt vs 3pt; las coordenadas solo determinan la sub-zona. Esto asegura que la suma de zonas 2pt = T2I y suma de zonas 3pt = T3I de la tabla. Tiros con coordenadas inválidas defaultean a `PAINT` (2pt) o `ABOVE_BREAK` (3pt).
 - Búsqueda de jugadores con autocomplete; matching por `Equipo||Dorsal` (numérico redondeado)
 - `SHOTS_BY_PLAYER`: `Map<"Equipo||Dorsal" → rows[]>`, construido en `loadShots()` junto a `SHOTS_MAP`
 - `LEAGUE_ZONE_STATS`: stats de toda la liga por zona, calculado lazy una vez cargado `SHOTS_MAP`
@@ -138,7 +160,7 @@ loadShots()
 
 - No cambiar el formato de los CSV
 - No modificar el sistema de coordenadas del shot map
-- No alterar la paleta de colores del proyecto
+- No alterar la paleta de colores del proyecto (variables CSS `--bg`, `--purple`, `--teal`, etc.; la paleta de zonas de tiro sí puede cambiar)
 
 ## Comandos útiles
 ```bash
