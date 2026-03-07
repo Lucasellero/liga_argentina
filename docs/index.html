@@ -584,6 +584,33 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .sm-ld-x::before{transform:translateY(-50%) rotate(45deg);}
 .sm-ld-x::after{transform:translateY(-50%) rotate(-45deg);}
 
+/* ── SHOT ZONE CHART ─────────────────────────────── */
+.szc-outer{padding:24px 40px 48px;max-width:900px;margin:0 auto;}
+.szc-header{margin-bottom:20px;}
+.szc-search-wrap{position:relative;width:280px;}
+.szc-search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+.szc-search-wrap input{padding-left:34px;width:100%;}
+.szc-autocomplete{position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:200;
+  background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  box-shadow:0 8px 32px rgba(0,0,0,.55);max-height:240px;overflow-y:auto;}
+.szc-ac-item{padding:9px 14px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.04);}
+.szc-ac-item:last-child{border-bottom:none;}
+.szc-ac-item:hover{background:rgba(139,92,246,.12);}
+.szc-ac-name{color:var(--text-bright);font-size:.83rem;font-weight:600;}
+.szc-ac-team{color:var(--muted);font-size:.7rem;margin-top:1px;}
+.szc-player-header{margin-bottom:16px;}
+.szc-player-name{font-size:1rem;font-weight:800;color:#fff;}
+.szc-player-team{font-size:.74rem;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.4px;}
+.szc-body{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;}
+.szc-canvas-wrap{flex:0 0 auto;width:min(420px,100%);}
+#szcCanvas{display:block;width:100%;border-radius:10px;}
+.szc-legend{display:flex;flex-direction:column;gap:8px;font-size:.73rem;color:var(--muted);padding-top:8px;}
+.szc-legend-title{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:2px;}
+.szc-ld{display:flex;align-items:center;gap:8px;}
+.szc-ld-swatch{width:13px;height:13px;border-radius:3px;flex-shrink:0;}
+.szc-empty{color:var(--muted);font-size:.88rem;text-align:center;padding:64px 20px;font-style:italic;}
+.szc-loading{color:var(--muted);font-size:.82rem;text-align:center;padding:32px 20px;}
+
 /* ── RESPONSIVE ──────────────────────────────────── */
 @media (max-width:640px){
 
@@ -657,6 +684,12 @@ canvas{display:block;width:100%;cursor:crosshair;}
   /* Game detail modal table */
   #teamGamesModal thead th{font-size:.56rem;padding:7px 8px;}
   #teamGamesModal tbody td{padding:7px 8px;font-size:.75rem;}
+
+  /* Shot zone chart */
+  .szc-outer{padding:16px 10px 32px;}
+  .szc-search-wrap{width:100%;}
+  .szc-body{flex-direction:column;}
+  .szc-legend{flex-direction:row;flex-wrap:wrap;gap:10px;}
 }
 </style>
 </head>
@@ -707,6 +740,10 @@ canvas{display:block;width:100%;cursor:crosshair;}
   <button class="main-tab" onclick="switchSection('t-chart')">
     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="5" cy="18" r="2"/><circle cx="12" cy="10" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="8" cy="14" r="2"/><circle cx="16" cy="16" r="2"/></svg>
     <span class="tab-cat">Equipos</span> Comparar
+  </button>
+  <button class="main-tab" onclick="switchSection('j-tiro')">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="M12 7v6l4 2"/><circle cx="12" cy="12" r="9"/></svg>
+    <span class="tab-cat">Jugadores</span> Tiro
   </button>
 </div>
 
@@ -1284,6 +1321,39 @@ canvas{display:block;width:100%;cursor:crosshair;}
   </div>
 </div>
 
+<!-- ============================= TIRO POR ZONAS ============================= -->
+<div class="section" id="sec-j-tiro">
+  <div class="szc-outer">
+    <div class="szc-header">
+      <div class="szc-search-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="szcInput" placeholder="Buscar jugador..." oninput="onSzcInput()" autocomplete="off">
+        <div class="szc-autocomplete" id="szcAC" style="display:none"></div>
+      </div>
+    </div>
+    <div id="szcEmpty" class="szc-empty">Buscá un jugador para ver su mapa de tiro por zonas</div>
+    <div id="szcLoading" class="szc-loading" style="display:none">Cargando datos de tiro...</div>
+    <div id="szcMain" style="display:none">
+      <div class="szc-player-header">
+        <div class="szc-player-name" id="szcPlayerName"></div>
+        <div class="szc-player-team" id="szcPlayerTeam"></div>
+      </div>
+      <div class="szc-body">
+        <div class="szc-canvas-wrap"><canvas id="szcCanvas"></canvas></div>
+        <div class="szc-legend">
+          <div class="szc-legend-title">vs Promedio Liga</div>
+          <div class="szc-ld"><div class="szc-ld-swatch" style="background:#4ade80"></div>+8% o más</div>
+          <div class="szc-ld"><div class="szc-ld-swatch" style="background:#86efac"></div>+4% a +8%</div>
+          <div class="szc-ld"><div class="szc-ld-swatch" style="background:#fde047"></div>Cerca del promedio</div>
+          <div class="szc-ld"><div class="szc-ld-swatch" style="background:#fca5a5"></div>-4% a -8%</div>
+          <div class="szc-ld"><div class="szc-ld-swatch" style="background:#f87171"></div>-8% o menos</div>
+          <div class="szc-ld"><div class="szc-ld-swatch" style="background:rgba(100,116,139,.45)"></div>Sin datos</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ============================= LÍDERES ============================= -->
 <div class="section" id="sec-lideres">
   <div class="leaders-outer">
@@ -1332,10 +1402,12 @@ function buildRAW_J(rows) {
     if (!map[key]) map[key] = {
       'Nombre completo': r['Nombre completo'], Equipo: r['Equipo'],
       PJ: 0, SEG: 0, PTS: 0, T2A: 0, T2I: 0, T3A: 0, T3I: 0,
-      T1A: 0, T1I: 0, RD: 0, RO: 0, RT: 0, AST: 0, REC: 0, PER: 0, TAP: 0, VAL: 0
+      T1A: 0, T1I: 0, RD: 0, RO: 0, RT: 0, AST: 0, REC: 0, PER: 0, TAP: 0, VAL: 0,
+      DORSAL: null
     };
     const p = map[key], seg = parseFloat(r['Segundos jugados']) || 0;
     p.SEG += seg; if (seg > 0) p.PJ++;
+    if (r['Número Camiseta']) p.DORSAL = r['Número Camiseta'];
     p.PTS += parseFloat(r['Puntos']) || 0;
     p.T2A += parseFloat(r['T2A']) || 0; p.T2I += parseFloat(r['T2I']) || 0;
     p.T3A += parseFloat(r['T3A']) || 0; p.T3I += parseFloat(r['T3I']) || 0;
@@ -1469,6 +1541,8 @@ let jHov=-1, jPin=new Set(), tHov=-1, tPin=-1;
 // ── SHOTS DATA ──────────────────────────────────────
 const SHOTS_CSV = 'liga_argentina_shots.csv';
 let SHOTS_MAP = null; // null=not loaded, Map keyed by gameId
+let SHOTS_BY_PLAYER = null; // Map keyed by "Equipo||Dorsal"
+let LEAGUE_ZONE_STATS = null;
 let _smState = { gameId: null, local: '', visit: '', filter: { team: 'all', tipo: 'all', result: 'all' } };
 
 const f2=v=>v==null||isNaN(v)?'—':v.toFixed(2);
@@ -2328,14 +2402,21 @@ async function loadShots() {
     const text = await resp.text();
     const rows = parseCSV(text);
     SHOTS_MAP = new Map();
+    SHOTS_BY_PLAYER = new Map();
     rows.forEach(r => {
       const gid = r['IdPartido'];
       if (!gid) return;
       if (!SHOTS_MAP.has(gid)) SHOTS_MAP.set(gid, []);
       SHOTS_MAP.get(gid).push(r);
+      // Index by player: Equipo||Dorsal (normalised to integer string)
+      const dNum = String(Math.round(parseFloat(r['Dorsal']) || 0));
+      const pkey = r['Equipo'] + '||' + dNum;
+      if (!SHOTS_BY_PLAYER.has(pkey)) SHOTS_BY_PLAYER.set(pkey, []);
+      SHOTS_BY_PLAYER.get(pkey).push(r);
     });
   } catch(e) {
     SHOTS_MAP = new Map(); // empty map on error
+    SHOTS_BY_PLAYER = new Map();
   }
 }
 
@@ -2824,6 +2905,251 @@ async function initApp() {
 }
 
 initApp();
+
+// ============================================================
+// SHOT ZONE CHART
+// ============================================================
+const SZC_ZONES = ['RA','PAINT','MID_TOP','MID_BOT','CORNER_TOP','CORNER_BOT','WING_TOP','WING_BOT','CENTER_3'];
+
+// Approximate label centers in court meters [x, y] (basket at x=1.575, y=7.5)
+const SZC_CENTERS = {
+  RA:          [2.3,  7.5 ],
+  PAINT:       [4.0,  7.5 ],
+  MID_TOP:     [7.4,  4.0 ],
+  MID_BOT:     [7.4, 11.0 ],
+  CORNER_TOP:  [5.5,  0.45],
+  CORNER_BOT:  [5.5, 14.55],
+  WING_TOP:    [9.8,  2.8 ],
+  WING_BOT:    [9.8, 12.2 ],
+  CENTER_3:    [10.8, 7.5 ],
+};
+
+function szcClassifyCoord(x, y) {
+  // x: meters from left baseline (0–14), y: meters from top sideline (0–15)
+  if (x < 0 || x > 14 || y < 0 || y > 15) return null;
+  const bx = 1.575, by = 7.5;
+  const dx = x - bx, dy = y - by;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  const is3 = dist > 6.75 || y < 0.9 || y > 14.1;
+  if (y < 0.9)  return 'CORNER_TOP';
+  if (y > 14.1) return 'CORNER_BOT';
+  if (!is3) {
+    if (dist <= 1.25) return 'RA';
+    if (x <= 5.8 && Math.abs(dy) <= 2.45) return 'PAINT';
+    return dy < 0 ? 'MID_TOP' : 'MID_BOT';
+  }
+  return dy < -3 ? 'WING_TOP' : dy > 3 ? 'WING_BOT' : 'CENTER_3';
+}
+
+function szcClassifyShot(s) {
+  // Normalize: LOCAL attacks left basket, VISIT attacks right basket → mirror VISIT
+  const isLocal = s['Local'] === 'True';
+  const lPct = parseFloat(s['Left_pct']);
+  const tPct = parseFloat(s['Top_pct']);
+  if (isNaN(lPct) || isNaN(tPct)) return null;
+  const normLeft = isLocal ? lPct : 100 - lPct;
+  if (normLeft > 53 || normLeft < 0) return null;
+  const x = (normLeft - 6.51) * 0.3219;
+  const y = tPct * 0.15;
+  return szcClassifyCoord(x, y);
+}
+
+function szcComputeStats(shots) {
+  const stats = {};
+  SZC_ZONES.forEach(z => stats[z] = { makes: 0, att: 0 });
+  shots.forEach(s => {
+    if (s['Tipo'] === 'TIRO1') return;
+    const zone = szcClassifyShot(s);
+    if (!zone) return;
+    stats[zone].att++;
+    if (s['Resultado'] === 'CONVERTIDO') stats[zone].makes++;
+  });
+  return stats;
+}
+
+function szcZoneColor(ps, ls) {
+  if (!ps || ps.att === 0) return [55, 58, 90, 220];
+  const pPct = ps.makes / ps.att;
+  const lPct = ls && ls.att > 0 ? ls.makes / ls.att : 0.44;
+  const diff = pPct - lPct;
+  if (diff >  0.08) return [74,  222, 128, 220];
+  if (diff >  0.04) return [134, 239, 172, 190];
+  if (diff > -0.04) return [253, 224,  71, 190];
+  if (diff > -0.08) return [252, 165, 165, 190];
+  return [248, 113, 113, 220];
+}
+
+function szcDrawZoneColors(ctx, W, H, m, playerStats, leagueStats) {
+  const img = ctx.createImageData(W, H);
+  const d = img.data;
+  for (let row = 0; row < H; row++) {
+    for (let col = 0; col < W; col++) {
+      const zone = szcClassifyCoord(col / m, row / m);
+      const c = zone
+        ? szcZoneColor(playerStats[zone], leagueStats ? leagueStats[zone] : null)
+        : [11, 11, 22, 255];
+      const i = (row * W + col) * 4;
+      d[i] = c[0]; d[i+1] = c[1]; d[i+2] = c[2]; d[i+3] = c[3];
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+function szcDrawCourtLines(ctx, W, H, m) {
+  const bx = 1.575*m, by = H/2;
+  const lc = 'rgba(255,255,255,.75)';
+  const lw = Math.max(1, W/400);
+  ctx.strokeStyle = lc; ctx.lineWidth = lw; ctx.setLineDash([]);
+
+  ctx.strokeRect(0.5, 0.5, W-1, H-1);
+
+  const paintW = 2.45*m, paintD = 5.8*m;
+  ctx.strokeRect(0, by - paintW, paintD, paintW*2);
+
+  // FT circle
+  ctx.beginPath(); ctx.arc(paintD, by, 1.8*m, -Math.PI/2, Math.PI/2); ctx.stroke();
+  ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.arc(paintD, by, 1.8*m,  Math.PI/2, 3*Math.PI/2); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // RA arc
+  ctx.beginPath();
+  ctx.moveTo(bx, by - 1.25*m);
+  ctx.arc(bx, by, 1.25*m, -Math.PI/2, Math.PI/2);
+  ctx.stroke();
+
+  // Basket
+  ctx.strokeStyle = 'rgba(251,146,60,.95)';
+  ctx.beginPath(); ctx.arc(bx, by, 0.23*m, 0, Math.PI*2); ctx.stroke();
+  ctx.strokeStyle = lc;
+
+  // 3pt arc + corner lines
+  const R3 = 6.75*m, cy1 = 0.9*m, cy2 = H - 0.9*m;
+  const dy1 = cy1 - by, dx1 = Math.sqrt(R3*R3 - dy1*dy1);
+  ctx.beginPath(); ctx.moveTo(0, cy1); ctx.lineTo(bx + dx1, cy1); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, cy2); ctx.lineTo(bx + dx1, cy2); ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(bx, by, R3, Math.atan2(dy1, dx1), Math.atan2(-dy1, dx1), false);
+  ctx.stroke();
+
+  // ── Zone separator lines ──────────────────────────
+  ctx.strokeStyle = 'rgba(255,255,255,.45)';
+  ctx.setLineDash([5, 4]);
+
+  // MID_TOP / MID_BOT: horizontal center through mid-range (paint edge → 3pt arc)
+  const arcCenterX = bx + R3; // arc intersection at y=by (dy=0)
+  ctx.beginPath(); ctx.moveTo(paintD, by); ctx.lineTo(arcCenterX, by); ctx.stroke();
+
+  // WING_TOP / CENTER_3 and WING_BOT / CENTER_3: at dy = ±3m from basket center
+  const dy3 = 3*m;
+  const arcWingX = bx + Math.sqrt(R3*R3 - dy3*dy3);
+  ctx.beginPath(); ctx.moveTo(arcWingX, by - dy3); ctx.lineTo(W, by - dy3); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(arcWingX, by + dy3); ctx.lineTo(W, by + dy3); ctx.stroke();
+
+  ctx.setLineDash([]);
+}
+
+function szcRoundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y);
+  ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r);
+  ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h);
+  ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r);
+  ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+
+function szcDrawLabels(ctx, W, H, m, playerStats) {
+  const fs = Math.max(9, Math.round(W/46));
+  ctx.font = `700 ${fs}px Inter,sans-serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  SZC_ZONES.forEach(zone => {
+    const ps = playerStats[zone];
+    if (!ps || ps.att === 0) return;
+    const [cx_m, cy_m] = SZC_CENTERS[zone];
+    const cx = cx_m * m, cy = cy_m * m;
+    const pct = (ps.makes / ps.att * 100).toFixed(1);
+    const l1 = `${ps.makes}/${ps.att}`, l2 = `${pct}%`;
+    const bw = Math.max(ctx.measureText(l1).width, ctx.measureText(l2).width) + 14;
+    const bh = fs * 2.9;
+    ctx.fillStyle = 'rgba(10,10,22,.75)';
+    szcRoundRect(ctx, cx - bw/2, cy - bh/2, bw, bh, 5);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.fillText(l1, cx, cy - fs*0.6);
+    ctx.fillText(l2, cx, cy + fs*0.6);
+  });
+}
+
+function renderZoneChart(canvas, playerShots) {
+  const W = canvas.offsetWidth || 400;
+  const H = Math.round(W * 15 / 14);
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const m = W / 14;
+
+  if (!LEAGUE_ZONE_STATS && SHOTS_MAP) {
+    const all = [];
+    SHOTS_MAP.forEach(v => all.push(...v));
+    LEAGUE_ZONE_STATS = szcComputeStats(all);
+  }
+
+  const pStats = szcComputeStats(playerShots);
+  szcDrawZoneColors(ctx, W, H, m, pStats, LEAGUE_ZONE_STATS);
+  szcDrawCourtLines(ctx, W, H, m);
+  szcDrawLabels(ctx, W, H, m, pStats);
+}
+
+function onSzcInput() {
+  const val = document.getElementById('szcInput').value.trim().toLowerCase();
+  const ac = document.getElementById('szcAC');
+  if (!val || !PLAYERS || val.length < 2) { ac.style.display = 'none'; return; }
+  const matches = PLAYERS.filter(p =>
+    p['Nombre completo'].toLowerCase().includes(val) || p.Equipo.toLowerCase().includes(val)
+  ).slice(0, 10);
+  if (!matches.length) { ac.style.display = 'none'; return; }
+  ac.innerHTML = matches.map(p => {
+    const idx = PLAYERS.indexOf(p);
+    return `<div class="szc-ac-item" onmousedown="selectSzcPlayer(${idx})">
+      <div class="szc-ac-name">${p['Nombre completo']}</div>
+      <div class="szc-ac-team">${p.Equipo}</div>
+    </div>`;
+  }).join('');
+  ac.style.display = 'block';
+}
+
+// Close autocomplete on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('.szc-search-wrap')) {
+    const ac = document.getElementById('szcAC');
+    if (ac) ac.style.display = 'none';
+  }
+});
+
+function selectSzcPlayer(idx) {
+  const player = PLAYERS[idx];
+  document.getElementById('szcInput').value = player['Nombre completo'];
+  document.getElementById('szcAC').style.display = 'none';
+  document.getElementById('szcEmpty').style.display = 'none';
+  document.getElementById('szcMain').style.display = 'none';
+  document.getElementById('szcLoading').style.display = 'block';
+  document.getElementById('szcPlayerName').textContent = player['Nombre completo'];
+  document.getElementById('szcPlayerTeam').textContent = player.Equipo;
+
+  const doRender = () => {
+    const dNum = String(Math.round(parseFloat(player.DORSAL) || 0));
+    const key = player.Equipo + '||' + dNum;
+    const shots = SHOTS_BY_PLAYER ? (SHOTS_BY_PLAYER.get(key) || []) : [];
+    document.getElementById('szcLoading').style.display = 'none';
+    document.getElementById('szcMain').style.display = 'block';
+    requestAnimationFrame(() => renderZoneChart(document.getElementById('szcCanvas'), shots));
+  };
+
+  if (SHOTS_MAP === null) loadShots().then(doRender); else doRender();
+}
 
 function updateJFilterVisibility(){
   const chain=[
