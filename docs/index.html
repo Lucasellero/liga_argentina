@@ -229,8 +229,17 @@ select option{background:var(--surface2);color:var(--text);}
   transform:scaleY(-1);
 }
 .table-card>table{transform:scaleY(-1);}
-.scroll-bar-outer{display:none;}
-.scroll-bar-inner{display:none;}
+.scroll-bar-outer{
+  overflow-x:scroll;overflow-y:hidden;
+  height:10px;margin:0 40px 0;
+  background:rgba(255,255,255,.02);
+  border-radius:0 0 8px 8px;
+}
+.scroll-bar-outer::-webkit-scrollbar{height:8px;}
+.scroll-bar-outer::-webkit-scrollbar-track{background:rgba(255,255,255,.04);border-radius:4px;}
+.scroll-bar-outer::-webkit-scrollbar-thumb{background:rgba(139,92,246,.45);border-radius:4px;}
+.scroll-bar-outer::-webkit-scrollbar-thumb:hover{background:var(--purple);}
+.scroll-bar-inner{display:block;height:1px;}
 
 table{width:100%;border-collapse:collapse;font-size:.8rem;}
 thead th{
@@ -267,6 +276,7 @@ tbody td:nth-child(2){text-align:left;color:var(--muted);font-size:.76rem;}
 .win-rate-mid{color:var(--orange);font-weight:600;}
 .win-rate-low{color:var(--red);font-weight:600;}
 /* ── Posiciones ── */
+.pos-table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 .pos-outer{padding:24px 20px;max-width:900px;margin:0 auto;}
 .pos-conf-block{margin-bottom:36px;}
 .pos-conf-title{font-size:.75rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
@@ -484,7 +494,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
   display:flex;align-items:center;justify-content:center;transition:all .15s;
 }
 #teamGamesModal .tgm-close:hover{border-color:var(--purple);color:var(--purple-l);}
-#teamGamesModal .tgm-body{overflow-y:auto;flex:1;}
+#teamGamesModal .tgm-body{overflow-y:auto;overflow-x:auto;flex:1;}
 #teamGamesModal table{width:100%;border-collapse:collapse;font-size:.8rem;}
 #teamGamesModal thead th{
   background:var(--bg);color:var(--muted);font-size:.62rem;font-weight:700;
@@ -585,7 +595,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .sm-ld-x::after{transform:translateY(-50%) rotate(-45deg);}
 
 /* ── SHOT ZONE CHART ─────────────────────────────── */
-.szc-outer{padding:24px 40px 48px;max-width:900px;margin:0 auto;}
+.szc-outer{padding:24px 40px 48px;max-width:1000px;margin:0 auto;}
 .szc-header{margin-bottom:20px;}
 .szc-search-wrap{position:relative;width:280px;}
 .szc-search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
@@ -598,25 +608,44 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .szc-ac-item:hover{background:rgba(139,92,246,.12);}
 .szc-ac-name{color:var(--text-bright);font-size:.83rem;font-weight:600;}
 .szc-ac-team{color:var(--muted);font-size:.7rem;margin-top:1px;}
-.szc-player-header{margin-bottom:16px;}
-.szc-player-name{font-size:1rem;font-weight:800;color:#fff;}
-.szc-player-team{font-size:.74rem;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.4px;}
-.szc-body{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;}
+/* Player header */
+.szc-player-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:12px;}
+.szc-player-name{font-size:1.05rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.2px;}
+.szc-player-team{font-size:.72rem;color:var(--purple-l);margin-top:3px;text-transform:uppercase;letter-spacing:.4px;font-weight:600;}
+.szc-player-shots{display:flex;gap:10px;flex-shrink:0;padding-top:2px;}
+.szc-pstat{font-size:.68rem;color:var(--muted);white-space:nowrap;background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:3px 8px;}
+.szc-pstat b{color:var(--text-bright);font-weight:700;}
+/* Main body */
+.szc-body{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;}
 .szc-canvas-wrap{flex:0 0 auto;width:min(420px,100%);}
-#szcCanvas{display:block;width:100%;border-radius:10px;}
-.szc-legend{display:flex;flex-direction:column;gap:8px;font-size:.73rem;color:var(--muted);padding-top:8px;}
-.szc-legend-title{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:4px;}
+#szcCanvas{display:block;width:100%;border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,.55);}
+/* Right panel */
+.szc-right-panel{flex:1;min-width:150px;display:flex;flex-direction:column;gap:18px;padding-top:4px;}
+.szc-legend{display:flex;flex-direction:column;gap:6px;font-size:.73rem;color:var(--muted);}
+.szc-legend-title{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:2px;}
 .szc-legend-grad-wrap{display:flex;gap:8px;align-items:stretch;}
-.szc-legend-grad{width:16px;min-height:140px;border-radius:6px;flex-shrink:0;
+.szc-legend-grad{width:14px;min-height:120px;border-radius:6px;flex-shrink:0;
   background:linear-gradient(to bottom,
     rgb(220,38,38) 0%,
-    rgb(251,146,60) 25%,
+    rgb(251,146,60) 30%,
     rgb(203,213,225) 50%,
-    rgb(96,165,250) 75%,
+    rgb(96,165,250) 70%,
     rgb(29,78,216) 100%);}
-.szc-legend-grad-labels{display:flex;flex-direction:column;justify-content:space-between;font-size:.65rem;color:var(--muted);padding:1px 0;}
-.szc-ld{display:flex;align-items:center;gap:8px;}
-.szc-ld-swatch{width:13px;height:13px;border-radius:3px;flex-shrink:0;}
+.szc-legend-grad-labels{display:flex;flex-direction:column;justify-content:space-between;font-size:.63rem;color:var(--muted);padding:1px 0;}
+/* Zone cards */
+.szc-zone-cards-title{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:6px;}
+.szc-zone-card{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:7px 10px;
+  display:flex;align-items:center;gap:8px;border-left:3px solid #334155;margin-bottom:5px;transition:border-left-color .15s;}
+.szc-zone-card.szc-no-data{opacity:.35;}
+.szc-zone-card-info{flex:1;min-width:0;}
+.szc-zone-card-name{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--muted);}
+.szc-zone-card-att{font-size:.62rem;color:var(--muted2);margin-top:1px;}
+.szc-zone-card-right{text-align:right;}
+.szc-zone-card-pct{font-size:.9rem;font-weight:800;color:var(--text-bright);line-height:1.1;}
+.szc-zone-card-diff{font-size:.6rem;font-weight:700;display:block;margin-top:2px;}
+.szc-zone-card-diff.pos{color:#fb923c;}
+.szc-zone-card-diff.neg{color:#93c5fd;}
+.szc-zone-card-diff.neu{color:var(--muted2);}
 .szc-empty{color:var(--muted);font-size:.88rem;text-align:center;padding:64px 20px;font-style:italic;}
 .szc-loading{color:var(--muted);font-size:.82rem;text-align:center;padding:32px 20px;}
 
@@ -655,6 +684,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
   /* Tables */
   .tbl-toggle-wrap{padding:8px 12px 0;}
   .table-wrap{padding:10px 8px 8px;}
+  .scroll-bar-outer{margin:0 8px 0;}
 
   /* Leaders */
   .leaders-outer{padding:16px 10px 32px;}
@@ -698,16 +728,21 @@ canvas{display:block;width:100%;cursor:crosshair;}
   .szc-outer{padding:16px 10px 32px;}
   .szc-search-wrap{width:100%;}
   .szc-body{flex-direction:column;}
-  .szc-legend{flex-direction:row;gap:10px;}
+  .szc-right-panel{flex-direction:row;gap:14px;width:100%;}
+  .szc-legend{flex-direction:row;gap:10px;flex:0 0 auto;}
   .szc-legend-grad{width:100%;min-height:14px;
     background:linear-gradient(to right,
       rgb(220,38,38) 0%,
-      rgb(251,146,60) 25%,
+      rgb(251,146,60) 30%,
       rgb(203,213,225) 50%,
-      rgb(96,165,250) 75%,
+      rgb(96,165,250) 70%,
       rgb(29,78,216) 100%) !important;}
   .szc-legend-grad-wrap{flex-direction:column;gap:5px;width:100%;}
   .szc-legend-grad-labels{flex-direction:row;justify-content:space-between;}
+  .szc-zone-cards{flex:1;}
+  .szc-zone-card-pct{font-size:.82rem;}
+  .szc-player-header{flex-direction:column;gap:6px;}
+  .szc-player-shots{flex-wrap:wrap;}
 }
 </style>
 </head>
@@ -725,6 +760,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
     <div>
       <div class="title">SCOUTEADO</div>
       <div class="subtitle">Liga Argentina · Temporada Regular 2025/2026</div>
+      <div id="lastUpdate" style="font-size:0.65rem;color:var(--text-muted,#9ca3af);margin-top:2px;"></div>
     </div>
   </div>
   <div class="header-badges">
@@ -767,7 +803,6 @@ canvas{display:block;width:100%;cursor:crosshair;}
 
 <!-- ============================= JUGADORES TABLA ============================= -->
 <div class="section" id="sec-j-tabla">
-  <div class="scroll-bar-outer" id="jScrollOuter"><div class="scroll-bar-inner" id="jScrollInner"></div></div>
   <div class="controls">
     <!-- Primary bar -->
     <div class="ctrl-bar">
@@ -865,6 +900,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
         <button id="jToggleAdv" onclick="toggleJTable('adv')">Avanzada</button>
       </div>
     </div>
+  <div class="scroll-bar-outer" id="jScrollOuter"><div class="scroll-bar-inner" id="jScrollInner"></div></div>
     <div class="table-wrap" id="jTableWrap">
     <div class="table-card" id="jCardBasic">
       <table>
@@ -1314,27 +1350,31 @@ canvas{display:block;width:100%;cursor:crosshair;}
   <div class="pos-outer">
     <div class="pos-conf-block">
       <div class="pos-conf-title">Conferencia Norte</div>
-      <table class="pos-table">
-        <thead><tr>
-          <th>#</th><th>Equipo</th>
-          <th>PJ</th><th>G</th><th>P</th>
-          <th>W%</th><th>PTS/P</th><th>PTS REC/P</th><th>DIF/P</th>
-          <th>LOCAL</th><th>VISITA</th><th>ÚLTIMOS 5</th>
-        </tr></thead>
-        <tbody id="posNorteTbody"></tbody>
-      </table>
+      <div class="pos-table-scroll">
+        <table class="pos-table">
+          <thead><tr>
+            <th>#</th><th>Equipo</th>
+            <th>PJ</th><th>G</th><th>P</th>
+            <th>W%</th><th>PTS/P</th><th>PTS REC/P</th><th>DIF/P</th>
+            <th>LOCAL</th><th>VISITA</th><th>ÚLTIMOS 5</th>
+          </tr></thead>
+          <tbody id="posNorteTbody"></tbody>
+        </table>
+      </div>
     </div>
     <div class="pos-conf-block">
       <div class="pos-conf-title">Conferencia Sur</div>
-      <table class="pos-table">
-        <thead><tr>
-          <th>#</th><th>Equipo</th>
-          <th>PJ</th><th>G</th><th>P</th>
-          <th>W%</th><th>PTS/P</th><th>PTS REC/P</th><th>DIF/P</th>
-          <th>LOCAL</th><th>VISITA</th><th>ÚLTIMOS 5</th>
-        </tr></thead>
-        <tbody id="posSurTbody"></tbody>
-      </table>
+      <div class="pos-table-scroll">
+        <table class="pos-table">
+          <thead><tr>
+            <th>#</th><th>Equipo</th>
+            <th>PJ</th><th>G</th><th>P</th>
+            <th>W%</th><th>PTS/P</th><th>PTS REC/P</th><th>DIF/P</th>
+            <th>LOCAL</th><th>VISITA</th><th>ÚLTIMOS 5</th>
+          </tr></thead>
+          <tbody id="posSurTbody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
@@ -1353,22 +1393,18 @@ canvas{display:block;width:100%;cursor:crosshair;}
     <div id="szcLoading" class="szc-loading" style="display:none">Cargando datos de tiro...</div>
     <div id="szcMain" style="display:none">
       <div class="szc-player-header">
-        <div class="szc-player-name" id="szcPlayerName"></div>
-        <div class="szc-player-team" id="szcPlayerTeam"></div>
+        <div>
+          <div class="szc-player-name" id="szcPlayerName"></div>
+          <div class="szc-player-team" id="szcPlayerTeam"></div>
+        </div>
+        <div class="szc-player-shots" id="szcPlayerShots"></div>
       </div>
       <div class="szc-body">
         <div class="szc-canvas-wrap"><canvas id="szcCanvas"></canvas></div>
-        <div class="szc-legend">
-          <div class="szc-legend-title">vs Promedio Liga</div>
-          <div class="szc-legend-grad-wrap">
-            <div class="szc-legend-grad"></div>
-            <div class="szc-legend-grad-labels">
-              <span>+12%</span>
-              <span>+6%</span>
-              <span>0%</span>
-              <span>-6%</span>
-              <span>-12%</span>
-            </div>
+        <div class="szc-right-panel">
+          <div class="szc-zone-cards">
+            <div class="szc-zone-cards-title">Zonas</div>
+            <div id="szcZoneCards"></div>
           </div>
         </div>
       </div>
@@ -2911,6 +2947,19 @@ async function initApp() {
       T1PCT: {label:'% Libre',         key:'T1PCT', entries:top5Pct(PLAYERS, p=>p.T1I, p=>p.T1I>0?p.T1A/p.T1I*100:0)},
     };
 
+    // Last update: max Fecha from rows
+    const maxFecha = rows.reduce((max, r) => {
+      if (!r.Fecha) return max;
+      const [d,m,y] = r.Fecha.split('/');
+      const t = new Date(+y, +m-1, +d);
+      return t > max ? t : max;
+    }, new Date(0));
+    if (maxFecha.getFullYear() > 2000) {
+      const opts = { day: '2-digit', month: 'short', year: 'numeric' };
+      document.getElementById('lastUpdate').textContent =
+        'Actualizado al ' + maxFecha.toLocaleDateString('es-AR', opts);
+    }
+
     onJFilter();
     onTFilter();
     buildLeaders();
@@ -2935,20 +2984,25 @@ const SZC_ZONES = ['PAINT','MID_TOP','MID_CENTER','MID_BOT','CORNER_TOP','CORNER
 
 // Approximate label centers in court meters [x, y] (basket at x=1.575, y=7.5)
 const SZC_CENTERS = {
-  PAINT:       [2.8,  7.5 ],
-  MID_TOP:     [6.8,  3.8 ],
-  MID_CENTER:  [6.9,  7.5 ],
-  MID_BOT:     [6.8, 11.2 ],
-  CORNER_TOP:  [7.0,  1.5 ],
-  CORNER_BOT:  [7.0, 13.5 ],
-  ABOVE_BREAK: [11.5, 7.5 ],
+  PAINT:       [3.0,  7.5 ],
+  MID_TOP:     [3.0,  3.2 ],
+  MID_CENTER:  [7.5,  7.5 ],
+  MID_BOT:     [3.0, 11.8 ],
+  CORNER_TOP:  [6.5,  1.5 ],
+  CORNER_BOT:  [6.5, 13.5 ],
+  ABOVE_BREAK: [12.0, 7.5 ],
 };
 
 function szcClassifyCoord(x, y) {
   // x: meters from left baseline (0–14), y: meters from top sideline (0–15)
   if (x < 0 || x > 14 || y < 0 || y > 15) return null;
   const bx = 1.575, by = 7.5;
+  // Corner 3pt zones: FIBA corner straight lines at 0.9m from each sideline.
+  // These pixels can have dist <= 6.75 yet still be outside the 3pt line.
+  // Still apply the 45° diagonal to split CORNER from ABOVE_BREAK.
   const dx = x - bx, dy = y - by;
+  if (y < 0.9)       return dy < -dx ? 'CORNER_TOP' : 'ABOVE_BREAK';
+  if (y > 15 - 0.9)  return dy >  dx ? 'CORNER_BOT' : 'ABOVE_BREAK';
   const dist = Math.sqrt(dx*dx + dy*dy);
   if (dist > 6.75) {
     if (dy < -dx) return 'CORNER_TOP';
@@ -3105,11 +3159,12 @@ function szcDrawCourtLines(ctx, W, H, m) {
   ctx.beginPath(); ctx.moveTo(paintD, by + dy15); ctx.lineTo(arcMidX, by + dy15); ctx.stroke();
 
   // CORNER_TOP/ABOVE_BREAK and CORNER_BOT/ABOVE_BREAK: diagonal ~45° from basket
-  // Starts from paint right edge so the line spans the full visual diagonal
+  // Starts from the 3pt arc intersection so the line stays outside the 2pt zone
   const diagEdgeX = bx + by; // where the diagonal hits y=0 or y=H (= 9.075*m)
-  const diagPaintY = diagEdgeX - paintD; // y at x=paintD along the diagonal
-  ctx.beginPath(); ctx.moveTo(paintD, diagPaintY); ctx.lineTo(diagEdgeX, 0); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(paintD, H - diagPaintY); ctx.lineTo(diagEdgeX, H); ctx.stroke();
+  const diagArcX = bx + R3 / Math.SQRT2; // intersection of diagonal with 3pt arc
+  const diagArcDY = R3 / Math.SQRT2;
+  ctx.beginPath(); ctx.moveTo(diagArcX, by - diagArcDY); ctx.lineTo(diagEdgeX, 0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(diagArcX, by + diagArcDY); ctx.lineTo(diagEdgeX, H); ctx.stroke();
 
   ctx.setLineDash([]);
 }
@@ -3127,28 +3182,102 @@ function szcRoundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-function szcDrawLabels(ctx, W, H, m, playerStats) {
-  const fs = Math.max(9, Math.round(W/46));
-  ctx.font = `700 ${fs}px Inter,sans-serif`;
+const SZC_ZONE_LABELS = {
+  PAINT: 'Pintura', MID_TOP: 'Mid Arr.', MID_CENTER: 'Mid Cen.',
+  MID_BOT: 'Mid Ab.', CORNER_TOP: 'Corner ↑', CORNER_BOT: 'Corner ↓',
+  ABOVE_BREAK: 'Arco',
+};
+
+function szcDrawLabels(ctx, W, H, m, playerStats, leagueStats) {
+  const fs = Math.max(9, Math.round(W/44));
+  const fsSm = Math.max(7, Math.round(W/60));
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   SZC_ZONES.forEach(zone => {
     const ps = playerStats[zone];
     if (!ps || ps.att === 0) return;
+    const ls = leagueStats ? leagueStats[zone] : null;
     const [cx_m, cy_m] = SZC_CENTERS[zone];
     const cx = cx_m * m;
     const pct = (ps.makes / ps.att * 100).toFixed(1);
-    const l1 = `${ps.makes}/${ps.att}`, l2 = `${pct}%`;
-    const bw = Math.max(ctx.measureText(l1).width, ctx.measureText(l2).width) + 14;
-    const bh = fs * 2.9;
-    // Clamp cy so labels never go off-canvas (important for thin corner zones)
-    const cy = Math.max(bh/2 + 2, Math.min(H - bh/2 - 2, cy_m * m));
-    ctx.fillStyle = 'rgba(10,10,22,.75)';
-    szcRoundRect(ctx, cx - bw/2, cy - bh/2, bw, bh, 5);
+    const lPct = `${pct}%`;
+    const lAtt = `${ps.makes}/${ps.att}`;
+
+    // Measure widths
+    ctx.font = `800 ${fs}px Inter,sans-serif`;
+    const wPct = ctx.measureText(lPct).width;
+    ctx.font = `600 ${fsSm}px Inter,sans-serif`;
+    const wAtt = ctx.measureText(lAtt).width;
+
+    const bw = Math.max(wPct, wAtt) + 16;
+    const bh = fs + fsSm + 12;
+    const cy = Math.max(bh/2 + 4, Math.min(H - bh/2 - 4, cy_m * m));
+
+    // Box background
+    ctx.fillStyle = 'rgba(8,8,20,.84)';
+    szcRoundRect(ctx, cx - bw/2, cy - bh/2, bw, bh, 6);
     ctx.fill();
+
+    // Colored border from zone color
+    const zc = szcZoneColor(ps, ls);
+    ctx.strokeStyle = `rgba(${zc[0]},${zc[1]},${zc[2]},.7)`;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([]);
+    szcRoundRect(ctx, cx - bw/2, cy - bh/2, bw, bh, 6);
+    ctx.stroke();
+
+    const gap = 3;
+    const totalH = fs + gap + fsSm;
+    let yy = cy - totalH / 2 + fs / 2;
+
+    // Line 1: percentage (big, white)
+    ctx.font = `800 ${fs}px Inter,sans-serif`;
     ctx.fillStyle = '#fff';
-    ctx.fillText(l1, cx, cy - fs*0.6);
-    ctx.fillText(l2, cx, cy + fs*0.6);
+    ctx.fillText(lPct, cx, yy);
+    yy += fs + gap;
+
+    // Line 2: makes/attempts (small, muted)
+    ctx.font = `600 ${fsSm}px Inter,sans-serif`;
+    ctx.fillStyle = 'rgba(180,192,210,.8)';
+    ctx.fillText(lAtt, cx, yy);
   });
+}
+
+function szcRenderZoneCards(pStats, lStats) {
+  const el = document.getElementById('szcZoneCards');
+  if (!el) return;
+  el.innerHTML = SZC_ZONES.map(zone => {
+    const ps = pStats[zone];
+    const ls = lStats ? lStats[zone] : null;
+    const hasData = ps && ps.att > 0;
+
+    let borderColor = '#1e293b';
+    let pctText = '—';
+    let shotsText = '';
+    let ligaHTML = '';
+
+    if (hasData) {
+      const zc = szcZoneColor(ps, ls);
+      borderColor = `rgb(${zc[0]},${zc[1]},${zc[2]})`;
+      pctText = (ps.makes / ps.att * 100).toFixed(1) + '%';
+      shotsText = `${ps.makes}/${ps.att}`;
+      if (ls && ls.att > 0) {
+        const diff = ps.makes / ps.att - ls.makes / ls.att;
+        const cls = diff >= 0.02 ? 'pos' : diff <= -0.02 ? 'neg' : 'neu';
+        ligaHTML = `<span class="szc-zone-card-diff ${cls}">Liga ${(ls.makes / ls.att * 100).toFixed(1)}%</span>`;
+      }
+    }
+
+    return `<div class="szc-zone-card${hasData ? '' : ' szc-no-data'}" style="border-left-color:${borderColor}">
+      <div class="szc-zone-card-info">
+        <div class="szc-zone-card-name">${SZC_ZONE_LABELS[zone]}</div>
+        <div class="szc-zone-card-att">${shotsText}</div>
+      </div>
+      <div class="szc-zone-card-right">
+        <div class="szc-zone-card-pct">${pctText}</div>
+        ${ligaHTML}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderZoneChart(canvas, playerShots) {
@@ -3167,7 +3296,8 @@ function renderZoneChart(canvas, playerShots) {
   const pStats = szcComputeStats(playerShots);
   szcDrawZoneColors(ctx, W, H, m, pStats, LEAGUE_ZONE_STATS);
   szcDrawCourtLines(ctx, W, H, m);
-  szcDrawLabels(ctx, W, H, m, pStats);
+  szcDrawLabels(ctx, W, H, m, pStats, LEAGUE_ZONE_STATS);
+  szcRenderZoneCards(pStats, LEAGUE_ZONE_STATS);
 }
 
 function onSzcInput() {
@@ -3204,12 +3334,24 @@ function selectSzcPlayer(idx) {
   document.getElementById('szcMain').style.display = 'none';
   document.getElementById('szcLoading').style.display = 'block';
   document.getElementById('szcPlayerName').textContent = player['Nombre completo'];
-  document.getElementById('szcPlayerTeam').textContent = player.Equipo;
+  document.getElementById('szcPlayerTeam').textContent = player.Equipo + (player.DORSAL ? ` · #${Math.round(parseFloat(player.DORSAL))}` : '');
 
   const doRender = () => {
     const dNum = String(Math.round(parseFloat(player.DORSAL) || 0));
     const key = player.Equipo + '||' + dNum;
     const shots = SHOTS_BY_PLAYER ? (SHOTS_BY_PLAYER.get(key) || []) : [];
+    // Shot summary badges
+    const t2i = shots.filter(s => s['Tipo'] === 'TIRO2').length;
+    const t2a = shots.filter(s => s['Tipo'] === 'TIRO2' && s['Resultado'] === 'CONVERTIDO').length;
+    const t3i = shots.filter(s => s['Tipo'] === 'TIRO3').length;
+    const t3a = shots.filter(s => s['Tipo'] === 'TIRO3' && s['Resultado'] === 'CONVERTIDO').length;
+    const shotsEl = document.getElementById('szcPlayerShots');
+    if (shotsEl) {
+      shotsEl.innerHTML = [
+        t2i ? `<span class="szc-pstat">2PT <b>${t2a}/${t2i}</b> ${(t2a/t2i*100).toFixed(0)}%</span>` : '',
+        t3i ? `<span class="szc-pstat">3PT <b>${t3a}/${t3i}</b> ${(t3a/t3i*100).toFixed(0)}%</span>` : '',
+      ].join('');
+    }
     document.getElementById('szcLoading').style.display = 'none';
     document.getElementById('szcMain').style.display = 'block';
     requestAnimationFrame(() => renderZoneChart(document.getElementById('szcCanvas'), shots));

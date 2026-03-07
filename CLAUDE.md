@@ -1,14 +1,14 @@
 # CLAUDE.md — Liga Argentina Basketball Stats
 
 ## Proyecto
-Dashboard de estadísticas y socuting de la Liga Argentina de Básquet (Temporada Regular 2025/26). 
+Dashboard de estadísticas y scouting de la Liga Argentina de Básquet (Temporada Regular 2025/26).
 Busca ser una herramienta util para equipos y aficionados con conocimientos del deporte y datos.
 Desplegado como GitHub Pages desde `docs/`.
 
 ## Estructura
 ```
 docs/
-  index.html              # App completa (SPA, ~2870 líneas, vanilla JS + Tailwind CDN)
+  index.html              # App completa (SPA, ~3300 líneas, vanilla JS + Tailwind CDN)
   liga_argentina.csv      # Stats por jugador/partido (~11k filas)
   liga_argentina_shots.csv # Mapa de tiros (~57k filas)
   logos/                  # JPEGs de equipos + scouteado_logo.png
@@ -73,12 +73,16 @@ SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades 
   - diff ≥ +12%: `[220, 38, 38]`   rojo oscuro
   - sin datos:   `[55, 58, 90]`    oscuro
   - Implementado en `szcZoneColor()` con lerp lineal entre anclas adyacentes
-- Leyenda: barra de gradiente CSS continua (vertical en desktop, horizontal en mobile)
+- **Sin leyenda de gradiente** (fue eliminada). El color de cada zona habla por sí solo.
+- **Panel lateral de zonas** (`.szc-right-panel` → `#szcZoneCards`): cards por cada zona con nombre, `makes/att`, `%` grande y `Liga X.X%` coloreado (naranja = por encima, azul = por debajo, neutro = similar). Renderizado por `szcRenderZoneCards()` al final de `renderZoneChart()`.
+- **Labels en el canvas** (`szcDrawLabels`): dos líneas — `%` (grande, blanco) y `makes/att` (pequeño, gris). Borde del box tintado con el color de zona. Sin promedio de liga en el canvas.
+- **Header del jugador**: nombre en mayúsculas + equipo en `--purple-l` + número de camiseta. Badges de resumen `2PT X/Y Z%` y `3PT X/Y Z%` calculados en `selectSzcPlayer()` desde los tiros crudos.
 - Normalización: LOCAL ataca aro izquierdo (Left_pct < 50), VISIT se espeja (100 - Left_pct)
 - Separadores de zona punteados (`rgba(255,255,255,.45)`):
   - dy = ±1.5m (límites MID_TOP/CENTER/BOT): línea horizontal desde el paint hasta el arco
-  - Diagonal 45° (límites CORNER/ABOVE_BREAK): línea desde el borde del paint hasta el borde del canvas (`diagEdgeX = bx + by = 9.075m`)
-- Clasificación de corners: `szcClassifyCoord` usa arc check primero (`dist > 6.75`), luego diagonal. `szcClassifyShot` ídem — ambas funciones deben mantenerse consistentes
+  - Diagonal 45° (límites CORNER/ABOVE_BREAK): línea desde la intersección con el arco de 3pt (`bx + R3/√2`, `by ∓ R3/√2`) hasta el borde del canvas (`diagEdgeX = bx + by = 9.075m`). No empieza en el paint para no meterse en la zona 2pt.
+- Centros de labels (`SZC_CENTERS`, en metros): `PAINT [3.0, 7.5]`, `MID_TOP [3.0, 3.2]`, `MID_CENTER [7.5, 7.5]`, `MID_BOT [3.0, 11.8]`, `CORNER_TOP [6.5, 1.5]`, `CORNER_BOT [6.5, 13.5]`, `ABOVE_BREAK [12.0, 7.5]`. PAINT/MID_TOP/MID_BOT comparten el mismo eje x (x=3.0) para alineación visual.
+- Clasificación de corners: `szcClassifyCoord` chequea **primero** si `y < 0.9` o `y > 14.1` (bandas de la línea recta FIBA de corner), porque en esa franja algunos píxeles tienen `dist ≤ 6.75` pero están fuera de la línea de 3pt. Dentro de esa franja se aplica igual la diagonal 45° (`dy < -dx` → CORNER_TOP, `dy > dx` → CORNER_BOT, sino ABOVE_BREAK). Luego sigue el check `dist > 6.75` para el resto del arco. `szcClassifyShot` ídem — ambas funciones deben mantenerse consistentes
 - **Totales garantizados**: `szcClassifyShot` usa `Tipo` del CSV (TIRO2/TIRO3) como fuente de verdad para 2pt vs 3pt; las coordenadas solo determinan la sub-zona. Esto asegura que la suma de zonas 2pt = T2I y suma de zonas 3pt = T3I de la tabla. Tiros con coordenadas inválidas defaultean a `PAINT` (2pt) o `ABOVE_BREAK` (3pt).
 - Búsqueda de jugadores con autocomplete; matching por `Equipo||Dorsal` (numérico redondeado)
 - `SHOTS_BY_PLAYER`: `Map<"Equipo||Dorsal" → rows[]>`, construido en `loadShots()` junto a `SHOTS_MAP`
@@ -100,6 +104,22 @@ Media query `@media (max-width:640px)` cubre:
 - Leaders grid 1 columna, comparison grid 1 columna
 - Modal 98% ancho / 92vh alto
 - Shot map court 96% ancho
+- `.scroll-bar-outer` con `margin:0 8px` (vs 40px desktop)
+
+## Scroll horizontal de tablas
+
+### Tablas de jugadores y equipos (`j-tabla`, `t-tabla`)
+- `.table-card` usa `transform:scaleY(-1)` (y `table` interior con `scaleY(-1)`) para mostrar el scrollbar nativo en la parte superior del card
+- `.scroll-bar-outer` / `.scroll-bar-inner`: scrollbar externo sincronizado que aparece justo encima de la tabla (entre el toggle básica/avanzada y el `table-wrap`). Sincronizan scroll con el `table-wrap` vía `setupScrollSync()` en JS
+- `jScrollOuter` está ubicado justo antes de `jTableWrap` (después del toggle); `tScrollOuter` entre los controles y el toggle de equipos
+- En mobile, `scroll-bar-outer` tiene `margin:0 8px` para alinearse con el padding reducido
+
+### Tabla de Posiciones
+- Cada `pos-table` está envuelta en `div.pos-table-scroll` con `overflow-x:auto`
+- La clase `.pos-table-scroll` está definida en CSS junto al bloque `/* ── Posiciones ── */`
+
+### Modal de partidos
+- `tgm-body` tiene `overflow-x:auto` además de `overflow-y:auto` para que la tabla del historial sea scrolleable horizontalmente en mobile
 
 ## Flujo de carga de datos
 
