@@ -657,6 +657,32 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .szc-empty{color:var(--muted);font-size:.88rem;text-align:center;padding:64px 20px;font-style:italic;}
 .szc-loading{color:var(--muted);font-size:.82rem;text-align:center;padding:32px 20px;}
 
+/* ── QUINTETOS ───────────────────────────────────── */
+.qnt-outer{padding:24px 40px 48px;max-width:1200px;margin:0 auto;}
+.qnt-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap;}
+.qnt-title{font-size:1rem;font-weight:800;color:var(--text-bright);letter-spacing:-.2px;}
+.qnt-filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.qnt-table-wrap{overflow-x:auto;}
+.qnt-table{width:100%;border-collapse:collapse;font-size:.82rem;}
+.qnt-table th{
+  padding:9px 10px;font-size:.67rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.6px;color:var(--muted);border-bottom:1px solid var(--border2);
+  cursor:pointer;white-space:nowrap;text-align:right;user-select:none;
+}
+.qnt-table th:first-child{text-align:left;}
+.qnt-table th:hover{color:var(--text);}
+.qnt-table th.qnt-sorted{color:var(--purple-l);}
+.qnt-table td{padding:10px 10px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text);text-align:right;white-space:nowrap;}
+.qnt-table td:first-child{text-align:left;white-space:normal;min-width:200px;}
+.qnt-table tr:hover td{background:rgba(139,92,246,.05);}
+.qnt-players{display:flex;flex-wrap:wrap;gap:3px 8px;}
+.qnt-player{font-size:.73rem;color:var(--text);background:var(--surface);border:1px solid var(--border2);border-radius:5px;padding:2px 7px;}
+.qnt-stat-pos{color:var(--green);font-weight:700;}
+.qnt-stat-neg{color:var(--red);font-weight:700;}
+.qnt-empty{color:var(--muted);font-size:.88rem;text-align:center;padding:60px 20px;font-style:italic;}
+.qnt-loading{color:var(--muted);font-size:.82rem;text-align:center;padding:32px 20px;}
+.qnt-count{font-size:.72rem;color:var(--muted);margin-left:auto;}
+
 /* ── RESPONSIVE ──────────────────────────────────── */
 @media (max-width:640px){
 
@@ -737,6 +763,12 @@ canvas{display:block;width:100%;cursor:crosshair;}
   .szc-search-wrap{width:100%;}
   .szc-body{flex-direction:column;}
   .szc-right-panel{flex-direction:row;gap:14px;width:100%;}
+
+  /* Quintetos */
+  .qnt-outer{padding:14px 10px 32px;}
+  .qnt-header{gap:8px;}
+  .qnt-players{flex-direction:column;gap:3px;}
+  .qnt-table td:first-child{min-width:140px;}
   .szc-legend{flex-direction:row;gap:10px;flex:0 0 auto;}
   .szc-legend-grad{width:100%;min-height:14px;
     background:linear-gradient(to right,
@@ -806,6 +838,10 @@ canvas{display:block;width:100%;cursor:crosshair;}
   <button class="main-tab" onclick="switchSection('j-tiro')">
     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="M12 7v6l4 2"/><circle cx="12" cy="12" r="9"/></svg>
     <span class="tab-cat">Jugadores</span> Tiro
+  </button>
+  <button class="main-tab" onclick="switchSection('quintetos')">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <span class="tab-cat">Equipos</span> Quintetos
   </button>
 </div>
 
@@ -1420,6 +1456,37 @@ canvas{display:block;width:100%;cursor:crosshair;}
   </div>
 </div>
 
+<!-- ============================= QUINTETOS ============================= -->
+<div class="section" id="sec-quintetos">
+  <div class="qnt-outer">
+    <div class="qnt-header">
+      <span class="qnt-title">Mejores Quintetos</span>
+      <div class="qnt-filters">
+        <select id="qntTeam" onchange="onQTeamChange()">
+          <option value="">Seleccioná un equipo</option>
+        </select>
+        <select id="qntMinMin" onchange="renderQuintetos()">
+          <option value="2">2+ min</option>
+          <option value="5" selected>5+ min</option>
+          <option value="10">10+ min</option>
+          <option value="20">20+ min</option>
+        </select>
+      </div>
+      <span class="qnt-count" id="qntCount"></span>
+    </div>
+    <div id="qntEmpty" class="qnt-empty">Seleccioná un equipo para ver sus quintetos</div>
+    <div id="qntLoading" class="qnt-loading" style="display:none">Cargando datos de jugada a jugada...</div>
+    <div id="qntContent" style="display:none">
+      <div class="qnt-table-wrap">
+        <table class="qnt-table" id="qntTable">
+          <thead id="qntThead"></thead>
+          <tbody id="qntTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ============================= LÍDERES ============================= -->
 <div class="section" id="sec-lideres">
   <div class="leaders-outer">
@@ -1626,6 +1693,15 @@ function switchSection(id) {
   if(id==='t-chart') setTimeout(drawTChart,30);
   if(id==='j-tabla') setTimeout(()=>remeasureScroll('jTableWrap'), 50);
   if(id==='t-tabla') setTimeout(()=>remeasureScroll('tTableWrap'), 50);
+  if(id==='quintetos') {
+    const sel = document.getElementById('qntTeam');
+    if (sel.options.length <= 1) {
+      [...new Set(TEAMS.map(t=>t.Equipo))].sort().forEach(eq => {
+        const o = document.createElement('option'); o.value = eq; o.textContent = eq;
+        sel.appendChild(o);
+      });
+    }
+  }
 }
 
 // ============================================================
@@ -3388,6 +3464,343 @@ function updateJFilterVisibility(){
     }
   });
 }
+// ============================================================
+// QUINTETOS
+// ============================================================
+const PBP_CSV = 'liga_argentina_pbp.csv';
+let PBP_MAP = null;    // null=not loaded, Map<gameId, rows[]>
+let LINEUP_DATA = null; // Map<teamName, Map<lineupKey, {players,secs,pf,pa,games}>>
+let qntSort = 'min', qntDir = 'desc';
+
+async function loadPbp() {
+  if (PBP_MAP !== null) return;
+  try {
+    const resp = await fetch(PBP_CSV + '?v=' + Date.now(), { cache: 'no-store' });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const text = await resp.text();
+    const rows = parseCSV(text);
+    PBP_MAP = new Map();
+    rows.forEach(r => {
+      const gid = r['IdPartido']; if (!gid) return;
+      if (!PBP_MAP.has(gid)) PBP_MAP.set(gid, []);
+      PBP_MAP.get(gid).push(r);
+    });
+  } catch(e) { PBP_MAP = new Map(); }
+}
+
+// Convert period + time-remaining string "MM:SS" to total elapsed seconds
+function pbpElapsed(period, tiempo) {
+  if (!tiempo) return null;
+  const parts = tiempo.split(':'); if (parts.length < 2) return null;
+  const remaining = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+  const p = Math.round(parseFloat(period) || 1);
+  const periodLen = p <= 4 ? 600 : 300;
+  const periodOffset = p <= 4 ? (p - 1) * 600 : 4 * 600 + (p - 5) * 300;
+  return periodOffset + (periodLen - remaining);
+}
+
+// Possessions = FGA + 0.44*FTA - OReb + TO
+function calcPoss(fga, fta, oreb, to) { return fga + 0.44 * fta - oreb + to; }
+
+function computeLineups() {
+  if (LINEUP_DATA !== null) return;
+  LINEUP_DATA = new Map();
+  PBP_MAP.forEach((events, gameId) => {
+    events.sort((a, b) => parseInt(a['NumAccion']) - parseInt(b['NumAccion']));
+    const localTeam = events[0]['Equipo_local'];
+    const visitTeam = events[0]['Equipo_visitante'];
+    let localCourt = new Set(), visitCourt = new Set();
+    let localSeg = null, visitSeg = null;
+    // Possession counters for the active segment of each side
+    let localPoss = null, visitPoss = null; // {fga,fta,oreb,to, dfga,dfta,doreb,dto}
+    let scoreLoc = 0, scoreVis = 0;
+
+    function lineupKey(court) { return [...court].sort().join('~'); }
+    function emptyPoss() { return { fga:0,fgm:0,fg3a:0,fg3m:0,fta:0,ast:0,oreb:0,dreb:0,to:0, dfga:0,dfgm:0,dfg3a:0,dfg3m:0,dfta:0,doreb:0,ddreb:0,dto:0 }; }
+
+    function recordSeg(side, court, seg, poss, endElapsed) {
+      if (!seg || court.size !== 5 || endElapsed === null) return;
+      const secs = endElapsed - seg.elapsed;
+      if (secs <= 0) return;
+      const isLocal = side === 'LOCAL';
+      const pf = isLocal ? (scoreLoc - seg.scoreLoc) : (scoreVis - seg.scoreVis);
+      const pa = isLocal ? (scoreVis - seg.scoreVis) : (scoreLoc - seg.scoreLoc);
+      const teamName = isLocal ? localTeam : visitTeam;
+      const key = seg.key;
+      if (!LINEUP_DATA.has(teamName)) LINEUP_DATA.set(teamName, new Map());
+      const teamMap = LINEUP_DATA.get(teamName);
+      if (!teamMap.has(key)) teamMap.set(key, {
+        players: [...court].sort(), secs: 0, pf: 0, pa: 0, games: new Set(),
+        fga:0,fgm:0,fg3a:0,fg3m:0,fta:0,ast:0,oreb:0,dreb:0,to:0,
+        dfga:0,dfgm:0,dfg3a:0,dfg3m:0,dfta:0,doreb:0,ddreb:0,dto:0
+      });
+      const e = teamMap.get(key);
+      e.secs += secs; e.pf += Math.max(0, pf); e.pa += Math.max(0, pa);
+      e.games.add(gameId);
+      if (poss) {
+        e.fga+=poss.fga; e.fgm+=poss.fgm; e.fg3a+=poss.fg3a; e.fg3m+=poss.fg3m;
+        e.fta+=poss.fta; e.ast+=poss.ast; e.oreb+=poss.oreb; e.dreb+=poss.dreb; e.to+=poss.to;
+        e.dfga+=poss.dfga; e.dfgm+=poss.dfgm; e.dfg3a+=poss.dfg3a; e.dfg3m+=poss.dfg3m;
+        e.dfta+=poss.dfta; e.doreb+=poss.doreb; e.ddreb+=poss.ddreb; e.dto+=poss.dto;
+      }
+    }
+
+    function startSeg(court, elapsed) {
+      if (court.size !== 5 || elapsed === null) return null;
+      return { elapsed, scoreLoc, scoreVis, key: lineupKey(court) };
+    }
+
+    events.forEach(ev => {
+      const tipo = ev['Tipo'], lado = ev['Equipo_lado'], jugador = ev['Jugador'];
+      const periodo = parseFloat(ev['Periodo']) || 1, tiempo = ev['Tiempo'];
+      const ml = ev['Marcador_local'], mv = ev['Marcador_visitante'];
+      if (ml !== '' && ml !== undefined && ml !== 'None') scoreLoc = parseInt(ml) || scoreLoc;
+      if (mv !== '' && mv !== undefined && mv !== 'None') scoreVis = parseInt(mv) || scoreVis;
+      const elapsed = pbpElapsed(periodo, tiempo);
+
+      // Accumulate possession events into both active segments simultaneously
+      const isLoc = lado === 'LOCAL';
+      const offP = isLoc ? localPoss : visitPoss;  // attacker's offense counters
+      const defP = isLoc ? visitPoss : localPoss;  // defender's defense counters
+      if (tipo==='CANASTA-2P'||tipo==='TIRO2-FALLADO'||tipo==='CANASTA-3P'||tipo==='TIRO3-FALLADO') {
+        if(offP){offP.fga++;} if(defP){defP.dfga++;}
+        if(tipo==='CANASTA-2P'||tipo==='CANASTA-3P'){ if(offP){offP.fgm++;} if(defP){defP.dfgm++;} }
+        if(tipo==='CANASTA-3P'||tipo==='TIRO3-FALLADO'){ if(offP){offP.fg3a++;} if(defP){defP.dfg3a++;} }
+        if(tipo==='CANASTA-3P'){ if(offP){offP.fg3m++;} if(defP){defP.dfg3m++;} }
+      } else if (tipo==='CANASTA-1P'||tipo==='TIRO1-FALLADO') {
+        if(offP){offP.fta++;} if(defP){defP.dfta++;}
+      } else if (tipo==='REBOTE-OFENSIVO') {
+        if(offP){offP.oreb++;} if(defP){defP.doreb++;}
+      } else if (tipo==='REBOTE-DEFENSIVO') {
+        if(offP){offP.dreb++;} if(defP){defP.ddreb++;}
+      } else if (tipo==='PERDIDA') {
+        if(offP){offP.to++;} if(defP){defP.dto++;}
+      } else if (tipo==='ASISTENCIA') {
+        if(offP){offP.ast++;}
+      }
+
+      if (tipo === 'CAMBIO-JUGADOR-ENTRA' || tipo === 'CAMBIO-JUGADOR-SALE') {
+        if (!jugador) return;
+        const isLocal = lado === 'LOCAL';
+        const court = isLocal ? localCourt : visitCourt;
+        const seg = isLocal ? localSeg : visitSeg;
+        const poss = isLocal ? localPoss : visitPoss;
+        recordSeg(lado, court, seg, poss, elapsed);
+        if (tipo === 'CAMBIO-JUGADOR-ENTRA') court.add(jugador); else court.delete(jugador);
+        const newSeg = startSeg(court, elapsed);
+        const newPoss = court.size === 5 ? emptyPoss() : null;
+        if (isLocal) { localSeg = newSeg; localPoss = newPoss; }
+        else { visitSeg = newSeg; visitPoss = newPoss; }
+      }
+
+      if (tipo === 'FINAL-PERIODO' || tipo === 'FINAL-PARTIDO') {
+        const endE = pbpElapsed(periodo, '00:00');
+        recordSeg('LOCAL',    localCourt, localSeg, localPoss, endE);
+        recordSeg('VISITANTE',visitCourt, visitSeg, visitPoss, endE);
+        localSeg = null; visitSeg = null; localPoss = null; visitPoss = null;
+        localCourt = new Set(); visitCourt = new Set();
+      }
+    });
+  });
+}
+
+function qntSortBy(col) {
+  if (qntSort === col) qntDir = qntDir === 'asc' ? 'desc' : 'asc';
+  else { qntSort = col; qntDir = col === 'players' ? 'asc' : 'desc'; }
+  renderQuintetos();
+}
+
+async function onQTeamChange() {
+  const team = document.getElementById('qntTeam').value;
+  if (!team) { renderQuintetos(); return; }
+  const loading = document.getElementById('qntLoading');
+  const empty = document.getElementById('qntEmpty');
+  const content = document.getElementById('qntContent');
+  if (PBP_MAP === null) {
+    loading.style.display = ''; empty.style.display = 'none'; content.style.display = 'none';
+    await loadPbp();
+  }
+  if (LINEUP_DATA === null) computeLineups();
+  renderQuintetos();
+}
+
+function formatPlayerShort(name) {
+  if (!name) return name;
+  const parts = name.split(', ');
+  if (parts.length < 2) return name;
+  const firstWord = parts[1].split(' ')[0];
+  return firstWord[0] + '. ' + parts[0];
+}
+
+const QNT_COLS = [
+  { key: 'players', label: 'Quinteto', align: 'left',  tip: 'Los 5 jugadores que compartieron cancha en este quinteto' },
+  { key: 'min',    label: 'Min',    align: 'right', tip: 'Minutos totales jugados juntos' },
+  { key: 'poss',    label: 'Pos',    align: 'right', tip: 'Posesiones estimadas mientras el quinteto estuvo en cancha (promedio de ofensivas y defensivas). Fórmula: FGA + 0,44×FTA − Reb-Of + Pérdidas' },
+  { key: 'pm',      label: '+/-',    align: 'right', tip: 'Diferencial de puntos (PF − PC) mientras el quinteto estuvo en cancha' },
+  { key: 'offrtg',  label: 'OffRtg', align: 'right', tip: 'Puntos anotados por cada 100 posesiones ofensivas del quinteto' },
+  { key: 'defrtg',  label: 'DefRtg', align: 'right', tip: 'Puntos recibidos por cada 100 posesiones defensivas del quinteto (menor = mejor)' },
+  { key: 'net',     label: 'Net',    align: 'right', tip: 'OffRtg − DefRtg: diferencial de rating por 100 posesiones' },
+  { key: 'fgpct',   label: 'TC%',     align: 'right', tip: '% de tiros de campo convertidos (2P + 3P) mientras el quinteto atacaba' },
+  { key: 'fg3pct',  label: '3P%',     align: 'right', tip: '% de triples convertidos mientras el quinteto atacaba' },
+  { key: 'ast100',  label: 'AST/100', align: 'right', tip: 'Asistencias por cada 100 posesiones ofensivas del quinteto' },
+  { key: 'tovpct',  label: 'TOV%',    align: 'right', tip: '% de posesiones terminadas en pérdida. Fórmula: TO / (FGA + 0,44×FTA + TO) × 100 (menor = mejor)' },
+  { key: 'orebpct', label: 'ORB%',    align: 'right', tip: '% de rebotes ofensivos disponibles capturados por el quinteto' },
+  { key: 'drebpct', label: 'DReb%',   align: 'right', tip: '% de rebotes defensivos disponibles capturados por el quinteto' },
+  { key: 'fg3rate', label: '3PA Rate',align: 'right', tip: '% de tiros de campo que son intentos de triple (3PA / FGA × 100)' },
+  { key: 'ftr',     label: 'FTr',     align: 'right', tip: 'Tiros libres intentados por tiro de campo (FTA / FGA). Mide cuánto llega el quinteto a la línea' },
+];
+
+function renderQuintetos() {
+  const team = document.getElementById('qntTeam').value;
+  const minMin = parseFloat(document.getElementById('qntMinMin').value) || 5;
+  const empty = document.getElementById('qntEmpty');
+  const loading = document.getElementById('qntLoading');
+  const content = document.getElementById('qntContent');
+  const countEl = document.getElementById('qntCount');
+
+  if (!team) {
+    empty.textContent = 'Seleccioná un equipo para ver sus quintetos';
+    empty.style.display = ''; content.style.display = 'none'; loading.style.display = 'none';
+    countEl.textContent = ''; return;
+  }
+  if (!LINEUP_DATA) {
+    loading.style.display = ''; content.style.display = 'none'; empty.style.display = 'none';
+    countEl.textContent = ''; return;
+  }
+
+  const teamMap = LINEUP_DATA.get(team);
+  if (!teamMap || teamMap.size === 0) {
+    empty.textContent = 'No hay datos de jugada a jugada para este equipo.';
+    empty.style.display = ''; content.style.display = 'none'; loading.style.display = 'none';
+    countEl.textContent = ''; return;
+  }
+
+  let rows = [];
+  teamMap.forEach(v => {
+    const min = v.secs / 60;
+    if (min < minMin) return;
+    const offPoss = calcPoss(v.fga, v.fta, v.oreb, v.to);
+    const defPoss = calcPoss(v.dfga, v.dfta, v.doreb, v.dto);
+    const poss = (offPoss + defPoss) / 2;
+    const pm = v.pf - v.pa;
+    const offrtg  = offPoss > 0 ? v.pf / offPoss * 100 : 0;
+    const defrtg  = defPoss > 0 ? v.pa / defPoss * 100 : 0;
+    const net     = offrtg - defrtg;
+    const fgpct   = v.fga  > 0 ? v.fgm  / v.fga  * 100 : 0;
+    const fg3pct  = v.fg3a > 0 ? v.fg3m / v.fg3a * 100 : 0;
+    const ast100  = offPoss > 0 ? v.ast / offPoss * 100 : 0;
+    const tovpct  = (v.fga + 0.44*v.fta + v.to) > 0 ? v.to / (v.fga + 0.44*v.fta + v.to) * 100 : 0;
+    const orebpct = (v.oreb + v.ddreb) > 0 ? v.oreb / (v.oreb + v.ddreb) * 100 : 0;
+    const drebpct = (v.dreb + v.doreb) > 0 ? v.dreb / (v.dreb + v.doreb) * 100 : 0;
+    const fg3rate = v.fga  > 0 ? v.fg3a / v.fga  * 100 : 0;
+    const ftr     = v.fga  > 0 ? v.fta  / v.fga        : 0;
+    rows.push({ players: v.players, min, poss, pm, offrtg, defrtg, net, fgpct, fg3pct, ast100, tovpct, orebpct, drebpct, fg3rate, ftr });
+  });
+
+  rows.sort((a, b) => {
+    if (qntSort === 'players') {
+      const cmp = a.players.join('').localeCompare(b.players.join(''));
+      return qntDir === 'asc' ? cmp : -cmp;
+    }
+    return qntDir === 'asc' ? a[qntSort] - b[qntSort] : b[qntSort] - a[qntSort];
+  });
+
+  loading.style.display = 'none'; empty.style.display = 'none'; content.style.display = '';
+  countEl.textContent = rows.length + ' quintetos';
+
+  const thead = document.getElementById('qntThead');
+  thead.innerHTML = '<tr>' + QNT_COLS.map(c => {
+    const sorted = c.key === qntSort;
+    const arrow = sorted ? (qntDir === 'asc' ? ' ↑' : ' ↓') : '';
+    const cls = sorted ? ' qnt-sorted' : '';
+    return `<th class="qnt-th${cls}" style="text-align:${c.align}" onclick="qntSortBy('${c.key}')" title="${c.tip}">${c.label}${arrow}</th>`;
+  }).join('') + '</tr>';
+
+  const tbody = document.getElementById('qntTbody');
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="${QNT_COLS.length}" style="text-align:center;color:var(--muted);padding:32px">No hay quintetos con ${minMin}+ minutos juntos.</td></tr>`;
+    return;
+  }
+
+  const fRtg = v => v === 0 ? '—' : v.toFixed(1);
+  const sign = v => v > 0 ? '+' : '';
+
+  // Interpolate between two RGB colors
+  function lerpRgb(t, r1,g1,b1, r2,g2,b2) {
+    return `rgb(${Math.round(r1+(r2-r1)*t)},${Math.round(g1+(g2-g1)*t)},${Math.round(b1+(b2-b1)*t)})`;
+  }
+  // Red→muted→green scale (for +/- and Net)
+  function heatRedGreen(val, min, max) {
+    if (min === max) return '';
+    const t = (val - min) / (max - min);
+    // red(248,113,113) → muted(100,116,139) → green(52,211,153)
+    if (t >= 0.5) return lerpRgb((t-0.5)*2, 100,116,139, 52,211,153);
+    return lerpRgb(t*2, 248,113,113, 100,116,139);
+  }
+  // Muted→purple scale (OffRtg: higher=better)
+  function heatPurple(val, min, max) {
+    if (min === max) return '';
+    const t = (val - min) / (max - min);
+    return lerpRgb(t, 100,116,139, 167,139,250); // muted→purple-l
+  }
+  // Muted→teal scale (DefRtg: lower=better, so inverted)
+  function heatTeal(val, min, max) {
+    if (min === max) return '';
+    const t = 1 - (val - min) / (max - min); // invert
+    return lerpRgb(t, 100,116,139, 94,234,212); // muted→teal-l
+  }
+  // Muted→white scale (Min, Pos: higher=more used)
+  function heatWhite(val, min, max) {
+    if (min === max) return '';
+    const t = (val - min) / (max - min);
+    return lerpRgb(t, 100,116,139, 226,232,240); // muted→text
+  }
+
+  const validRows = rows.filter(r => r.poss > 0);
+  const colRange = key => {
+    const vals = validRows.map(r => r[key]).filter(v => v !== 0);
+    return vals.length ? [Math.min(...vals), Math.max(...vals)] : [0, 0];
+  };
+  const [minMin2,  maxMin]  = colRange('min');
+  const [minPos,   maxPos]  = colRange('poss');
+  const [minPm,    maxPm]   = colRange('pm');
+  const [minOff,   maxOff]  = colRange('offrtg');
+  const [minDef,   maxDef]  = colRange('defrtg');
+  const [minNet,   maxNet]  = colRange('net');
+  const [minFgpct,  maxFgpct]  = colRange('fgpct');
+  const [minFg3pct, maxFg3pct] = colRange('fg3pct');
+  const [minAst100, maxAst100] = colRange('ast100');
+  const [minTov,    maxTov]    = colRange('tovpct');
+  const [minOreb,   maxOreb]   = colRange('orebpct');
+  const [minDreb,   maxDreb]   = colRange('drebpct');
+  const [minFg3r,   maxFg3r]   = colRange('fg3rate');
+  const [minFtr,    maxFtr]    = colRange('ftr');
+
+  const fPct = v => v === 0 ? '—' : v.toFixed(1) + '%';
+  const fRat = v => v === 0 ? '—' : v.toFixed(2);
+
+  tbody.innerHTML = rows.map(r => {
+    const playersHtml = r.players.map(p => `<span class="qnt-player">${formatPlayerShort(p)}</span>`).join('');
+    return `<tr>
+      <td><div class="qnt-players">${playersHtml}</div></td>
+      <td style="color:${heatWhite(r.min,       minMin2,  maxMin)};font-weight:600">${r.min.toFixed(1)}</td>
+      <td style="color:${heatWhite(r.poss,      minPos,   maxPos)};font-weight:600">${r.poss > 0 ? Math.round(r.poss) : '—'}</td>
+      <td style="color:${heatRedGreen(r.pm,     minPm,    maxPm)};font-weight:700">${sign(r.pm)}${r.pm}</td>
+      <td style="color:${heatPurple(r.offrtg,   minOff,   maxOff)};font-weight:700">${fRtg(r.offrtg)}</td>
+      <td style="color:${heatTeal(r.defrtg,     minDef,   maxDef)};font-weight:700">${fRtg(r.defrtg)}</td>
+      <td style="color:${heatRedGreen(r.net,    minNet,   maxNet)};font-weight:700">${sign(r.net)}${fRtg(r.net)}</td>
+      <td style="color:${heatPurple(r.fgpct,    minFgpct, maxFgpct)};font-weight:600">${fPct(r.fgpct)}</td>
+      <td style="color:${heatPurple(r.fg3pct,   minFg3pct,maxFg3pct)};font-weight:600">${fPct(r.fg3pct)}</td>
+      <td style="color:${heatPurple(r.ast100,   minAst100,maxAst100)};font-weight:600">${fRtg(r.ast100)}</td>
+      <td style="color:${heatTeal(r.tovpct,     minTov,   maxTov)};font-weight:600">${fPct(r.tovpct)}</td>
+      <td style="color:${heatPurple(r.orebpct,  minOreb,  maxOreb)};font-weight:600">${fPct(r.orebpct)}</td>
+      <td style="color:${heatTeal(r.drebpct,    minDreb,  maxDreb)};font-weight:600">${fPct(r.drebpct)}</td>
+      <td style="color:${heatWhite(r.fg3rate,   minFg3r,  maxFg3r)};font-weight:600">${fPct(r.fg3rate)}</td>
+      <td style="color:${heatPurple(r.ftr,      minFtr,   maxFtr)};font-weight:600">${fRat(r.ftr)}</td>
+    </tr>`;
+  }).join('');
+}
+
 function updateTFilterVisibility(){
   const chain=[
     {rowId:'tFilterRow2',triggerId:'tAttr', resetAttr:'tAttr2',resetVal:'tAttrVal2'},

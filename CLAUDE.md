@@ -8,13 +8,15 @@ Desplegado como GitHub Pages desde `docs/`.
 ## Estructura
 ```
 docs/
-  index.html              # App completa (SPA, ~3300 líneas, vanilla JS + Tailwind CDN)
+  index.html              # App completa (SPA, ~3700 líneas, vanilla JS + Tailwind CDN)
   liga_argentina.csv      # Stats por jugador/partido (~11k filas)
   liga_argentina_shots.csv # Mapa de tiros (~57k filas)
+  liga_argentina_pbp.csv  # Jugada a jugada (eventos por partido)
   logos/                  # JPEGs de equipos + scouteado_logo.png
 Scraper/
   data_scraper.py         # Scraper principal de stats
   shot_map_scraper.py     # Scraper de mapas de tiro
+  pbp_scraper.py          # Scraper de jugada a jugada
   requirements.txt        # cloudscraper, pandas, bs4, lxml, playwright
 ```
 
@@ -46,6 +48,7 @@ SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades 
 - `j-chart` — Scatter plot comparativo de jugadores
 - `t-tabla` — Tabla de equipos
 - `t-chart` — Scatter plot comparativo de equipos
+- `quintetos` — Mejores quintetos por equipo (requiere PBP)
 
 **Modal de partido** (`#teamGamesBackdrop`):
 - Se abre al hacer clic en una fila de equipo
@@ -170,6 +173,21 @@ loadShots()
 ```
 - `LEAGUE_ZONE_STATS` se computa una vez (lazy) al primer render del zone chart, agregando todos los tiros de `SHOTS_MAP`
 
+### Datos de jugada a jugada (`PBP_MAP` + `LINEUP_DATA`)
+Carga **lazy**: se fetch al seleccionar un equipo en el tab "Quintetos" por primera vez.
+```
+loadPbp()
+  → fetch('liga_argentina_pbp.csv?v=<timestamp>')
+  → parseCSV(text)
+  → PBP_MAP = Map<IdPartido → row[]>
+
+computeLineups()   ← llamado una sola vez después de loadPbp()
+  → itera PBP_MAP partido por partido
+  → trackea localCourt / visitCourt (Set de nombres de jugadores)
+  → acumula {secs, pf, pa, fga, fgm, fg3a, fg3m, fta, ast, oreb, dreb, to, dfga, dfgm, dfg3a, dfg3m, dfta, doreb, ddreb, dto} por segmento activo
+  → LINEUP_DATA = Map<teamName → Map<lineupKey → stats>>
+```
+
 ## Convenciones de código
 - JS: `let DATA = null` para datos cargados una vez (lazy). `SHOTS_MAP` es `Map<gameId, rows[]>`
 - Paleta: local = `#a78bfa` (purple-l), visitante = `#5eead4` (teal-l)
@@ -182,6 +200,47 @@ loadShots()
 - No modificar el sistema de coordenadas del shot map
 - No alterar la paleta de colores del proyecto (variables CSS `--bg`, `--purple`, `--teal`, etc.; la paleta de zonas de tiro sí puede cambiar)
 
+**Sección "Quintetos" (`quintetos`):**
+- Selector de equipo (poblado desde `TEAMS` al abrir el tab) + filtro de minutos mínimos
+- Carga lazy del PBP al seleccionar equipo; `computeLineups()` se ejecuta una sola vez y queda en `LINEUP_DATA`
+- Tabla ordenable por cualquier columna (default: Min ↓)
+- **Tracking de posesiones por evento**: cada tiro/TL/rebote/pérdida/asistencia se acumula simultáneamente en el segmento activo del equipo atacante (ofensa) y del defensor (defensa)
+- `calcPoss(fga, fta, oreb, to)` = `FGA + 0.44×FTA − OReb + TO`
+- Stats por lineup:
+  | Columna | Fórmula | Color |
+  |---|---|---|
+  | `Min` | minutos juntos | blanco (más = más brillante) |
+  | `Pos` | `round((offPoss + defPoss) / 2)` | blanco |
+  | `+/-` | `PF − PC` bruto | rojo→gris→verde |
+  | `OffRtg` | `PF / offPoss × 100` | gris→violeta |
+  | `DefRtg` | `PA / defPoss × 100` | gris→teal (invertido) |
+  | `Net` | `OffRtg − DefRtg` | rojo→gris→verde |
+  | `TC%` | `FGM / FGA × 100` | gris→violeta |
+  | `3P%` | `3PM / 3PA × 100` | gris→violeta |
+  | `AST/100` | `AST / offPoss × 100` | gris→violeta |
+  | `TOV%` | `TO / (FGA + 0.44×FTA + TO) × 100` | gris→teal invertido (menor = mejor) |
+  | `ORB%` | `OReb / (OReb + DReb_rival) × 100` | gris→violeta |
+  | `DReb%` | `DReb / (DReb + OReb_rival) × 100` | gris→teal |
+  | `3PA Rate` | `3PA / FGA × 100` | gris→blanco (neutro) |
+  | `FTr` | `FTA / FGA` (ratio) | gris→violeta |
+- `LINEUP_DATA`: `Map<teamName, Map<lineupKey, {players, secs, pf, pa, games, fga, fgm, fg3a, fg3m, fta, ast, oreb, dreb, to, dfga, dfgm, dfg3a, dfg3m, dfta, doreb, ddreb, dto}>>`
+- `lineupKey` = jugadores del quinteto ordenados alfabéticamente y unidos por `~`
+- Los headers de la tabla tienen `title` con descripción de cada stat (mismo patrón que ORtg/DRtg en otras tablas)
+- `pbpElapsed(period, tiempo)` convierte `Periodo + "MM:SS"` (tiempo restante) a segundos totales transcurridos. Periods 1-4: 600s cada uno; OT (5+): 300s cada uno
+
+## CSV: liga_argentina_pbp.csv
+Columnas: `IdPartido, Fecha, Equipo_local, Equipo_visitante, NumAccion, Tipo, Equipo_lado, Dorsal, Jugador, Periodo, Tiempo, Marcador_local, Marcador_visitante`
+- `NumAccion`: índice secuencial 0-based desde el inicio del partido (cronológico)
+- `Tipo`: tipo de evento — `CANASTA-1P/2P/3P`, `TIRO1/2/3-FALLADO`, `REBOTE-DEFENSIVO/OFENSIVO`, `ASISTENCIA`, `FALTA-COMETIDA/RECIBIDA`, `TANTIDEPORTIVA`, `TECNICA`, `TAPON-COMETIDO/RECIBIDO`, `RECUPERACION`, `PERDIDA`, `CAMBIO-JUGADOR-ENTRA/SALE`, `TIEMPO-MUERTO-SOLICITADO`, `FLECHA-ALTERNANCIA-LOCAL/VISITANTE`, `INICIO/FINAL-PARTIDO`, `INICIO/FINAL-PERIODO`
+- `Equipo_lado`: `LOCAL` | `VISITANTE` | `None` (eventos neutros como INICIO/FINAL-PARTIDO)
+- `Dorsal`: número de camiseta cuando está disponible en el HTML (puede ser `None`)
+- `Jugador`: nombre completo del jugador (formato `APELLIDO, NOMBRE`)
+- `Periodo`: número de cuarto/prórroga (1-4 regular, 5+ OT). Para INICIO/FINAL-PERIODO viene del `<span>` del título
+- `Tiempo`: reloj de juego en `MM:SS`. Solo en eventos con jugador (no en INICIO/FINAL-PARTIDO/PERIODO)
+- `Marcador_local` / `Marcador_visitante`: marcador vigente en el momento del evento (forward-fill desde la última canasta). Arranca en `0 - 0` antes de la primera canasta. El valor en canastas refleja el marcador **después** de convertir.
+- Fuente: `https://www.laliganacional.com.ar/laligaargentina/partido/en-vivo/{game_id}` (HTML puro, sin arrays JS)
+- Datos lazy cargados del `liga_argentina.csv` para obtener la lista de partidos y nombres de equipos
+
 ## Comandos útiles
 ```bash
 # Actualizar stats de jugadores
@@ -192,4 +251,10 @@ python Scraper/shot_map_scraper.py
 
 # Forzar re-scrape completo de tiros
 python Scraper/shot_map_scraper.py --full
+
+# Actualizar jugada a jugada (sólo partidos nuevos)
+python Scraper/pbp_scraper.py
+
+# Forzar re-scrape completo de jugada a jugada
+python Scraper/pbp_scraper.py --full
 ```
