@@ -265,6 +265,14 @@ tbody td:first-child{text-align:left;font-weight:600;color:var(--text-bright);}
 tbody td:nth-child(2){text-align:left;color:var(--muted);font-size:.76rem;}
 
 .rank-cell{color:var(--muted2);font-size:.72rem;font-weight:700;text-align:center!important;min-width:32px;width:32px;background:rgba(255,255,255,.02);}
+/* Sticky columns #, Jugador, Equipo for player tables */
+#jCardBasic td:nth-child(1),#jCardAdv td:nth-child(1){position:sticky;left:0;z-index:1;background:var(--bg);}
+#jCardBasic td:nth-child(2),#jCardAdv td:nth-child(2){position:sticky;left:32px;z-index:1;background:var(--bg);min-width:120px;}
+#jCardBasic td:nth-child(3),#jCardAdv td:nth-child(3){position:sticky;left:152px;z-index:1;background:var(--bg);min-width:150px;box-shadow:4px 0 8px rgba(0,0,0,.4);}
+#jCardBasic thead th:nth-child(1),#jCardAdv thead th:nth-child(1){left:0;}
+#jCardBasic thead th:nth-child(2),#jCardAdv thead th:nth-child(2){left:32px;min-width:120px;}
+#jCardBasic thead th:nth-child(3),#jCardAdv thead th:nth-child(3){left:152px;min-width:150px;box-shadow:4px 0 8px rgba(0,0,0,.4);}
+#jCardBasic tr:hover td:nth-child(-n+3),#jCardAdv tr:hover td:nth-child(-n+3){background:rgba(139,92,246,.08);}
 .pts-cell{color:var(--purple-l);font-weight:700;}
 .val-pos{color:var(--green);font-weight:600;}
 .val-neg{color:var(--red);font-weight:600;}
