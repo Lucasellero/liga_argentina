@@ -50,6 +50,16 @@ SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades 
 - `t-chart` — Scatter plot comparativo de equipos
 - `quintetos` — Mejores quintetos por equipo (requiere PBP)
 
+**Filtro de período (Jugadores y Equipos):**
+Ambas tablas (`j-tabla`, `t-tabla`) tienen un toggle de período: **Temporada / Últ. 5 / Últ. 10**.
+- Botones en `.tbl-toggle-wrap` junto a Básica/Avanzada. Estado: `jPeriod` / `tPeriod` (`'all'|'last5'|'last10'`).
+- `setJPeriod(p)` / `setTPeriod(p)` actualizan el estado y re-renderizan.
+- `getPlayerData(p)` / `getTeamData(t)` devuelven `p._last5`, `p._last10` o el objeto completo según el período activo.
+- Las stats de período se precomputan en `initApp()` y se guardan en `player._last5`, `player._last10`, `team._last5`, `team._last10`.
+- **Jugadores**: `buildRAW_J` guarda `_games[]` (filas CSV con `Segundos jugados > 0`). En `initApp` se ordenan por fecha y se pasan a `computeStatsFromGames(games, tm)` que replica todas las fórmulas de stats básicas y avanzadas.
+- **Equipos**: `buildRAW_T` ya construye `_gamelog[]` ordenado por fecha. Se pasan a `computeTeamStatsFromGames(gamelog)` que computa W%, PTS/p, tiros, rebotes, ORtg, DRtg, NetRtg, EFG%, TS%, TOV%, ORB%, PACE.
+- Layout del toggle wrap: `[Básica/Avanzada] [Temporada/Últ.5/Últ.10] [Comparar jugadores / Comparar equipos]`. En mobile (`flex-direction:column`) se apilan verticalmente.
+
 **Modal de partido** (`#teamGamesBackdrop`):
 - Se abre al hacer clic en una fila de equipo
 - Tab "Estadísticas": stats head-to-head del partido
@@ -248,6 +258,14 @@ Columnas: `IdPartido, Fecha, Equipo_local, Equipo_visitante, NumAccion, Tipo, Eq
 - `Marcador_local` / `Marcador_visitante`: marcador vigente en el momento del evento (forward-fill desde la última canasta). Arranca en `0 - 0` antes de la primera canasta. El valor en canastas refleja el marcador **después** de convertir.
 - Fuente: `https://www.laliganacional.com.ar/laligaargentina/partido/en-vivo/{game_id}` (HTML puro, sin arrays JS)
 - Datos lazy cargados del `liga_argentina.csv` para obtener la lista de partidos y nombres de equipos
+
+## Integridad de datos PBP
+
+### Duplicados en liga_argentina_pbp.csv
+- La web de la liga puede servir eventos duplicados en ciertos partidos (misma fila idéntica, mismo `NumAccion`).
+- **Eventos de bajo riesgo duplicados**: `FINAL-PERIODO`, `FINAL-PARTIDO` — el código JS los ignora en la segunda pasada por el guard `if (!seg...) return`.
+- **Eventos de alto riesgo duplicados**: `TIRO*-FALLADO`, `REBOTE-*`, `CANASTA-*` — inflan stats en `computeLineups()` (fga, fg3a, dreb, etc.), afectando OffRtg/DefRtg/TC% de los quintetos.
+- **Fix en scraper**: `pbp_scraper.py` aplica `drop_duplicates()` antes de guardar el CSV (con warning si encuentra algo). Si el CSV ya tiene duplicados, correr: `python3 -c "import pandas as pd; df=pd.read_csv('docs/liga_argentina_pbp.csv'); df.drop_duplicates(inplace=True); df.to_csv('docs/liga_argentina_pbp.csv', index=False)"` desde `liga_argentina/`.
 
 ## Comandos útiles
 ```bash

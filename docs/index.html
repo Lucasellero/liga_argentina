@@ -200,7 +200,7 @@ select option{background:var(--surface2);color:var(--text);}
 .filter2-row{display:flex;align-items:center;gap:6px;}
 
 /* ── TABLE TOGGLE ────────────────────────────────── */
-.tbl-toggle-wrap{padding:10px 40px 0;background:var(--surface);}
+.tbl-toggle-wrap{padding:10px 40px 0;background:var(--surface);display:flex;align-items:center;justify-content:space-between;}
 .tbl-toggle{
   display:inline-flex;
   background:rgba(0,0,0,.3);
@@ -716,7 +716,8 @@ canvas{display:block;width:100%;cursor:crosshair;}
   .filter2-row{flex-wrap:wrap;}
 
   /* Tables */
-  .tbl-toggle-wrap{padding:8px 12px 0;}
+  .tbl-toggle-wrap{padding:8px 12px 0;flex-direction:column;align-items:flex-start;gap:8px;}
+  .tbl-toggle button{padding:6px 13px;}
   .table-wrap{padding:10px 8px 8px;}
   .scroll-bar-outer{margin:0 8px 0;}
 
@@ -943,6 +944,12 @@ canvas{display:block;width:100%;cursor:crosshair;}
         <button class="active" id="jToggleBasic" onclick="toggleJTable('basic')">Básica</button>
         <button id="jToggleAdv" onclick="toggleJTable('adv')">Avanzada</button>
       </div>
+      <div class="tbl-toggle">
+        <button class="active" id="jPeriodAll" onclick="setJPeriod('all')">Temporada</button>
+        <button id="jPeriodL5" onclick="setJPeriod('last5')">Últ. 5</button>
+        <button id="jPeriodL10" onclick="setJPeriod('last10')">Últ. 10</button>
+      </div>
+      <button class="cmp-toggle-btn" onclick="switchSection('j-chart')">Comparar jugadores</button>
     </div>
   <div class="scroll-bar-outer" id="jScrollOuter"><div class="scroll-bar-inner" id="jScrollInner"></div></div>
     <div class="table-wrap" id="jTableWrap">
@@ -1103,7 +1110,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
           <option value="TOV%-asc">Ordenar: TOV%</option>
           <option value="ORB%">Ordenar: ORB%</option>
           <option value="PACE">Ordenar: PACE</option>
-          <option value="W%">Ordenar: W%</option>
+          <option value="W%" selected>Ordenar: W%</option>
           <option value="Ganados">Ordenar: Victorias</option>
           <option value="PTSPG">Ordenar: PTS/partido</option>
           <option value="RTPG">Ordenar: REB/partido</option>
@@ -1183,6 +1190,11 @@ canvas{display:block;width:100%;cursor:crosshair;}
     <div class="tbl-toggle">
       <button class="active" id="tToggleBasic" onclick="toggleTTable('basic')">Básica</button>
       <button id="tToggleAdv" onclick="toggleTTable('adv')">Avanzada</button>
+    </div>
+    <div class="tbl-toggle">
+      <button class="active" id="tPeriodAll" onclick="setTPeriod('all')">Temporada</button>
+      <button id="tPeriodL5" onclick="setTPeriod('last5')">Últ. 5</button>
+      <button id="tPeriodL10" onclick="setTPeriod('last10')">Últ. 10</button>
     </div>
     <button class="cmp-toggle-btn" id="cmpToggleBtn" onclick="toggleCmpPanel()">Comparar equipos</button>
   </div>
@@ -1463,7 +1475,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
       <span class="qnt-title">Mejores Quintetos</span>
       <div class="qnt-filters">
         <select id="qntTeam" onchange="onQTeamChange()">
-          <option value="">Seleccioná un equipo</option>
+          <option value="">Toda la liga</option>
         </select>
         <select id="qntMinMin" onchange="renderQuintetos()">
           <option value="2">2+ min</option>
@@ -1536,10 +1548,10 @@ function buildRAW_J(rows) {
       'Nombre completo': r['Nombre completo'], Equipo: r['Equipo'],
       PJ: 0, SEG: 0, PTS: 0, T2A: 0, T2I: 0, T3A: 0, T3I: 0,
       T1A: 0, T1I: 0, RD: 0, RO: 0, RT: 0, AST: 0, REC: 0, PER: 0, TAP: 0, VAL: 0,
-      DORSAL: null
+      DORSAL: null, _games: []
     };
     const p = map[key], seg = parseFloat(r['Segundos jugados']) || 0;
-    p.SEG += seg; if (seg > 0) p.PJ++;
+    p.SEG += seg; if (seg > 0) { p.PJ++; p._games.push(r); }
     if (r['Número Camiseta']) p.DORSAL = r['Número Camiseta'];
     p.PTS += parseFloat(r['Puntos']) || 0;
     p.T2A += parseFloat(r['T2A']) || 0; p.T2I += parseFloat(r['T2I']) || 0;
@@ -1667,7 +1679,9 @@ const LBL_T={ORtg:'ORtg',DRtg:'DRtg',NetRtg:'NetRtg','W%':'W%',PTSPG:'PTS/p',POS
 // ============================================================
 let jFiltered=[], tFiltered=[];
 let jSort='PPG', jDir='desc';
-let tSort='NetRtg', tDir='desc';
+let jPeriod='all';
+let tPeriod='all';
+let tSort='W%', tDir='desc';
 let jPts=[], tPts=[];
 let jHov=-1, jPin=new Set(), tHov=-1, tPin=-1;
 
@@ -1689,6 +1703,13 @@ function switchSection(id) {
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   event.currentTarget.classList.add('active');
   document.getElementById('sec-'+id).classList.add('active');
+  if(id==='j-tiro') {
+    const main = document.getElementById('szcMain');
+    if (main && main.style.display !== 'block') {
+      const idx = PLAYERS.findIndex(p => p['Nombre completo'].toUpperCase().includes('OSORES'));
+      if (idx >= 0) selectSzcPlayer(idx);
+    }
+  }
   if(id==='j-chart') setTimeout(drawJChart,30);
   if(id==='t-chart') setTimeout(drawTChart,30);
   if(id==='j-tabla') setTimeout(()=>remeasureScroll('jTableWrap'), 50);
@@ -1700,6 +1721,12 @@ function switchSection(id) {
         const o = document.createElement('option'); o.value = eq; o.textContent = eq;
         sel.appendChild(o);
       });
+    }
+    if (!sel.value && PBP_MAP === null) {
+      const loading = document.getElementById('qntLoading');
+      const empty = document.getElementById('qntEmpty');
+      loading.style.display = ''; empty.style.display = 'none';
+      loadPbp().then(() => { if (LINEUP_DATA === null) computeLineups(); renderQuintetos(); });
     }
   }
 }
@@ -1750,35 +1777,98 @@ function onJFilter(){
   if(document.getElementById('sec-j-chart').classList.contains('active'))drawJChart();
 }
 
+function computeStatsFromGames(games, tm) {
+  const acc={SEG:0,PTS:0,T2A:0,T2I:0,T3A:0,T3I:0,T1A:0,T1I:0,RD:0,RO:0,RT:0,AST:0,REC:0,PER:0,TAP:0,VAL:0};
+  games.forEach(r=>{
+    acc.SEG+=parseFloat(r['Segundos jugados'])||0;
+    acc.PTS+=parseFloat(r['Puntos'])||0;
+    acc.T2A+=parseFloat(r['T2A'])||0; acc.T2I+=parseFloat(r['T2I'])||0;
+    acc.T3A+=parseFloat(r['T3A'])||0; acc.T3I+=parseFloat(r['T3I'])||0;
+    acc.T1A+=parseFloat(r['T1A'])||0; acc.T1I+=parseFloat(r['T1I'])||0;
+    acc.RD+=parseFloat(r['DReb'])||0; acc.RO+=parseFloat(r['OReb'])||0;
+    acc.RT+=parseFloat(r['TReb'])||0; acc.AST+=parseFloat(r['Asistencias'])||0;
+    acc.REC+=parseFloat(r['Recuperos'])||0; acc.PER+=parseFloat(r['Perdidas'])||0;
+    acc.TAP+=parseFloat(r['Tapones cometidos'])||0; acc.VAL+=parseFloat(r['Valoracion'])||0;
+  });
+  const pj=games.length||1; const d={PJ:games.length};
+  Object.entries(MAP_J).forEach(([k,v])=>d[v]=Math.round((acc[k]/pj)*100)/100);
+  d.MPG=Math.round((acc.SEG/pj/60)*10)/10;
+  d.TCAPG=Math.round(((acc.T2A+acc.T3A)/pj)*100)/100;
+  d.TCIPG=Math.round(((acc.T2I+acc.T3I)/pj)*100)/100;
+  const tci=acc.T2I+acc.T3I;
+  d['TC%']=tci>0?Math.round((acc.T2A+acc.T3A)/tci*1000)/10:null;
+  d['T2%']=acc.T2I>0?Math.round(acc.T2A/acc.T2I*1000)/10:null;
+  d['T3%']=acc.T3I>0?Math.round(acc.T3A/acc.T3I*1000)/10:null;
+  d['T1%']=acc.T1I>0?Math.round(acc.T1A/acc.T1I*1000)/10:null;
+  const pos=tci+0.44*(acc.T1I||0)+(acc.PER||0);
+  d.POS=Math.round((pos/pj)*10)/10;
+  d['PTS/POS']=pos>0?Math.round(acc.PTS/pos*100)/100:null;
+  const efgNum=(acc.T2A||0)+1.5*(acc.T3A||0);
+  d['EFG%']=tci>0?Math.round(efgNum/tci*1000)/10:null;
+  const tsAdj=2*(tci+0.44*(acc.T1I||0));
+  d['TS%']=tsAdj>0?Math.round((acc.PTS||0)/tsAdj*1000)/10:null;
+  const toPct_denom=tci+0.44*(acc.T1I||0)+(acc.AST||0)+(acc.PER||0);
+  d['TO%']=toPct_denom>0?Math.round((acc.PER||0)/toPct_denom*1000)/10:null;
+  d['AST/TO']=(acc.PER||0)>0?Math.round((acc.AST||0)/acc.PER*100)/100:null;
+  d['3PI/TI']=tci>0?Math.round((acc.T3I||0)/tci*1000)/10:null;
+  d['ORtg']=pos>0?Math.round(acc.PTS/pos*100*10)/10:null;
+  d['DRtg']=tm?tm.DRtg||null:null;
+  d['NetRtg']=(d['ORtg']!=null&&d['DRtg']!=null)?Math.round((d['ORtg']-d['DRtg'])*10)/10:null;
+  const tmFGA=tm?(tm.T2I||0)+(tm.T3I||0):0;
+  const tmPossUsed=tmFGA+0.44*(tm?tm.T1I||0:0)+(tm?tm.PER||0:0);
+  const playerMinTotal=acc.SEG/60;
+  const tmMinTotal=(tm?tm.PJ||1:1)*200;
+  d['USG%']=(tmPossUsed>0&&playerMinTotal>0)?Math.round(pos*tmMinTotal/(5*playerMinTotal*tmPossUsed)*1000)/10:null;
+  const tmRO=tm?tm.RO||0:0;
+  d['ORB%']=(tmRO>0&&playerMinTotal>0)?Math.round((acc.RO||0)*(tmMinTotal/5)/(playerMinTotal*tmRO)*1000)/10:null;
+  return d;
+}
+
+function getPlayerData(p) {
+  if(jPeriod==='last5'&&p._last5)return p._last5;
+  if(jPeriod==='last10'&&p._last10)return p._last10;
+  return p;
+}
+
+function setJPeriod(period) {
+  jPeriod=period;
+  ['jPeriodAll','jPeriodL5','jPeriodL10'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  const map={all:'jPeriodAll',last5:'jPeriodL5',last10:'jPeriodL10'};
+  document.getElementById(map[period]).classList.add('active');
+  renderJTable();
+}
+
 function renderJTable() {
   if(document.getElementById('jCardAdv').style.display!=='none'){renderJAdvTable();}
   let rows=[...jFiltered];
   rows.sort((a,b)=>{
-    let av=a[jSort],bv=b[jSort];
+    const ad=getPlayerData(a),bd=getPlayerData(b);
+    let av=ad[jSort],bv=bd[jSort];
     if(typeof av==='string'){av=av.toLowerCase();bv=bv.toLowerCase();}
     return jDir==='desc'?(bv>av?1:bv<av?-1:0):(av>bv?1:av<bv?-1:0);
   });
   const tbody=document.getElementById('jTbody'); tbody.innerHTML='';
   rows.forEach((p,i)=>{
+    const d=getPlayerData(p);
     const tr=document.createElement('tr');
     if(jSort==='PPG'||jSort==='VPG'){if(i===0)tr.className='top1';else if(i===1)tr.className='top2';else if(i===2)tr.className='top3';}
-    const vc=p.VPG>=0?'val-pos':'val-neg';
-    const tcc=p['TC%'];
+    const vc=d.VPG>=0?'val-pos':'val-neg';
+    const tcc=d['TC%'];
     tr.innerHTML=`<td class="rank-cell">${i+1}</td><td>${p.name}</td><td style="background:var(--bg)"><span style="display:flex;align-items:center;gap:5px">${teamLogoHtml(p.Equipo)}${p.Equipo}</span></td>
-      <td>${p.PJ}</td>
-      <td style="color:var(--muted)">${f1(p.MPG)}</td>
-      <td class="${vc}">${f2(p.VPG)}</td>
-      <td class="pts-cell">${f2(p.PPG)}</td>
-      <td class="tc-group">${f2(p.TCAPG)}</td><td class="tc-group">${f2(p.TCIPG)}</td>
+      <td>${d.PJ}</td>
+      <td style="color:var(--muted)">${f1(d.MPG)}</td>
+      <td class="${vc}">${f2(d.VPG)}</td>
+      <td class="pts-cell">${f2(d.PPG)}</td>
+      <td class="tc-group">${f2(d.TCAPG)}</td><td class="tc-group">${f2(d.TCIPG)}</td>
       <td class="tc-group ${tcc>=50?'pct-hi':''}">${tcc!=null?f1(tcc)+'%':'—'}</td>
-      <td>${f2(p.T2APG)}</td><td>${f2(p.T2IPG)}</td>
-      <td class="${p['T2%']>=60?'pct-hi':''}">${f1(p['T2%'])}%</td>
-      <td>${f2(p.T3APG)}</td><td>${f2(p.T3IPG)}</td>
-      <td class="${p['T3%']>=40?'pct-hi':''}">${f1(p['T3%'])}%</td>
-      <td>${f2(p.T1APG)}</td><td>${f2(p.T1IPG)}</td>
-      <td class="${p['T1%']>=80?'pct-hi':''}">${f1(p['T1%'])}%</td>
-      <td>${f2(p.RDPG)}</td><td>${f2(p.ROPG)}</td><td>${f2(p.RPG)}</td>
-      <td>${f2(p.APG)}</td><td>${f2(p.SPG)}</td><td>${f2(p.TPG)}</td><td>${f2(p.BPG)}</td>`;
+      <td>${f2(d.T2APG)}</td><td>${f2(d.T2IPG)}</td>
+      <td class="${d['T2%']>=60?'pct-hi':''}">${f1(d['T2%'])}%</td>
+      <td>${f2(d.T3APG)}</td><td>${f2(d.T3IPG)}</td>
+      <td class="${d['T3%']>=40?'pct-hi':''}">${f1(d['T3%'])}%</td>
+      <td>${f2(d.T1APG)}</td><td>${f2(d.T1IPG)}</td>
+      <td class="${d['T1%']>=80?'pct-hi':''}">${f1(d['T1%'])}%</td>
+      <td>${f2(d.RDPG)}</td><td>${f2(d.ROPG)}</td><td>${f2(d.RPG)}</td>
+      <td>${f2(d.APG)}</td><td>${f2(d.SPG)}</td><td>${f2(d.TPG)}</td><td>${f2(d.BPG)}</td>`;
     tbody.appendChild(tr);
   });
   document.querySelectorAll('#sec-j-tabla thead th').forEach(th=>{
@@ -1820,31 +1910,33 @@ function toggleJTable(mode) {
 function renderJAdvTable() {
   let rows=[...jFiltered];
   rows.sort((a,b)=>{
-    let av=a[jAdvSort],bv=b[jAdvSort];
+    const ad=getPlayerData(a),bd=getPlayerData(b);
+    let av=ad[jAdvSort],bv=bd[jAdvSort];
     if(av==null&&bv==null)return 0;
     if(av==null)return 1; if(bv==null)return -1;
     return jAdvDir==='desc'?(bv-av):(av-bv);
   });
   const tbody=document.getElementById('jTbodyAdv'); tbody.innerHTML='';
   rows.forEach((p,i)=>{
+    const d=getPlayerData(p);
     const tr=document.createElement('tr');
     const fPct=v=>v==null||isNaN(v)?'—':v.toFixed(1)+'%';
     const fVal=v=>v==null||isNaN(v)?'—':v.toFixed(2);
-    const efg=p['EFG%'], ts=p['TS%'], toP=p['TO%'];
+    const efg=d['EFG%'], ts=d['TS%'], toP=d['TO%'];
     tr.innerHTML=`<td class="rank-cell">${i+1}</td>
       <td>${p.name}</td><td style="background:var(--bg)"><span style="display:flex;align-items:center;gap:5px">${teamLogoHtml(p.Equipo)}${p.Equipo}</span></td>
-      <td>${p.PJ}</td>
-      <td style="color:var(--muted)">${f1(p.MPG)}</td>
-      <td>${f1(p.POS)}</td>
-      <td class="${p['PTS/POS']>=1.1?'adv-hi':p['PTS/POS']<0.85?'adv-lo':''}">${fVal(p['PTS/POS'])}</td>
+      <td>${d.PJ}</td>
+      <td style="color:var(--muted)">${f1(d.MPG)}</td>
+      <td>${f1(d.POS)}</td>
+      <td class="${d['PTS/POS']>=1.1?'adv-hi':d['PTS/POS']<0.85?'adv-lo':''}">${fVal(d['PTS/POS'])}</td>
       <td class="${efg>=55?'adv-hi':efg<45?'adv-lo':''}">${fPct(efg)}</td>
       <td class="${ts>=58?'adv-hi':ts<48?'adv-lo':''}">${fPct(ts)}</td>
       <td class="${toP<=12?'adv-hi':toP>=20?'adv-lo':''}">${fPct(toP)}</td>
-      <td class="${p['AST/TO']>=2.5?'adv-hi':''}">${fVal(p['AST/TO'])}</td>
-      <td>${fPct(p['3PI/TI'])}</td>
-      <td class="${p['ORtg']>=110?'adv-hi':p['ORtg']<90?'adv-lo':''}">${p['ORtg']!=null?p['ORtg'].toFixed(1):'—'}</td>
-      <td class="${p['USG%']>=28?'adv-hi':''}">${fPct(p['USG%'])}</td>
-      <td class="${p['ORB%']>=12?'adv-hi':''}">${fPct(p['ORB%'])}</td>`;
+      <td class="${d['AST/TO']>=2.5?'adv-hi':''}">${fVal(d['AST/TO'])}</td>
+      <td>${fPct(d['3PI/TI'])}</td>
+      <td class="${d['ORtg']>=110?'adv-hi':d['ORtg']<90?'adv-lo':''}">${d['ORtg']!=null?d['ORtg'].toFixed(1):'—'}</td>
+      <td class="${d['USG%']>=28?'adv-hi':''}">${fPct(d['USG%'])}</td>
+      <td class="${d['ORB%']>=12?'adv-hi':''}">${fPct(d['ORB%'])}</td>`;
     tbody.appendChild(tr);
   });
   document.querySelectorAll('#jCardAdv thead th').forEach(th=>{
@@ -1921,15 +2013,74 @@ function toggleTTable(mode) {
 
 let tAdvSort='NetRtg', tAdvDir='desc';
 
+function computeTeamStatsFromGames(gamelog) {
+  const pj=gamelog.length||1;
+  const acc={PTS:0,T2A:0,T2I:0,T3A:0,T3I:0,T1A:0,T1I:0,RD:0,RO:0,RT:0,AST:0,REC:0,PER:0,TAP:0,VAL:0,OPP_PTS:0,Ganados:0};
+  gamelog.forEach(g=>{
+    const s=g.myS;
+    acc.PTS+=s.pts||0; acc.T2A+=s.t2a||0; acc.T2I+=s.t2i||0;
+    acc.T3A+=s.t3a||0; acc.T3I+=s.t3i||0; acc.T1A+=s.t1a||0; acc.T1I+=s.t1i||0;
+    acc.RD+=s.dreb||0; acc.RO+=s.oreb||0; acc.RT+=s.treb||0;
+    acc.AST+=s.ast||0; acc.REC+=s.rec||0; acc.PER+=s.per||0;
+    acc.TAP+=s.tap||0; acc.VAL+=s.val||0;
+    acc.OPP_PTS+=g.ptsAgainst||0;
+    if(g.ganado)acc.Ganados++;
+  });
+  const d={PJ:pj,Ganados:acc.Ganados,Perdidos:pj-acc.Ganados};
+  d['W%']=pj>0?acc.Ganados/pj*100:0;
+  const tci=acc.T2I+acc.T3I;
+  d.PTSPG=Math.round(acc.PTS/pj*100)/100;
+  d.T2APG=Math.round(acc.T2A/pj*100)/100; d.T2IPG=Math.round(acc.T2I/pj*100)/100;
+  d.T3APG=Math.round(acc.T3A/pj*100)/100; d.T3IPG=Math.round(acc.T3I/pj*100)/100;
+  d.T1APG=Math.round(acc.T1A/pj*100)/100; d.T1IPG=Math.round(acc.T1I/pj*100)/100;
+  d.RDPG=Math.round(acc.RD/pj*100)/100; d.ROPG=Math.round(acc.RO/pj*100)/100; d.RTPG=Math.round(acc.RT/pj*100)/100;
+  d.ASTPG=Math.round(acc.AST/pj*100)/100; d.RECPG=Math.round(acc.REC/pj*100)/100;
+  d.PERPG=Math.round(acc.PER/pj*100)/100; d.TAPPG=Math.round(acc.TAP/pj*100)/100; d.VALPG=Math.round(acc.VAL/pj*100)/100;
+  d['T2%']=acc.T2I>0?Math.round(acc.T2A/acc.T2I*1000)/10:null;
+  d['T3%']=acc.T3I>0?Math.round(acc.T3A/acc.T3I*1000)/10:null;
+  d['T1%']=acc.T1I>0?Math.round(acc.T1A/acc.T1I*1000)/10:null;
+  const poss=tci+0.44*(acc.T1I||0)+(acc.PER||0);
+  d.POSPG=poss>0?Math.round(poss/pj*10)/10:null;
+  d.ORtg=poss>0?Math.round(acc.PTS/poss*100*10)/10:null;
+  d.DRtg=poss>0?Math.round(acc.OPP_PTS/poss*100*10)/10:null;
+  d.NetRtg=(d.ORtg!=null&&d.DRtg!=null)?Math.round((d.ORtg-d.DRtg)*10)/10:null;
+  const efgNum=(acc.T2A||0)+1.5*(acc.T3A||0);
+  d['EFG%']=tci>0?Math.round(efgNum/tci*1000)/10:null;
+  const tsAdj=2*(tci+0.44*(acc.T1I||0));
+  d['TS%']=tsAdj>0?Math.round((acc.PTS||0)/tsAdj*1000)/10:null;
+  const tovDenom=tci+0.44*(acc.T1I||0)+(acc.PER||0);
+  d['TOV%']=tovDenom>0?Math.round((acc.PER||0)/tovDenom*1000)/10:null;
+  const totReb=(acc.RO||0)+(acc.RD||0);
+  d['ORB%']=totReb>0?Math.round((acc.RO||0)/totReb*1000)/10:null;
+  d['PACE']=d.POSPG;
+  return d;
+}
+
+function getTeamData(t) {
+  if(tPeriod==='last5'&&t._last5)return t._last5;
+  if(tPeriod==='last10'&&t._last10)return t._last10;
+  return t;
+}
+
+function setTPeriod(period) {
+  tPeriod=period;
+  ['tPeriodAll','tPeriodL5','tPeriodL10'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  const map={all:'tPeriodAll',last5:'tPeriodL5',last10:'tPeriodL10'};
+  document.getElementById(map[period]).classList.add('active');
+  renderTTable();
+}
+
 function renderTTable() {
   if(document.getElementById('tCardAdv')&&document.getElementById('tCardAdv').style.display!=='none'){renderTAdvTable();}
   let rows=[...tFiltered];
   rows.sort((a,b)=>{
-    let av=a[tSort],bv=b[tSort];
+    const ad=getTeamData(a),bd=getTeamData(b);
+    let av=ad[tSort],bv=bd[tSort];
     return tDir==='desc'?(bv>av?1:bv<av?-1:0):(av>bv?1:av<bv?-1:0);
   });
   const tbody=document.getElementById('tTbody'); tbody.innerHTML='';
   rows.forEach((t,i)=>{
+    const d=getTeamData(t);
     const tr=document.createElement('tr');
     const selIdx = selectedTeams.indexOf(t.Equipo);
     const selClass = selIdx >= 0 ? ` team-sel-${selIdx}` : '';
@@ -1939,22 +2090,22 @@ function renderTTable() {
     else tr.className='team-row-selectable'+selClass;
     tr.addEventListener('click', ()=>toggleTeamSelection(t.Equipo));
     const indicator = selIdx >= 0 ? `<span class="team-sel-indicator" style="background:${CMP_COLORS[selIdx]}">${selIdx+1}</span>` : '';
-    const wc=t['W%']>=60?'win-rate-high':t['W%']>=40?'win-rate-mid':'win-rate-low';
+    const wc=d['W%']>=60?'win-rate-high':d['W%']>=40?'win-rate-mid':'win-rate-low';
     tr.innerHTML=`<td class="rank-cell">${i+1}</td><td style="background:var(--bg)"><span style="display:flex;align-items:center;gap:5px">${indicator}${teamLogoHtml(t.Equipo)}${t.Equipo}</span></td>
-      <td>${t.PJ}</td>
-      <td style="color:var(--green);font-weight:700">${t.Ganados}</td>
-      <td style="color:var(--red)">${t.Perdidos}</td>
-      <td class="${wc}">${t['W%'].toFixed(1)}%</td>
-      <td class="pts-cell">${f2(t.PTSPG)}</td>
-      <td>${f2(t.T2APG)}</td><td>${f2(t.T2IPG)}</td>
-      <td class="${t['T2%']>=57?'pct-hi':''}">${f1(t['T2%'])}%</td>
-      <td>${f2(t.T3APG)}</td><td>${f2(t.T3IPG)}</td>
-      <td class="${t['T3%']>=37?'pct-hi':''}">${f1(t['T3%'])}%</td>
-      <td>${f2(t.T1APG)}</td><td>${f2(t.T1IPG)}</td>
-      <td class="${t['T1%']>=75?'pct-hi':''}">${f1(t['T1%'])}%</td>
-      <td>${f2(t.RDPG)}</td><td>${f2(t.ROPG)}</td><td>${f2(t.RTPG)}</td>
-      <td>${f2(t.ASTPG)}</td><td>${f2(t.RECPG)}</td><td>${f2(t.PERPG)}</td><td>${f2(t.TAPPG)}</td>
-      <td class="${t.VALPG>=0?'val-pos':'val-neg'}">${f2(t.VALPG)}</td>`;
+      <td>${d.PJ}</td>
+      <td style="color:var(--green);font-weight:700">${d.Ganados}</td>
+      <td style="color:var(--red)">${d.Perdidos}</td>
+      <td class="${wc}">${d['W%'].toFixed(1)}%</td>
+      <td class="pts-cell">${f2(d.PTSPG)}</td>
+      <td>${f2(d.T2APG)}</td><td>${f2(d.T2IPG)}</td>
+      <td class="pts-cell">${f1(d['T2%'])}%</td>
+      <td>${f2(d.T3APG)}</td><td>${f2(d.T3IPG)}</td>
+      <td class="pts-cell">${f1(d['T3%'])}%</td>
+      <td>${f2(d.T1APG)}</td><td>${f2(d.T1IPG)}</td>
+      <td class="pts-cell">${f1(d['T1%'])}%</td>
+      <td>${f2(d.RDPG)}</td><td>${f2(d.ROPG)}</td><td class="pts-cell">${f2(d.RTPG)}</td>
+      <td>${f2(d.ASTPG)}</td><td>${f2(d.RECPG)}</td><td>${f2(d.PERPG)}</td><td>${f2(d.TAPPG)}</td>
+      <td class="${d.VALPG>=0?'val-pos':'val-neg'}">${f2(d.VALPG)}</td>`;
     tbody.appendChild(tr);
   });
   document.querySelectorAll('#tCardBasic thead th').forEach(th=>{
@@ -1966,7 +2117,8 @@ function renderTTable() {
 function renderTAdvTable() {
   let rows=[...tFiltered];
   rows.sort((a,b)=>{
-    let av=a[tAdvSort],bv=b[tAdvSort];
+    const ad=getTeamData(a),bd=getTeamData(b);
+    let av=ad[tAdvSort],bv=bd[tAdvSort];
     if(av==null&&bv==null)return 0;
     if(av==null)return 1; if(bv==null)return -1;
     return tAdvDir==='desc'?(bv-av):(av-bv);
@@ -1974,6 +2126,7 @@ function renderTAdvTable() {
   const tbody=document.getElementById('tTbodyAdv'); if(!tbody)return; tbody.innerHTML='';
   const fPct=v=>v==null||isNaN(v)?'—':v.toFixed(1)+'%';
   rows.forEach((t,i)=>{
+    const d=getTeamData(t);
     const tr=document.createElement('tr');
     const selIdx = selectedTeams.indexOf(t.Equipo);
     const selClass = selIdx >= 0 ? ` team-sel-${selIdx}` : '';
@@ -1983,22 +2136,22 @@ function renderTAdvTable() {
     else tr.className='team-row-selectable'+selClass;
     tr.addEventListener('click', ()=>toggleTeamSelection(t.Equipo));
     const indicator = selIdx >= 0 ? `<span class="team-sel-indicator" style="background:${CMP_COLORS[selIdx]}">${selIdx+1}</span>` : '';
-    const wc=t['W%']>=60?'win-rate-high':t['W%']>=40?'win-rate-mid':'win-rate-low';
-    const nc=t.NetRtg>=0?'netrtg-pos':'netrtg-neg';
+    const wc=d['W%']>=60?'win-rate-high':d['W%']>=40?'win-rate-mid':'win-rate-low';
+    const nc=d.NetRtg>=0?'netrtg-pos':'netrtg-neg';
     tr.innerHTML=`<td class="rank-cell">${i+1}</td><td style="background:var(--bg)"><span style="display:flex;align-items:center;gap:5px">${indicator}${teamLogoHtml(t.Equipo)}${t.Equipo}</span></td>
-      <td>${t.PJ}</td>
-      <td style="color:var(--green);font-weight:700">${t.Ganados}</td>
-      <td class="${wc}">${t['W%'].toFixed(1)}%</td>
-      <td style="color:var(--muted)">${f1(t.PACE||t.POSPG)}</td>
-      <td class="ortg-hi">${f1(t.ORtg)}</td>
-      <td class="drtg-lo">${f1(t.DRtg)}</td>
-      <td class="${nc}">${t.NetRtg>=0?'+':''}${f1(t.NetRtg)}</td>
-      <td class="${t['EFG%']>=54?'adv-hi':t['EFG%']<48?'adv-lo':''}">${fPct(t['EFG%'])}</td>
-      <td class="${t['TS%']>=57?'adv-hi':t['TS%']<50?'adv-lo':''}">${fPct(t['TS%'])}</td>
-      <td class="${t['TOV%']<=12?'adv-hi':t['TOV%']>=18?'adv-lo':''}">${fPct(t['TOV%'])}</td>
-      <td class="${t['ORB%']>=30?'adv-hi':t['ORB%']<22?'adv-lo':''}">${fPct(t['ORB%'])}</td>
-      <td class="pts-cell">${f2(t.PTSPG)}</td>
-      <td>${f2(t.ASTPG)}</td><td>${f2(t.PERPG)}</td><td>${f2(t.RECPG)}</td><td>${f2(t.TAPPG)}</td>`;
+      <td>${d.PJ}</td>
+      <td style="color:var(--green);font-weight:700">${d.Ganados}</td>
+      <td class="${wc}">${d['W%'].toFixed(1)}%</td>
+      <td style="color:var(--muted)">${f1(d.PACE||d.POSPG)}</td>
+      <td class="ortg-hi">${f1(d.ORtg)}</td>
+      <td class="drtg-lo">${f1(d.DRtg)}</td>
+      <td class="${nc}">${d.NetRtg>=0?'+':''}${f1(d.NetRtg)}</td>
+      <td class="${d['EFG%']>=54?'adv-hi':d['EFG%']<48?'adv-lo':''}">${fPct(d['EFG%'])}</td>
+      <td class="${d['TS%']>=57?'adv-hi':d['TS%']<50?'adv-lo':''}">${fPct(d['TS%'])}</td>
+      <td class="${d['TOV%']<=12?'adv-hi':d['TOV%']>=18?'adv-lo':''}">${fPct(d['TOV%'])}</td>
+      <td class="${d['ORB%']>=30?'adv-hi':d['ORB%']<22?'adv-lo':''}">${fPct(d['ORB%'])}</td>
+      <td class="pts-cell">${f2(d.PTSPG)}</td>
+      <td>${f2(d.ASTPG)}</td><td>${f2(d.PERPG)}</td><td>${f2(d.RECPG)}</td><td>${f2(d.TAPPG)}</td>`;
     tbody.appendChild(tr);
   });
   document.querySelectorAll('#tCardAdv thead th').forEach(th=>{
@@ -2967,6 +3120,27 @@ async function initApp() {
       return d;
     });
 
+    // Precompute last5 / last10 stats per player
+    const sortByFecha=(a,b)=>{
+      if(!a.Fecha||!b.Fecha)return 0;
+      const [ad,am,ay]=a.Fecha.split('/');const [bd,bm,by]=b.Fecha.split('/');
+      return new Date(ay,am-1,ad)-new Date(by,bm-1,bd);
+    };
+    RAW_J.forEach(rawP=>rawP._games.sort(sortByFecha));
+    PLAYERS.forEach((player,i)=>{
+      const rawP=RAW_J[i]; const tm=TEAM_MAP[player.Equipo]||{};
+      const games=rawP._games;
+      const mkPeriod=(n)=>{
+        const g=games.slice(-n);
+        if(!g.length)return null;
+        const s=computeStatsFromGames(g,tm);
+        s.name=player.name; s.Equipo=player.Equipo;
+        return s;
+      };
+      player._last5=mkPeriod(5);
+      player._last10=mkPeriod(10);
+    });
+
     // Team per-game
     TEAMS = RAW_T.map(t=>{
       const pj=t.PJ||1; const d={...t};
@@ -2992,6 +3166,22 @@ async function initApp() {
       d['PACE'] = d.POSPG || (tovDenom>0 ? Math.round(tovDenom/pj*10)/10 : null);
       d.PTSOPP_PG = Math.round((t.OPP_PTS/pj)*100)/100;
       return d;
+    });
+
+    // Precompute last5 / last10 stats per team
+    const RAW_T_MAP={};
+    RAW_T.forEach(r=>RAW_T_MAP[r.Equipo]=r);
+    TEAMS.forEach(team=>{
+      const rawT=RAW_T_MAP[team.Equipo];
+      const gl=rawT&&rawT._gamelog?rawT._gamelog:[];
+      const mkTPeriod=(n)=>{
+        const g=gl.slice(-n);
+        if(!g.length)return null;
+        const s=computeTeamStatsFromGames(g);
+        s.Equipo=team.Equipo; return s;
+      };
+      team._last5=mkTPeriod(5);
+      team._last10=mkTPeriod(10);
     });
 
     // Colors
@@ -3643,8 +3833,6 @@ function qntSortBy(col) {
 }
 
 async function onQTeamChange() {
-  const team = document.getElementById('qntTeam').value;
-  if (!team) { renderQuintetos(); return; }
   const loading = document.getElementById('qntLoading');
   const empty = document.getElementById('qntEmpty');
   const content = document.getElementById('qntContent');
@@ -3691,9 +3879,85 @@ function renderQuintetos() {
   const countEl = document.getElementById('qntCount');
 
   if (!team) {
-    empty.textContent = 'Seleccioná un equipo para ver sus quintetos';
-    empty.style.display = ''; content.style.display = 'none'; loading.style.display = 'none';
-    countEl.textContent = ''; return;
+    if (!LINEUP_DATA) {
+      loading.style.display = ''; content.style.display = 'none'; empty.style.display = 'none';
+      countEl.textContent = ''; return;
+    }
+    // League-wide top 20 lineups by minutes
+    function lerpRgbL(t, r1,g1,b1, r2,g2,b2) {
+      return `rgb(${Math.round(r1+(r2-r1)*t)},${Math.round(g1+(g2-g1)*t)},${Math.round(b1+(b2-b1)*t)})`;
+    }
+    function heatRGL(val, mn, mx) { if(mn===mx)return''; const t=(val-mn)/(mx-mn); return t>=0.5?lerpRgbL((t-.5)*2,100,116,139,52,211,153):lerpRgbL(t*2,248,113,113,100,116,139); }
+    function heatPurL(val, mn, mx) { if(mn===mx)return''; return lerpRgbL((val-mn)/(mx-mn),100,116,139,167,139,250); }
+    function heatTealL(val, mn, mx) { if(mn===mx)return''; return lerpRgbL(1-(val-mn)/(mx-mn),100,116,139,94,234,212); }
+    function heatWhtL(val, mn, mx) { if(mn===mx)return''; return lerpRgbL((val-mn)/(mx-mn),100,116,139,226,232,240); }
+    let allRows = [];
+    LINEUP_DATA.forEach((teamMap, teamName) => {
+      teamMap.forEach(v => {
+        const min = v.secs / 60;
+        if (min < minMin) return;
+        const offPoss = calcPoss(v.fga, v.fta, v.oreb, v.to);
+        const defPoss = calcPoss(v.dfga, v.dfta, v.doreb, v.dto);
+        const poss = (offPoss + defPoss) / 2;
+        const pm = v.pf - v.pa;
+        const offrtg  = offPoss > 0 ? v.pf / offPoss * 100 : 0;
+        const defrtg  = defPoss > 0 ? v.pa / defPoss * 100 : 0;
+        const net     = offrtg - defrtg;
+        const fgpct   = v.fga  > 0 ? v.fgm  / v.fga  * 100 : 0;
+        const fg3pct  = v.fg3a > 0 ? v.fg3m / v.fg3a * 100 : 0;
+        const ast100  = v.fgm  > 0 ? v.ast / v.fgm  * 100 : 0;
+        const tovpct  = (v.fga + 0.44*v.fta + v.to) > 0 ? v.to / (v.fga + 0.44*v.fta + v.to) * 100 : 0;
+        const orebpct = (v.oreb + v.ddreb) > 0 ? v.oreb / (v.oreb + v.ddreb) * 100 : 0;
+        const drebpct = (v.dreb + v.doreb) > 0 ? v.dreb / (v.dreb + v.doreb) * 100 : 0;
+        const fg3rate = v.fga  > 0 ? v.fg3a / v.fga  * 100 : 0;
+        const ftr     = v.fga  > 0 ? v.fta  / v.fga        : 0;
+        allRows.push({ team: teamName, players: v.players, min, poss, pm, offrtg, defrtg, net, fgpct, fg3pct, ast100, tovpct, orebpct, drebpct, fg3rate, ftr });
+      });
+    });
+    allRows.sort((a, b) => b.min - a.min);
+    allRows = allRows.slice(0, 20);
+    loading.style.display = 'none'; empty.style.display = 'none'; content.style.display = '';
+    countEl.textContent = 'Top 20 · liga';
+    const sign = v => v > 0 ? '+' : '';
+    const fRtgL = v => v === 0 ? '—' : v.toFixed(1);
+    const fPctL = v => v === 0 ? '—' : v.toFixed(1) + '%';
+    const fRatL = v => v === 0 ? '—' : v.toFixed(2);
+    const vr = allRows.filter(r => r.poss > 0);
+    const crL = key => { const vs=vr.map(r=>r[key]).filter(v=>v!==0); return vs.length?[Math.min(...vs),Math.max(...vs)]:[0,0]; };
+    const [mnMin,mxMin]=crL('min'), [mnPos,mxPos]=crL('poss'), [mnPm,mxPm]=crL('pm'),
+          [mnOff,mxOff]=crL('offrtg'), [mnDef,mxDef]=crL('defrtg'), [mnNet,mxNet]=crL('net'),
+          [mnFg,mxFg]=crL('fgpct'), [mnFg3,mxFg3]=crL('fg3pct'), [mnAst,mxAst]=crL('ast100'),
+          [mnTov,mxTov]=crL('tovpct'), [mnOreb,mxOreb]=crL('orebpct'), [mnDreb,mxDreb]=crL('drebpct'),
+          [mnFg3r,mxFg3r]=crL('fg3rate'), [mnFtr,mxFtr]=crL('ftr');
+    const LEAGUE_COLS = [
+      { key: 'team',    label: 'Equipo',   align: 'left',  tip: 'Equipo al que pertenece el quinteto' },
+      ...QNT_COLS
+    ];
+    document.getElementById('qntThead').innerHTML = '<tr>' + LEAGUE_COLS.map(c =>
+      `<th class="qnt-th" style="text-align:${c.align}" title="${c.tip}">${c.label}</th>`
+    ).join('') + '</tr>';
+    document.getElementById('qntTbody').innerHTML = allRows.map((r, i) => {
+      const playersHtml = r.players.map(p => `<span class="qnt-player">${formatPlayerShort(p)}</span>`).join('');
+      return `<tr>
+        <td><span style="display:flex;align-items:center;gap:5px">${teamLogoHtml(r.team)}${r.team}</span></td>
+        <td><div class="qnt-players">${playersHtml}</div></td>
+        <td style="color:${heatWhtL(r.min,mnMin,mxMin)};font-weight:600">${r.min.toFixed(1)}</td>
+        <td style="color:${heatWhtL(r.poss,mnPos,mxPos)};font-weight:600">${r.poss>0?Math.round(r.poss):'—'}</td>
+        <td style="color:${heatRGL(r.pm,mnPm,mxPm)};font-weight:700">${sign(r.pm)}${r.pm}</td>
+        <td style="color:${heatPurL(r.offrtg,mnOff,mxOff)};font-weight:700">${fRtgL(r.offrtg)}</td>
+        <td style="color:${heatTealL(r.defrtg,mnDef,mxDef)};font-weight:700">${fRtgL(r.defrtg)}</td>
+        <td style="color:${heatRGL(r.net,mnNet,mxNet)};font-weight:700">${sign(r.net)}${fRtgL(r.net)}</td>
+        <td style="color:${heatPurL(r.fgpct,mnFg,mxFg)};font-weight:600">${fPctL(r.fgpct)}</td>
+        <td style="color:${heatPurL(r.fg3pct,mnFg3,mxFg3)};font-weight:600">${fPctL(r.fg3pct)}</td>
+        <td style="color:${heatPurL(r.ast100,mnAst,mxAst)};font-weight:600">${fPctL(r.ast100)}</td>
+        <td style="color:${heatTealL(r.tovpct,mnTov,mxTov)};font-weight:600">${fPctL(r.tovpct)}</td>
+        <td style="color:${heatPurL(r.orebpct,mnOreb,mxOreb)};font-weight:600">${fPctL(r.orebpct)}</td>
+        <td style="color:${heatTealL(r.drebpct,mnDreb,mxDreb)};font-weight:600">${fPctL(r.drebpct)}</td>
+        <td style="color:${heatWhtL(r.fg3rate,mnFg3r,mxFg3r)};font-weight:600">${fPctL(r.fg3rate)}</td>
+        <td style="color:${heatPurL(r.ftr,mnFtr,mxFtr)};font-weight:600">${fRatL(r.ftr)}</td>
+      </tr>`;
+    }).join('');
+    return;
   }
   if (!LINEUP_DATA) {
     loading.style.display = ''; content.style.display = 'none'; empty.style.display = 'none';

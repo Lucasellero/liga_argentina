@@ -334,6 +334,12 @@ def main():
     else:
         merged = new_df
 
+    before = len(merged)
+    merged = merged.drop_duplicates()
+    removed = before - len(merged)
+    if removed:
+        log.warning(f"  Eliminadas {removed} filas duplicadas")
+
     DOCS_DIR.mkdir(parents=True, exist_ok=True)
     merged.to_csv(output_csv, index=False, encoding="utf-8-sig")
     log.info(f"Guardado -> {output_csv}  ({len(merged)} acciones totales)")
