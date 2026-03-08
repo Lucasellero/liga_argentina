@@ -3514,6 +3514,8 @@ function computeLineups() {
     // Possession counters for the active segment of each side
     let localPoss = null, visitPoss = null; // {fga,fta,oreb,to, dfga,dfta,doreb,dto}
     let scoreLoc = 0, scoreVis = 0;
+    // Period-boundary buffers: null = not in boundary mode, [] = collecting ENTRA events
+    let localBndEntras = null, visitBndEntras = null;
 
     function lineupKey(court) { return [...court].sort().join('~'); }
     function emptyPoss() { return { fga:0,fgm:0,fg3a:0,fg3m:0,fta:0,ast:0,oreb:0,dreb:0,to:0, dfga:0,dfgm:0,dfg3a:0,dfg3m:0,dfta:0,doreb:0,ddreb:0,dto:0 }; }
@@ -3582,6 +3584,12 @@ function computeLineups() {
       if (tipo === 'CAMBIO-JUGADOR-ENTRA' || tipo === 'CAMBIO-JUGADOR-SALE') {
         if (!jugador) return;
         const isLocal = lado === 'LOCAL';
+        // In boundary mode, buffer ENTRA events instead of processing them normally.
+        // They will be applied as a fresh lineup when INICIO-PERIODO fires.
+        if (tipo === 'CAMBIO-JUGADOR-ENTRA') {
+          const arr = isLocal ? localBndEntras : visitBndEntras;
+          if (arr !== null) { arr.push(jugador); return; }
+        }
         const court = isLocal ? localCourt : visitCourt;
         const seg = isLocal ? localSeg : visitSeg;
         const poss = isLocal ? localPoss : visitPoss;
@@ -3593,12 +3601,36 @@ function computeLineups() {
         else { visitSeg = newSeg; visitPoss = newPoss; }
       }
 
+      if (tipo === 'INICIO-PERIODO') {
+        // Apply buffered lineups: if >=5 players collected, replace the court with the new lineup.
+        // If no ENTRA events were buffered (some games omit period-start subs), keep the old court.
+        const applyBnd = (court, seg, poss, entras) => {
+          if (entras !== null && entras.length >= 5) {
+            const nc = new Set(entras);
+            const ns = (nc.size === 5 && seg) ? { elapsed: seg.elapsed, scoreLoc, scoreVis, key: lineupKey(nc) } : null;
+            return [nc, ns, nc.size === 5 ? emptyPoss() : null];
+          }
+          return [court, seg, poss];
+        };
+        [localCourt, localSeg, localPoss] = applyBnd(localCourt, localSeg, localPoss, localBndEntras);
+        [visitCourt, visitSeg, visitPoss] = applyBnd(visitCourt, visitSeg, visitPoss, visitBndEntras);
+        localBndEntras = null; visitBndEntras = null;
+      }
+
       if (tipo === 'FINAL-PERIODO' || tipo === 'FINAL-PARTIDO') {
         const endE = pbpElapsed(periodo, '00:00');
         recordSeg('LOCAL',    localCourt, localSeg, localPoss, endE);
         recordSeg('VISITANTE',visitCourt, visitSeg, visitPoss, endE);
-        localSeg = null; visitSeg = null; localPoss = null; visitPoss = null;
-        localCourt = new Set(); visitCourt = new Set();
+        if (tipo === 'FINAL-PARTIDO') {
+          localCourt = new Set(); visitCourt = new Set();
+          localSeg = null; visitSeg = null; localPoss = null; visitPoss = null;
+        } else {
+          // Keep courts so games without period-start CAMBIO events continue tracking.
+          // Enter boundary mode: CAMBIO-ENTRA events before INICIO-PERIODO are buffered.
+          localSeg = startSeg(localCourt, endE); localPoss = localCourt.size === 5 ? emptyPoss() : null;
+          visitSeg = startSeg(visitCourt, endE); visitPoss = visitCourt.size === 5 ? emptyPoss() : null;
+          localBndEntras = []; visitBndEntras = [];
+        }
       }
     });
   });
@@ -3642,7 +3674,7 @@ const QNT_COLS = [
   { key: 'net',     label: 'Net',    align: 'right', tip: 'OffRtg − DefRtg: diferencial de rating por 100 posesiones' },
   { key: 'fgpct',   label: 'TC%',     align: 'right', tip: '% de tiros de campo convertidos (2P + 3P) mientras el quinteto atacaba' },
   { key: 'fg3pct',  label: '3P%',     align: 'right', tip: '% de triples convertidos mientras el quinteto atacaba' },
-  { key: 'ast100',  label: 'AST/100', align: 'right', tip: 'Asistencias por cada 100 posesiones ofensivas del quinteto' },
+  { key: 'ast100',  label: 'AST%',    align: 'right', tip: '% de canastas de campo convertidas que fueron asistidas por el quinteto. Fórmula: AST / FGM × 100' },
   { key: 'tovpct',  label: 'TOV%',    align: 'right', tip: '% de posesiones terminadas en pérdida. Fórmula: TO / (FGA + 0,44×FTA + TO) × 100 (menor = mejor)' },
   { key: 'orebpct', label: 'ORB%',    align: 'right', tip: '% de rebotes ofensivos disponibles capturados por el quinteto' },
   { key: 'drebpct', label: 'DReb%',   align: 'right', tip: '% de rebotes defensivos disponibles capturados por el quinteto' },
@@ -3688,7 +3720,7 @@ function renderQuintetos() {
     const net     = offrtg - defrtg;
     const fgpct   = v.fga  > 0 ? v.fgm  / v.fga  * 100 : 0;
     const fg3pct  = v.fg3a > 0 ? v.fg3m / v.fg3a * 100 : 0;
-    const ast100  = offPoss > 0 ? v.ast / offPoss * 100 : 0;
+    const ast100  = v.fgm  > 0 ? v.ast / v.fgm  * 100 : 0;
     const tovpct  = (v.fga + 0.44*v.fta + v.to) > 0 ? v.to / (v.fga + 0.44*v.fta + v.to) * 100 : 0;
     const orebpct = (v.oreb + v.ddreb) > 0 ? v.oreb / (v.oreb + v.ddreb) * 100 : 0;
     const drebpct = (v.dreb + v.doreb) > 0 ? v.dreb / (v.dreb + v.doreb) * 100 : 0;
@@ -3791,7 +3823,7 @@ function renderQuintetos() {
       <td style="color:${heatRedGreen(r.net,    minNet,   maxNet)};font-weight:700">${sign(r.net)}${fRtg(r.net)}</td>
       <td style="color:${heatPurple(r.fgpct,    minFgpct, maxFgpct)};font-weight:600">${fPct(r.fgpct)}</td>
       <td style="color:${heatPurple(r.fg3pct,   minFg3pct,maxFg3pct)};font-weight:600">${fPct(r.fg3pct)}</td>
-      <td style="color:${heatPurple(r.ast100,   minAst100,maxAst100)};font-weight:600">${fRtg(r.ast100)}</td>
+      <td style="color:${heatPurple(r.ast100,   minAst100,maxAst100)};font-weight:600">${fPct(r.ast100)}</td>
       <td style="color:${heatTeal(r.tovpct,     minTov,   maxTov)};font-weight:600">${fPct(r.tovpct)}</td>
       <td style="color:${heatPurple(r.orebpct,  minOreb,  maxOreb)};font-weight:600">${fPct(r.orebpct)}</td>
       <td style="color:${heatTeal(r.drebpct,    minDreb,  maxDreb)};font-weight:600">${fPct(r.drebpct)}</td>

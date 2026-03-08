@@ -188,6 +188,14 @@ computeLineups()   ← llamado una sola vez después de loadPbp()
   → LINEUP_DATA = Map<teamName → Map<lineupKey → stats>>
 ```
 
+**Manejo de límites de período en `computeLineups`:**
+- El scraper emite `CAMBIO-JUGADOR-ENTRA` para los 5 titulares al inicio de **cada período**. Algunos partidos (≈8 en el dataset) omiten estos CAMBIO-ENTRA en períodos intermedios.
+- **Modo "boundary"** (`localBndEntras` / `visitBndEntras`): al `FINAL-PERIODO`, se cierran segmentos, se mantienen courts, y se activan buffers vacíos. Los `CAMBIO-JUGADOR-ENTRA` que llegan antes del `INICIO-PERIODO` se bufferean (no se aplican al court todavía).
+- Al `INICIO-PERIODO`: si buffer ≥5 jugadores → se reemplaza el court con ese lineup (caso normal). Si buffer <5 → se **conserva el court anterior** (partidos sin CAMBIO de inicio de período continúan tracking sin interrupción).
+- Al `FINAL-PARTIDO`: se limpian courts, segs y poss completamente.
+- Este doble mecanismo evita: (1) court creciendo a >5 por CAMBIO-ENTRA periódicos superponiéndose al court anterior, y (2) pérdida de tracking en partidos sin esos CAMBIO.
+```
+
 ## Convenciones de código
 - JS: `let DATA = null` para datos cargados una vez (lazy). `SHOTS_MAP` es `Map<gameId, rows[]>`
 - Paleta: local = `#a78bfa` (purple-l), visitante = `#5eead4` (teal-l)
@@ -217,7 +225,7 @@ computeLineups()   ← llamado una sola vez después de loadPbp()
   | `Net` | `OffRtg − DefRtg` | rojo→gris→verde |
   | `TC%` | `FGM / FGA × 100` | gris→violeta |
   | `3P%` | `3PM / 3PA × 100` | gris→violeta |
-  | `AST/100` | `AST / offPoss × 100` | gris→violeta |
+  | `AST%` | `AST / FGM × 100` | gris→violeta |
   | `TOV%` | `TO / (FGA + 0.44×FTA + TO) × 100` | gris→teal invertido (menor = mejor) |
   | `ORB%` | `OReb / (OReb + DReb_rival) × 100` | gris→violeta |
   | `DReb%` | `DReb / (DReb + OReb_rival) × 100` | gris→teal |
