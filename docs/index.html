@@ -778,6 +778,34 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .qnt-loading{color:var(--muted);font-size:.82rem;text-align:center;padding:32px 20px;}
 .qnt-count{font-size:.72rem;color:var(--muted);margin-left:auto;}
 
+/* ── CONEXIONES ──────────────────────────────────── */
+.cnx-outer{padding:24px 40px 48px;max-width:1100px;margin:0 auto;}
+.cnx-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap;}
+.cnx-title{font-size:1rem;font-weight:800;color:var(--text-bright);letter-spacing:-.2px;}
+.cnx-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.cnx-empty{color:var(--muted);font-size:.88rem;text-align:center;padding:60px 20px;font-style:italic;}
+.cnx-loading{color:var(--muted);font-size:.82rem;text-align:center;padding:32px 20px;}
+.cnx-canvas-wrap{position:relative;display:flex;justify-content:center;}
+.cnx-canvas-wrap svg{border-radius:16px;background:var(--surface);display:block;}
+.cnx-tooltip{
+  position:absolute;pointer-events:none;
+  background:var(--surface2);border:1px solid var(--border);border-radius:10px;
+  padding:10px 14px;font-size:.78rem;color:var(--text);
+  box-shadow:0 4px 20px rgba(0,0,0,.5);min-width:170px;z-index:10;
+}
+.cnx-tooltip-name{font-weight:700;color:var(--text-bright);margin-bottom:6px;font-size:.82rem;}
+.cnx-tooltip-row{display:flex;justify-content:space-between;gap:12px;margin-bottom:2px;}
+.cnx-tooltip-label{color:var(--muted);}
+.cnx-tooltip-val{font-weight:600;color:var(--purple-l);}
+.cnx-legend{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px;padding:12px 16px;background:var(--surface);border-radius:10px;border:1px solid var(--border2);}
+.cnx-legend-item{display:flex;align-items:center;gap:8px;font-size:.72rem;color:var(--muted);}
+.cnx-legend-line{border-radius:4px;background:var(--purple-l);}
+.cnx-legend-line.thin{width:24px;height:2px;}
+.cnx-legend-line.thick{width:24px;height:6px;}
+.cnx-legend-dot{width:12px;height:12px;border-radius:50%;}
+.cnx-legend-dot.low{background:#8b5cf6;}
+.cnx-legend-dot.high{background:#2dd4bf;}
+
 /* ── RESPONSIVE ──────────────────────────────────── */
 @media (max-width:640px){
 
@@ -905,6 +933,11 @@ canvas{display:block;width:100%;cursor:crosshair;}
   .szc-zone-card-pct{font-size:.82rem;}
   .szc-player-header{flex-direction:column;gap:6px;}
   .szc-player-shots{flex-wrap:wrap;}
+
+  /* Conexiones */
+  .cnx-outer{padding:14px 10px 32px;}
+  .cnx-header{gap:8px;}
+  .cnx-legend{gap:12px;}
 }
 </style>
 </head>
@@ -984,6 +1017,10 @@ canvas{display:block;width:100%;cursor:crosshair;}
   <button class="sub-tab" onclick="switchSection('j-chart')">
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="5" cy="18" r="2"/><circle cx="12" cy="10" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="8" cy="14" r="2"/><circle cx="16" cy="16" r="2"/></svg>
     Comparar
+  </button>
+  <button class="sub-tab" onclick="switchSection('j-conexiones')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="12" r="3"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><path d="M12 12l5-4M12 12l5 4"/></svg>
+    Conexiones
   </button>
 </div>
 
@@ -1643,6 +1680,49 @@ canvas{display:block;width:100%;cursor:crosshair;}
   </div>
 </div>
 
+<!-- ============================= CONEXIONES ============================= -->
+<div class="section" id="sec-j-conexiones">
+  <div class="cnx-outer">
+    <div class="cnx-header">
+      <span class="cnx-title">Conexiones</span>
+      <div class="cnx-controls">
+        <select id="cnxTeam" onchange="onCnxTeamChange()">
+          <option value="">Seleccioná un equipo</option>
+        </select>
+        <select id="cnxPlayer" onchange="onCnxPlayerChange()" disabled>
+          <option value="">Seleccioná un jugador</option>
+        </select>
+      </div>
+    </div>
+    <div id="cnxEmpty" class="cnx-empty">Seleccioná un equipo y un jugador para ver sus conexiones con el resto del plantel</div>
+    <div id="cnxLoading" class="cnx-loading" style="display:none">Cargando datos de jugada a jugada...</div>
+    <div id="cnxContent" style="display:none">
+      <div class="cnx-legend">
+        <div class="cnx-legend-item">
+          <div class="cnx-legend-line thin"></div>
+          <span>Pocas asistencias juntos</span>
+        </div>
+        <div class="cnx-legend-item">
+          <div class="cnx-legend-line thick"></div>
+          <span>Muchas asistencias juntos</span>
+        </div>
+        <div class="cnx-legend-item">
+          <div class="cnx-legend-dot low"></div>
+          <span>Bajos puntos/40 min juntos</span>
+        </div>
+        <div class="cnx-legend-item">
+          <div class="cnx-legend-dot high"></div>
+          <span>Altos puntos/40 min juntos</span>
+        </div>
+      </div>
+      <div class="cnx-canvas-wrap">
+        <svg id="cnxSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div id="cnxTooltip" class="cnx-tooltip" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ============================= QUINTETOS ============================= -->
 <div class="section" id="sec-quintetos">
   <div class="qnt-outer">
@@ -1880,11 +1960,11 @@ const f1=v=>v==null||isNaN(v)?'—':v.toFixed(1);
 // ============================================================
 const _SUB_GROUP = {
   't-tabla':'equipos','quintetos':'equipos','t-chart':'equipos',
-  'j-tabla':'jugadores','j-tiro':'jugadores','j-chart':'jugadores'
+  'j-tabla':'jugadores','j-tiro':'jugadores','j-chart':'jugadores','j-conexiones':'jugadores'
 };
 const _SUB_IDX = {
   't-tabla':0,'quintetos':1,'t-chart':2,
-  'j-tabla':0,'j-tiro':1,'j-chart':2
+  'j-tabla':0,'j-tiro':1,'j-chart':2,'j-conexiones':3
 };
 
 function openGroup(group, defaultSection) {
@@ -1922,6 +2002,7 @@ function switchSection(id) {
     }
   }
   if(id==='j-chart') setTimeout(drawJChart,30);
+  if(id==='j-conexiones') { cnxInit(); setTimeout(drawConnections,30); }
   if(id==='t-chart') setTimeout(drawTChart,30);
   if(id==='j-tabla') setTimeout(()=>remeasureScroll('jTableWrap'), 50);
   if(id==='t-tabla') setTimeout(()=>remeasureScroll('tTableWrap'), 50);
@@ -2558,6 +2639,7 @@ tCv.addEventListener('click',e=>{
 window.addEventListener('resize',()=>{
   if(document.getElementById('sec-j-chart').classList.contains('active'))drawJChart();
   if(document.getElementById('sec-t-chart').classList.contains('active'))drawTChart();
+  if(document.getElementById('sec-j-conexiones').classList.contains('active') && _cnxData)drawConnections();
 });
 
 // ============================================================
@@ -4550,6 +4632,302 @@ function renderQuintetos() {
       <td style="color:${heatPurple(r.ftr,      minFtr,   maxFtr)};font-weight:600">${fRat(r.ftr)}</td>
     </tr>`;
   }).join('');
+}
+
+// ============================================================
+// CONEXIONES
+// ============================================================
+let _cnxData   = null;  // computed connection data for current selection
+let _cnxNodes  = [];    // node positions for hit-test
+
+function cnxInit() {
+  const sel = document.getElementById('cnxTeam');
+  if (sel.options.length > 1) return;
+  [...new Set(TEAMS.map(t => t.Equipo))].sort().forEach(eq => {
+    const o = document.createElement('option');
+    o.value = eq; o.textContent = eq;
+    sel.appendChild(o);
+  });
+}
+
+async function onCnxTeamChange() {
+  const team = document.getElementById('cnxTeam').value;
+  const pSel = document.getElementById('cnxPlayer');
+  pSel.innerHTML = '<option value="">Seleccioná un jugador</option>';
+  pSel.disabled = true;
+  document.getElementById('cnxContent').style.display = 'none';
+  document.getElementById('cnxEmpty').style.display = '';
+  _cnxData = null; _cnxNodes = [];
+  if (!team) return;
+
+  if (PBP_MAP === null) {
+    document.getElementById('cnxLoading').style.display = '';
+    document.getElementById('cnxEmpty').style.display = 'none';
+    await loadPbp();
+    document.getElementById('cnxLoading').style.display = 'none';
+    document.getElementById('cnxEmpty').style.display = '';
+  }
+  if (LINEUP_DATA === null) computeLineups();
+
+  PLAYERS
+    .filter(p => p.Equipo === team)
+    .sort((a, b) => b.PPG - a.PPG)
+    .forEach(p => {
+      const o = document.createElement('option');
+      o.value = p['Nombre completo'];
+      o.textContent = p['Nombre completo'];
+      pSel.appendChild(o);
+    });
+  pSel.disabled = false;
+}
+
+function onCnxPlayerChange() {
+  const team   = document.getElementById('cnxTeam').value;
+  const player = document.getElementById('cnxPlayer').value;
+  if (!team || !player) {
+    document.getElementById('cnxContent').style.display = 'none';
+    document.getElementById('cnxEmpty').style.display = '';
+    return;
+  }
+  document.getElementById('cnxEmpty').style.display = 'none';
+  document.getElementById('cnxContent').style.display = '';
+  _cnxData = computeConnections(team, player);
+  drawConnections();
+}
+
+function computeConnections(team, focusName) {
+  const teamObj    = TEAMS.find(t => t.Equipo === team);
+  const totalGames = teamObj ? teamObj.PJ : 1;
+
+  // Build dorsal→PBP name map for this team (PBP names differ from stats CSV names)
+  const dorsalToPbp = new Map(); // dorsal(int) → PBP Jugador name
+  if (PBP_MAP) {
+    PBP_MAP.forEach(events => {
+      if (!events.length) return;
+      const isLocal = events[0]['Equipo_local'] === team;
+      const isVisit = events[0]['Equipo_visitante'] === team;
+      if (!isLocal && !isVisit) return;
+      const side = isLocal ? 'LOCAL' : 'VISITANTE';
+      events.forEach(ev => {
+        if (ev['Equipo_lado'] !== side) return;
+        const d = ev['Dorsal'], j = ev['Jugador'];
+        if (d && d !== 'None' && j && j !== 'None' && j !== '') {
+          const dk = Math.round(parseFloat(d));
+          if (!dorsalToPbp.has(dk)) dorsalToPbp.set(dk, j);
+        }
+      });
+    });
+  }
+
+  // Map each stats-CSV player name to their PBP name via dorsal
+  const teamPlayers = PLAYERS.filter(p => p.Equipo === team);
+  const statsToPbp  = new Map(); // statsName → pbpName
+  teamPlayers.forEach(p => {
+    const dk     = Math.round(parseFloat(p.DORSAL) || 0);
+    const pbpName = dorsalToPbp.get(dk) || p['Nombre completo'];
+    statsToPbp.set(p['Nombre completo'], pbpName);
+  });
+  const focusPbp = statsToPbp.get(focusName) || focusName;
+
+  // 1. Count assist pairs using PBP names
+  const assistCounts = new Map(); // "pbpA→pbpB" → count
+  if (PBP_MAP) {
+    PBP_MAP.forEach(events => {
+      if (!events.length) return;
+      const localTeam = events[0]['Equipo_local'];
+      const visitTeam = events[0]['Equipo_visitante'];
+      const side = localTeam === team ? 'LOCAL' : (visitTeam === team ? 'VISITANTE' : null);
+      if (!side) return;
+      const sorted = [...events].sort((a, b) => parseInt(a['NumAccion']) - parseInt(b['NumAccion']));
+      sorted.forEach((ev, i) => {
+        if (ev['Tipo'] !== 'ASISTENCIA' || ev['Equipo_lado'] !== side) return;
+        const assister = ev['Jugador']; if (!assister) return;
+        for (let j = i - 1; j >= Math.max(0, i - 5); j--) {
+          const prev = sorted[j];
+          if ((prev['Tipo'] === 'CANASTA-2P' || prev['Tipo'] === 'CANASTA-3P') && prev['Equipo_lado'] === side) {
+            const scorer = prev['Jugador']; if (!scorer) break;
+            const key = assister + '\u2192' + scorer;
+            assistCounts.set(key, (assistCounts.get(key) || 0) + 1);
+            break;
+          }
+        }
+      });
+    });
+  }
+
+  // 2. Points/40 min together from LINEUP_DATA (uses PBP names in data.players)
+  const teamLineupMap = LINEUP_DATA ? LINEUP_DATA.get(team) : null;
+  const pairStats = new Map(); // "pbpA~pbpB" (sorted) → {pf, secs, games}
+  if (teamLineupMap) {
+    teamLineupMap.forEach(data => {
+      if (!data.players.includes(focusPbp)) return;
+      data.players.forEach(p => {
+        if (p === focusPbp) return;
+        const pairKey = [focusPbp, p].sort().join('~');
+        if (!pairStats.has(pairKey)) pairStats.set(pairKey, { pf: 0, secs: 0, games: new Set() });
+        const ps = pairStats.get(pairKey);
+        ps.pf += data.pf; ps.secs += data.secs;
+        data.games.forEach(g => ps.games.add(g));
+      });
+    });
+  }
+
+  // 3. Build connection objects (display with stats names, lookup with PBP names)
+  const connections = teamPlayers
+    .filter(p => p['Nombre completo'] !== focusName)
+    .map(p => {
+      const name    = p['Nombre completo'];
+      const pbpName = statsToPbp.get(name) || name;
+      const astGiven    = assistCounts.get(focusPbp + '\u2192' + pbpName) || 0;
+      const astReceived = assistCounts.get(pbpName + '\u2192' + focusPbp) || 0;
+      const totalAst    = astGiven + astReceived;
+      const apg         = totalAst / totalGames;
+      const pairKey     = [focusPbp, pbpName].sort().join('~');
+      const ps          = pairStats.get(pairKey);
+      const pts40       = ps && ps.secs > 0 ? (ps.pf / (ps.secs / 60)) * 40 : 0;
+      const minTog      = ps && ps.games.size > 0 ? (ps.secs / 60) / ps.games.size : 0;
+      const gamesTog    = ps ? ps.games.size : 0;
+      return { name, apg, astGiven, astReceived, totalAst, pts40, minTog, gamesTog };
+    })
+    .filter(c => c.gamesTog > 0 || c.totalAst > 0);
+
+  connections.sort((a, b) => (b.apg + b.pts40 / 10) - (a.apg + a.pts40 / 10));
+  return { focusName, team, totalGames, connections: connections.slice(0, 14) };
+}
+
+function _cnxLerpColor(t) {
+  // t=0 → purple #8b5cf6, t=1 → teal #2dd4bf
+  const r = Math.round(139 + t * (45  - 139));
+  const g = Math.round(92  + t * (212 - 92));
+  const b = Math.round(246 + t * (191 - 246));
+  return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
+
+function drawConnections() {
+  if (!_cnxData) return;
+  const svg = document.getElementById('cnxSvg');
+  if (!svg) return;
+  const wrap = svg.parentElement;
+  const W = Math.min(wrap.clientWidth - 4, 780);
+  const H = Math.max(Math.round(W * 0.78), 400);
+  svg.setAttribute('width', W);
+  svg.setAttribute('height', H);
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+
+  const { focusName, connections } = _cnxData;
+  const cx = W / 2, cy = H / 2;
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  if (!connections.length) {
+    svg.innerHTML = '<text x="' + cx + '" y="' + cy + '" text-anchor="middle" dominant-baseline="middle" fill="rgba(100,116,139,.7)" font-size="13" font-family="Inter,sans-serif">Sin datos suficientes para este jugador</text>';
+    _cnxNodes = [];
+    return;
+  }
+
+  const radius = Math.min(W, H) * 0.36;
+  const focusR = 34, nodeR = 22;
+  const maxApg = Math.max(...connections.map(c => c.apg), 0.01);
+  const allPts = connections.map(c => c.pts40).filter(v => v > 0);
+  const minPts = allPts.length ? Math.min(...allPts) : 0;
+  const maxPts = allPts.length ? Math.max(...allPts) : 1;
+  const tOf = c => maxPts > minPts ? (c.pts40 - minPts) / (maxPts - minPts) : 0.5;
+
+  const n = connections.length;
+  const nodes = connections.map((c, i) => {
+    const angle = (2 * Math.PI * i / n) - Math.PI / 2;
+    return { x: cx + radius * Math.cos(angle), y: cy + radius * Math.sin(angle), r: nodeR, data: c };
+  });
+  _cnxNodes = [{ x: cx, y: cy, r: focusR, data: { name: focusName, isFocus: true } }, ...nodes];
+
+  const f = v => v.toFixed(1);
+
+  let out = `<defs>
+    <radialGradient id="cnxFG" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#a78bfa" stop-opacity=".95"/>
+      <stop offset="100%" stop-color="#6d28d9" stop-opacity=".85"/>
+    </radialGradient>
+    <filter id="cnxShadow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="#000" flood-opacity=".45"/>
+    </filter>
+    <filter id="cnxGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>`;
+
+  // Edges
+  out += '<g>';
+  nodes.forEach((nd, idx) => {
+    const c = nd.data;
+    if (c.apg < 0.04 && c.pts40 < 0.5) return;
+    const lw  = (0.8 + (c.apg / maxApg) * 6).toFixed(1);
+    const t   = tOf(c);
+    const col = _cnxLerpColor(t);
+    const op  = (0.45 + t * 0.45).toFixed(2);
+    out += `<line x1="${f(cx)}" y1="${f(cy)}" x2="${f(nd.x)}" y2="${f(nd.y)}" stroke="${col}" stroke-width="${lw}" stroke-linecap="round" opacity="${op}"/>`;
+  });
+  out += '</g>';
+
+  // Teammate nodes
+  out += '<g>';
+  nodes.forEach((nd, idx) => {
+    const c   = nd.data;
+    const t   = tOf(c);
+    const col = _cnxLerpColor(t);
+    const apellido = esc(c.name.split(',')[0].trim());
+    const lbl = apellido.length > 9 ? apellido.slice(0, 8) + '.' : apellido;
+    const astLbl = c.apg >= 0.08 ? c.apg.toFixed(2) + ' ast' : '';
+    out += `<g style="cursor:pointer" onmouseover="cnxShowTip(event,${idx+1})" onmouseout="cnxHideTip()">
+      <circle cx="${f(nd.x)}" cy="${f(nd.y)}" r="${nodeR}" fill="#1f1f3a" stroke="${col}" stroke-width="2.5" filter="url(#cnxShadow)"/>
+      <text x="${f(nd.x)}" y="${f(nd.y)}" text-anchor="middle" dominant-baseline="middle" fill="#e2e8f0" font-size="9" font-weight="600" font-family="Inter,sans-serif" pointer-events="none">${lbl}</text>
+      ${astLbl ? `<text x="${f(nd.x)}" y="${f(nd.y + nodeR + 12)}" text-anchor="middle" fill="rgba(167,139,250,.85)" font-size="8" font-family="Inter,sans-serif" pointer-events="none">${astLbl}</text>` : ''}
+    </g>`;
+  });
+  out += '</g>';
+
+  // Focus node
+  const fApellido = esc(focusName.split(',')[0].trim());
+  const fLbl = fApellido.length > 11 ? fApellido.slice(0, 10) + '.' : fApellido;
+  out += `<g style="cursor:default" onmouseover="cnxShowTip(event,0)" onmouseout="cnxHideTip()">
+    <circle cx="${f(cx)}" cy="${f(cy)}" r="${focusR}" fill="url(#cnxFG)" stroke="rgba(167,139,250,.7)" stroke-width="2" filter="url(#cnxGlow)"/>
+    <text x="${f(cx)}" y="${f(cy)}" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="Inter,sans-serif" pointer-events="none">${fLbl}</text>
+  </g>`;
+
+  svg.innerHTML = out;
+}
+
+function cnxShowTip(event, idx) {
+  if (idx >= _cnxNodes.length) return;
+  const c = _cnxNodes[idx].data;
+  const svg = document.getElementById('cnxSvg');
+  const tip = document.getElementById('cnxTooltip');
+  let html = '<div class="cnx-tooltip-name">' + c.name + '</div>';
+  if (c.isFocus) {
+    html += '<div class="cnx-tooltip-row"><span class="cnx-tooltip-label">Jugador seleccionado</span></div>';
+  } else {
+    html += '<div class="cnx-tooltip-row"><span class="cnx-tooltip-label">AST dadas</span><span class="cnx-tooltip-val">' + c.astGiven + '</span></div>';
+    html += '<div class="cnx-tooltip-row"><span class="cnx-tooltip-label">AST recibidas</span><span class="cnx-tooltip-val">' + c.astReceived + '</span></div>';
+    html += '<div class="cnx-tooltip-row"><span class="cnx-tooltip-label">AST/partido</span><span class="cnx-tooltip-val">' + c.apg.toFixed(2) + '</span></div>';
+    html += '<div class="cnx-tooltip-row"><span class="cnx-tooltip-label">PTS/40 min juntos</span><span class="cnx-tooltip-val">' + c.pts40.toFixed(1) + '</span></div>';
+    html += '<div class="cnx-tooltip-row"><span class="cnx-tooltip-label">Min/partido juntos</span><span class="cnx-tooltip-val">' + c.minTog.toFixed(1) + '</span></div>';
+    html += '<div class="cnx-tooltip-row"><span class="cnx-tooltip-label">Partidos juntos</span><span class="cnx-tooltip-val">' + c.gamesTog + '</span></div>';
+  }
+  tip.innerHTML = html;
+  tip.style.display = 'block';
+  const rect = svg.getBoundingClientRect();
+  const mx = event.clientX - rect.left, my = event.clientY - rect.top;
+  const H = parseFloat(svg.getAttribute('height')) || 400;
+  let tx = mx + 16, ty = my - 10;
+  if (tx + 210 > svg.parentElement.clientWidth) tx = mx - 226;
+  if (ty + 165 > H) ty = my - 175;
+  if (ty < 0) ty = 4;
+  tip.style.left = tx + 'px';
+  tip.style.top  = ty + 'px';
+}
+
+function cnxHideTip() {
+  const t = document.getElementById('cnxTooltip');
+  if (t) t.style.display = 'none';
 }
 
 function updateTFilterVisibility(){

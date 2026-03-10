@@ -54,6 +54,7 @@ SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades 
 | Jugadores | Tabla | `j-tabla` |
 | Jugadores | Tiros | `j-tiro` |
 | Jugadores | Comparar | `j-chart` |
+| Jugadores | Conexiones | `j-conexiones` |
 
 **Secciones (IDs en el DOM):**
 - `posiciones` — Tabla de posiciones por conferencia
@@ -65,6 +66,7 @@ SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades 
 - `j-tabla` — Tabla filtrable de jugadores
 - `j-tiro` — Mapa de zonas de tiro por jugador
 - `j-chart` — Scatter plot comparativo de jugadores
+- `j-conexiones` — Grafo de conexiones (asistencias + puntos juntos) entre un jugador y sus compañeros
 
 **Sistema de navegación — dos barras:**
 - **`.main-tabs`**: barra principal con 5 botones (Home, Destacados, Fixture, Equipos, Jugadores). Los 3 primeros llaman `switchSection(id)` directamente. Equipos (`#grpEquipos`) y Jugadores (`#grpJugadores`) llaman `openGroup(group, defaultSection)`.
@@ -75,7 +77,7 @@ SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades 
 - `openGroup(group, defaultSection)` — activa el grupo (`'equipos'` | `'jugadores'`), muestra su sub-barra, y llama `switchSection(defaultSection)`.
 - `switchSection(id)` — muestra la sección `sec-{id}`, actualiza el estado activo de `.main-tab` y `.sub-tab`. Si `id` pertenece a un grupo (`_SUB_GROUP`), muestra la sub-barra correspondiente y marca el ítem correcto.
 - `_SUB_GROUP` — mapa `{sectionId → 'equipos'|'jugadores'}` para saber a qué grupo pertenece cada sección.
-- `_SUB_IDX` — mapa `{sectionId → 0|1|2}` para saber qué índice de `.sub-tab` marcar como activo.
+- `_SUB_IDX` — mapa `{sectionId → 0|1|2|3}` para saber qué índice de `.sub-tab` marcar como activo.
 - `.main-tab.grp-active` — clase CSS adicional que se aplica al botón de grupo cuando alguna de sus sub-secciones está activa (color violeta, border-bottom violeta).
 
 **Filtro de período (Jugadores y Equipos):**
@@ -317,6 +319,25 @@ Columnas: `IdPartido, Fecha, Equipo_local, Equipo_visitante, NumAccion, Tipo, Eq
 - **Eventos de bajo riesgo duplicados**: `FINAL-PERIODO`, `FINAL-PARTIDO` — el código JS los ignora en la segunda pasada por el guard `if (!seg...) return`.
 - **Eventos de alto riesgo duplicados**: `TIRO*-FALLADO`, `REBOTE-*`, `CANASTA-*` — inflan stats en `computeLineups()` (fga, fg3a, dreb, etc.), afectando OffRtg/DefRtg/TC% de los quintetos.
 - **Fix en scraper**: `pbp_scraper.py` aplica `drop_duplicates()` antes de guardar el CSV (con warning si encuentra algo). Si el CSV ya tiene duplicados, correr: `python3 -c "import pandas as pd; df=pd.read_csv('docs/liga_argentina_pbp.csv'); df.drop_duplicates(inplace=True); df.to_csv('docs/liga_argentina_pbp.csv', index=False)"` desde `liga_argentina/`.
+
+**Sección "Conexiones" (`j-conexiones`):**
+- Selector de equipo → selector de jugador (poblado con jugadores del equipo, ordenados por PPG desc) → grafo SVG
+- Carga lazy del PBP al seleccionar equipo (igual que Quintetos). `computeLineups()` se ejecuta si `LINEUP_DATA === null`.
+- **Visualización**: SVG generado dinámicamente vía `innerHTML` en `drawConnections()`. Nodo central = jugador seleccionado (violeta, radio 34). Nodos periféricos = compañeros con datos (radio 22). Bordes = líneas entre el nodo central y cada compañero.
+- **Grosor del borde** → proporcional a `APG` (asistencias por partido entre los dos, ambas direcciones): `0.8 + (apg / maxApg) * 6` px.
+- **Color del borde y borde del nodo** → degradé violeta→teal según `PTS/40 min juntos`: `_cnxLerpColor(t)`, `t=0 → #8b5cf6`, `t=1 → #2dd4bf`.
+- **Tooltip HTML** (`#cnxTooltip`, posición absoluta sobre el SVG): se dispara con `onmouseover`/`onmouseout` en los `<g>` de cada nodo. Muestra AST dadas, AST recibidas, AST/partido, PTS/40 min juntos, min/partido juntos, partidos juntos.
+- **SVG filters**: `cnxShadow` (`feDropShadow`) en nodos periféricos; `cnxGlow` (`feGaussianBlur` + merge) en el nodo central.
+- **Matching de nombres stats↔PBP**: `Nombre completo` del stats CSV es abreviado (`"MERLO, A."`), mientras que `Jugador` del PBP CSV es el nombre completo (`"MERLO, ALEJANDRO"`). El bridge es el **dorsal**: `dorsalToPbp` mapea `dorsal(int) → PBP name` escaneando eventos del equipo en `PBP_MAP`. Luego `statsToPbp` mapea `statsName → pbpName` via `DORSAL` del player object.
+- **Cálculo de asistencias**: itera `PBP_MAP` buscando `ASISTENCIA` del equipo, retrocede hasta 5 eventos para encontrar el `CANASTA-2P/3P` del mismo lado → par `(assister, scorer)` usando nombres PBP.
+- **Cálculo de PTS/40 min juntos**: desde `LINEUP_DATA.get(team)`, suma `pf` y `secs` de todos los quintetos donde aparecen ambos jugadores (por nombre PBP). Normaliza: `(pf / secs * 60) * 40`.
+- **Filtro de compañeros**: se muestran solo quienes tienen `gamesTog > 0 || totalAst > 0`. Máximo 14 compañeros (los de mayor conexión).
+- `cnxInit()` — puebla el select de equipos una sola vez (guard `options.length > 1`).
+- `onCnxTeamChange()` — async, carga PBP si es necesario, puebla select de jugadores.
+- `onCnxPlayerChange()` — llama `computeConnections()` + `drawConnections()`.
+- `computeConnections(team, focusName)` — retorna `{ focusName, team, totalGames, connections[] }`.
+- `drawConnections()` — escribe `svg.innerHTML`; re-dibuja en resize.
+- `cnxShowTip(event, idx)` / `cnxHideTip()` — tooltip; `idx` referencia `_cnxNodes[]`.
 
 ## Comandos útiles
 ```bash
