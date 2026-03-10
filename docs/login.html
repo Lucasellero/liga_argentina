@@ -346,6 +346,9 @@ input::placeholder { color: var(--muted2); }
 </main>
 
 <script>
+// URL base de la API — cambiá esto si el backend corre en otro host/puerto
+const API_BASE = 'http://localhost:5000';
+
 function togglePass(inputId, btn) {
   const input = document.getElementById(inputId);
   const isHidden = input.type === 'password';
@@ -355,14 +358,28 @@ function togglePass(inputId, btn) {
     : `<svg viewBox="0 0 20 20" fill="currentColor" width="17" height="17"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>`;
 }
 
-document.getElementById('loginForm').addEventListener('submit', function(e) {
+// Mostrar mensaje de error general debajo del botón
+function setFormError(msg) {
+  let el = document.getElementById('formErr');
+  if (!el) {
+    el = document.createElement('p');
+    el.id = 'formErr';
+    el.style.cssText = 'color:var(--red);font-size:.82rem;text-align:center;margin-top:10px';
+    document.querySelector('.btn-primary').insertAdjacentElement('afterend', el);
+  }
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  const email   = document.getElementById('email').value.trim();
+
+  const email    = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value;
   let valid = true;
 
-  // Validate email: only @gmail.com, @hotmail.com, @icloud.com
-  const emailErr = document.getElementById('emailErr');
+  // Validar email
+  const emailErr   = document.getElementById('emailErr');
   const validEmail = /^[^\s@]+@(gmail\.com|hotmail\.com|hotmail\.es|icloud\.com)$/i.test(email);
   if (!email || !validEmail) {
     emailErr.textContent = validEmail === false && email
@@ -376,7 +393,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     document.getElementById('email').style.borderColor = '';
   }
 
-  // Validate password
+  // Validar contraseña
   const passErr = document.getElementById('passErr');
   if (!password) {
     passErr.style.display = 'block';
@@ -387,9 +404,39 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     document.getElementById('password').style.borderColor = '';
   }
 
-  if (valid) {
-    // TODO: connect to backend
-    console.log('Login:', { email, password });
+  if (!valid) return;
+
+  // Llamada al backend
+  const btn = document.querySelector('.btn-primary');
+  btn.disabled    = true;
+  btn.textContent = 'Ingresando…';
+  setFormError('');
+
+  try {
+    const res  = await fetch(`${API_BASE}/api/login`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      setFormError(data.error || 'Error al iniciar sesión.');
+      return;
+    }
+
+    // Guardar token y datos del usuario
+    localStorage.setItem('auth_token', data.token);
+    localStorage.setItem('auth_user',  JSON.stringify(data.user));
+
+    // Redirigir al dashboard
+    window.location.href = 'index.html';
+
+  } catch (err) {
+    setFormError('No se pudo conectar al servidor. ¿Está corriendo el backend?');
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'Iniciar sesión';
   }
 });
 </script>

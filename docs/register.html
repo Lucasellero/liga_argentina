@@ -531,6 +531,22 @@ select option { background: var(--surface2); color: var(--text); }
 </main>
 
 <script>
+// URL base de la API — cambiá esto si el backend corre en otro host/puerto
+const API_BASE = 'http://localhost:5000';
+
+// Mostrar mensaje de error general debajo del botón
+function setFormError(msg) {
+  let el = document.getElementById('formErr');
+  if (!el) {
+    el = document.createElement('p');
+    el.id = 'formErr';
+    el.style.cssText = 'color:var(--red);font-size:.82rem;text-align:center;margin-top:10px';
+    document.querySelector('.btn-primary').insertAdjacentElement('afterend', el);
+  }
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
 // ── Toggle show/hide password ──
 function togglePass(inputId, btn) {
   const input = document.getElementById(inputId);
@@ -581,7 +597,7 @@ function setError(inputId, errId, show) {
 }
 
 // ── Form submit ──
-document.getElementById('registerForm').addEventListener('submit', function(e) {
+document.getElementById('registerForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
   const nombre   = document.getElementById('nombre').value.trim();
@@ -619,9 +635,39 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
     setError('confirmPassword', 'confirmErr', true); valid = false;
   } else setError('confirmPassword', 'confirmErr', false);
 
-  if (valid) {
-    // TODO: connect to backend
-    console.log('Register:', { nombre, apellido, telefono, club, email });
+  if (!valid) return;
+
+  // Llamada al backend
+  const btn = document.querySelector('.btn-primary');
+  btn.disabled    = true;
+  btn.textContent = 'Creando cuenta…';
+  setFormError('');
+
+  try {
+    const res  = await fetch(`${API_BASE}/api/register`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ nombre, apellido, telefono, club, email, password }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      setFormError(data.error || 'Error al crear la cuenta.');
+      return;
+    }
+
+    // Guardar token y datos del usuario
+    localStorage.setItem('auth_token', data.token);
+    localStorage.setItem('auth_user',  JSON.stringify(data.user));
+
+    // Redirigir al dashboard
+    window.location.href = 'index.html';
+
+  } catch (err) {
+    setFormError('No se pudo conectar al servidor. ¿Está corriendo el backend?');
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'Crear cuenta';
   }
 });
 </script>
