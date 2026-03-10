@@ -41,14 +41,42 @@ Columnas: `IdPartido, Fecha, Equipo_local, Equipo_visitante, Local, Equipo, Dors
 ## index.html — Arquitectura
 SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades puntuales, el sistema de diseño es CSS custom con variables `--bg`, `--purple`, `--teal`, etc.
 
-**Secciones (tabs):**
+**Navegación (estructura actual):**
+
+| Nav principal | Sub-sección | Section ID |
+|---|---|---|
+| Home | — | `posiciones` |
+| Destacados | — | `lideres` |
+| Fixture | — | `partidos` |
+| Equipos | Tabla | `t-tabla` |
+| Equipos | Quintetos | `quintetos` |
+| Equipos | Comparar | `t-chart` |
+| Jugadores | Tabla | `j-tabla` |
+| Jugadores | Tiros | `j-tiro` |
+| Jugadores | Comparar | `j-chart` |
+
+**Secciones (IDs en el DOM):**
 - `posiciones` — Tabla de posiciones por conferencia
-- `lideres` — Líderes individuales por categoría
-- `j-tabla` — Tabla filtrable de jugadores
-- `j-chart` — Scatter plot comparativo de jugadores
-- `t-tabla` — Tabla de equipos
-- `t-chart` — Scatter plot comparativo de equipos
+- `lideres` — Líderes individuales por categoría (cards por categoría)
+- `partidos` — Fixture: lista de partidos con filtros de fecha/equipo
+- `t-tabla` — Tabla filtrable de equipos
 - `quintetos` — Mejores quintetos por equipo (requiere PBP)
+- `t-chart` — Scatter plot comparativo de equipos
+- `j-tabla` — Tabla filtrable de jugadores
+- `j-tiro` — Mapa de zonas de tiro por jugador
+- `j-chart` — Scatter plot comparativo de jugadores
+
+**Sistema de navegación — dos barras:**
+- **`.main-tabs`**: barra principal con 5 botones (Home, Destacados, Fixture, Equipos, Jugadores). Los 3 primeros llaman `switchSection(id)` directamente. Equipos (`#grpEquipos`) y Jugadores (`#grpJugadores`) llaman `openGroup(group, defaultSection)`.
+- **`.sub-tabs`**: barra secundaria que aparece debajo de `.main-tabs` cuando Equipos o Jugadores está activo. `#subEquipos` y `#subJugadores` se muestran/ocultan con `style.display`. Cada ítem de sub-tab llama `switchSection(id)`.
+- **Por qué sub-barra y no dropdown flotante**: los `<select>` nativos del browser siempre se renderizan por encima de cualquier `z-index`, lo que causaba que los filtros de equipos aparecieran sobre el dropdown. La sub-barra empuja el contenido hacia abajo y no genera conflictos.
+
+**Funciones JS de navegación:**
+- `openGroup(group, defaultSection)` — activa el grupo (`'equipos'` | `'jugadores'`), muestra su sub-barra, y llama `switchSection(defaultSection)`.
+- `switchSection(id)` — muestra la sección `sec-{id}`, actualiza el estado activo de `.main-tab` y `.sub-tab`. Si `id` pertenece a un grupo (`_SUB_GROUP`), muestra la sub-barra correspondiente y marca el ítem correcto.
+- `_SUB_GROUP` — mapa `{sectionId → 'equipos'|'jugadores'}` para saber a qué grupo pertenece cada sección.
+- `_SUB_IDX` — mapa `{sectionId → 0|1|2}` para saber qué índice de `.sub-tab` marcar como activo.
+- `.main-tab.grp-active` — clase CSS adicional que se aplica al botón de grupo cuando alguna de sus sub-secciones está activa (color violeta, border-bottom violeta).
 
 **Filtro de período (Jugadores y Equipos):**
 Ambas tablas (`j-tabla`, `t-tabla`) tienen un toggle de período: **Temporada / Últ. 5 / Últ. 10**.
@@ -61,12 +89,18 @@ Ambas tablas (`j-tabla`, `t-tabla`) tienen un toggle de período: **Temporada / 
 - Layout del toggle wrap: `[Básica/Avanzada] [Temporada/Últ.5/Últ.10] [Comparar jugadores / Comparar equipos]`. En mobile (`flex-direction:column`) se apilan verticalmente.
 
 **Modal de partido** (`#teamGamesBackdrop`):
-- Se abre al hacer clic en una fila de equipo
+- Se abre al hacer clic en una fila de equipo (desde `t-tabla`) o en una card de partido (desde `partidos`)
 - Tab "Estadísticas": stats head-to-head del partido
 - Tab "Mapa de tiro": canvas con tiros, filtros equipo/tipo/resultado
+- Tab "Box Score": tabla por equipo con todos los jugadores del partido. Columnas: #dorsal, Min, PTS, Dobles (M/I), Triples (M/I), TL (M/I), REB, RD, RO, AST, REC, PER, TAP, VAL. Titulares marcados con ●. DNP atenuados.
+- Botón "‹ Volver": si fue abierto desde `partidos` (`_partidoMode=true`) cierra el modal; si fue desde `t-tabla` vuelve a la lista de juegos del equipo (`closeGameDetail`)
+- `switchGameTab(tab)` maneja los 3 tabs (`'stats'|'map'|'box'`); al activar `'box'` llama `renderBoxScore(_smState.gameId, _smState.local, _smState.visit)`
 
 **Sección "Tiro" (`j-tiro`):**
 - Media cancha coloreada por zonas de eficiencia vs promedio de liga
+- **Filtro de período**: toggle **Temporada / Últ. 5 / Últ. 10** en el `.szc-header` (junto al buscador). Estado: `szcPeriod` (`'all'|'last5'|'last10'`), jugador activo: `szcCurrentIdx`.
+  - `setSzcPeriod(p)`: actualiza estado, botón activo, y re-renderiza si hay jugador seleccionado.
+  - `szcFilterByPeriod(shots, period)`: agrupa tiros por `IdPartido`, ordena por `Fecha`, retorna solo los últimos N partidos.
 - **7 zonas** (1 pintura + 3 mid-range 2pt + 3 triples):
   - `PAINT` — dentro del rectángulo de la pintura + área restringida (RA fusionada)
   - `MID_TOP` — mid-range techo (dy < -1.5m desde el aro, fuera de pintura, dentro del arco)
@@ -88,7 +122,10 @@ Ambas tablas (`j-tabla`, `t-tabla`) tienen un toggle de período: **Temporada / 
   - Implementado en `szcZoneColor()` con lerp lineal entre anclas adyacentes
 - **Sin leyenda de gradiente** (fue eliminada). El color de cada zona habla por sí solo.
 - **Panel lateral de zonas** (`.szc-right-panel` → `#szcZoneCards`): cards por cada zona con nombre, `makes/att`, `%` grande y `Liga X.X%` coloreado (naranja = por encima, azul = por debajo, neutro = similar). Renderizado por `szcRenderZoneCards()` al final de `renderZoneChart()`.
-- **Labels en el canvas** (`szcDrawLabels`): dos líneas — `%` (grande, blanco) y `makes/att` (pequeño, gris). Borde del box tintado con el color de zona. Sin promedio de liga en el canvas.
+- **SVG overlay** (`#szcSvg`): posicionado absolutamente sobre el canvas (`pointer-events:none`). Generado por `szcUpdateSvg(pStats, leagueStats)`. Contiene:
+  - Líneas de cancha (rect, arcos, aro, líneas de 3pt y corner) — `viewBox="0 0 14 15"` en metros
+  - Labels por zona: `rect` base oscuro + `linearGradient` tintado con color de zona + borde de zona color + `feDropShadow`. Texto `%` en blanco (grande) y `makes/att` en gris (pequeño).
+  - Los `linearGradient` e `id="lblShadow"` se definen en `<defs>` dentro del propio `innerHTML`.
 - **Header del jugador**: nombre en mayúsculas + equipo en `--purple-l` + número de camiseta. Badges de resumen `2PT X/Y Z%` y `3PT X/Y Z%` calculados en `selectSzcPlayer()` desde los tiros crudos.
 - Normalización: LOCAL ataca aro izquierdo (Left_pct < 50), VISIT se espeja (100 - Left_pct)
 - Separadores de zona punteados (`rgba(255,255,255,.45)`):
@@ -112,7 +149,9 @@ Ambas tablas (`j-tabla`, `t-tabla`) tienen un toggle de período: **Temporada / 
 El frontend debe funcionar y verse bien tanto en celular como en computadora. Cualquier cambio de UI debe considerar ambos contextos.
 
 Media query `@media (max-width:640px)` cubre:
-- Header compacto, main-tabs con scroll horizontal (tab-cat oculto)
+- **Header**: logo 44px (vs 90px desktop), padding 10px 14px, `header-badges` ocultos (`display:none`), `#lastUpdate` oculto
+- **Main tabs**: sin padding lateral, `overflow-x:auto` + `scroll-snap-type:x proximity`, scrollbar oculto, botones 13px 14px padding, fuente .72rem, iconos 12px
+- **Sub tabs**: misma mecánica de scroll horizontal, padding 9px 16px, fuente .71rem, iconos 11px
 - Controles apilados, padding 12px en lugar de 40px
 - Leaders grid 1 columna, comparison grid 1 columna
 - Modal 98% ancho / 92vh alto
@@ -146,6 +185,9 @@ fetch('liga_argentina.csv?v=<timestamp>')   ← cache-busting, no-store
   → buildRAW_T(rows)        ← agrega stats de equipo desde filas TOTALES
   → calcular promedios y stats derivadas
   → poblar PLAYERS[], TEAMS[], TEAM_MAP{}, LEADERS_DATA{}
+  → buildear GAMES_ALL (partidos únicos desde _gamelog[])
+  → buildear GAME_PLAYERS_MAP (filas CSV por IdPartido, para box score)
+  → poblar pTeam select + renderPartidoList(GAMES_ALL)
   → onJFilter() + onTFilter() + buildLeaders() + renderStandings()
   → ocultar loadingOverlay
 ```
@@ -205,6 +247,15 @@ computeLineups()   ← llamado una sola vez después de loadPbp()
 - Al `FINAL-PARTIDO`: se limpian courts, segs y poss completamente.
 - Este doble mecanismo evita: (1) court creciendo a >5 por CAMBIO-ENTRA periódicos superponiéndose al court anterior, y (2) pérdida de tracking en partidos sin esos CAMBIO.
 ```
+
+**Sección "Partidos" (`partidos`):**
+- Filtros: rango de fechas (`pDateFrom`/`pDateTo`, inputs tipo `date`) + equipo (`pTeam`). `onPartidoFilter()` filtra `GAMES_ALL` y llama `renderPartidoList(filtered)`.
+- Cards agrupadas por fecha, orden cronológico inverso (más reciente primero). Cada card muestra local vs visitante con logos, marcador, ganador en `--text-bright`.
+- Al hacer clic en una card se llama `openPartidoModal(game)`, que setea `_partidoMode=true` y abre el modal de detalle directamente (sin mostrar la lista de juegos del equipo).
+- `GAMES_ALL`: array global de partidos únicos construido en `initApp()` desde los `_gamelog[]` de `TEAMS`. Cada entrada: `{ gameId, fecha, local, visit, ptsLocal, ptsVisit, ganLocal, sLocal, sVisit }`. Ordenado por fecha ascendente. Se desduplicata por `gameId` usando un `Set`.
+- `GAME_PLAYERS_MAP`: `Map<IdPartido → rows[]>` con todas las filas no-TOTALES del CSV, construido en `initApp()` desde `rows`. Usado por `renderBoxScore()` para el box score.
+- `_partidoMode`: flag booleano. `true` cuando el modal fue abierto desde `partidos`. Controla el comportamiento del botón "‹ Volver" (`onTgmBack()`).
+- Dorsal en box score formateado como `#15` (entero sin decimal): `#${Math.round(parseFloat(r['Número Camiseta'])||0)}`.
 
 ## Convenciones de código
 - JS: `let DATA = null` para datos cargados una vez (lazy). `SHOTS_MAP` es `Map<gameId, rows[]>`
