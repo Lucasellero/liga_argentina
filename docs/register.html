@@ -532,7 +532,7 @@ select option { background: var(--surface2); color: var(--text); }
 
 <script>
 // URL base de la API — cambiá esto si el backend corre en otro host/puerto
-const API_BASE = 'http://localhost:5000';
+const API_BASE = 'http://localhost:8000';
 
 // Mostrar mensaje de error general debajo del botón
 function setFormError(msg) {
@@ -660,8 +660,8 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     localStorage.setItem('auth_token', data.token);
     localStorage.setItem('auth_user',  JSON.stringify(data.user));
 
-    // Redirigir al dashboard
-    window.location.href = 'index.html';
+    // Redirigir al login para que ingrese con su nueva cuenta
+    window.location.href = 'login.html';
 
   } catch (err) {
     setFormError('No se pudo conectar al servidor. ¿Está corriendo el backend?');
