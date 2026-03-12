@@ -962,6 +962,10 @@ canvas{display:block;width:100%;cursor:crosshair;}
     <span class="badge badge-p">528 Jugadores</span>
     <span class="badge badge-t">34 Equipos</span>
   </div>
+  <div id="headerUser" style="display:none;align-items:center;gap:10px;margin-left:auto;">
+    <span id="headerUserName" style="font-size:.78rem;color:var(--purple-l);font-weight:600;"></span>
+    <button onclick="authLogout()" style="font-size:.72rem;font-weight:600;padding:5px 12px;border-radius:20px;border:1px solid rgba(139,92,246,.32);background:rgba(139,92,246,.1);color:var(--purple-l);cursor:pointer;font-family:inherit;transition:background .15s;" onmouseover="this.style.background='rgba(139,92,246,.22)'" onmouseout="this.style.background='rgba(139,92,246,.1)'">Salir</button>
+  </div>
 </div>
 
 <!-- MAIN TABS -->
@@ -1795,6 +1799,44 @@ canvas{display:block;width:100%;cursor:crosshair;}
 </div>
 
 <script>
+// ── Auth guard ────────────────────────────────────────────────────────────────
+(function() {
+  const token = localStorage.getItem('auth_token');
+  if (!token) { window.location.replace('login.html'); return; }
+  try {
+    // Decodificar payload sin verificar firma (solo para leer exp en cliente)
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    if (payload.exp && Date.now() / 1000 > payload.exp) {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
+      window.location.replace('login.html');
+      return;
+    }
+  } catch(e) {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    window.location.replace('login.html');
+    return;
+  }
+  // Mostrar nombre de usuario en el header
+  try {
+    const user = JSON.parse(localStorage.getItem('auth_user') || '{}');
+    if (user.nombre) {
+      const el = document.getElementById('headerUser');
+      if (el) {
+        document.getElementById('headerUserName').textContent = user.nombre + ' ' + (user.apellido || '');
+        el.style.display = 'flex';
+      }
+    }
+  } catch(e) {}
+})();
+
+function authLogout() {
+  localStorage.removeItem('auth_token');
+  localStorage.removeItem('auth_user');
+  window.location.replace('login.html');
+}
+
 // ============================================================
 // ============================================================
 // DATA — loaded dynamically from CSV
