@@ -51,6 +51,7 @@ SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades 
 | Equipos | Tabla | `t-tabla` |
 | Equipos | Quintetos | `quintetos` |
 | Equipos | Comparar | `t-chart` |
+| Equipos | Conexiones | `t-conexiones` |
 | Jugadores | Tabla | `j-tabla` |
 | Jugadores | Tiros | `j-tiro` |
 | Jugadores | Comparar | `j-chart` |
@@ -63,6 +64,7 @@ SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades 
 - `t-tabla` — Tabla filtrable de equipos
 - `quintetos` — Mejores quintetos por equipo (requiere PBP)
 - `t-chart` — Scatter plot comparativo de equipos
+- `t-conexiones` — Top 10 duplas de jugadores de un equipo ordenadas por asistencias/partido
 - `j-tabla` — Tabla filtrable de jugadores
 - `j-tiro` — Mapa de zonas de tiro por jugador
 - `j-chart` — Scatter plot comparativo de jugadores
@@ -319,6 +321,31 @@ Columnas: `IdPartido, Fecha, Equipo_local, Equipo_visitante, NumAccion, Tipo, Eq
 - **Eventos de bajo riesgo duplicados**: `FINAL-PERIODO`, `FINAL-PARTIDO` — el código JS los ignora en la segunda pasada por el guard `if (!seg...) return`.
 - **Eventos de alto riesgo duplicados**: `TIRO*-FALLADO`, `REBOTE-*`, `CANASTA-*` — inflan stats en `computeLineups()` (fga, fg3a, dreb, etc.), afectando OffRtg/DefRtg/TC% de los quintetos.
 - **Fix en scraper**: `pbp_scraper.py` aplica `drop_duplicates()` antes de guardar el CSV (con warning si encuentra algo). Si el CSV ya tiene duplicados, correr: `python3 -c "import pandas as pd; df=pd.read_csv('docs/liga_argentina_pbp.csv'); df.drop_duplicates(inplace=True); df.to_csv('docs/liga_argentina_pbp.csv', index=False)"` desde `liga_argentina/`.
+
+**Sección "Conexiones Equipo" (`t-conexiones`):**
+- Selector de equipo → tabla con las 10 duplas de mayor conexión del equipo
+- Carga lazy del PBP (igual que Quintetos y `j-conexiones`). `computeLineups()` se ejecuta si `LINEUP_DATA === null`.
+- **Columnas de la tabla** (todas ordenables por clic en el header):
+  | Columna | Descripción |
+  |---|---|
+  | Jugador A / Jugador B | Nombres de la dupla (stats CSV, formato abreviado) |
+  | AST A→B | Asistencias de A a B en toda la temporada |
+  | AST B→A | Asistencias de B a A en toda la temporada |
+  | Total AST | Suma de ambas direcciones |
+  | AST/Partido | `Total AST / PJ del equipo` — columna coloreada violeta→teal |
+  | PJ juntos | Partidos en que ambos compartieron cancha (desde `LINEUP_DATA`) |
+  | Min/PJ juntos | Minutos promedio por partido jugando juntos |
+  | PTS/40 juntos | Puntos del equipo por 40 min con ambos en cancha |
+- **Orden por defecto**: AST/Partido descendente.
+- **Check de cobertura PBP**: badge sobre la tabla que muestra cuántas asistencias del PBP coinciden con el total del box score. Color: verde (≥90%), amarillo (70–89%), rojo (<70%).
+  - `pbpAst` = asistencias del PBP emparejadas con una canasta (las usadas en la tabla)
+  - `csvAst` = `teamObj.AST` (total acumulado del CSV de stats)
+- `tCnxInit()` — puebla el select de equipos una sola vez (guard `options.length > 1`).
+- `onTCnxTeamChange()` — async, carga PBP si necesario, computa y renderiza.
+- `computeTeamConnections(team)` — retorna `{ rows, pbpAst, csvAst }`. Enumera todas las duplas únicas del plantel; retorna las 10 con mayor AST/partido.
+- `onTCnxSort(col)` — alterna asc/desc en `_tCnxSort`; llama `renderTCnxTable()`.
+- `renderTCnxTable()` — renderiza el badge de cobertura y la tabla ordenada.
+- Estado global: `_tCnxRows[]` (top 10 rows), `_tCnxSort` (`{col, asc}`), `_tCnxCheck` (`{pbpAst, csvAst}`).
 
 **Sección "Conexiones" (`j-conexiones`):**
 - Selector de equipo → selector de jugador (poblado con jugadores del equipo, ordenados por PPG desc) → grafo SVG

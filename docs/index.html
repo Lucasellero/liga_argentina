@@ -1002,6 +1002,10 @@ canvas{display:block;width:100%;cursor:crosshair;}
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="5" cy="18" r="2"/><circle cx="12" cy="10" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="8" cy="14" r="2"/><circle cx="16" cy="16" r="2"/></svg>
     Comparar
   </button>
+  <button class="sub-tab" onclick="switchSection('t-conexiones')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="12" r="3"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><path d="M12 12l5-4M12 12l5 4"/></svg>
+    Conexiones
+  </button>
 </div>
 
 <!-- SUB TABS: Jugadores -->
@@ -1723,6 +1727,31 @@ canvas{display:block;width:100%;cursor:crosshair;}
   </div>
 </div>
 
+<!-- ============================= CONEXIONES EQUIPO ============================= -->
+<div class="section" id="sec-t-conexiones">
+  <div class="qnt-outer">
+    <div class="qnt-header">
+      <span class="qnt-title">Conexiones entre Jugadores</span>
+      <div class="qnt-filters">
+        <select id="tCnxTeam" onchange="onTCnxTeamChange()">
+          <option value="">Seleccioná un equipo</option>
+        </select>
+      </div>
+    </div>
+    <div id="tCnxEmpty" class="qnt-empty">Seleccioná un equipo para ver las principales conexiones entre jugadores</div>
+    <div id="tCnxLoading" class="qnt-loading" style="display:none">Cargando datos de jugada a jugada...</div>
+    <div id="tCnxContent" style="display:none">
+      <div id="tCnxCheck" style="font-size:.78rem;color:var(--muted);padding:6px 0 10px;display:flex;align-items:center;gap:8px"></div>
+      <div class="qnt-table-wrap">
+        <table class="qnt-table" id="tCnxTable">
+          <thead id="tCnxThead"></thead>
+          <tbody id="tCnxTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ============================= QUINTETOS ============================= -->
 <div class="section" id="sec-quintetos">
   <div class="qnt-outer">
@@ -1759,7 +1788,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
   <div class="leaders-outer">
     <div class="leaders-header">
       <h2>Líderes <span>·</span> Últimos 5 partidos</h2>
-      <p>Promedio por partido · mín. 3 partidos jugados · porcentajes con mín. 10 intentos</p>
+      <p>Promedio por partido · mín. 3 de los últimos 5 jugados · porcentajes con mín. 3 intentos</p>
     </div>
     <div class="leaders-grid" id="leadersGrid"></div>
   </div>
@@ -1959,11 +1988,11 @@ const f1=v=>v==null||isNaN(v)?'—':v.toFixed(1);
 // NAV
 // ============================================================
 const _SUB_GROUP = {
-  't-tabla':'equipos','quintetos':'equipos','t-chart':'equipos',
+  't-tabla':'equipos','quintetos':'equipos','t-chart':'equipos','t-conexiones':'equipos',
   'j-tabla':'jugadores','j-tiro':'jugadores','j-chart':'jugadores','j-conexiones':'jugadores'
 };
 const _SUB_IDX = {
-  't-tabla':0,'quintetos':1,'t-chart':2,
+  't-tabla':0,'quintetos':1,'t-chart':2,'t-conexiones':3,
   'j-tabla':0,'j-tiro':1,'j-chart':2,'j-conexiones':3
 };
 
@@ -2003,6 +2032,7 @@ function switchSection(id) {
   }
   if(id==='j-chart') setTimeout(drawJChart,30);
   if(id==='j-conexiones') { cnxInit(); setTimeout(drawConnections,30); }
+  if(id==='t-conexiones') { tCnxInit(); }
   if(id==='t-chart') setTimeout(drawTChart,30);
   if(id==='j-tabla') setTimeout(()=>remeasureScroll('jTableWrap'), 50);
   if(id==='t-tabla') setTimeout(()=>remeasureScroll('tTableWrap'), 50);
@@ -3720,29 +3750,28 @@ async function initApp() {
       jTeamSel.appendChild(opt);
     });
 
-    // Leaders (computed dynamically)
-    const maxPJ = Math.max(...PLAYERS.map(p=>p.PJ));
-    const minGP = Math.max(1, Math.round(maxPJ * 0.4));
+    // Leaders — últimos 5 partidos de cada jugador
+    const L5 = PLAYERS.map(p => p._last5).filter(d => d && d.PJ >= 3);
     function top5(arr, keyFn) {
-      return arr.filter(p=>p.PJ>=minGP).sort((a,b)=>keyFn(b)-keyFn(a)).slice(0,5)
-        .map(p=>({name:p['Nombre completo'],equipo:p.Equipo,val:Math.round(keyFn(p)*10)/10,gp:p.PJ}));
+      return [...arr].sort((a,b)=>keyFn(b)-keyFn(a)).slice(0,5)
+        .map(d=>({name:d.name,equipo:d.Equipo,val:Math.round(keyFn(d)*10)/10,gp:d.PJ}));
     }
-    function top5Pct(arr, attFn, pctFn) {
-      return arr.filter(p=>p.PJ>=minGP && attFn(p)>=minGP)
+    function top5Pct(arr, filterFn, pctFn) {
+      return [...arr].filter(filterFn)
         .sort((a,b)=>pctFn(b)-pctFn(a)).slice(0,5)
-        .map(p=>({name:p['Nombre completo'],equipo:p.Equipo,val:Math.round(pctFn(p)*10)/10,gp:p.PJ}));
+        .map(d=>({name:d.name,equipo:d.Equipo,val:Math.round(pctFn(d)*10)/10,gp:d.PJ}));
     }
     LEADERS_DATA = {
-      VAL:   {label:'Valoración', key:'VAL',   entries:top5(PLAYERS, p=>p.VPG)},
-      PTS:   {label:'Puntos',          key:'PTS',   entries:top5(PLAYERS, p=>p.PPG)},
-      REB:   {label:'Rebotes',         key:'REB',   entries:top5(PLAYERS, p=>p.RPG)},
-      AST:   {label:'Asistencias',     key:'AST',   entries:top5(PLAYERS, p=>p.APG)},
-      REC:   {label:'Robos',           key:'REC',   entries:top5(PLAYERS, p=>p.SPG)},
-      TAP:   {label:'Tapones',         key:'TAP',   entries:top5(PLAYERS, p=>p.BPG)},
-      PER:   {label:'Pérdidas',   key:'PER',   entries:top5(PLAYERS, p=>p.TPG)},
-      T3PCT: {label:'% Triple',        key:'T3PCT', entries:top5Pct(PLAYERS, p=>p.T3I, p=>p.T3I>0?p.T3A/p.T3I*100:0)},
-      T2PCT: {label:'% Doble',         key:'T2PCT', entries:top5Pct(PLAYERS, p=>p.T2I, p=>p.T2I>0?p.T2A/p.T2I*100:0)},
-      T1PCT: {label:'% Libre',         key:'T1PCT', entries:top5Pct(PLAYERS, p=>p.T1I, p=>p.T1I>0?p.T1A/p.T1I*100:0)},
+      VAL:   {label:'Valoración',  key:'VAL',   entries:top5(L5, d=>d.VPG)},
+      PTS:   {label:'Puntos',      key:'PTS',   entries:top5(L5, d=>d.PPG)},
+      REB:   {label:'Rebotes',     key:'REB',   entries:top5(L5, d=>d.RPG)},
+      AST:   {label:'Asistencias', key:'AST',   entries:top5(L5, d=>d.APG)},
+      REC:   {label:'Robos',       key:'REC',   entries:top5(L5, d=>d.SPG)},
+      TAP:   {label:'Tapones',     key:'TAP',   entries:top5(L5, d=>d.BPG)},
+      PER:   {label:'Pérdidas',    key:'PER',   entries:top5(L5, d=>d.TPG)},
+      T3PCT: {label:'% Triple',    key:'T3PCT', entries:top5Pct(L5, d=>d.T3IPG>=1, d=>d['T3%']||0)},
+      T2PCT: {label:'% Doble',     key:'T2PCT', entries:top5Pct(L5, d=>d.T2IPG>=2, d=>d['T2%']||0)},
+      T1PCT: {label:'% Libre',     key:'T1PCT', entries:top5Pct(L5, d=>d.T1IPG>=2, d=>d['T1%']||0)},
     };
 
     // Last update: max Fecha from rows
@@ -4928,6 +4957,237 @@ function cnxShowTip(event, idx) {
 function cnxHideTip() {
   const t = document.getElementById('cnxTooltip');
   if (t) t.style.display = 'none';
+}
+
+// ============================================================
+// CONEXIONES EQUIPO (t-conexiones)
+// ============================================================
+let _tCnxSort  = { col: 'apg', asc: false };
+let _tCnxRows  = [];
+let _tCnxCheck = { pbpAst: 0, csvAst: 0 };
+
+function tCnxInit() {
+  const sel = document.getElementById('tCnxTeam');
+  if (sel.options.length > 1) return;
+  [...new Set(TEAMS.map(t => t.Equipo))].sort().forEach(eq => {
+    const o = document.createElement('option');
+    o.value = eq; o.textContent = eq;
+    sel.appendChild(o);
+  });
+}
+
+async function onTCnxTeamChange() {
+  const team = document.getElementById('tCnxTeam').value;
+  document.getElementById('tCnxContent').style.display = 'none';
+  document.getElementById('tCnxEmpty').style.display = '';
+  _tCnxRows = [];
+  if (!team) return;
+
+  if (PBP_MAP === null) {
+    document.getElementById('tCnxLoading').style.display = '';
+    document.getElementById('tCnxEmpty').style.display = 'none';
+    await loadPbp();
+    document.getElementById('tCnxLoading').style.display = 'none';
+    document.getElementById('tCnxEmpty').style.display = '';
+  }
+  if (LINEUP_DATA === null) computeLineups();
+
+  const result = computeTeamConnections(team);
+  _tCnxRows  = result.rows;
+  _tCnxCheck = { pbpAst: result.pbpAst, csvAst: result.csvAst };
+  if (!_tCnxRows.length) return;
+  document.getElementById('tCnxEmpty').style.display = 'none';
+  document.getElementById('tCnxContent').style.display = '';
+  _tCnxSort = { col: 'apg', asc: false };
+  renderTCnxTable();
+}
+
+function computeTeamConnections(team) {
+  const teamObj    = TEAMS.find(t => t.Equipo === team);
+  const totalGames = teamObj ? teamObj.PJ : 1;
+  const csvAst     = teamObj ? (teamObj.AST || 0) : 0;
+
+  // Build dorsal→PBP name map
+  const dorsalToPbp = new Map();
+  if (PBP_MAP) {
+    PBP_MAP.forEach(events => {
+      if (!events.length) return;
+      const isLocal = events[0]['Equipo_local'] === team;
+      const isVisit = events[0]['Equipo_visitante'] === team;
+      if (!isLocal && !isVisit) return;
+      const side = isLocal ? 'LOCAL' : 'VISITANTE';
+      events.forEach(ev => {
+        if (ev['Equipo_lado'] !== side) return;
+        const d = ev['Dorsal'], j = ev['Jugador'];
+        if (d && d !== 'None' && j && j !== 'None' && j !== '') {
+          const dk = Math.round(parseFloat(d));
+          if (!dorsalToPbp.has(dk)) dorsalToPbp.set(dk, j);
+        }
+      });
+    });
+  }
+
+  // Map stats name → PBP name via dorsal
+  const teamPlayers = PLAYERS.filter(p => p.Equipo === team);
+  const statsToPbp  = new Map();
+  const pbpToStats  = new Map();
+  teamPlayers.forEach(p => {
+    const dk      = Math.round(parseFloat(p.DORSAL) || 0);
+    const pbpName = dorsalToPbp.get(dk) || p['Nombre completo'];
+    statsToPbp.set(p['Nombre completo'], pbpName);
+    pbpToStats.set(pbpName, p['Nombre completo']);
+  });
+
+  // Count assist pairs from PBP
+  const assistCounts = new Map(); // "pbpA→pbpB" → count
+  let pbpAst = 0; // total matched assists (with basket found)
+  if (PBP_MAP) {
+    PBP_MAP.forEach(events => {
+      if (!events.length) return;
+      const localTeam = events[0]['Equipo_local'];
+      const visitTeam = events[0]['Equipo_visitante'];
+      const side = localTeam === team ? 'LOCAL' : (visitTeam === team ? 'VISITANTE' : null);
+      if (!side) return;
+      const sorted = [...events].sort((a, b) => parseInt(a['NumAccion']) - parseInt(b['NumAccion']));
+      sorted.forEach((ev, i) => {
+        if (ev['Tipo'] !== 'ASISTENCIA' || ev['Equipo_lado'] !== side) return;
+        const assister = ev['Jugador']; if (!assister) return;
+        for (let j = i - 1; j >= Math.max(0, i - 5); j--) {
+          const prev = sorted[j];
+          if ((prev['Tipo'] === 'CANASTA-2P' || prev['Tipo'] === 'CANASTA-3P') && prev['Equipo_lado'] === side) {
+            const scorer = prev['Jugador']; if (!scorer) break;
+            const key = assister + '\u2192' + scorer;
+            assistCounts.set(key, (assistCounts.get(key) || 0) + 1);
+            pbpAst++;
+            break;
+          }
+        }
+      });
+    });
+  }
+
+  // Collect pair stats from LINEUP_DATA
+  const teamLineupMap = LINEUP_DATA ? LINEUP_DATA.get(team) : null;
+  const pairStats = new Map(); // "pbpA~pbpB" (sorted) → {pf, secs, games}
+  if (teamLineupMap) {
+    teamLineupMap.forEach(data => {
+      const players = data.players;
+      for (let i = 0; i < players.length; i++) {
+        for (let j = i + 1; j < players.length; j++) {
+          const pairKey = [players[i], players[j]].sort().join('~');
+          if (!pairStats.has(pairKey)) pairStats.set(pairKey, { pf: 0, secs: 0, games: new Set() });
+          const ps = pairStats.get(pairKey);
+          ps.pf += data.pf; ps.secs += data.secs;
+          data.games.forEach(g => ps.games.add(g));
+        }
+      }
+    });
+  }
+
+  // Build all unique pairs
+  const rows = [];
+  for (let i = 0; i < teamPlayers.length; i++) {
+    for (let j = i + 1; j < teamPlayers.length; j++) {
+      const pA      = teamPlayers[i];
+      const pB      = teamPlayers[j];
+      const pbpA    = statsToPbp.get(pA['Nombre completo']) || pA['Nombre completo'];
+      const pbpB    = statsToPbp.get(pB['Nombre completo']) || pB['Nombre completo'];
+      const astAtoB = assistCounts.get(pbpA + '\u2192' + pbpB) || 0;
+      const astBtoA = assistCounts.get(pbpB + '\u2192' + pbpA) || 0;
+      const totalAst = astAtoB + astBtoA;
+      const pairKey = [pbpA, pbpB].sort().join('~');
+      const ps      = pairStats.get(pairKey);
+      const gamesTog = ps ? ps.games.size : 0;
+      const secs    = ps ? ps.secs : 0;
+      const pf      = ps ? ps.pf : 0;
+      const apg     = totalAst / totalGames;
+      const minTog  = gamesTog > 0 ? (secs / 60) / gamesTog : 0;
+      const pts40   = secs > 0 ? (pf / (secs / 60)) * 40 : 0;
+      if (totalAst === 0 && gamesTog === 0) continue;
+      rows.push({
+        nameA: pA['Nombre completo'], nameB: pB['Nombre completo'],
+        astAtoB, astBtoA, totalAst, apg, gamesTog, minTog, pts40
+      });
+    }
+  }
+
+  rows.sort((a, b) => b.apg - a.apg);
+  return { rows: rows.slice(0, 10), pbpAst, csvAst };
+}
+
+function onTCnxSort(col) {
+  if (_tCnxSort.col === col) {
+    _tCnxSort.asc = !_tCnxSort.asc;
+  } else {
+    _tCnxSort = { col, asc: false };
+  }
+  renderTCnxTable();
+}
+
+function renderTCnxTable() {
+  // Data quality check badge
+  const { pbpAst, csvAst } = _tCnxCheck;
+  const checkEl = document.getElementById('tCnxCheck');
+  if (checkEl && csvAst > 0) {
+    const pct = Math.round(pbpAst / csvAst * 100);
+    const ok  = pct >= 90;
+    const warn = pct >= 70 && pct < 90;
+    const color = ok ? 'var(--teal-l)' : warn ? '#f59e0b' : '#f87171';
+    const icon  = ok ? '✓' : '⚠';
+    checkEl.innerHTML =
+      `<span style="color:${color};font-weight:600">${icon} Cobertura PBP:</span>` +
+      `<span>${pbpAst} de ${csvAst} AST del box score detectadas en jugada a jugada (${pct}%)</span>`;
+  } else if (checkEl) {
+    checkEl.innerHTML = '';
+  }
+
+  const { col, asc } = _tCnxSort;
+  const sorted = [..._tCnxRows].sort((a, b) => {
+    const va = a[col], vb = b[col];
+    if (typeof va === 'string') return asc ? va.localeCompare(vb) : vb.localeCompare(va);
+    return asc ? va - vb : vb - va;
+  });
+
+  const cols = [
+    { key: 'nameA',    label: 'Jugador A',       fmt: v => v,                    title: 'Jugador que da o recibe asistencias' },
+    { key: 'nameB',    label: 'Jugador B',        fmt: v => v,                    title: 'Jugador que da o recibe asistencias' },
+    { key: 'astAtoB',  label: 'AST A→B',          fmt: v => v,                    title: 'Asistencias de A a B en toda la temporada' },
+    { key: 'astBtoA',  label: 'AST B→A',          fmt: v => v,                    title: 'Asistencias de B a A en toda la temporada' },
+    { key: 'totalAst', label: 'Total AST',        fmt: v => v,                    title: 'Total de asistencias entre ambos jugadores' },
+    { key: 'apg',      label: 'AST/Partido',      fmt: v => v.toFixed(2),         title: 'Asistencias totales entre la dupla por partido de equipo' },
+    { key: 'gamesTog', label: 'PJ juntos',        fmt: v => v,                    title: 'Partidos en que ambos jugaron juntos' },
+    { key: 'minTog',   label: 'Min/PJ juntos',    fmt: v => v.toFixed(1),         title: 'Minutos promedio por partido jugando juntos' },
+    { key: 'pts40',    label: 'PTS/40 juntos',    fmt: v => v.toFixed(1),         title: 'Puntos del equipo por 40 minutos jugando juntos' },
+  ];
+
+  const arrow = c => c === col ? (asc ? ' ↑' : ' ↓') : '';
+  const thead = document.getElementById('tCnxThead');
+  thead.innerHTML = '<tr>' + cols.map(c =>
+    `<th style="cursor:pointer;white-space:nowrap" title="${c.title}" onclick="onTCnxSort('${c.key}')">${c.label}${arrow(c.key)}</th>`
+  ).join('') + '</tr>';
+
+  const tbody = document.getElementById('tCnxTbody');
+  if (!sorted.length) {
+    tbody.innerHTML = '<tr><td colspan="' + cols.length + '" style="text-align:center;color:var(--muted);padding:24px">Sin datos suficientes</td></tr>';
+    return;
+  }
+  tbody.innerHTML = sorted.map((row, idx) =>
+    '<tr>' + cols.map(c => {
+      const v = row[c.key];
+      const display = c.fmt(v);
+      // Color APG column by value
+      let style = '';
+      if (c.key === 'apg' && typeof v === 'number') {
+        const maxApg = Math.max(..._tCnxRows.map(r => r.apg), 0.01);
+        const t = v / maxApg;
+        const r2 = Math.round(139 + t * (45  - 139));
+        const g2 = Math.round(92  + t * (212 - 92));
+        const b2 = Math.round(246 + t * (191 - 246));
+        style = ` style="color:rgb(${r2},${g2},${b2});font-weight:600"`;
+      }
+      return `<td${style}>${display}</td>`;
+    }).join('') + '</tr>'
+  ).join('');
 }
 
 function updateTFilterVisibility(){
