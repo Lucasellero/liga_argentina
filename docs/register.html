@@ -531,7 +531,8 @@ select option { background: var(--surface2); color: var(--text); }
 </main>
 
 <script>
-const API_BASE = 'https://ligaargentina-production.up.railway.app';
+const SUPABASE_URL  = 'https://repsndqhmyklxukffovf.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlcHNuZHFobXlrbHh1a2Zmb3ZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMjk2MjQsImV4cCI6MjA4ODkwNTYyNH0.-qf2As-3z6-doBhDYg-4mUt4mWLjxPyf4THZPUTaGYo';
 
 // Mostrar mensaje de error general debajo del botón
 function setFormError(msg) {
@@ -643,27 +644,37 @@ document.getElementById('registerForm').addEventListener('submit', async functio
   setFormError('');
 
   try {
-    const res  = await fetch(`${API_BASE}/api/register`, {
+    const res  = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ nombre, apellido, telefono, club, email, password }),
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON,
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        data: { nombre, apellido, telefono, club },
+      }),
     });
     const data = await res.json();
 
     if (!res.ok) {
-      setFormError(data.error || 'Error al crear la cuenta.');
+      const msg = data.msg || data.error_description || data.error || 'Error al crear la cuenta.';
+      setFormError(msg);
       return;
     }
 
-    // Guardar token y datos del usuario
-    localStorage.setItem('auth_token', data.token);
-    localStorage.setItem('auth_user',  JSON.stringify(data.user));
+    // Si Supabase devuelve identities vacío, el email ya estaba registrado
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      setFormError('El correo ya está registrado. Iniciá sesión.');
+      return;
+    }
 
-    // Redirigir al login para que ingrese con su nueva cuenta
+    // Redirigir al login
     window.location.href = 'login.html';
 
   } catch (err) {
-    setFormError('No se pudo conectar al servidor. ¿Está corriendo el backend?');
+    setFormError('No se pudo conectar. Intentá de nuevo.');
   } finally {
     btn.disabled    = false;
     btn.textContent = 'Crear cuenta';

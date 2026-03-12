@@ -346,7 +346,8 @@ input::placeholder { color: var(--muted2); }
 </main>
 
 <script>
-const API_BASE = 'https://ligaargentina-production.up.railway.app';
+const SUPABASE_URL  = 'https://repsndqhmyklxukffovf.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlcHNuZHFobXlrbHh1a2Zmb3ZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMjk2MjQsImV4cCI6MjA4ODkwNTYyNH0.-qf2As-3z6-doBhDYg-4mUt4mWLjxPyf4THZPUTaGYo';
 
 function togglePass(inputId, btn) {
   const input = document.getElementById(inputId);
@@ -357,7 +358,6 @@ function togglePass(inputId, btn) {
     : `<svg viewBox="0 0 20 20" fill="currentColor" width="17" height="17"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>`;
 }
 
-// Mostrar mensaje de error general debajo del botón
 function setFormError(msg) {
   let el = document.getElementById('formErr');
   if (!el) {
@@ -377,13 +377,9 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   const password = document.getElementById('password').value;
   let valid = true;
 
-  // Validar email
-  const emailErr   = document.getElementById('emailErr');
-  const validEmail = /^[^\s@]+@(gmail\.com|hotmail\.com|hotmail\.es|icloud\.com)$/i.test(email);
-  if (!email || !validEmail) {
-    emailErr.textContent = validEmail === false && email
-      ? 'Usá un correo de Gmail, Hotmail o iCloud.'
-      : 'Ingresá un correo válido.';
+  const emailErr = document.getElementById('emailErr');
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    emailErr.textContent = 'Ingresá un correo válido.';
     emailErr.style.display = 'block';
     document.getElementById('email').style.borderColor = 'var(--red)';
     valid = false;
@@ -392,7 +388,6 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     document.getElementById('email').style.borderColor = '';
   }
 
-  // Validar contraseña
   const passErr = document.getElementById('passErr');
   if (!password) {
     passErr.style.display = 'block';
@@ -405,34 +400,42 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 
   if (!valid) return;
 
-  // Llamada al backend
   const btn = document.querySelector('.btn-primary');
   btn.disabled    = true;
   btn.textContent = 'Ingresando…';
   setFormError('');
 
   try {
-    const res  = await fetch(`${API_BASE}/api/login`, {
+    const res  = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ email, password }),
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON,
+      },
+      body: JSON.stringify({ email, password }),
     });
     const data = await res.json();
 
     if (!res.ok) {
-      setFormError(data.error || 'Error al iniciar sesión.');
+      const msg = data.error_description || data.msg || data.error || 'Credenciales incorrectas.';
+      setFormError(msg);
       return;
     }
 
-    // Guardar token y datos del usuario
-    localStorage.setItem('auth_token', data.token);
-    localStorage.setItem('auth_user',  JSON.stringify(data.user));
+    const meta = data.user?.user_metadata || {};
+    localStorage.setItem('auth_token', data.access_token);
+    localStorage.setItem('auth_user', JSON.stringify({
+      id:       data.user.id,
+      email:    data.user.email,
+      nombre:   meta.nombre   || '',
+      apellido: meta.apellido || '',
+      club:     meta.club     || '',
+    }));
 
-    // Redirigir al dashboard
     window.location.href = 'index.html';
 
   } catch (err) {
-    setFormError('No se pudo conectar al servidor. ¿Está corriendo el backend?');
+    setFormError('No se pudo conectar. Intentá de nuevo.');
   } finally {
     btn.disabled    = false;
     btn.textContent = 'Iniciar sesión';
