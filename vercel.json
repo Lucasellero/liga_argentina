@@ -1,11 +1,6 @@
 {
-  "version": 2,
   "outputDirectory": "docs",
-  "builds": [
-    { "src": "api/index.py", "use": "@vercel/python" }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/index.py" },
-    { "src": "/(.*)",     "dest": "/$1" }
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/index" }
   ]
 }
