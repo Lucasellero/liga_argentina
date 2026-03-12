@@ -9,11 +9,12 @@ import uuid
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from functools import wraps
+from urllib.parse import urlparse
 
 import bcrypt
 import jwt
-import psycopg2
-import psycopg2.extras
+import pg8000
+import pg8000.native
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -28,26 +29,34 @@ JWT_SECRET  = os.getenv("JWT_SECRET", "cambia-este-secreto-en-produccion")
 JWT_ALGO    = "HS256"
 JWT_EXPIRES = int(os.getenv("JWT_EXPIRES_HOURS", 24))
 
-# ── Conexión PostgreSQL (Supabase) ─────────────────────────────────────────────
-DATABASE_URL = os.getenv("DATABASE_URL")  # postgresql://user:pass@host:5432/db
 
-def _db_kwargs():
-    if DATABASE_URL:
-        return {"dsn": DATABASE_URL}
+# ── Conexión PostgreSQL (Supabase) ─────────────────────────────────────────────
+def _db_config() -> dict:
+    url = os.getenv("DATABASE_URL")
+    if url:
+        p = urlparse(url)
+        return {
+            "host":       p.hostname,
+            "user":       p.username,
+            "password":   p.password,
+            "database":   p.path.lstrip("/"),
+            "port":       p.port or 5432,
+            "ssl_context": True,
+        }
     return {
-        "host":     os.getenv("DB_HOST", "localhost"),
-        "port":     int(os.getenv("DB_PORT", 5432)),
-        "dbname":   os.getenv("DB_NAME", "postgres"),
-        "user":     os.getenv("DB_USER", "postgres"),
-        "password": os.getenv("DB_PASSWORD", ""),
-        "sslmode":  os.getenv("DB_SSLMODE", "require"),
+        "host":       os.getenv("DB_HOST", "localhost"),
+        "user":       os.getenv("DB_USER", "postgres"),
+        "password":   os.getenv("DB_PASSWORD", ""),
+        "database":   os.getenv("DB_NAME", "postgres"),
+        "port":       int(os.getenv("DB_PORT", 5432)),
+        "ssl_context": os.getenv("DB_SSLMODE", "require") == "require",
     }
 
 
 @contextmanager
 def get_db():
     """Context manager: abre conexión, hace commit o rollback, y la cierra."""
-    conn = psycopg2.connect(**_db_kwargs())
+    conn = pg8000.connect(**_db_config())
     try:
         yield conn
         conn.commit()
@@ -56,6 +65,14 @@ def get_db():
         raise
     finally:
         conn.close()
+
+
+def _row_to_dict(cursor, row) -> dict:
+    """Convierte una fila pg8000 a dict usando cursor.description."""
+    if row is None:
+        return None
+    cols = [d[0] for d in cursor.description]
+    return dict(zip(cols, row))
 
 
 # ── Helpers JWT ────────────────────────────────────────────────────────────────
@@ -105,11 +122,6 @@ def token_required(f):
 
 @app.post("/api/register")
 def register():
-    """
-    POST /api/register
-    Body JSON: { nombre, apellido, telefono, club, email, password }
-    Respuesta: { token, user: { id, nombre, apellido, email, club } }
-    """
     data = request.get_json(silent=True) or {}
 
     required = ["nombre", "apellido", "telefono", "club", "email", "password"]
@@ -126,7 +138,6 @@ def register():
 
     if "@" not in email or "." not in email.split("@")[-1]:
         return jsonify({"error": "Correo electrónico inválido"}), 400
-
     if len(password) < 8:
         return jsonify({"error": "La contraseña debe tener al menos 8 caracteres"}), 400
 
@@ -139,38 +150,25 @@ def register():
             cur.execute("SELECT id FROM users WHERE email = %s", (email,))
             if cur.fetchone():
                 return jsonify({"error": "El correo ya está registrado"}), 409
-
             cur.execute(
                 """INSERT INTO users
                    (id, nombre, apellido, telefono, club, email, password_hash)
                    VALUES (%s, %s, %s, %s, %s, %s, %s)""",
                 (user_id, nombre, apellido, telefono, club, email, password_hash),
             )
-    except psycopg2.Error as e:
-        return jsonify({"error": f"Error de base de datos: {e.pgerror or str(e)}"}), 500
+    except Exception as e:
+        return jsonify({"error": f"Error de base de datos: {str(e)}"}), 500
 
     token = generate_token(user_id, email)
     return jsonify({
         "token": token,
-        "user": {
-            "id":       user_id,
-            "nombre":   nombre,
-            "apellido": apellido,
-            "email":    email,
-            "club":     club,
-        }
+        "user": {"id": user_id, "nombre": nombre, "apellido": apellido, "email": email, "club": club}
     }), 201
 
 
 @app.post("/api/login")
 def login():
-    """
-    POST /api/login
-    Body JSON: { email, password }
-    Respuesta: { token, user: { id, nombre, apellido, email, club } }
-    """
-    data = request.get_json(silent=True) or {}
-
+    data     = request.get_json(silent=True) or {}
     email    = (data.get("email") or "").strip().lower()
     password = data.get("password") or ""
 
@@ -179,14 +177,15 @@ def login():
 
     try:
         with get_db() as conn:
-            cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+            cur = conn.cursor()
             cur.execute(
                 "SELECT id, nombre, apellido, club, password_hash FROM users WHERE email = %s",
                 (email,),
             )
-            user = cur.fetchone()
-    except psycopg2.Error as e:
-        return jsonify({"error": f"Error de base de datos: {e.pgerror or str(e)}"}), 500
+            row  = cur.fetchone()
+            user = _row_to_dict(cur, row)
+    except Exception as e:
+        return jsonify({"error": f"Error de base de datos: {str(e)}"}), 500
 
     if not user or not check_password(password, user["password_hash"]):
         return jsonify({"error": "Credenciales incorrectas"}), 401
@@ -194,51 +193,32 @@ def login():
     token = generate_token(user["id"], email)
     return jsonify({
         "token": token,
-        "user": {
-            "id":       user["id"],
-            "nombre":   user["nombre"],
-            "apellido": user["apellido"],
-            "email":    email,
-            "club":     user["club"],
-        }
+        "user": {"id": user["id"], "nombre": user["nombre"], "apellido": user["apellido"], "email": email, "club": user["club"]}
     }), 200
 
 
 @app.get("/api/me")
 @token_required
 def me():
-    """
-    GET /api/me  (requiere Authorization: Bearer <token>)
-    Respuesta: { user: { id, nombre, apellido, email, club } }
-    """
     email = request.user["email"]
-
     try:
         with get_db() as conn:
-            cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+            cur = conn.cursor()
             cur.execute(
                 "SELECT id, nombre, apellido, club FROM users WHERE email = %s",
                 (email,),
             )
-            user = cur.fetchone()
-    except psycopg2.Error as e:
-        return jsonify({"error": f"Error de base de datos: {e.pgerror or str(e)}"}), 500
+            user = _row_to_dict(cur, cur.fetchone())
+    except Exception as e:
+        return jsonify({"error": f"Error de base de datos: {str(e)}"}), 500
 
     if not user:
         return jsonify({"error": "Usuario no encontrado"}), 404
 
     return jsonify({
-        "user": {
-            "id":       user["id"],
-            "nombre":   user["nombre"],
-            "apellido": user["apellido"],
-            "email":    email,
-            "club":     user["club"],
-        }
+        "user": {"id": user["id"], "nombre": user["nombre"], "apellido": user["apellido"], "email": email, "club": user["club"]}
     }), 200
 
-
-# ── Healthcheck ───────────────────────────────────────────────────────────────
 
 @app.get("/api/health")
 def health():
@@ -251,8 +231,6 @@ def health():
     except Exception as e:
         return jsonify({"status": "ok", "db": "error", "detail": str(e)}), 200
 
-
-# ── Main (local dev) ──────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     port  = int(os.getenv("PORT", 5000))
