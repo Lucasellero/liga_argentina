@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(\"/c/Users/Lucas Ellero/AppData/Local/Programs/Python/Python312/python.exe\":*)",
-      "Bash(\"/c/Users/Lucas Ellero/AppData/Local/Programs/Python/Python312/python.exe\" /d/liga_argentina/scrapper.py --output /d/liga_argentina/test_output.csv)"
-    ]
-  }
-}

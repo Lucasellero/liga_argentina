@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iniciar sesión · Scouteado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --bg:          #0b0b16;
+  --bg2:         #111127;
+  --surface:     #18182e;
+  --surface2:    #1f1f3a;
+  --border:      rgba(139,92,246,.18);
+  --border2:     rgba(255,255,255,.06);
+  --purple:      #8b5cf6;
+  --purple-d:    #6d28d9;
+  --purple-l:    #a78bfa;
+  --purple-soft: rgba(139,92,246,.13);
+  --teal:        #2dd4bf;
+  --teal-l:      #5eead4;
+  --text:        #e2e8f0;
+  --text-bright: #f8fafc;
+  --muted:       #64748b;
+  --muted2:      #475569;
+  --red:         #f87171;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 90% 55% at 50% -10%, rgba(139,92,246,.28) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 40% at 85% 85%, rgba(45,212,191,.08) 0%, transparent 55%);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(125deg, rgba(139,92,246,.45) 0%, rgba(24,24,46,.97) 45%, rgba(13,148,136,.18) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 32px rgba(0,0,0,.5), 0 1px 0 rgba(139,92,246,.25);
+}
+
+.header-logo {
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.header-logo img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.header-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: .5px;
+  color: var(--text-bright);
+}
+
+.header-title span { color: var(--purple-l); }
+
+/* ── MAIN ── */
+.main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 40px 40px 36px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 8px 48px rgba(0,0,0,.55), 0 0 0 1px rgba(139,92,246,.08);
+}
+
+.card-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.card-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 6px;
+}
+
+.card-header p {
+  font-size: .84rem;
+  color: var(--muted);
+}
+
+/* ── FORM ── */
+.form-group {
+  margin-bottom: 18px;
+}
+
+label {
+  display: block;
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .45px;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+
+.input-wrap {
+  position: relative;
+}
+
+.input-wrap > svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted2);
+  pointer-events: none;
+  width: 16px;
+  height: 16px;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+  width: 100%;
+  background: var(--surface2);
+  border: 1.5px solid var(--border2);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: .9rem;
+  padding: 11px 14px 11px 38px;
+  outline: none;
+  transition: border-color .18s, box-shadow .18s;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="text"]:focus {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(139,92,246,.15);
+}
+
+input::placeholder { color: var(--muted2); }
+
+.toggle-pass {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted2);
+  padding: 2px;
+  line-height: 0;
+  transition: color .15s;
+}
+.toggle-pass:hover { color: var(--purple-l); }
+
+/* ── FORGOT ── */
+.forgot {
+  text-align: center;
+  margin-top: -10px;
+  margin-bottom: 10px;
+}
+.forgot a {
+  font-size: .78rem;
+  color: var(--purple-l);
+  text-decoration: none;
+  transition: color .15s;
+}
+.forgot a:hover { color: var(--teal-l); }
+
+/* ── BTN ── */
+.btn-primary {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--purple-d), var(--purple));
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: .92rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  letter-spacing: .3px;
+  margin-top: 6px;
+  transition: opacity .18s, box-shadow .18s, transform .1s;
+  box-shadow: 0 4px 18px rgba(139,92,246,.35);
+}
+
+.btn-primary:hover {
+  opacity: .92;
+  box-shadow: 0 6px 24px rgba(139,92,246,.5);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active { transform: translateY(0); }
+
+/* ── DIVIDER ── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 22px 0 18px;
+  color: var(--muted2);
+  font-size: .75rem;
+}
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border2);
+}
+
+/* ── FOOTER LINK ── */
+.card-footer {
+  text-align: center;
+  margin-top: 22px;
+  font-size: .84rem;
+  color: var(--muted);
+}
+
+.card-footer a {
+  color: var(--purple-l);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color .15s;
+}
+.card-footer a:hover { color: var(--teal-l); }
+
+/* ── ERROR MSG ── */
+.error-msg {
+  display: none;
+  font-size: .78rem;
+  color: var(--red);
+  margin-top: 5px;
+}
+
+/* ── MOBILE ── */
+@media (max-width: 480px) {
+  .header { padding: 14px 16px; }
+  .card { padding: 28px 20px 24px; border-radius: 14px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-logo"><img src="logos/scouteado_logo.png" alt="Scouteado"></div>
+  <span class="header-title">Scoute<span>ado</span></span>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="card">
+
+    <div class="card-header">
+      <div style="width:130px;height:120px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
+        <img src="logos/scouteado_logo.png" alt="Scouteado" style="width:210px;height:210px;object-fit:contain;flex-shrink:0;">
+      </div>
+      <h1>Bienvenido a <span style="color:var(--purple-l)">Scouteado</span></h1>
+      <p>Ingresá a tu cuenta para continuar</p>
+    </div>
+
+    <form id="loginForm" novalidate>
+
+      <!-- EMAIL -->
+      <div class="form-group">
+        <label for="email">Correo electrónico</label>
+        <div class="input-wrap">
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+          </svg>
+          <input type="email" id="email" placeholder="nombre@gmail.com" autocomplete="email">
+        </div>
+        <span class="error-msg" id="emailErr">Ingresá un correo válido.</span>
+      </div>
+
+      <!-- PASSWORD -->
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <div class="input-wrap">
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+          </svg>
+          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+          <button type="button" class="toggle-pass" onclick="togglePass('password', this)" title="Ver contraseña">
+            <svg id="eyeIcon" viewBox="0 0 20 20" fill="currentColor" width="17" height="17">
+              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+              <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+        </div>
+        <span class="error-msg" id="passErr">La contraseña es requerida.</span>
+      </div>
+
+      <div class="forgot">
+        <a href="#">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <button type="submit" class="btn-primary">Iniciar sesión</button>
+
+    </form>
+
+    <div class="divider">o</div>
+
+    <div class="card-footer">
+      ¿No tenés cuenta? <a href="register.html">Registrate</a>
+    </div>
+
+  </div>
+</main>
+
+<script>
+const SUPABASE_URL  = 'https://repsndqhmyklxukffovf.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlcHNuZHFobXlrbHh1a2Zmb3ZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMjk2MjQsImV4cCI6MjA4ODkwNTYyNH0.-qf2As-3z6-doBhDYg-4mUt4mWLjxPyf4THZPUTaGYo';
+
+function togglePass(inputId, btn) {
+  const input = document.getElementById(inputId);
+  const isHidden = input.type === 'password';
+  input.type = isHidden ? 'text' : 'password';
+  btn.innerHTML = isHidden
+    ? `<svg viewBox="0 0 20 20" fill="currentColor" width="17" height="17"><path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd"/><path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.064 7 9.542 7 .847 0 1.669-.105 2.454-.303z"/></svg>`
+    : `<svg viewBox="0 0 20 20" fill="currentColor" width="17" height="17"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>`;
+}
+
+function setFormError(msg) {
+  let el = document.getElementById('formErr');
+  if (!el) {
+    el = document.createElement('p');
+    el.id = 'formErr';
+    el.style.cssText = 'color:var(--red);font-size:.82rem;text-align:center;margin-top:10px';
+    document.querySelector('.btn-primary').insertAdjacentElement('afterend', el);
+  }
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  let valid = true;
+
+  const emailErr = document.getElementById('emailErr');
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    emailErr.textContent = 'Ingresá un correo válido.';
+    emailErr.style.display = 'block';
+    document.getElementById('email').style.borderColor = 'var(--red)';
+    valid = false;
+  } else {
+    emailErr.style.display = 'none';
+    document.getElementById('email').style.borderColor = '';
+  }
+
+  const passErr = document.getElementById('passErr');
+  if (!password) {
+    passErr.style.display = 'block';
+    document.getElementById('password').style.borderColor = 'var(--red)';
+    valid = false;
+  } else {
+    passErr.style.display = 'none';
+    document.getElementById('password').style.borderColor = '';
+  }
+
+  if (!valid) return;
+
+  const btn = document.querySelector('.btn-primary');
+  btn.disabled    = true;
+  btn.textContent = 'Ingresando…';
+  setFormError('');
+
+  try {
+    const res  = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method:  'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON,
+      },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      const msg = data.error_description || data.msg || data.error || 'Credenciales incorrectas.';
+      setFormError(msg);
+      return;
+    }
+
+    const meta = data.user?.user_metadata || {};
+    localStorage.setItem('auth_token', data.access_token);
+    localStorage.setItem('auth_user', JSON.stringify({
+      id:       data.user.id,
+      email:    data.user.email,
+      nombre:   meta.nombre   || '',
+      apellido: meta.apellido || '',
+      club:     meta.club     || '',
+    }));
+
+    window.location.href = 'index.html';
+
+  } catch (err) {
+    setFormError('No se pudo conectar. Intentá de nuevo.');
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'Iniciar sesión';
+  }
+});
+</script>
+</body>
+</html>

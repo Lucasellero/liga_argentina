@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crear cuenta · Scouteado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --bg:          #0b0b16;
+  --bg2:         #111127;
+  --surface:     #18182e;
+  --surface2:    #1f1f3a;
+  --border:      rgba(139,92,246,.18);
+  --border2:     rgba(255,255,255,.06);
+  --purple:      #8b5cf6;
+  --purple-d:    #6d28d9;
+  --purple-l:    #a78bfa;
+  --purple-soft: rgba(139,92,246,.13);
+  --teal:        #2dd4bf;
+  --teal-l:      #5eead4;
+  --text:        #e2e8f0;
+  --text-bright: #f8fafc;
+  --muted:       #64748b;
+  --muted2:      #475569;
+  --red:         #f87171;
+  --green:       #34d399;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 90% 55% at 50% -10%, rgba(139,92,246,.28) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 40% at 85% 85%, rgba(45,212,191,.08) 0%, transparent 55%);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(125deg, rgba(139,92,246,.45) 0%, rgba(24,24,46,.97) 45%, rgba(13,148,136,.18) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 32px rgba(0,0,0,.5), 0 1px 0 rgba(139,92,246,.25);
+}
+
+.header-logo {
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.header-logo img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.header-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: .5px;
+  color: var(--text-bright);
+}
+
+.header-title span { color: var(--purple-l); }
+
+/* ── MAIN ── */
+.main {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 16px 20px;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 24px 32px 20px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 8px 48px rgba(0,0,0,.55), 0 0 0 1px rgba(139,92,246,.08);
+}
+
+.card-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.card-header h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-bottom: 4px;
+}
+
+.card-header p {
+  font-size: .84rem;
+  color: var(--muted);
+}
+
+/* ── FORM GRID ── */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-row .form-group {
+  margin-bottom: 0;
+}
+
+label {
+  display: block;
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .45px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.input-wrap {
+  position: relative;
+}
+
+.input-wrap svg.icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted2);
+  pointer-events: none;
+  width: 16px;
+  height: 16px;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"],
+input[type="tel"],
+select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1.5px solid var(--border2);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: .88rem;
+  padding: 8px 14px 8px 38px;
+  outline: none;
+  transition: border-color .18s, box-shadow .18s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="text"]:focus,
+input[type="tel"]:focus,
+select:focus {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(139,92,246,.15);
+}
+
+input::placeholder { color: var(--muted2); }
+select option { background: var(--surface2); color: var(--text); }
+
+/* select arrow */
+.select-wrap {
+  position: relative;
+}
+
+.select-wrap::after {
+  content: '';
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--muted2);
+  pointer-events: none;
+}
+
+.toggle-pass {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted2);
+  padding: 2px;
+  line-height: 0;
+  transition: color .15s;
+}
+.toggle-pass:hover { color: var(--purple-l); }
+
+/* ── PASSWORD STRENGTH ── */
+.pass-strength {
+  margin-top: 4px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.strength-bar {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border2);
+  transition: background .25s;
+}
+
+.strength-label {
+  font-size: .7rem;
+  color: var(--muted2);
+  min-width: 56px;
+  text-align: right;
+  transition: color .25s;
+}
+
+/* ── ERROR / SUCCESS ── */
+.error-msg {
+  display: none;
+  font-size: .75rem;
+  color: var(--red);
+  margin-top: 5px;
+}
+
+.success-msg {
+  display: none;
+  font-size: .75rem;
+  color: var(--green);
+  margin-top: 5px;
+}
+
+/* ── BTN ── */
+.btn-primary {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, var(--purple-d), var(--purple));
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: .92rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  letter-spacing: .3px;
+  margin-top: 4px;
+  transition: opacity .18s, box-shadow .18s, transform .1s;
+  box-shadow: 0 4px 18px rgba(139,92,246,.35);
+}
+
+.btn-primary:hover {
+  opacity: .92;
+  box-shadow: 0 6px 24px rgba(139,92,246,.5);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active { transform: translateY(0); }
+
+/* ── SECTION LABEL ── */
+.section-label {
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--purple-l);
+  margin: 10px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── FOOTER ── */
+.card-footer {
+  text-align: center;
+  margin-top: 14px;
+  font-size: .84rem;
+  color: var(--muted);
+}
+
+.card-footer a {
+  color: var(--purple-l);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color .15s;
+}
+.card-footer a:hover { color: var(--teal-l); }
+
+/* ── TERMS ── */
+.terms {
+  margin-top: 8px;
+  font-size: .76rem;
+  color: var(--muted2);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.terms a { color: var(--purple-l); text-decoration: none; }
+.terms a:hover { text-decoration: underline; }
+
+/* ── MOBILE ── */
+@media (max-width: 520px) {
+  .header { padding: 14px 16px; }
+  .card { padding: 28px 18px 24px; border-radius: 14px; }
+  .form-row { grid-template-columns: 1fr; gap: 0; }
+  .form-row .form-group { margin-bottom: 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-logo"><img src="logos/scouteado_logo.png" alt="Scouteado"></div>
+  <span class="header-title">Scoute<span>ado</span></span>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="card">
+
+    <div class="card-header">
+      <h1>Crear cuenta</h1>
+      <p>Completá tus datos para registrarte</p>
+    </div>
+
+    <form id="registerForm" novalidate>
+
+      <!-- DATOS PERSONALES -->
+      <div class="section-label">Datos personales</div>
+
+      <div class="form-row">
+        <!-- NOMBRE -->
+        <div class="form-group">
+          <label for="nombre">Nombre</label>
+          <div class="input-wrap">
+            <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+            </svg>
+            <input type="text" id="nombre" placeholder="Juan" autocomplete="given-name">
+          </div>
+          <span class="error-msg" id="nombreErr">Ingresá tu nombre.</span>
+        </div>
+
+        <!-- APELLIDO -->
+        <div class="form-group">
+          <label for="apellido">Apellido</label>
+          <div class="input-wrap">
+            <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+            </svg>
+            <input type="text" id="apellido" placeholder="Pérez" autocomplete="family-name">
+          </div>
+          <span class="error-msg" id="apellidoErr">Ingresá tu apellido.</span>
+        </div>
+      </div>
+
+      <!-- TELÉFONO -->
+      <div class="form-group">
+        <label for="telefono">Teléfono</label>
+        <div class="input-wrap">
+          <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+          </svg>
+          <input type="tel" id="telefono" placeholder="+54 9 11 1234-5678" autocomplete="tel">
+        </div>
+        <span class="error-msg" id="telefonoErr">Ingresá un teléfono válido.</span>
+      </div>
+
+      <!-- CLUB -->
+      <div class="form-group">
+        <label for="club">Club</label>
+        <div class="input-wrap select-wrap">
+          <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10.496 2.132a1 1 0 00-.992 0l-7 4A1 1 0 003 7v7a1 1 0 100 2h14a1 1 0 100-2V7a1 1 0 00.496-1.868l-7-4z" clip-rule="evenodd"/>
+          </svg>
+          <select id="club">
+            <option value="">Seleccioná tu club…</option>
+            <option>AMANCAY (LR)</option>
+            <option>BARRIO PARQUE</option>
+            <option>BOCHAS (CC)</option>
+            <option>CENTENARIO (VT)</option>
+            <option>CENTRAL ENTRERRIANO</option>
+            <option>CICLISTA (J)</option>
+            <option>COLON (SF)</option>
+            <option>COMUNICACIONES</option>
+            <option>DEP. NORTE</option>
+            <option>DEP. VIEDMA</option>
+            <option>EL TALAR</option>
+            <option>ESTUDIANTES (T)</option>
+            <option>FUSIÓN RIOJANA</option>
+            <option>GIMNASIA (LP)</option>
+            <option>HINDÚ (C)</option>
+            <option>HURACÁN (LH)</option>
+            <option>INDEPENDIENTE (SDE)</option>
+            <option>JUJUY BÁSQUET</option>
+            <option>LA UNIÓN (C)</option>
+            <option>LANÚS</option>
+            <option>PERGAMINO BÁSQUET</option>
+            <option>PICO F.C.</option>
+            <option>PROVINCIAL (R)</option>
+            <option>QUILMES (MDP)</option>
+            <option>RACING (A)</option>
+            <option>RIVADAVIA (MZA)</option>
+            <option>ROCAMORA</option>
+            <option>SALTA BASKET</option>
+            <option>SAN ISIDRO</option>
+            <option>SANTA PAULA (G)</option>
+            <option>SP. SUARDI</option>
+            <option>UNIÓN (MDP)</option>
+            <option>VILLA MITRE (BB)</option>
+            <option>VILLA SAN MARTÍN</option>
+          </select>
+        </div>
+        <span class="error-msg" id="clubErr">Seleccioná tu club.</span>
+      </div>
+
+      <!-- ACCESO -->
+      <div class="section-label">Acceso</div>
+
+      <!-- EMAIL -->
+      <div class="form-group">
+        <label for="email">Correo electrónico</label>
+        <div class="input-wrap">
+          <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+          </svg>
+          <input type="email" id="email" placeholder="nombre@email.com" autocomplete="email">
+        </div>
+        <span class="error-msg" id="emailErr">Ingresá un correo válido.</span>
+      </div>
+
+      <!-- CONTRASEÑA -->
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <div class="input-wrap">
+          <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+          </svg>
+          <input type="password" id="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password"
+                 oninput="checkStrength(this.value)">
+          <button type="button" class="toggle-pass" onclick="togglePass('password', this)" title="Ver contraseña">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="17" height="17">
+              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+              <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+        </div>
+        <div class="pass-strength" id="strengthWrap" style="opacity:0">
+          <div class="strength-bar" id="bar1"></div>
+          <div class="strength-bar" id="bar2"></div>
+          <div class="strength-bar" id="bar3"></div>
+          <div class="strength-bar" id="bar4"></div>
+          <span class="strength-label" id="strengthLabel"></span>
+        </div>
+        <span class="error-msg" id="passErr">Mínimo 8 caracteres.</span>
+      </div>
+
+      <!-- CONFIRMAR CONTRASEÑA -->
+      <div class="form-group">
+        <label for="confirmPassword">Confirmar contraseña</label>
+        <div class="input-wrap">
+          <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+          </svg>
+          <input type="password" id="confirmPassword" placeholder="Repetí tu contraseña" autocomplete="new-password">
+          <button type="button" class="toggle-pass" onclick="togglePass('confirmPassword', this)" title="Ver contraseña">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="17" height="17">
+              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+              <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+        </div>
+        <span class="error-msg" id="confirmErr">Las contraseñas no coinciden.</span>
+      </div>
+
+      <div class="terms">
+        Al registrarte aceptás los <a href="#">Términos de uso</a> y la <a href="#">Política de privacidad</a>.
+      </div>
+
+      <button type="submit" class="btn-primary" style="margin-top:10px">Crear cuenta</button>
+
+    </form>
+
+    <div class="card-footer">
+      ¿Ya tenés cuenta? <a href="login.html">Iniciar sesión</a>
+    </div>
+
+  </div>
+</main>
+
+<script>
+const SUPABASE_URL  = 'https://repsndqhmyklxukffovf.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlcHNuZHFobXlrbHh1a2Zmb3ZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMjk2MjQsImV4cCI6MjA4ODkwNTYyNH0.-qf2As-3z6-doBhDYg-4mUt4mWLjxPyf4THZPUTaGYo';
+
+// Mostrar mensaje de error general debajo del botón
+function setFormError(msg) {
+  let el = document.getElementById('formErr');
+  if (!el) {
+    el = document.createElement('p');
+    el.id = 'formErr';
+    el.style.cssText = 'color:var(--red);font-size:.82rem;text-align:center;margin-top:10px';
+    document.querySelector('.btn-primary').insertAdjacentElement('afterend', el);
+  }
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
+// ── Toggle show/hide password ──
+function togglePass(inputId, btn) {
+  const input = document.getElementById(inputId);
+  const isHidden = input.type === 'password';
+  input.type = isHidden ? 'text' : 'password';
+  btn.innerHTML = isHidden
+    ? `<svg viewBox="0 0 20 20" fill="currentColor" width="17" height="17"><path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd"/><path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.064 7 9.542 7 .847 0 1.669-.105 2.454-.303z"/></svg>`
+    : `<svg viewBox="0 0 20 20" fill="currentColor" width="17" height="17"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>`;
+}
+
+// ── Password strength ──
+function checkStrength(val) {
+  const wrap  = document.getElementById('strengthWrap');
+  const label = document.getElementById('strengthLabel');
+  const bars  = [document.getElementById('bar1'), document.getElementById('bar2'),
+                 document.getElementById('bar3'), document.getElementById('bar4')];
+
+  if (!val) { wrap.style.opacity = '0'; return; }
+  wrap.style.opacity = '1';
+
+  let score = 0;
+  if (val.length >= 8)              score++;
+  if (/[A-Z]/.test(val))            score++;
+  if (/[0-9]/.test(val))            score++;
+  if (/[^A-Za-z0-9]/.test(val))     score++;
+
+  const levels = [
+    { color: '#f87171', text: 'Débil' },
+    { color: '#fb923c', text: 'Regular' },
+    { color: '#facc15', text: 'Buena' },
+    { color: '#34d399', text: 'Fuerte' },
+  ];
+
+  const lvl = levels[score - 1] || levels[0];
+  bars.forEach((b, i) => {
+    b.style.background = i < score ? lvl.color : 'var(--border2)';
+  });
+  label.textContent  = lvl.text;
+  label.style.color  = lvl.color;
+}
+
+// ── Validation helpers ──
+function setError(inputId, errId, show) {
+  const input = document.getElementById(inputId);
+  const err   = document.getElementById(errId);
+  err.style.display       = show ? 'block' : 'none';
+  input.style.borderColor = show ? 'var(--red)' : '';
+}
+
+// ── Form submit ──
+document.getElementById('registerForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const nombre   = document.getElementById('nombre').value.trim();
+  const apellido = document.getElementById('apellido').value.trim();
+  const telefono = document.getElementById('telefono').value.trim();
+  const club     = document.getElementById('club').value;
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const confirm  = document.getElementById('confirmPassword').value;
+
+  let valid = true;
+
+  if (!nombre)   { setError('nombre',   'nombreErr',   true); valid = false; }
+  else             setError('nombre',   'nombreErr',   false);
+
+  if (!apellido) { setError('apellido', 'apellidoErr', true); valid = false; }
+  else             setError('apellido', 'apellidoErr', false);
+
+  if (!telefono || !/^[\d\s\+\-\(\)]{7,}$/.test(telefono)) {
+    setError('telefono', 'telefonoErr', true); valid = false;
+  } else setError('telefono', 'telefonoErr', false);
+
+  if (!club)     { setError('club',     'clubErr',     true); valid = false; }
+  else             setError('club',     'clubErr',     false);
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    setError('email', 'emailErr', true); valid = false;
+  } else setError('email', 'emailErr', false);
+
+  if (!password || password.length < 8) {
+    setError('password', 'passErr', true); valid = false;
+  } else setError('password', 'passErr', false);
+
+  if (password !== confirm) {
+    setError('confirmPassword', 'confirmErr', true); valid = false;
+  } else setError('confirmPassword', 'confirmErr', false);
+
+  if (!valid) return;
+
+  // Llamada al backend
+  const btn = document.querySelector('.btn-primary');
+  btn.disabled    = true;
+  btn.textContent = 'Creando cuenta…';
+  setFormError('');
+
+  try {
+    const res  = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+      method:  'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON,
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        data: { nombre, apellido, telefono, club },
+      }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      const msg = data.msg || data.error_description || data.error || 'Error al crear la cuenta.';
+      setFormError(msg);
+      return;
+    }
+
+    // Si Supabase devuelve identities vacío, el email ya estaba registrado
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      setFormError('El correo ya está registrado. Iniciá sesión.');
+      return;
+    }
+
+    // Redirigir al login
+    window.location.href = 'login.html';
+
+  } catch (err) {
+    setFormError('No se pudo conectar. Intentá de nuevo.');
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'Crear cuenta';
+  }
+});
+</script>
+</body>
+</html>

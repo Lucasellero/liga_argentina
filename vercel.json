@@ -1,6 +1,0 @@
-{
-  "outputDirectory": "docs",
-  "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/index" }
-  ]
-}
