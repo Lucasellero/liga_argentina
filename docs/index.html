@@ -305,6 +305,10 @@ tbody td:nth-child(2){text-align:left;color:var(--muted);font-size:.76rem;}
 .win-rate-high{color:var(--green);font-weight:700;}
 .win-rate-mid{color:var(--orange);font-weight:600;}
 .win-rate-low{color:var(--red);font-weight:600;}
+/* ── Tooltip de encabezado ── */
+#thTip{position:fixed;z-index:9999;background:var(--surface2);border:1px solid var(--border2);color:var(--text);
+  padding:7px 11px;border-radius:7px;font-size:.76rem;font-weight:400;line-height:1.5;max-width:250px;
+  pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.55);display:none;white-space:normal;}
 /* ── Posiciones ── */
 .pos-table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 .pos-outer{padding:24px 20px;max-width:900px;margin:0 auto;}
@@ -660,6 +664,11 @@ canvas{display:block;width:100%;cursor:crosshair;}
   background:rgba(139,92,246,.18);color:var(--purple-l);letter-spacing:.3px;}
 .pcard-badge-v{font-size:.55rem;font-weight:800;padding:1px 5px;border-radius:3px;
   background:rgba(45,212,191,.12);color:var(--teal-l);letter-spacing:.3px;}
+.partido-card.upcoming{cursor:default;}
+.partido-card.upcoming:hover{border-color:var(--border2);background:var(--surface);box-shadow:none;}
+.pcard-hora{font-size:1.05rem;font-weight:800;color:var(--muted);letter-spacing:.5px;}
+.pcard-estadio{font-size:.56rem;color:var(--muted2);text-align:center;max-width:96px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
 /* ── BOX SCORE PANEL ─────────────────────────────── */
 .tgm-box-panel{overflow-y:auto;flex:1;padding:0 0 12px;}
@@ -1135,6 +1144,11 @@ canvas{display:block;width:100%;cursor:crosshair;}
         <button id="jPeriodL5" onclick="setJPeriod('last5')">Últ. 5</button>
         <button id="jPeriodL10" onclick="setJPeriod('last10')">Últ. 10</button>
       </div>
+      <div class="tbl-toggle">
+        <button class="active" id="jLocVisAll" onclick="setJLocVis('all')">Todos</button>
+        <button id="jLocVisLocal" onclick="setJLocVis('local')">Local</button>
+        <button id="jLocVisVisit" onclick="setJLocVis('visit')">Visitante</button>
+      </div>
       <button class="cmp-toggle-btn" onclick="switchSection('j-chart')">Comparar jugadores</button>
     </div>
   <div class="scroll-bar-outer" id="jScrollOuter"><div class="scroll-bar-inner" id="jScrollInner"></div></div>
@@ -1143,31 +1157,31 @@ canvas{display:block;width:100%;cursor:crosshair;}
       <table>
         <thead><tr>
           <th class="rank-th">#</th>
-          <th data-c="name" data-d="asc">Jugador</th>
-          <th data-c="Equipo" data-d="asc">Equipo</th>
-          <th data-c="PJ" data-d="desc">PJ</th>
-          <th data-c="MPG" data-d="desc">MIN</th>
-          <th data-c="VPG" data-d="desc">VAL</th>
-          <th data-c="PPG" data-d="desc">PTS</th>
-          <th data-c="TCAPG" data-d="desc" class="tc-group">TCC</th>
-          <th data-c="TCIPG" data-d="desc" class="tc-group">TCI</th>
-          <th data-c="TC%" data-d="desc" class="tc-group">TC%</th>
-          <th data-c="T2APG" data-d="desc">T2C</th>
-          <th data-c="T2IPG" data-d="desc">T2I</th>
-          <th data-c="T2%" data-d="desc">T2%</th>
-          <th data-c="T3APG" data-d="desc">T3C</th>
-          <th data-c="T3IPG" data-d="desc">T3I</th>
-          <th data-c="T3%" data-d="desc">T3%</th>
-          <th data-c="T1APG" data-d="desc">T1C</th>
-          <th data-c="T1IPG" data-d="desc">T1I</th>
-          <th data-c="T1%" data-d="desc">T1%</th>
-          <th data-c="RDPG" data-d="desc">RD</th>
-          <th data-c="ROPG" data-d="desc">RO</th>
-          <th data-c="RPG" data-d="desc">RT</th>
-          <th data-c="APG" data-d="desc">AST</th>
-          <th data-c="SPG" data-d="desc">REC</th>
-          <th data-c="TPG" data-d="desc">PÉR</th>
-          <th data-c="BPG" data-d="desc">TAP</th>
+          <th data-c="name" data-d="asc" data-tip="Nombre del jugador">Jugador</th>
+          <th data-c="Equipo" data-d="asc" data-tip="Equipo del jugador">Equipo</th>
+          <th data-c="PJ" data-d="desc" data-tip="Partidos jugados">PJ</th>
+          <th data-c="MPG" data-d="desc" data-tip="Minutos por partido">MIN</th>
+          <th data-c="VPG" data-d="desc" data-tip="Valoración por partido">VAL</th>
+          <th data-c="PPG" data-d="desc" data-tip="Puntos por partido">PTS</th>
+          <th data-c="TCAPG" data-d="desc" class="tc-group" data-tip="Tiros de campo intentados/partido (2P + 3P)">TCC</th>
+          <th data-c="TCIPG" data-d="desc" class="tc-group" data-tip="Tiros de campo convertidos/partido (2P + 3P)">TCI</th>
+          <th data-c="TC%" data-d="desc" class="tc-group" data-tip="% tiros de campo · (T2I + T3I) / (T2A + T3A)">TC%</th>
+          <th data-c="T2APG" data-d="desc" data-tip="Tiros de 2 pts intentados/partido">T2C</th>
+          <th data-c="T2IPG" data-d="desc" data-tip="Tiros de 2 pts convertidos/partido">T2I</th>
+          <th data-c="T2%" data-d="desc" data-tip="% de tiros de 2 pts · T2I / T2A">T2%</th>
+          <th data-c="T3APG" data-d="desc" data-tip="Tiros de 3 pts intentados/partido">T3C</th>
+          <th data-c="T3IPG" data-d="desc" data-tip="Tiros de 3 pts convertidos/partido">T3I</th>
+          <th data-c="T3%" data-d="desc" data-tip="% de tiros de 3 pts · T3I / T3A">T3%</th>
+          <th data-c="T1APG" data-d="desc" data-tip="Tiros libres intentados/partido">T1C</th>
+          <th data-c="T1IPG" data-d="desc" data-tip="Tiros libres convertidos/partido">T1I</th>
+          <th data-c="T1%" data-d="desc" data-tip="% de tiros libres · T1I / T1A">T1%</th>
+          <th data-c="RDPG" data-d="desc" data-tip="Rebotes defensivos/partido">RD</th>
+          <th data-c="ROPG" data-d="desc" data-tip="Rebotes ofensivos/partido">RO</th>
+          <th data-c="RPG" data-d="desc" data-tip="Rebotes totales/partido (RD + RO)">RT</th>
+          <th data-c="APG" data-d="desc" data-tip="Asistencias/partido">AST</th>
+          <th data-c="SPG" data-d="desc" data-tip="Recuperos/partido (robos de balón)">REC</th>
+          <th data-c="TPG" data-d="desc" data-tip="Pérdidas/partido">PÉR</th>
+          <th data-c="BPG" data-d="desc" data-tip="Tapones/partido">TAP</th>
         </tr></thead>
         <tbody id="jTbody"></tbody>
       </table>
@@ -1176,20 +1190,20 @@ canvas{display:block;width:100%;cursor:crosshair;}
       <table>
         <thead><tr>
           <th class="rank-th">#</th>
-          <th data-ca="name" data-da="asc">Jugador</th>
-          <th data-ca="Equipo" data-da="asc">Equipo</th>
-          <th data-ca="PJ" data-da="desc">PJ</th>
-          <th data-ca="MPG" data-da="desc">MIN</th>
-          <th data-ca="POS" data-da="desc">POS</th>
-          <th data-ca="PTS/POS" data-da="desc">PTS/POS</th>
-          <th data-ca="EFG%" data-da="desc">EFG%</th>
-          <th data-ca="TS%" data-da="desc">TS%</th>
-          <th data-ca="TO%" data-da="asc">TO%</th>
-          <th data-ca="AST/TO" data-da="desc">AST/TO</th>
-          <th data-ca="3PI/TI" data-da="desc">3PI/TI</th>
-          <th data-ca="ORtg" data-da="desc" title="Puntos producidos por 100 posesiones individuales">ORtg</th>
-          <th data-ca="USG%" data-da="desc" title="% de posesiones del equipo usadas por el jugador">USG%</th>
-          <th data-ca="ORB%" data-da="desc" title="% de rebotes ofensivos disponibles capturados">ORB%</th>
+          <th data-ca="name" data-da="asc" data-tip="Nombre del jugador">Jugador</th>
+          <th data-ca="Equipo" data-da="asc" data-tip="Equipo del jugador">Equipo</th>
+          <th data-ca="PJ" data-da="desc" data-tip="Partidos jugados">PJ</th>
+          <th data-ca="MPG" data-da="desc" data-tip="Minutos por partido">MIN</th>
+          <th data-ca="POS" data-da="desc" data-tip="Posesiones individuales estimadas/partido">POS</th>
+          <th data-ca="PTS/POS" data-da="desc" data-tip="Puntos anotados por posesión individual">PTS/POS</th>
+          <th data-ca="EFG%" data-da="desc" data-tip="% campo efectivo, pesa los triples por su mayor valor · (T2I + 1.5×T3I) / (T2A + T3A)">EFG%</th>
+          <th data-ca="TS%" data-da="desc" data-tip="True Shooting: eficiencia real incluyendo libres · PTS / (2×(TCA + 0.44×T1A))">TS%</th>
+          <th data-ca="TO%" data-da="asc" data-tip="% de posesiones individuales terminadas en pérdida (menor = mejor)">TO%</th>
+          <th data-ca="AST/TO" data-da="desc" data-tip="Ratio asistencias / pérdidas">AST/TO</th>
+          <th data-ca="3PI/TI" data-da="desc" data-tip="% de tiros convertidos que son triples · T3I / (T2I + T3I)">3PI/TI</th>
+          <th data-ca="ORtg" data-da="desc" data-tip="Puntos producidos por 100 posesiones individuales">ORtg</th>
+          <th data-ca="USG%" data-da="desc" data-tip="% de posesiones del equipo usadas por el jugador mientras está en cancha">USG%</th>
+          <th data-ca="ORB%" data-da="desc" data-tip="% de rebotes ofensivos disponibles capturados por el jugador">ORB%</th>
         </tr></thead>
         <tbody id="jTbodyAdv"></tbody>
       </table>
@@ -1382,6 +1396,11 @@ canvas{display:block;width:100%;cursor:crosshair;}
       <button id="tPeriodL5" onclick="setTPeriod('last5')">Últ. 5</button>
       <button id="tPeriodL10" onclick="setTPeriod('last10')">Últ. 10</button>
     </div>
+    <div class="tbl-toggle">
+      <button class="active" id="tLocVisAll" onclick="setTLocVis('all')">Todos</button>
+      <button id="tLocVisLocal" onclick="setTLocVis('local')">Local</button>
+      <button id="tLocVisVisit" onclick="setTLocVis('visit')">Visitante</button>
+    </div>
     <button class="cmp-toggle-btn" id="cmpToggleBtn" onclick="toggleCmpPanel()">Comparar equipos</button>
   </div>
   <!-- TEAM COMPARISON PANEL -->
@@ -1397,29 +1416,29 @@ canvas{display:block;width:100%;cursor:crosshair;}
       <table>
         <thead><tr>
           <th class="rank-th">#</th>
-          <th data-c="Equipo" data-d="asc">Equipo</th>
-          <th data-c="PJ" data-d="desc">PJ</th>
-          <th data-c="Ganados" data-d="desc">G</th>
-          <th data-c="Perdidos" data-d="asc">P</th>
-          <th data-c="W%" data-d="desc">W%</th>
-          <th data-c="PTSPG" data-d="desc">PTS</th>
-          <th data-c="T2APG" data-d="desc">T2C</th>
-          <th data-c="T2IPG" data-d="desc">T2I</th>
-          <th data-c="T2%" data-d="desc">T2%</th>
-          <th data-c="T3APG" data-d="desc">T3C</th>
-          <th data-c="T3IPG" data-d="desc">T3I</th>
-          <th data-c="T3%" data-d="desc">T3%</th>
-          <th data-c="T1APG" data-d="desc">T1C</th>
-          <th data-c="T1IPG" data-d="desc">T1I</th>
-          <th data-c="T1%" data-d="desc">T1%</th>
-          <th data-c="RDPG" data-d="desc">RD</th>
-          <th data-c="ROPG" data-d="desc">RO</th>
-          <th data-c="RTPG" data-d="desc">RT</th>
-          <th data-c="ASTPG" data-d="desc">AST</th>
-          <th data-c="RECPG" data-d="desc">REC</th>
-          <th data-c="PERPG" data-d="desc">PÉR</th>
-          <th data-c="TAPPG" data-d="desc">TAP</th>
-          <th data-c="VALPG" data-d="desc">VAL</th>
+          <th data-c="Equipo" data-d="asc" data-tip="Nombre del equipo">Equipo</th>
+          <th data-c="PJ" data-d="desc" data-tip="Partidos jugados">PJ</th>
+          <th data-c="Ganados" data-d="desc" data-tip="Partidos ganados">G</th>
+          <th data-c="Perdidos" data-d="asc" data-tip="Partidos perdidos">P</th>
+          <th data-c="W%" data-d="desc" data-tip="% de victorias · G / PJ">W%</th>
+          <th data-c="PTSPG" data-d="desc" data-tip="Puntos por partido">PTS</th>
+          <th data-c="T2APG" data-d="desc" data-tip="Tiros de 2 pts intentados/partido">T2C</th>
+          <th data-c="T2IPG" data-d="desc" data-tip="Tiros de 2 pts convertidos/partido">T2I</th>
+          <th data-c="T2%" data-d="desc" data-tip="% de tiros de 2 pts · T2I / T2A">T2%</th>
+          <th data-c="T3APG" data-d="desc" data-tip="Tiros de 3 pts intentados/partido">T3C</th>
+          <th data-c="T3IPG" data-d="desc" data-tip="Tiros de 3 pts convertidos/partido">T3I</th>
+          <th data-c="T3%" data-d="desc" data-tip="% de tiros de 3 pts · T3I / T3A">T3%</th>
+          <th data-c="T1APG" data-d="desc" data-tip="Tiros libres intentados/partido">T1C</th>
+          <th data-c="T1IPG" data-d="desc" data-tip="Tiros libres convertidos/partido">T1I</th>
+          <th data-c="T1%" data-d="desc" data-tip="% de tiros libres · T1I / T1A">T1%</th>
+          <th data-c="RDPG" data-d="desc" data-tip="Rebotes defensivos/partido">RD</th>
+          <th data-c="ROPG" data-d="desc" data-tip="Rebotes ofensivos/partido">RO</th>
+          <th data-c="RTPG" data-d="desc" data-tip="Rebotes totales/partido (RD + RO)">RT</th>
+          <th data-c="ASTPG" data-d="desc" data-tip="Asistencias/partido">AST</th>
+          <th data-c="RECPG" data-d="desc" data-tip="Recuperos/partido (robos de balón)">REC</th>
+          <th data-c="PERPG" data-d="desc" data-tip="Pérdidas/partido">PÉR</th>
+          <th data-c="TAPPG" data-d="desc" data-tip="Tapones/partido">TAP</th>
+          <th data-c="VALPG" data-d="desc" data-tip="Valoración/partido">VAL</th>
         </tr></thead>
         <tbody id="tTbody"></tbody>
       </table>
@@ -1428,23 +1447,23 @@ canvas{display:block;width:100%;cursor:crosshair;}
       <table>
         <thead><tr>
           <th class="rank-th">#</th>
-          <th data-ca="Equipo" data-da="asc">Equipo</th>
-          <th data-ca="PJ" data-da="desc">PJ</th>
-          <th data-ca="Ganados" data-da="desc">G</th>
-          <th data-ca="W%" data-da="desc">W%</th>
-          <th data-ca="PACE" data-da="desc" title="Posesiones por partido (40')">PACE</th>
-          <th data-ca="ORtg" data-da="desc" title="Puntos anotados por 100 posesiones">ORtg</th>
-          <th data-ca="DRtg" data-da="asc" title="Puntos rivales por 100 posesiones (menor = mejor)">DRtg</th>
-          <th data-ca="NetRtg" data-da="desc" title="ORtg − DRtg">NetRtg</th>
-          <th data-ca="EFG%" data-da="desc" title="Efectividad de campo ajustada por triples">EFG%</th>
-          <th data-ca="TS%" data-da="desc" title="True Shooting: eficiencia real incluyendo TL">TS%</th>
-          <th data-ca="TOV%" data-da="asc" title="Pérdidas por cada 100 posesiones">TOV%</th>
-          <th data-ca="ORB%" data-da="desc" title="% de rebotes ofensivos disponibles capturados">ORB%</th>
-          <th data-ca="PTSPG" data-da="desc">PTS</th>
-          <th data-ca="ASTPG" data-da="desc">AST</th>
-          <th data-ca="PERPG" data-da="desc">PÉR</th>
-          <th data-ca="RECPG" data-da="desc">REC</th>
-          <th data-ca="TAPPG" data-da="desc">TAP</th>
+          <th data-ca="Equipo" data-da="asc" data-tip="Nombre del equipo">Equipo</th>
+          <th data-ca="PJ" data-da="desc" data-tip="Partidos jugados">PJ</th>
+          <th data-ca="Ganados" data-da="desc" data-tip="Partidos ganados">G</th>
+          <th data-ca="W%" data-da="desc" data-tip="% de victorias · G / PJ">W%</th>
+          <th data-ca="PACE" data-da="desc" data-tip="Posesiones por partido (ritmo de juego)">PACE</th>
+          <th data-ca="ORtg" data-da="desc" data-tip="Eficiencia ofensiva: puntos anotados por 100 posesiones">ORtg</th>
+          <th data-ca="DRtg" data-da="asc" data-tip="Eficiencia defensiva: puntos rivales por 100 posesiones (menor = mejor)">DRtg</th>
+          <th data-ca="NetRtg" data-da="desc" data-tip="Net Rating: ORtg − DRtg">NetRtg</th>
+          <th data-ca="EFG%" data-da="desc" data-tip="% campo efectivo, pesa los triples por su mayor valor · (T2I + 1.5×T3I) / (T2A + T3A)">EFG%</th>
+          <th data-ca="TS%" data-da="desc" data-tip="True Shooting: eficiencia real incluyendo libres · PTS / (2×(TCA + 0.44×T1A))">TS%</th>
+          <th data-ca="TOV%" data-da="asc" data-tip="Pérdidas por cada 100 posesiones (menor = mejor)">TOV%</th>
+          <th data-ca="ORB%" data-da="desc" data-tip="% de rebotes ofensivos disponibles capturados">ORB%</th>
+          <th data-ca="PTSPG" data-da="desc" data-tip="Puntos por partido">PTS</th>
+          <th data-ca="ASTPG" data-da="desc" data-tip="Asistencias/partido">AST</th>
+          <th data-ca="PERPG" data-da="desc" data-tip="Pérdidas/partido">PÉR</th>
+          <th data-ca="RECPG" data-da="desc" data-tip="Recuperos/partido (robos de balón)">REC</th>
+          <th data-ca="TAPPG" data-da="desc" data-tip="Tapones/partido">TAP</th>
         </tr></thead>
         <tbody id="tTbodyAdv"></tbody>
       </table>
@@ -1621,10 +1640,10 @@ canvas{display:block;width:100%;cursor:crosshair;}
       <div class="pos-table-scroll">
         <table class="pos-table">
           <thead><tr>
-            <th>#</th><th>Equipo</th>
-            <th>PJ</th><th>G</th><th>P</th>
-            <th>W%</th><th>PTS/P</th><th>PTS REC/P</th><th>DIF/P</th>
-            <th>LOCAL</th><th>VISITA</th><th>ÚLTIMOS 5</th>
+            <th data-tip="Posición en la conferencia">#</th><th data-tip="Nombre del equipo">Equipo</th>
+            <th data-tip="Partidos jugados">PJ</th><th data-tip="Partidos ganados">G</th><th data-tip="Partidos perdidos">P</th>
+            <th data-tip="% de victorias · G / PJ">W%</th><th data-tip="Puntos anotados por partido">PTS/P</th><th data-tip="Puntos recibidos por partido">PTS REC/P</th><th data-tip="Diferencial de puntos/partido · PTS/P − PTS REC/P">DIF/P</th>
+            <th data-tip="Récord como local (G-P)">LOCAL</th><th data-tip="Récord como visitante (G-P)">VISITA</th><th data-tip="Récord en los últimos 5 partidos (G-P)">ÚLTIMOS 5</th>
           </tr></thead>
           <tbody id="posNorteTbody"></tbody>
         </table>
@@ -1635,10 +1654,10 @@ canvas{display:block;width:100%;cursor:crosshair;}
       <div class="pos-table-scroll">
         <table class="pos-table">
           <thead><tr>
-            <th>#</th><th>Equipo</th>
-            <th>PJ</th><th>G</th><th>P</th>
-            <th>W%</th><th>PTS/P</th><th>PTS REC/P</th><th>DIF/P</th>
-            <th>LOCAL</th><th>VISITA</th><th>ÚLTIMOS 5</th>
+            <th data-tip="Posición en la conferencia">#</th><th data-tip="Nombre del equipo">Equipo</th>
+            <th data-tip="Partidos jugados">PJ</th><th data-tip="Partidos ganados">G</th><th data-tip="Partidos perdidos">P</th>
+            <th data-tip="% de victorias · G / PJ">W%</th><th data-tip="Puntos anotados por partido">PTS/P</th><th data-tip="Puntos recibidos por partido">PTS REC/P</th><th data-tip="Diferencial de puntos/partido · PTS/P − PTS REC/P">DIF/P</th>
+            <th data-tip="Récord como local (G-P)">LOCAL</th><th data-tip="Récord como visitante (G-P)">VISITA</th><th data-tip="Récord en los últimos 5 partidos (G-P)">ÚLTIMOS 5</th>
           </tr></thead>
           <tbody id="posSurTbody"></tbody>
         </table>
@@ -1692,7 +1711,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
 <div class="section" id="sec-j-conexiones">
   <div class="cnx-outer">
     <div class="cnx-header">
-      <span class="cnx-title">Conexiones</span>
+      <span class="cnx-title">Red de Asistencias</span>
       <div class="cnx-controls">
         <select id="cnxTeam" onchange="onCnxTeamChange()">
           <option value="">Seleccioná un equipo</option>
@@ -1702,25 +1721,25 @@ canvas{display:block;width:100%;cursor:crosshair;}
         </select>
       </div>
     </div>
-    <div id="cnxEmpty" class="cnx-empty">Seleccioná un equipo y un jugador para ver sus conexiones con el resto del plantel</div>
+    <div id="cnxEmpty" class="cnx-empty">Seleccioná un equipo y un jugador para ver su red de asistencias</div>
     <div id="cnxLoading" class="cnx-loading" style="display:none">Cargando datos de jugada a jugada...</div>
     <div id="cnxContent" style="display:none">
       <div class="cnx-legend">
         <div class="cnx-legend-item">
+          <svg width="36" height="16" style="vertical-align:middle;overflow:visible"><defs><marker id="lgArP" markerWidth="12" markerHeight="16" refX="11" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0.5 L11,8 L0,15.5 L3,8 z" fill="#8b5cf6"/></marker></defs><line x1="2" y1="8" x2="22" y2="8" stroke="#8b5cf6" stroke-width="2.5" marker-end="url(#lgArP)"/></svg>
+          <span>Asistencias dadas</span>
+        </div>
+        <div class="cnx-legend-item">
+          <svg width="36" height="16" style="vertical-align:middle;overflow:visible"><defs><marker id="lgArT" markerWidth="12" markerHeight="16" refX="11" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0.5 L11,8 L0,15.5 L3,8 z" fill="#2dd4bf"/></marker></defs><line x1="2" y1="8" x2="22" y2="8" stroke="#2dd4bf" stroke-width="2.5" marker-end="url(#lgArT)"/></svg>
+          <span>Asistencias recibidas</span>
+        </div>
+        <div class="cnx-legend-item">
           <div class="cnx-legend-line thin"></div>
-          <span>Pocas asistencias juntos</span>
+          <span>Pocas asistencias</span>
         </div>
         <div class="cnx-legend-item">
           <div class="cnx-legend-line thick"></div>
-          <span>Muchas asistencias juntos</span>
-        </div>
-        <div class="cnx-legend-item">
-          <div class="cnx-legend-dot low"></div>
-          <span>Bajos puntos/40 min juntos</span>
-        </div>
-        <div class="cnx-legend-item">
-          <div class="cnx-legend-dot high"></div>
-          <span>Altos puntos/40 min juntos</span>
+          <span>Muchas asistencias</span>
         </div>
       </div>
       <div class="cnx-canvas-wrap">
@@ -1798,6 +1817,8 @@ canvas{display:block;width:100%;cursor:crosshair;}
   </div>
 </div>
 
+<div id="thTip"></div>
+
 <script>
 // ── Auth guard ────────────────────────────────────────────────────────────────
 (function() {
@@ -1844,6 +1865,8 @@ function authLogout() {
 const CSV_PATH = 'liga_argentina.csv';
 let TEAM_MAP = {}, PLAYERS = [], TEAMS = [];
 let GAMES_ALL = [];        // all unique games (deduplicated)
+
+// Upcoming fixture — hardcoded; merged into GAMES_ALL, deduped against played games
 let GAME_PLAYERS_MAP = {}; // IdPartido → player rows[]
 let _partidoMode = false;  // true when modal is opened from sec-partidos
 
@@ -1950,6 +1973,7 @@ function buildRAW_T(rows) {
             ptsFor: parseFloat(my['Puntos']) || 0,
             ptsAgainst: parseFloat(opp['Puntos']) || 0,
             ganado: my['Ganado'] === 'True',
+            estadio: my['Estadio'] || '',
             myS: extractS(my), oppS: extractS(opp),
           });
         }
@@ -2009,7 +2033,9 @@ const LBL_T={ORtg:'ORtg',DRtg:'DRtg',NetRtg:'NetRtg','W%':'W%',PTSPG:'PTS/p',POS
 let jFiltered=[], tFiltered=[];
 let jSort='PPG', jDir='desc';
 let jPeriod='all';
+let jLocVis='all';
 let tPeriod='all';
+let tLocVis='all';
 let szcPeriod='all';
 let szcCurrentIdx=-1;
 let tSort='W%', tDir='desc';
@@ -2065,6 +2091,7 @@ function switchSection(id) {
     document.getElementById('subJugadores').style.display = 'none';
     if (event && event.currentTarget) event.currentTarget.classList.add('active');
   }
+  if(id==='partidos') showUpcomingDefault();
   if(id==='j-tiro') {
     const main = document.getElementById('szcMain');
     if (main && main.style.display !== 'block') {
@@ -2189,6 +2216,16 @@ function computeStatsFromGames(games, tm) {
 }
 
 function getPlayerData(p) {
+  if(jLocVis==='local'){
+    if(jPeriod==='last5'&&p._last5Local)return p._last5Local;
+    if(jPeriod==='last10'&&p._last10Local)return p._last10Local;
+    if(p._local)return p._local;
+  }
+  if(jLocVis==='visit'){
+    if(jPeriod==='last5'&&p._last5Visit)return p._last5Visit;
+    if(jPeriod==='last10'&&p._last10Visit)return p._last10Visit;
+    if(p._visit)return p._visit;
+  }
   if(jPeriod==='last5'&&p._last5)return p._last5;
   if(jPeriod==='last10'&&p._last10)return p._last10;
   return p;
@@ -2199,6 +2236,14 @@ function setJPeriod(period) {
   ['jPeriodAll','jPeriodL5','jPeriodL10'].forEach(id=>document.getElementById(id).classList.remove('active'));
   const map={all:'jPeriodAll',last5:'jPeriodL5',last10:'jPeriodL10'};
   document.getElementById(map[period]).classList.add('active');
+  renderJTable();
+}
+
+function setJLocVis(v) {
+  jLocVis=v;
+  ['jLocVisAll','jLocVisLocal','jLocVisVisit'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  const map={all:'jLocVisAll',local:'jLocVisLocal',visit:'jLocVisVisit'};
+  document.getElementById(map[v]).classList.add('active');
   renderJTable();
 }
 
@@ -2421,6 +2466,16 @@ function computeTeamStatsFromGames(gamelog) {
 }
 
 function getTeamData(t) {
+  if(tLocVis==='local'){
+    if(tPeriod==='last5'&&t._last5Local)return t._last5Local;
+    if(tPeriod==='last10'&&t._last10Local)return t._last10Local;
+    if(t._local)return t._local;
+  }
+  if(tLocVis==='visit'){
+    if(tPeriod==='last5'&&t._last5Visit)return t._last5Visit;
+    if(tPeriod==='last10'&&t._last10Visit)return t._last10Visit;
+    if(t._visit)return t._visit;
+  }
   if(tPeriod==='last5'&&t._last5)return t._last5;
   if(tPeriod==='last10'&&t._last10)return t._last10;
   return t;
@@ -2431,6 +2486,14 @@ function setTPeriod(period) {
   ['tPeriodAll','tPeriodL5','tPeriodL10'].forEach(id=>document.getElementById(id).classList.remove('active'));
   const map={all:'tPeriodAll',last5:'tPeriodL5',last10:'tPeriodL10'};
   document.getElementById(map[period]).classList.add('active');
+  renderTTable();
+}
+
+function setTLocVis(v) {
+  tLocVis=v;
+  ['tLocVisAll','tLocVisLocal','tLocVisVisit'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  const map={all:'tLocVisAll',local:'tLocVisLocal',visit:'tLocVisVisit'};
+  document.getElementById(map[v]).classList.add('active');
   renderTTable();
 }
 
@@ -3352,22 +3415,22 @@ function renderBoxScore(gameId, localTeam, visitTeam) {
     const logoSrc = LOGOS[teamName];
     const logoHtml = logoSrc ? `<img src="${logoSrc}" style="width:20px;height:20px;object-fit:contain;vertical-align:middle;margin-right:6px" onerror="this.style.display='none'">` : '';
     const cols = [
-      {k:'name',   l:'Jugador',  al:'left'},
-      {k:'min',    l:'Min',      al:'center'},
-      {k:'pts',    l:'PTS',      al:'right'},
-      {k:'t2',     l:'Dobles',   al:'right'},
-      {k:'t3',     l:'Triples',  al:'right'},
-      {k:'t1',     l:'TL',       al:'right'},
-      {k:'treb',   l:'REB',      al:'right'},
-      {k:'dreb',   l:'RD',       al:'right'},
-      {k:'oreb',   l:'RO',       al:'right'},
-      {k:'ast',    l:'AST',      al:'right'},
-      {k:'rec',    l:'REC',      al:'right'},
-      {k:'per',    l:'PER',      al:'right'},
-      {k:'tap',    l:'TAP',      al:'right'},
-      {k:'val',    l:'VAL',      al:'right'},
+      {k:'name',   l:'Jugador',  al:'left',   tip:'Nombre del jugador (● = titular)'},
+      {k:'min',    l:'Min',      al:'center', tip:'Minutos jugados (DNP = no jugó)'},
+      {k:'pts',    l:'PTS',      al:'right',  tip:'Puntos anotados'},
+      {k:'t2',     l:'Dobles',   al:'right',  tip:'Tiros de 2 pts (convertidos/intentados)'},
+      {k:'t3',     l:'Triples',  al:'right',  tip:'Tiros de 3 pts (convertidos/intentados)'},
+      {k:'t1',     l:'TL',       al:'right',  tip:'Tiros libres (convertidos/intentados)'},
+      {k:'treb',   l:'REB',      al:'right',  tip:'Rebotes totales (RD + RO)'},
+      {k:'dreb',   l:'RD',       al:'right',  tip:'Rebotes defensivos'},
+      {k:'oreb',   l:'RO',       al:'right',  tip:'Rebotes ofensivos'},
+      {k:'ast',    l:'AST',      al:'right',  tip:'Asistencias'},
+      {k:'rec',    l:'REC',      al:'right',  tip:'Recuperos (robos de balón)'},
+      {k:'per',    l:'PER',      al:'right',  tip:'Pérdidas'},
+      {k:'tap',    l:'TAP',      al:'right',  tip:'Tapones'},
+      {k:'val',    l:'VAL',      al:'right',  tip:'Valoración del partido'},
     ];
-    const thead = cols.map(c=>`<th style="text-align:${c.al}">${c.l}</th>`).join('');
+    const thead = cols.map(c=>`<th style="text-align:${c.al}" data-tip="${c.tip}">${c.l}</th>`).join('');
     const tbody = players.map(r => {
       const t2a=parseFloat(r['T2A'])||0, t2i=parseFloat(r['T2I'])||0;
       const t3a=parseFloat(r['T3A'])||0, t3i=parseFloat(r['T3I'])||0;
@@ -3431,11 +3494,17 @@ function onPartidoFilter() {
   renderPartidoList(filtered);
 }
 
-function clearPartidoFilter() {
-  document.getElementById('pTeam').value    = '';
+function showUpcomingDefault() {
+  document.getElementById('pTeam').value     = '';
   document.getElementById('pDateFrom').value = '';
   document.getElementById('pDateTo').value   = '';
-  onPartidoFilter();
+  const upcoming = GAMES_ALL.filter(g => g.upcoming);
+  document.getElementById('pCount').textContent = upcoming.length;
+  renderPartidoList(upcoming, true);
+}
+
+function clearPartidoFilter() {
+  showUpcomingDefault();
 }
 
 function _formatFechaLarga(s) {
@@ -3443,17 +3512,19 @@ function _formatFechaLarga(s) {
   return date.toLocaleDateString('es-AR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
 }
 
-function renderPartidoList(games) {
+function renderPartidoList(games, ascending=false) {
   const el = document.getElementById('pGameList');
   document.getElementById('pCount').textContent = games.length;
   if (!games.length) {
     el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:48px 0;font-size:.88rem">No hay partidos para los filtros seleccionados.</div>';
     return;
   }
-  // Group by fecha (newest first)
+  // Group by fecha
   const byDate = {};
   games.forEach(g => { if (!byDate[g.fecha]) byDate[g.fecha]=[]; byDate[g.fecha].push(g); });
-  const sortedDates = Object.keys(byDate).sort((a,b) => _partidoFechaToDate(b) - _partidoFechaToDate(a));
+  const sortedDates = Object.keys(byDate).sort((a,b) => ascending
+    ? _partidoFechaToDate(a) - _partidoFechaToDate(b)
+    : _partidoFechaToDate(b) - _partidoFechaToDate(a));
 
   let html = '';
   sortedDates.forEach(fecha => {
@@ -3462,6 +3533,27 @@ function renderPartidoList(games) {
     const cards  = dayGames.map(g => {
       const ll = LOGOS[g.local]  ? `<img src="${LOGOS[g.local]}"  class="pcard-logo" alt="" onerror="this.style.display='none'">` : '';
       const vl = LOGOS[g.visit]  ? `<img src="${LOGOS[g.visit]}"  class="pcard-logo" alt="" onerror="this.style.display='none'">` : '';
+      if (g.upcoming) {
+        return `<div class="partido-card upcoming" data-gid="${g.gameId}">
+          <div class="pcard-side local">
+            ${ll}
+            <span class="pcard-name">${g.local}</span>
+          </div>
+          <div class="pcard-center">
+            <div class="pcard-hora">${g.hora}</div>
+            <div class="pcard-estadio">${g.estadio}</div>
+            <div class="pcard-badges">
+              <span class="pcard-badge-l">L</span>
+              <span style="font-size:.55rem;color:var(--muted2)">vs</span>
+              <span class="pcard-badge-v">V</span>
+            </div>
+          </div>
+          <div class="pcard-side visit">
+            ${vl}
+            <span class="pcard-name">${g.visit}</span>
+          </div>
+        </div>`;
+      }
       const lw = g.ganLocal;
       return `<div class="partido-card" data-gid="${g.gameId}">
         <div class="pcard-side local">
@@ -3479,6 +3571,7 @@ function renderPartidoList(games) {
             <span style="font-size:.55rem;color:var(--muted2)">vs</span>
             <span class="pcard-badge-v">V</span>
           </div>
+          ${g.estadio ? `<div class="pcard-estadio">${g.estadio}</div>` : ''}
         </div>
         <div class="pcard-side visit">
           ${vl}
@@ -3490,10 +3583,10 @@ function renderPartidoList(games) {
   });
   el.innerHTML = html;
 
-  // Build fast lookup map and attach listeners
+  // Build fast lookup map and attach listeners (played games only)
   const gmap = {};
   games.forEach(g => { gmap[g.gameId] = g; });
-  el.querySelectorAll('.partido-card').forEach(card => {
+  el.querySelectorAll('.partido-card:not(.upcoming)').forEach(card => {
     const game = gmap[card.dataset.gid];
     if (game) card.addEventListener('click', () => openPartidoModal(game));
   });
@@ -3735,6 +3828,21 @@ async function initApp() {
       };
       player._last5=mkPeriod(5);
       player._last10=mkPeriod(10);
+      const gamesLocal=games.filter(r=>r['Condicion equipos']==='LOCAL');
+      const gamesVisit=games.filter(r=>r['Condicion equipos']==='VISITANTE');
+      const mkLocVisPeriod=(g,n)=>{
+        const slice=n?g.slice(-n):g;
+        if(!slice.length)return null;
+        const s=computeStatsFromGames(slice,tm);
+        s.name=player.name; s.Equipo=player.Equipo;
+        return s;
+      };
+      player._local=mkLocVisPeriod(gamesLocal,0);
+      player._visit=mkLocVisPeriod(gamesVisit,0);
+      player._last5Local=mkLocVisPeriod(gamesLocal,5);
+      player._last10Local=mkLocVisPeriod(gamesLocal,10);
+      player._last5Visit=mkLocVisPeriod(gamesVisit,5);
+      player._last10Visit=mkLocVisPeriod(gamesVisit,10);
     });
 
     // Team per-game
@@ -3764,7 +3872,7 @@ async function initApp() {
       return d;
     });
 
-    // Precompute last5 / last10 stats per team
+    // Precompute last5 / last10 / local / visitante stats per team
     const RAW_T_MAP={};
     RAW_T.forEach(r=>RAW_T_MAP[r.Equipo]=r);
     TEAMS.forEach(team=>{
@@ -3778,6 +3886,20 @@ async function initApp() {
       };
       team._last5=mkTPeriod(5);
       team._last10=mkTPeriod(10);
+      const glLocal=gl.filter(g=>g.condicion==='LOCAL');
+      const glVisit=gl.filter(g=>g.condicion==='VISITANTE');
+      const mkTLocVisPeriod=(g,n)=>{
+        const slice=n?g.slice(-n):g;
+        if(!slice.length)return null;
+        const s=computeTeamStatsFromGames(slice);
+        s.Equipo=team.Equipo; return s;
+      };
+      team._local=mkTLocVisPeriod(glLocal,0);
+      team._visit=mkTLocVisPeriod(glVisit,0);
+      team._last5Local=mkTLocVisPeriod(glLocal,5);
+      team._last10Local=mkTLocVisPeriod(glLocal,10);
+      team._last5Visit=mkTLocVisPeriod(glVisit,5);
+      team._last10Visit=mkTLocVisPeriod(glVisit,10);
     });
 
     // Colors
@@ -3845,12 +3967,37 @@ async function initApp() {
             ptsLocal: isLocal ? g.ptsFor : g.ptsAgainst,
             ptsVisit: isLocal ? g.ptsAgainst : g.ptsFor,
             ganLocal: isLocal ? g.ganado : !g.ganado,
+            estadio:  g.estadio || '',
             sLocal:   isLocal ? g.myS : g.oppS,
             sVisit:   isLocal ? g.oppS : g.myS,
           });
         }
       });
     });
+    GAMES_ALL.sort((a,b)=>{
+      const [ad,am,ay]=a.fecha.split('/'); const [bd,bm,by]=b.fecha.split('/');
+      return new Date(+ay,+am-1,+ad)-new Date(+by,+bm-1,+bd);
+    });
+
+    // Merge upcoming fixture from CSV (skip any game already played/scraped)
+    const _playedKeys = new Set(GAMES_ALL.map(g => `${g.fecha}|${g.local}|${g.visit}`));
+    try {
+      const upResp = await fetch('fixture_upcoming.csv?v=' + Date.now(), { cache: 'no-store' });
+      if (upResp.ok) {
+        const upRows = parseCSV(await upResp.text());
+        upRows.forEach(u => {
+          const local = u['local'], visit = u['visitante'];
+          if (local && visit && !_playedKeys.has(`${u['fecha']}|${local}|${visit}`)) {
+            GAMES_ALL.push({
+              gameId:   `upcoming_${(local+visit+u['fecha']).replace(/\W/g,'')}`,
+              fecha:    u['fecha'], local, visit,
+              ptsLocal: null, ptsVisit: null, ganLocal: null,
+              upcoming: true, hora: u['hora'], estadio: u['estadio'] || '',
+            });
+          }
+        });
+      }
+    } catch(e) { /* fixture_upcoming.csv no disponible, se ignora */ }
     GAMES_ALL.sort((a,b)=>{
       const [ad,am,ay]=a.fecha.split('/'); const [bd,bm,by]=b.fecha.split('/');
       return new Date(+ay,+am-1,+ad)-new Date(+by,+bm-1,+bd);
@@ -3865,10 +4012,11 @@ async function initApp() {
       GAME_PLAYERS_MAP[id].push(r);
     });
 
-    // Populate pTeam select
+    // Populate pTeam select (all teams from played + upcoming games)
     const pTeamSel = document.getElementById('pTeam');
     while (pTeamSel.options.length > 1) pTeamSel.remove(1);
-    [...new Set(TEAMS.map(t=>t.Equipo))].sort().forEach(eq => {
+    const _allTeams = new Set(GAMES_ALL.flatMap(g => [g.local, g.visit]));
+    [..._allTeams].sort().forEach(eq => {
       const o = document.createElement('option'); o.value = eq; o.textContent = eq;
       pTeamSel.appendChild(o);
     });
@@ -3882,7 +4030,7 @@ async function initApp() {
       document.getElementById('pDateTo').min   = toISO(first);
       document.getElementById('pDateTo').max   = toISO(last);
     }
-    renderPartidoList(GAMES_ALL);
+    showUpcomingDefault();
 
     onJFilter();
     onTFilter();
@@ -4542,7 +4690,7 @@ function renderQuintetos() {
       ...QNT_COLS
     ];
     document.getElementById('qntThead').innerHTML = '<tr>' + LEAGUE_COLS.map(c =>
-      `<th class="qnt-th" style="text-align:${c.align}" title="${c.tip}">${c.label}</th>`
+      `<th class="qnt-th" style="text-align:${c.align}" data-tip="${c.tip}">${c.label}</th>`
     ).join('') + '</tr>';
     document.getElementById('qntTbody').innerHTML = allRows.map((r, i) => {
       const playersHtml = r.players.map(p => `<span class="qnt-player">${formatPlayerShort(p)}</span>`).join('');
@@ -4617,7 +4765,7 @@ function renderQuintetos() {
     const sorted = c.key === qntSort;
     const arrow = sorted ? (qntDir === 'asc' ? ' ↑' : ' ↓') : '';
     const cls = sorted ? ' qnt-sorted' : '';
-    return `<th class="qnt-th${cls}" style="text-align:${c.align}" onclick="qntSortBy('${c.key}')" title="${c.tip}">${c.label}${arrow}</th>`;
+    return `<th class="qnt-th${cls}" style="text-align:${c.align}" onclick="qntSortBy('${c.key}')" data-tip="${c.tip}">${c.label}${arrow}</th>`;
   }).join('') + '</tr>';
 
   const tbody = document.getElementById('qntTbody');
@@ -4863,7 +5011,9 @@ function computeConnections(team, focusName) {
     .filter(c => c.gamesTog > 0 || c.totalAst > 0);
 
   connections.sort((a, b) => (b.apg + b.pts40 / 10) - (a.apg + a.pts40 / 10));
-  return { focusName, team, totalGames, connections: connections.slice(0, 14) };
+  const focusApgGiven    = connections.reduce((s, c) => s + c.astGiven,    0) / totalGames;
+  const focusApgReceived = connections.reduce((s, c) => s + c.astReceived, 0) / totalGames;
+  return { focusName, team, totalGames, focusApgGiven, focusApgReceived, connections: connections.slice(0, 14) };
 }
 
 function _cnxLerpColor(t) {
@@ -4885,7 +5035,7 @@ function drawConnections() {
   svg.setAttribute('height', H);
   svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
 
-  const { focusName, connections } = _cnxData;
+  const { focusName, connections, totalGames, focusApgGiven } = _cnxData;
   const cx = W / 2, cy = H / 2;
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
@@ -4896,12 +5046,11 @@ function drawConnections() {
   }
 
   const radius = Math.min(W, H) * 0.36;
-  const focusR = 34, nodeR = 22;
-  const maxApg = Math.max(...connections.map(c => c.apg), 0.01);
-  const allPts = connections.map(c => c.pts40).filter(v => v > 0);
-  const minPts = allPts.length ? Math.min(...allPts) : 0;
-  const maxPts = allPts.length ? Math.max(...allPts) : 1;
-  const tOf = c => maxPts > minPts ? (c.pts40 - minPts) / (maxPts - minPts) : 0.5;
+  const focusR = 38, nodeR = 22;
+  const PURPLE = '#8b5cf6', TEAL = '#2dd4bf';
+
+  const allApg = connections.map(c => c.apg).filter(v => v > 0);
+  const maxApg = allApg.length ? Math.max(...allApg) : 0.01;
 
   const n = connections.length;
   const nodes = connections.map((c, i) => {
@@ -4911,6 +5060,7 @@ function drawConnections() {
   _cnxNodes = [{ x: cx, y: cy, r: focusR, data: { name: focusName, isFocus: true } }, ...nodes];
 
   const f = v => v.toFixed(1);
+  const apgLbl = (focusApgGiven || 0).toFixed(1);
 
   let out = `<defs>
     <radialGradient id="cnxFG" cx="35%" cy="30%" r="65%">
@@ -4924,27 +5074,74 @@ function drawConnections() {
       <feGaussianBlur stdDeviation="4" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
+    <marker id="cnxArP" markerWidth="12" markerHeight="16" refX="11" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0.5 L11,8 L0,15.5 L3,8 z" fill="${PURPLE}"/>
+    </marker>
+    <marker id="cnxArT" markerWidth="12" markerHeight="16" refX="11" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0.5 L11,8 L0,15.5 L3,8 z" fill="${TEAL}"/>
+    </marker>
   </defs>`;
 
-  // Edges
+  // Directed edges
   out += '<g>';
-  nodes.forEach((nd, idx) => {
+  nodes.forEach((nd) => {
     const c = nd.data;
-    if (c.apg < 0.04 && c.pts40 < 0.5) return;
-    const lw  = (0.8 + (c.apg / maxApg) * 6).toFixed(1);
-    const t   = tOf(c);
-    const col = _cnxLerpColor(t);
-    const op  = (0.45 + t * 0.45).toFixed(2);
-    out += `<line x1="${f(cx)}" y1="${f(cy)}" x2="${f(nd.x)}" y2="${f(nd.y)}" stroke="${col}" stroke-width="${lw}" stroke-linecap="round" opacity="${op}"/>`;
+    const givenApg = c.astGiven  / totalGames;
+    const recvApg  = c.astReceived / totalGames;
+    if (givenApg < 0.04 && recvApg < 0.04) return;
+
+    const dx = nd.x - cx, dy = nd.y - cy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const ux = dx / dist, uy = dy / dist;
+    const px = -uy, py = ux;  // perpendicular unit vector
+    const hasBoth = givenApg > 0.04 && recvApg > 0.04;
+    const curve = hasBoth ? dist * 0.14 : 0;  // bezier curve bulge for bidirectional
+    const midX = (cx + nd.x) / 2, midY = (cy + nd.y) / 2;
+
+    // Helper: draw one directed arc
+    // from (x1,y1) to (x2,y2), bowing in the direction of (qSign * px, qSign * py)
+    const drawArc = (x1, y1, x2, y2, color, lw, qSign, apgVal) => {
+      const markerId = `url(#cnxAr${color === PURPLE ? 'P' : 'T'})`;
+      if (hasBoth) {
+        const qx = midX + px * curve * qSign;
+        const qy = midY + py * curve * qSign;
+        // Tip (refX=11) lands at path endpoint = circle edge: no pullback needed
+        out += `<path d="M${f(x1)},${f(y1)} Q${f(qx)},${f(qy)} ${f(x2)},${f(y2)}" fill="none" stroke="${color}" stroke-width="${lw}" opacity="0.88" marker-end="${markerId}"/>`;
+        if (apgVal >= 0.08) {
+          const lmx = 0.25*x1 + 0.5*qx + 0.25*x2 + px * qSign * (curve * 0.45 + 9);
+          const lmy = 0.25*y1 + 0.5*qy + 0.25*y2 + py * qSign * (curve * 0.45 + 9);
+          out += `<text x="${f(lmx)}" y="${f(lmy)}" text-anchor="middle" dominant-baseline="middle" fill="${color}" font-size="8" font-family="Inter,sans-serif" opacity="0.95">${apgVal.toFixed(2)}</text>`;
+        }
+      } else {
+        // Straight line for unidirectional; tip at circle edge
+        out += `<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" stroke="${color}" stroke-width="${lw}" stroke-linecap="round" opacity="0.88" marker-end="${markerId}"/>`;
+        if (apgVal >= 0.08) {
+          const side = color === PURPLE ? 1 : -1;
+          out += `<text x="${f(midX + px * side * 12)}" y="${f(midY + py * side * 12)}" text-anchor="middle" dominant-baseline="middle" fill="${color}" font-size="8" font-family="Inter,sans-serif" opacity="0.95">${apgVal.toFixed(2)}</text>`;
+        }
+      }
+    };
+
+    // Given: center → teammate (purple), bows to +perpendicular side
+    if (givenApg > 0.04) {
+      const lw = (0.8 + (givenApg / maxApg) * 5.5).toFixed(1);
+      drawArc(cx + ux*(focusR+1), cy + uy*(focusR+1), nd.x - ux*nodeR, nd.y - uy*nodeR, PURPLE, lw, 1, givenApg);
+    }
+    // Received: teammate → center (teal), bows to −perpendicular side
+    if (recvApg > 0.04) {
+      const lw = (0.8 + (recvApg / maxApg) * 5.5).toFixed(1);
+      drawArc(nd.x - ux*(nodeR+1), nd.y - uy*(nodeR+1), cx + ux*focusR, cy + uy*focusR, TEAL, lw, -1, recvApg);
+    }
   });
   out += '</g>';
 
   // Teammate nodes
   out += '<g>';
   nodes.forEach((nd, idx) => {
-    const c   = nd.data;
-    const t   = tOf(c);
-    const col = _cnxLerpColor(t);
+    const c = nd.data;
+    const givenApg = c.astGiven  / totalGames;
+    const recvApg  = c.astReceived / totalGames;
+    const col = givenApg >= recvApg ? PURPLE : TEAL;
     const apellido = esc(c.name.split(',')[0].trim());
     const lbl = apellido.length > 9 ? apellido.slice(0, 8) + '.' : apellido;
     const astLbl = c.apg >= 0.08 ? c.apg.toFixed(2) + ' ast' : '';
@@ -4961,7 +5158,8 @@ function drawConnections() {
   const fLbl = fApellido.length > 11 ? fApellido.slice(0, 10) + '.' : fApellido;
   out += `<g style="cursor:default" onmouseover="cnxShowTip(event,0)" onmouseout="cnxHideTip()">
     <circle cx="${f(cx)}" cy="${f(cy)}" r="${focusR}" fill="url(#cnxFG)" stroke="rgba(167,139,250,.7)" stroke-width="2" filter="url(#cnxGlow)"/>
-    <text x="${f(cx)}" y="${f(cy)}" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="Inter,sans-serif" pointer-events="none">${fLbl}</text>
+    <text x="${f(cx)}" y="${f(cy - 7)}" text-anchor="middle" dominant-baseline="middle" fill="#fff" font-size="10" font-weight="700" font-family="Inter,sans-serif" pointer-events="none">${fLbl}</text>
+    <text x="${f(cx)}" y="${f(cy + 8)}" text-anchor="middle" dominant-baseline="middle" fill="rgba(221,214,254,.8)" font-size="9" font-weight="600" font-family="Inter,sans-serif" pointer-events="none">${apgLbl} ast/p</text>
   </g>`;
 
   svg.innerHTML = out;
@@ -4974,11 +5172,13 @@ function cnxShowTip(event, idx) {
   const tip = document.getElementById('cnxTooltip');
   let html = '<div class="cnx-tooltip-name">' + c.name + '</div>';
   if (c.isFocus) {
-    html += '<div class="cnx-tooltip-row"><span class="cnx-tooltip-label">Jugador seleccionado</span></div>';
+    html += '<div class="cnx-tooltip-row"><span class="cnx-tooltip-label">AST dadas/partido</span><span class="cnx-tooltip-val">' + (_cnxData.focusApgGiven || 0).toFixed(2) + '</span></div>';
+    html += '<div class="cnx-tooltip-row"><span class="cnx-tooltip-label">AST recibidas/partido</span><span class="cnx-tooltip-val">' + (_cnxData.focusApgReceived || 0).toFixed(2) + '</span></div>';
   } else {
-    html += '<div class="cnx-tooltip-row"><span class="cnx-tooltip-label">AST dadas</span><span class="cnx-tooltip-val">' + c.astGiven + '</span></div>';
-    html += '<div class="cnx-tooltip-row"><span class="cnx-tooltip-label">AST recibidas</span><span class="cnx-tooltip-val">' + c.astReceived + '</span></div>';
-    html += '<div class="cnx-tooltip-row"><span class="cnx-tooltip-label">AST/partido</span><span class="cnx-tooltip-val">' + c.apg.toFixed(2) + '</span></div>';
+    const givenApg = (_cnxData && _cnxData.totalGames) ? (c.astGiven / _cnxData.totalGames).toFixed(2) : c.astGiven;
+    const recvApg  = (_cnxData && _cnxData.totalGames) ? (c.astReceived / _cnxData.totalGames).toFixed(2) : c.astReceived;
+    html += '<div class="cnx-tooltip-row"><span class="cnx-tooltip-label" style="color:#a78bfa">→ AST dadas/partido</span><span class="cnx-tooltip-val">' + givenApg + '</span></div>';
+    html += '<div class="cnx-tooltip-row"><span class="cnx-tooltip-label" style="color:#5eead4">← AST recibidas/partido</span><span class="cnx-tooltip-val">' + recvApg + '</span></div>';
     html += '<div class="cnx-tooltip-row"><span class="cnx-tooltip-label">PTS/40 min juntos</span><span class="cnx-tooltip-val">' + c.pts40.toFixed(1) + '</span></div>';
     html += '<div class="cnx-tooltip-row"><span class="cnx-tooltip-label">Min/partido juntos</span><span class="cnx-tooltip-val">' + c.minTog.toFixed(1) + '</span></div>';
     html += '<div class="cnx-tooltip-row"><span class="cnx-tooltip-label">Partidos juntos</span><span class="cnx-tooltip-val">' + c.gamesTog + '</span></div>';
@@ -5205,7 +5405,7 @@ function renderTCnxTable() {
   const arrow = c => c === col ? (asc ? ' ↑' : ' ↓') : '';
   const thead = document.getElementById('tCnxThead');
   thead.innerHTML = '<tr>' + cols.map(c =>
-    `<th style="cursor:pointer;white-space:nowrap" title="${c.title}" onclick="onTCnxSort('${c.key}')">${c.label}${arrow(c.key)}</th>`
+    `<th style="cursor:pointer;white-space:nowrap" data-tip="${c.title}" onclick="onTCnxSort('${c.key}')">${c.label}${arrow(c.key)}</th>`
   ).join('') + '</tr>';
 
   const tbody = document.getElementById('tCnxTbody');
@@ -5252,6 +5452,29 @@ function updateTFilterVisibility(){
     }
   });
 }
+
+// ── Tooltip encabezados ──────────────────────────────────────────────────────
+(function(){
+  const tip = document.getElementById('thTip');
+  document.addEventListener('mouseover', function(e){
+    const th = e.target.closest('thead th[data-tip]');
+    if (!th){ tip.style.display='none'; return; }
+    tip.textContent = th.dataset.tip;
+    tip.style.display = 'block';
+  });
+  document.addEventListener('mousemove', function(e){
+    if (tip.style.display==='none') return;
+    const tw=tip.offsetWidth, th2=tip.offsetHeight;
+    const vw=window.innerWidth, vh=window.innerHeight;
+    let left=e.clientX+14, top=e.clientY-th2-10;
+    if (left+tw>vw-8) left=e.clientX-tw-14;
+    if (top<8) top=e.clientY+18;
+    tip.style.left=left+'px'; tip.style.top=top+'px';
+  });
+  document.addEventListener('mouseout', function(e){
+    if (e.target.closest('thead th[data-tip]')) tip.style.display='none';
+  });
+})();
 </script>
 </body>
 </html>

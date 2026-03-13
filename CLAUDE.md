@@ -12,6 +12,7 @@ docs/
   liga_argentina.csv      # Stats por jugador/partido (~11k filas)
   liga_argentina_shots.csv # Mapa de tiros (~57k filas)
   liga_argentina_pbp.csv  # Jugada a jugada (eventos por partido)
+  fixture_upcoming.csv    # Partidos por jugar (fecha,hora,local,visitante,estadio)
   logos/                  # JPEGs de equipos + scouteado_logo.png
 Scraper/
   data_scraper.py         # Scraper principal de stats
@@ -90,7 +91,22 @@ Ambas tablas (`j-tabla`, `t-tabla`) tienen un toggle de período: **Temporada / 
 - Las stats de período se precomputan en `initApp()` y se guardan en `player._last5`, `player._last10`, `team._last5`, `team._last10`.
 - **Jugadores**: `buildRAW_J` guarda `_games[]` (filas CSV con `Segundos jugados > 0`). En `initApp` se ordenan por fecha y se pasan a `computeStatsFromGames(games, tm)` que replica todas las fórmulas de stats básicas y avanzadas.
 - **Equipos**: `buildRAW_T` ya construye `_gamelog[]` ordenado por fecha. Se pasan a `computeTeamStatsFromGames(gamelog)` que computa W%, PTS/p, tiros, rebotes, ORtg, DRtg, NetRtg, EFG%, TS%, TOV%, ORB%, PACE.
-- Layout del toggle wrap: `[Básica/Avanzada] [Temporada/Últ.5/Últ.10] [Comparar jugadores / Comparar equipos]`. En mobile (`flex-direction:column`) se apilan verticalmente.
+- Layout del toggle wrap: `[Básica/Avanzada] [Temporada/Últ.5/Últ.10] [Todos/Local/Visitante] [Comparar jugadores / Comparar equipos]`. En mobile (`flex-direction:column`) se apilan verticalmente.
+
+**Filtro Local/Visitante (solo Jugadores):**
+La tabla `j-tabla` tiene un toggle adicional: **Todos / Local / Visitante**.
+- Estado: `jLocVis` (`'all'|'local'|'visit'`). Función: `setJLocVis(v)`.
+- Se combina con `jPeriod`: `getPlayerData(p)` selecciona la combinación correcta (ej. "Últ. 5 Local" devuelve `_last5Local`).
+- Stats precomputadas en `initApp()` usando `_games[]` filtrado por `Condicion equipos === 'LOCAL'` o `'VISITANTE'`:
+  | Propiedad | Descripción |
+  |---|---|
+  | `player._local` | Todos los partidos como local |
+  | `player._visit` | Todos los partidos como visitante |
+  | `player._last5Local` | Últimos 5 partidos como local |
+  | `player._last10Local` | Últimos 10 partidos como local |
+  | `player._last5Visit` | Últimos 5 partidos como visitante |
+  | `player._last10Visit` | Últimos 10 partidos como visitante |
+- Si el jugador no tiene partidos en esa condición, la propiedad es `null` y `getPlayerData` cae al objeto completo.
 
 **Modal de partido** (`#teamGamesBackdrop`):
 - Se abre al hacer clic en una fila de equipo (desde `t-tabla`) o en una card de partido (desde `partidos`)
@@ -191,7 +207,7 @@ fetch('liga_argentina.csv?v=<timestamp>')   ← cache-busting, no-store
   → poblar PLAYERS[], TEAMS[], TEAM_MAP{}, LEADERS_DATA{}
   → buildear GAMES_ALL (partidos únicos desde _gamelog[])
   → buildear GAME_PLAYERS_MAP (filas CSV por IdPartido, para box score)
-  → poblar pTeam select + renderPartidoList(GAMES_ALL)
+  → poblar pTeam select + showUpcomingDefault()
   → onJFilter() + onTFilter() + buildLeaders() + renderStandings()
   → ocultar loadingOverlay
 ```
@@ -205,7 +221,7 @@ fetch('liga_argentina.csv?v=<timestamp>')   ← cache-busting, no-store
 ### `buildRAW_T(rows)`
 - Filtra filas `Nombre completo === "TOTALES"` (una por equipo por partido)
 - Agrupa por `Equipo`, acumula stats totales
-- Construye `_gamelog[]` con stats individuales de cada partido (para el modal de juegos)
+- Construye `_gamelog[]` con stats individuales de cada partido (para el modal de juegos); cada entrada incluye `estadio` leído de `my['Estadio']`
 - Calcula `OPP_PTS` buscando el rival en cada `IdPartido` (requiere exactamente 2 filas TOTALES por partido)
 
 ### Stats derivadas calculadas en `initApp()`
@@ -254,18 +270,38 @@ computeLineups()   ← llamado una sola vez después de loadPbp()
 
 **Sección "Partidos" (`partidos`):**
 - Filtros: rango de fechas (`pDateFrom`/`pDateTo`, inputs tipo `date`) + equipo (`pTeam`). `onPartidoFilter()` filtra `GAMES_ALL` y llama `renderPartidoList(filtered)`.
-- Cards agrupadas por fecha, orden cronológico inverso (más reciente primero). Cada card muestra local vs visitante con logos, marcador, ganador en `--text-bright`.
-- Al hacer clic en una card se llama `openPartidoModal(game)`, que setea `_partidoMode=true` y abre el modal de detalle directamente (sin mostrar la lista de juegos del equipo).
-- `GAMES_ALL`: array global de partidos únicos construido en `initApp()` desde los `_gamelog[]` de `TEAMS`. Cada entrada: `{ gameId, fecha, local, visit, ptsLocal, ptsVisit, ganLocal, sLocal, sVisit }`. Ordenado por fecha ascendente. Se desduplicata por `gameId` usando un `Set`.
+- **Vista por defecto**: al entrar a la sección (o al limpiar filtros), se llama `showUpcomingDefault()` que muestra solo los partidos próximos (`upcoming: true`) en orden ascendente (más cercano primero). Si el usuario aplica algún filtro, `onPartidoFilter()` muestra todos los partidos coincidentes en orden descendente (más reciente primero).
+- `showUpcomingDefault()`: limpia los inputs de fecha y equipo, filtra `GAMES_ALL.filter(g => g.upcoming)`, y llama `renderPartidoList(upcoming, true)`.
+- `clearPartidoFilter()`: delega en `showUpcomingDefault()`.
+- Cards agrupadas por fecha. El orden depende del parámetro `ascending` de `renderPartidoList`: ascendente en la vista default (próximos primero), descendente cuando hay filtros aplicados. Cada card muestra local vs visitante con logos, marcador, ganador en `--text-bright`, y estadio debajo de las badges.
+- Al hacer clic en una card **de partido jugado** se llama `openPartidoModal(game)`, que setea `_partidoMode=true` y abre el modal de detalle directamente (sin mostrar la lista de juegos del equipo).
+- `GAMES_ALL`: array global de partidos únicos construido en `initApp()` desde los `_gamelog[]` de `TEAMS`. Cada entrada: `{ gameId, fecha, local, visit, ptsLocal, ptsVisit, ganLocal, estadio, sLocal, sVisit }`. Ordenado por fecha ascendente. Se desduplicata por `gameId` usando un `Set`.
+- **Partidos por jugar**: se leen de `docs/fixture_upcoming.csv` (columnas: `fecha,hora,local,visitante,estadio`). En `initApp()` se hace un `fetch` de ese archivo y se fusionan las filas en `GAMES_ALL` usando un Set de claves `fecha|local|visit` para evitar duplicados con partidos ya scrapeados. Las cards de estos partidos muestran hora y estadio en lugar del marcador, no tienen cursor pointer ni abren el modal. Cuando un partido se scrapea, su entrada en el CSV desplaza automáticamente la entrada upcoming (la clave ya existe → se ignora). Si el archivo no existe o falla el fetch, se ignora silenciosamente. **Para actualizar el fixture: reemplazar `fixture_upcoming.csv` sin tocar el HTML.**
 - `GAME_PLAYERS_MAP`: `Map<IdPartido → rows[]>` con todas las filas no-TOTALES del CSV, construido en `initApp()` desde `rows`. Usado por `renderBoxScore()` para el box score.
 - `_partidoMode`: flag booleano. `true` cuando el modal fue abierto desde `partidos`. Controla el comportamiento del botón "‹ Volver" (`onTgmBack()`).
 - Dorsal en box score formateado como `#15` (entero sin decimal): `#${Math.round(parseFloat(r['Número Camiseta'])||0)}`.
+- El select `pTeam` se puebla desde todos los equipos en `GAMES_ALL` (jugados + upcoming), no solo desde `TEAMS`.
 
 ## Convenciones de código
 - JS: `let DATA = null` para datos cargados una vez (lazy). `SHOTS_MAP` es `Map<gameId, rows[]>`
 - Paleta: local = `#a78bfa` (purple-l), visitante = `#5eead4` (teal-l)
 - Tiros convertidos: círculo relleno. Fallados: círculo vacío con X
 - IDs de partido son strings Base64 (`IdPartido`)
+
+## Tooltips en encabezados de tabla
+
+Todas las tablas tienen tooltips custom que se muestran al hacer hover sobre un `<th>`.
+
+**Implementación:**
+- Atributo `data-tip="..."` en cada `<th>` de `<thead>`
+- `<div id="thTip">` ubicado justo **antes** del `<script>` principal (importante: debe estar en el DOM antes de que corra el script)
+- CSS en `#thTip`: `position:fixed`, `z-index:9999`, usa variables `--surface2`, `--border2`, `--text`
+- JS IIFE al final del `<script>`: event delegation global en `mouseover`/`mousemove`/`mouseout` sobre `thead th[data-tip]`. El div sigue el cursor con offset `+14px` horizontal, `-height-10px` vertical; se invierte si sale de la pantalla
+- **Usar `data-tip`, NO `title`**: los `title` nativos del browser se migraron a `data-tip` para poder usar el tooltip custom estilizado
+
+**Tablas con tooltips:**
+- Tablas estáticas (HTML): `jCardBasic`, `jCardAdv`, `tCardBasic`, `tCardAdv`, tabla de posiciones Norte y Sur
+- Tablas dinámicas (JS): box score (`renderBoxScore` → array `cols` con campo `tip`), quintetos (`QNT_COLS` con campo `tip`, template usa `data-tip="${c.tip}"`), conexiones equipo (array `cols` con campo `title`, template usa `data-tip="${c.title}"`)
 
 ## Cambios que Claude debe evitar
 
@@ -347,22 +383,40 @@ Columnas: `IdPartido, Fecha, Equipo_local, Equipo_visitante, NumAccion, Tipo, Eq
 - `renderTCnxTable()` — renderiza el badge de cobertura y la tabla ordenada.
 - Estado global: `_tCnxRows[]` (top 10 rows), `_tCnxSort` (`{col, asc}`), `_tCnxCheck` (`{pbpAst, csvAst}`).
 
-**Sección "Conexiones" (`j-conexiones`):**
-- Selector de equipo → selector de jugador (poblado con jugadores del equipo, ordenados por PPG desc) → grafo SVG
+**Sección "Red de Asistencias" (`j-conexiones`):**
+- Selector de equipo → selector de jugador (poblado con jugadores del equipo, ordenados por PPG desc) → grafo SVG dirigido
 - Carga lazy del PBP al seleccionar equipo (igual que Quintetos). `computeLineups()` se ejecuta si `LINEUP_DATA === null`.
-- **Visualización**: SVG generado dinámicamente vía `innerHTML` en `drawConnections()`. Nodo central = jugador seleccionado (violeta, radio 34). Nodos periféricos = compañeros con datos (radio 22). Bordes = líneas entre el nodo central y cada compañero.
-- **Grosor del borde** → proporcional a `APG` (asistencias por partido entre los dos, ambas direcciones): `0.8 + (apg / maxApg) * 6` px.
-- **Color del borde y borde del nodo** → degradé violeta→teal según `PTS/40 min juntos`: `_cnxLerpColor(t)`, `t=0 → #8b5cf6`, `t=1 → #2dd4bf`.
-- **Tooltip HTML** (`#cnxTooltip`, posición absoluta sobre el SVG): se dispara con `onmouseover`/`onmouseout` en los `<g>` de cada nodo. Muestra AST dadas, AST recibidas, AST/partido, PTS/40 min juntos, min/partido juntos, partidos juntos.
-- **SVG filters**: `cnxShadow` (`feDropShadow`) en nodos periféricos; `cnxGlow` (`feGaussianBlur` + merge) en el nodo central.
-- **Matching de nombres stats↔PBP**: `Nombre completo` del stats CSV es abreviado (`"MERLO, A."`), mientras que `Jugador` del PBP CSV es el nombre completo (`"MERLO, ALEJANDRO"`). El bridge es el **dorsal**: `dorsalToPbp` mapea `dorsal(int) → PBP name` escaneando eventos del equipo en `PBP_MAP`. Luego `statsToPbp` mapea `statsName → pbpName` via `DORSAL` del player object.
+
+**Visualización — red dirigida:**
+- SVG generado dinámicamente vía `innerHTML` en `drawConnections()`.
+- **Nodo central**: jugador seleccionado (violeta, radio 38). Muestra apellido + `X.X ast/p` (asistencias dadas/partido a compañeros visibles).
+- **Nodos periféricos**: compañeros con datos (radio 22), dispuestos en círculo. Borde violeta si da más AST de las que recibe; borde teal si recibe más.
+- **Aristas dirigidas** — dos flechas separadas por par, cada una con su propia dirección:
+  - **Violeta** (`#8b5cf6`): jugador central → compañero (asistencias *dadas*)
+  - **Teal** (`#2dd4bf`): compañero → jugador central (asistencias *recibidas*)
+- **Grosor de flecha** → `0.8 + (apg_dirección / maxApg) * 5.5` px por dirección independiente.
+- **Curvas Bézier cuadráticas** para conexiones bidireccionales: cuando ambas direcciones superan el umbral (> 0.04 ast/p), las flechas se arquean en sentidos opuestos con `curva = dist * 0.14`. Para conexiones unidireccionales se usa línea recta.
+- **Etiquetas de valor**: aparecen en la arista cuando `apg ≥ 0.08`, posicionadas en el punto medio de la curva Bézier (`0.25·P0 + 0.5·Q + 0.25·P2`) desplazadas perpendicularmente hacia afuera del arco.
+- **Arrowhead** (`markerUnits="userSpaceOnUse"`, tamaño fijo 11×15px): forma cóncava `M0,0.5 L11,8 L0,15.5 L3,8 z`. El `refX=11` (punta) coincide exactamente con el endpoint del path = borde del círculo destino, sin gap ni solapamiento. Altura 15px garantiza visibilidad incluso con líneas gruesas (máx ~6.3px).
+- **SVG filters**: `cnxShadow` en nodos periféricos; `cnxGlow` en nodo central.
+
+**Datos retornados por `computeConnections(team, focusName)`:**
+- `{ focusName, team, totalGames, focusApgGiven, focusApgReceived, connections[] }`
+- `focusApgGiven` / `focusApgReceived`: suma de AST dadas/recibidas sobre todos los compañeros visibles dividida por `totalGames` (calculada antes del `slice(0,14)`).
+- Cada conexión: `{ name, apg, astGiven, astReceived, totalAst, pts40, minTog, gamesTog }`.
+
+**Tooltip (`cnxShowTip`):**
+- Nodo central: AST dadas/partido + AST recibidas/partido.
+- Nodo compañero: "→ AST dadas/partido" (violeta) + "← AST recibidas/partido" (teal) + PTS/40 juntos + min/partido juntos + partidos juntos.
+
+**Matching de nombres stats↔PBP**: `Nombre completo` del stats CSV es abreviado (`"MERLO, A."`), mientras que `Jugador` del PBP CSV es el nombre completo (`"MERLO, ALEJANDRO"`). El bridge es el **dorsal**: `dorsalToPbp` mapea `dorsal(int) → PBP name` escaneando eventos del equipo en `PBP_MAP`. Luego `statsToPbp` mapea `statsName → pbpName` via `DORSAL` del player object.
+
 - **Cálculo de asistencias**: itera `PBP_MAP` buscando `ASISTENCIA` del equipo, retrocede hasta 5 eventos para encontrar el `CANASTA-2P/3P` del mismo lado → par `(assister, scorer)` usando nombres PBP.
 - **Cálculo de PTS/40 min juntos**: desde `LINEUP_DATA.get(team)`, suma `pf` y `secs` de todos los quintetos donde aparecen ambos jugadores (por nombre PBP). Normaliza: `(pf / secs * 60) * 40`.
 - **Filtro de compañeros**: se muestran solo quienes tienen `gamesTog > 0 || totalAst > 0`. Máximo 14 compañeros (los de mayor conexión).
 - `cnxInit()` — puebla el select de equipos una sola vez (guard `options.length > 1`).
 - `onCnxTeamChange()` — async, carga PBP si es necesario, puebla select de jugadores.
 - `onCnxPlayerChange()` — llama `computeConnections()` + `drawConnections()`.
-- `computeConnections(team, focusName)` — retorna `{ focusName, team, totalGames, connections[] }`.
 - `drawConnections()` — escribe `svg.innerHTML`; re-dibuja en resize.
 - `cnxShowTip(event, idx)` / `cnxHideTip()` — tooltip; `idx` referencia `_cnxNodes[]`.
 
