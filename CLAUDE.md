@@ -281,6 +281,7 @@ computeLineups()   ← llamado una sola vez después de loadPbp()
 - `_partidoMode`: flag booleano. `true` cuando el modal fue abierto desde `partidos`. Controla el comportamiento del botón "‹ Volver" (`onTgmBack()`).
 - Dorsal en box score formateado como `#15` (entero sin decimal): `#${Math.round(parseFloat(r['Número Camiseta'])||0)}`.
 - El select `pTeam` se puebla desde todos los equipos en `GAMES_ALL` (jugados + upcoming), no solo desde `TEAMS`.
+- **Nombres largos en cards**: `TEAM_NAME_BREAKS` (objeto literal antes de `renderPartidoList`) mapea nombres de equipo a su versión con `<br>`. `fmtTeamName(name)` lo aplica en los 4 `pcard-name` spans. `.pcard-name` usa `white-space:normal` para que el `<br>` renderice. Para agregar un nuevo equipo con nombre largo: añadir entrada a `TEAM_NAME_BREAKS`.
 
 ## Convenciones de código
 - JS: `let DATA = null` para datos cargados una vez (lazy). `SHOTS_MAP` es `Map<gameId, rows[]>`

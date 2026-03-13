@@ -651,7 +651,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .pcard-side.visit{flex-direction:row-reverse;text-align:right;}
 .pcard-logo{width:28px;height:28px;object-fit:contain;flex-shrink:0;}
 .pcard-name{font-size:.82rem;font-weight:600;color:var(--muted);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  white-space:normal;overflow:hidden;text-overflow:ellipsis;}
 .pcard-name.winner{color:var(--text-bright);font-weight:700;}
 .pcard-center{display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;}
 .pcard-scores{display:flex;align-items:center;gap:6px;}
@@ -3512,6 +3512,9 @@ function _formatFechaLarga(s) {
   return date.toLocaleDateString('es-AR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
 }
 
+const TEAM_NAME_BREAKS = {'CENTRAL ENTRERRIANO':'CENTRAL<br>ENTRERRIANO'};
+function fmtTeamName(name){return TEAM_NAME_BREAKS[name]||name;}
+
 function renderPartidoList(games, ascending=false) {
   const el = document.getElementById('pGameList');
   document.getElementById('pCount').textContent = games.length;
@@ -3537,7 +3540,7 @@ function renderPartidoList(games, ascending=false) {
         return `<div class="partido-card upcoming" data-gid="${g.gameId}">
           <div class="pcard-side local">
             ${ll}
-            <span class="pcard-name">${g.local}</span>
+            <span class="pcard-name">${fmtTeamName(g.local)}</span>
           </div>
           <div class="pcard-center">
             <div class="pcard-hora">${g.hora}</div>
@@ -3550,7 +3553,7 @@ function renderPartidoList(games, ascending=false) {
           </div>
           <div class="pcard-side visit">
             ${vl}
-            <span class="pcard-name">${g.visit}</span>
+            <span class="pcard-name">${fmtTeamName(g.visit)}</span>
           </div>
         </div>`;
       }
@@ -3558,7 +3561,7 @@ function renderPartidoList(games, ascending=false) {
       return `<div class="partido-card" data-gid="${g.gameId}">
         <div class="pcard-side local">
           ${ll}
-          <span class="pcard-name${lw?' winner':''}">${g.local}</span>
+          <span class="pcard-name${lw?' winner':''}">${fmtTeamName(g.local)}</span>
         </div>
         <div class="pcard-center">
           <div class="pcard-scores">
@@ -3575,7 +3578,7 @@ function renderPartidoList(games, ascending=false) {
         </div>
         <div class="pcard-side visit">
           ${vl}
-          <span class="pcard-name${!lw?' winner':''}">${g.visit}</span>
+          <span class="pcard-name${!lw?' winner':''}">${fmtTeamName(g.visit)}</span>
         </div>
       </div>`;
     }).join('');
