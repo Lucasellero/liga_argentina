@@ -432,7 +432,8 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
       club:     meta.club     || '',
     }));
 
-    window.location.href = 'index.html';
+    const returnTo = new URLSearchParams(window.location.search).get('returnTo');
+    window.location.href = returnTo || 'index.html';
 
   } catch (err) {
     setFormError('No se pudo conectar. Intentá de nuevo.');

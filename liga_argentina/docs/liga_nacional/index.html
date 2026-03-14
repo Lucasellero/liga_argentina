@@ -1813,20 +1813,20 @@ canvas{display:block;width:100%;cursor:crosshair;}
 // ── Auth guard ────────────────────────────────────────────────────────────────
 (function() {
   const token = localStorage.getItem('auth_token');
-  if (!token) { window.location.replace('login.html'); return; }
+  if (!token) { window.location.replace('../login.html?returnTo=liga_nacional/'); return; }
   try {
     // Decodificar payload sin verificar firma (solo para leer exp en cliente)
     const payload = JSON.parse(atob(token.split('.')[1]));
     if (payload.exp && Date.now() / 1000 > payload.exp) {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_user');
-      window.location.replace('login.html');
+      window.location.replace('../login.html?returnTo=liga_nacional/');
       return;
     }
   } catch(e) {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
-    window.location.replace('login.html');
+    window.location.replace('../login.html?returnTo=liga_nacional/');
     return;
   }
   // Mostrar nombre de usuario en el header
@@ -1845,7 +1845,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
 function authLogout() {
   localStorage.removeItem('auth_token');
   localStorage.removeItem('auth_user');
-  window.location.replace('login.html');
+  window.location.replace('../login.html?returnTo=liga_nacional/');
 }
 
 // ============================================================
