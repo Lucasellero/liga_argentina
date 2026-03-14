@@ -40,6 +40,17 @@ Cada liga vive como subcarpeta dentro de `docs/`. Pasos:
 > - Desde `docs/liga_nacional/index.html` hacia otra sub-liga: `../liga_regional/` ✓
 > - Nunca usar paths que suban más de un nivel (`../../`) porque rompen en deployment.
 
+### Auth — login compartido entre ligas
+
+El `login.html` vive en `docs/` (raíz) y es compartido por todas las ligas.
+
+**Flujo:**
+1. Cada `docs/<liga>/index.html` tiene un auth guard al inicio del script que redirige a `../login.html?returnTo=<liga>/` si no hay token válido.
+2. `login.html` lee el parámetro `returnTo` después del login exitoso y redirige a esa ruta. Si no hay `returnTo`, vuelve a `index.html` (liga_argentina).
+3. El logout (`authLogout()`) también redirige a `../login.html?returnTo=<liga>/`.
+
+**Regla al agregar una nueva liga:** los 4 `window.location.replace` del auth guard deben apuntar a `../login.html?returnTo=<nombre-liga>/`, no a `login.html` sin path relativo (eso buscaría el archivo dentro de la subcarpeta y daría 404).
+
 ### Actualizar CSVs de una liga desplegada
 Reemplazar los archivos en `docs/<nombre-liga>/` y pushear. Vercel re-deploya automáticamente.
 
