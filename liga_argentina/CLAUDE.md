@@ -65,16 +65,23 @@ docs/
   liga_nacional/          # Liga Nacional (misma estructura, sirve en /liga_nacional/)
   logos/                  # JPEGs de equipos + scouteado_logo.png
 Scraper/
-  data_scraper.py         # Scraper principal de stats
-  shot_map_scraper.py     # Scraper de mapas de tiro
-  pbp_scraper.py          # Scraper de jugada a jugada
+  data_scraper.py         # Scraper principal de stats (Liga Argentina)
+  data_scraper_nacional.py # Scraper principal de stats (Liga Nacional)
+  shot_map_scraper.py     # Scraper de mapas de tiro (Liga Argentina)
+  shot_map_scraper_nacional.py # Scraper de mapas de tiro (Liga Nacional)
+  pbp_scraper.py          # Scraper de jugada a jugada (Liga Argentina)
+  pbp_scraper_nacional.py # Scraper de jugada a jugada (Liga Nacional)
   requirements.txt        # cloudscraper, pandas, bs4, lxml, playwright
 ```
 
 ## Fuente de datos
-- URL base: `https://www.laliganacional.com.ar/laligaargentina`
+- Liga Argentina URL base: `https://www.laliganacional.com.ar/laligaargentina`
+- Liga Nacional URL base: `https://www.laliganacional.com.ar/laliga`
+- Temporada Liga Argentina: desde `30/10/2025`
+- Temporada Liga Nacional: desde `23/09/2025`
 - Scraper usa `cloudscraper` para evadir protección anti-bot
-- `shot_map_scraper.py --full` regenera el CSV completo de tiros
+- `shot_map_scraper.py --full` regenera el CSV completo de tiros (Liga Argentina)
+- `shot_map_scraper_nacional.py --full` regenera el CSV completo de tiros (Liga Nacional)
 
 ## CSV: liga_argentina.csv
 Columnas clave: `Fecha, Condicion equipos, Equipo, Rival, Nombre completo, IdPartido, Etapa, Titular`
@@ -401,13 +408,26 @@ Columnas: `IdPartido, Fecha, Equipo_local, Equipo_visitante, NumAccion, Tipo, Eq
 - Fuente: `https://www.laliganacional.com.ar/laligaargentina/partido/en-vivo/{game_id}` (HTML puro, sin arrays JS)
 - Datos lazy cargados del `liga_argentina.csv` para obtener la lista de partidos y nombres de equipos
 
+## CSV: liga_nacional_pbp.csv
+Mismo esquema y formato que `liga_argentina_pbp.csv`. Columnas idénticas: `IdPartido, Fecha, Equipo_local, Equipo_visitante, NumAccion, Tipo, Equipo_lado, Dorsal, Jugador, Periodo, Tiempo, Marcador_local, Marcador_visitante`
+- Fuente: `https://www.laliganacional.com.ar/laliga/partido/en-vivo/{game_id}` (HTML puro, misma estructura)
+- Scraper: `Scraper/pbp_scraper_nacional.py` — lógica de parsing idéntica a `pbp_scraper.py`, solo cambia `LEAGUE = "/laliga"` y los paths a `docs/liga_nacional/`
+- Datos lazy cargados del `docs/liga_nacional/liga_nacional.csv` para obtener la lista de partidos y nombres de equipos
+
 ## Integridad de datos PBP
 
-### Duplicados en liga_argentina_pbp.csv
+### Duplicados en liga_argentina_pbp.csv / liga_nacional_pbp.csv
 - La web de la liga puede servir eventos duplicados en ciertos partidos (misma fila idéntica, mismo `NumAccion`).
 - **Eventos de bajo riesgo duplicados**: `FINAL-PERIODO`, `FINAL-PARTIDO` — el código JS los ignora en la segunda pasada por el guard `if (!seg...) return`.
 - **Eventos de alto riesgo duplicados**: `TIRO*-FALLADO`, `REBOTE-*`, `CANASTA-*` — inflan stats en `computeLineups()` (fga, fg3a, dreb, etc.), afectando OffRtg/DefRtg/TC% de los quintetos.
-- **Fix en scraper**: `pbp_scraper.py` aplica `drop_duplicates()` antes de guardar el CSV (con warning si encuentra algo). Si el CSV ya tiene duplicados, correr: `python3 -c "import pandas as pd; df=pd.read_csv('docs/liga_argentina_pbp.csv'); df.drop_duplicates(inplace=True); df.to_csv('docs/liga_argentina_pbp.csv', index=False)"` desde `liga_argentina/`.
+- **Fix en scraper**: ambos scrapers aplican `drop_duplicates()` antes de guardar el CSV (con warning si encuentran algo).
+- Si el CSV ya tiene duplicados, correr desde `liga_argentina/`:
+  ```bash
+  # Liga Argentina
+  python3 -c "import pandas as pd; df=pd.read_csv('docs/liga_argentina_pbp.csv'); df.drop_duplicates(inplace=True); df.to_csv('docs/liga_argentina_pbp.csv', index=False)"
+  # Liga Nacional
+  python3 -c "import pandas as pd; df=pd.read_csv('docs/liga_nacional/liga_nacional_pbp.csv'); df.drop_duplicates(inplace=True); df.to_csv('docs/liga_nacional/liga_nacional_pbp.csv', index=False)"
+  ```
 
 **Sección "Conexiones Equipo" (`t-conexiones`):**
 - Selector de equipo → tabla con las 10 duplas de mayor conexión del equipo
@@ -473,18 +493,33 @@ Columnas: `IdPartido, Fecha, Equipo_local, Equipo_visitante, NumAccion, Tipo, Eq
 
 ## Comandos útiles
 ```bash
-# Actualizar stats de jugadores
+# Actualizar stats de jugadores — Liga Argentina
 python Scraper/data_scraper.py
 
-# Actualizar mapa de tiros (sólo nuevos partidos)
+# Actualizar stats de jugadores — Liga Nacional
+python Scraper/data_scraper_nacional.py
+
+# Actualizar mapa de tiros (sólo nuevos partidos) — Liga Argentina
 python Scraper/shot_map_scraper.py
 
-# Forzar re-scrape completo de tiros
+# Forzar re-scrape completo de tiros — Liga Argentina
 python Scraper/shot_map_scraper.py --full
 
-# Actualizar jugada a jugada (sólo partidos nuevos)
+# Actualizar mapa de tiros (sólo nuevos partidos) — Liga Nacional
+python Scraper/shot_map_scraper_nacional.py
+
+# Forzar re-scrape completo de tiros — Liga Nacional
+python Scraper/shot_map_scraper_nacional.py --full
+
+# Actualizar jugada a jugada (sólo partidos nuevos) — Liga Argentina
 python Scraper/pbp_scraper.py
 
-# Forzar re-scrape completo de jugada a jugada
+# Forzar re-scrape completo de jugada a jugada — Liga Argentina
 python Scraper/pbp_scraper.py --full
+
+# Actualizar jugada a jugada (sólo partidos nuevos) — Liga Nacional
+python Scraper/pbp_scraper_nacional.py
+
+# Forzar re-scrape completo de jugada a jugada — Liga Nacional
+python Scraper/pbp_scraper_nacional.py --full
 ```
