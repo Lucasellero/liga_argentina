@@ -3,7 +3,45 @@
 ## Proyecto
 Dashboard de estadísticas y scouting de la Liga Argentina de Básquet (Temporada Regular 2025/26).
 Busca ser una herramienta util para equipos y aficionados con conocimientos del deporte y datos.
-Desplegado como GitHub Pages desde `docs/`.
+Desplegado en **Vercel** desde `docs/` (configurado en `vercel.json`).
+
+## Deployment
+- **Plataforma**: Vercel. El repo es `Lucasellero/liga_argentina` en GitHub. Vercel deploya automáticamente al hacer push a `main`.
+- **Root servido**: `docs/` (definido en `vercel.json` → `outputDirectory: "docs"`).
+- **URL base**: `https://<proyecto>.vercel.app/` → sirve `docs/index.html`.
+
+### Cómo agregar una nueva liga
+Cada liga vive como subcarpeta dentro de `docs/`. Pasos:
+
+1. **Copiar los archivos** de la nueva liga a `docs/<nombre-liga>/`:
+   ```
+   cp -r /ruta/local/<nombre-liga>/docs docs/<nombre-liga>
+   ```
+   La subcarpeta debe contener: `index.html`, los CSVs (`*.csv`) y `logos/`.
+
+2. **Actualizar el link de navegación cruzada** en el nuevo `docs/<nombre-liga>/index.html`:
+   - El link hacia liga_argentina debe ser `href="../"` (sube un nivel al root).
+   - El link hacia otra liga hermana debe ser `href="../<otra-liga>/"`.
+
+3. **Actualizar el link en `docs/index.html`** (liga_argentina) que apunta a la nueva liga:
+   - Usar `href="<nombre-liga>/"` (path relativo desde el root, sin `../`).
+
+4. **Commitear y pushear**:
+   ```bash
+   git add docs/<nombre-liga>/ docs/index.html
+   git commit -m "Add <nombre-liga>"
+   git push origin main
+   ```
+
+### Regla clave de rutas
+> Todos los paths entre ligas deben ser **relativos al root deployado** (`docs/`).
+> - Desde `docs/index.html` hacia una sub-liga: `liga_nacional/` ✓
+> - Desde `docs/liga_nacional/index.html` hacia el root: `../` ✓
+> - Desde `docs/liga_nacional/index.html` hacia otra sub-liga: `../liga_regional/` ✓
+> - Nunca usar paths que suban más de un nivel (`../../`) porque rompen en deployment.
+
+### Actualizar CSVs de una liga desplegada
+Reemplazar los archivos en `docs/<nombre-liga>/` y pushear. Vercel re-deploya automáticamente.
 
 ## Estructura
 ```
@@ -13,6 +51,7 @@ docs/
   liga_argentina_shots.csv # Mapa de tiros (~57k filas)
   liga_argentina_pbp.csv  # Jugada a jugada (eventos por partido)
   fixture_upcoming.csv    # Partidos por jugar (fecha,hora,local,visitante,estadio)
+  liga_nacional/          # Liga Nacional (misma estructura, sirve en /liga_nacional/)
   logos/                  # JPEGs de equipos + scouteado_logo.png
 Scraper/
   data_scraper.py         # Scraper principal de stats
