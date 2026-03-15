@@ -45,11 +45,16 @@ Cada liga vive como subcarpeta dentro de `docs/`. Pasos:
 El `login.html` y `register.html` viven en `docs/` (raíz) y son compartidos por todas las ligas.
 
 **Flujo de login:**
-1. Cada `docs/<liga>/index.html` tiene un auth guard al inicio del script que redirige a `../login.html?returnTo=<liga>/` si no hay token válido.
-2. `login.html` lee el parámetro `returnTo` después del login exitoso y redirige a esa ruta. Si no hay `returnTo`, vuelve a `index.html` (liga_argentina).
-3. El logout (`authLogout()`) también redirige a `../login.html?returnTo=<liga>/`.
+1. Cada `docs/<liga>/index.html` tiene un auth guard al inicio del script.
+2. Si el token es válido, muestra el nombre del usuario en el header y deja navegar libremente.
+3. Si no hay token (o está expirado), el usuario puede navegar libremente. Después de **7 minutos exactos** (`setTimeout` de 420000ms) aparece un modal bloqueante sin botón de cerrar que obliga al login o registro.
+4. El modal tiene dos botones: "Iniciar sesión" → `login.html` y "Registrarme gratis" → `register.html`.
+5. `login.html` lee el parámetro `returnTo` después del login exitoso y redirige a esa ruta. Si no hay `returnTo`, vuelve a `index.html` (liga_argentina).
+6. El logout (`authLogout()`) redirige a `../login.html?returnTo=<liga>/`.
 
-**Regla al agregar una nueva liga:** los 4 `window.location.replace` del auth guard deben apuntar a `../login.html?returnTo=<nombre-liga>/`, no a `login.html` sin path relativo (eso buscaría el archivo dentro de la subcarpeta y daría 404).
+**Nota:** el timer vive en memoria. Si el usuario recarga la página, los 7 minutos se reinician. Esto es intencional.
+
+**Regla al agregar una nueva liga:** definir `LOGIN_URL` y `REGISTER_URL` correctos en el auth guard (`../login.html?returnTo=<nombre-liga>/` y `../register.html`). El modal los usa para los botones.
 
 ### Register — selección de liga y club
 
