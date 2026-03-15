@@ -68,6 +68,7 @@ El `login.html` y `register.html` viven en `docs/` (raíz) y son compartidos por
 - `liga_argentina` (34 equipos): AMANCAY (LR), BARRIO PARQUE, BOCHAS (CC), CENTENARIO (VT), CENTRAL ENTRERRIANO, CICLISTA (J), COLON (SF), COMUNICACIONES, DEP. NORTE, DEP. VIEDMA, EL TALAR, ESTUDIANTES (T), FUSION RIOJANA, GIMNASIA (LP), HINDU (C), HURACAN (LH), INDEPENDIENTE (SDE), JUJUY BASQUET, LA UNION (C), LANUS, PERGAMINO BASQUET, PICO F.C., PROVINCIAL (R), QUILMES (MDP), RACING (A), RIVADAVIA (MZA), ROCAMORA, SALTA BASKET, SAN ISIDRO, SANTA PAULA (G), SP. SUARDI, UNION (MDP), VILLA MITRE (BB), VILLA SAN MARTIN
 - `liga_nacional` (19 equipos): ARGENTINO (J), ATENAS (C), BOCA, FERRO, GIMNASIA (CR), INDEPENDIENTE (O), INSTITUTO, LA UNION FSA., OBERA, OBRAS, OLIMPICO (LB), PEÑAROL (MDP), PLATENSE, QUIMSA, RACING (CH), REGATAS (C), SAN LORENZO, SAN MARTIN (C), UNION (SF)
 - `liga_femenina` (18 equipos): BOCHAS (CC), CHAÑARES, DEP. BERAZATEGUI, EL BIGUA (NQN), EL TALAR, FERRO, FUSION RIOJANA, GORRIONES (RIO IV), HINDU (C), INDEPENDIENTE (NQN), INSTITUTO, LANUS, NAUTICO (R), OBRAS, QUIMSA, ROCAMORA, SAN JOSE (MENDOZA), UNION FLORIDA
+- `liga_proximo` (19 equipos): ARGENTINO (J), ATENAS (C), BOCA, FERRO, GIMNASIA (CR), INDEPENDIENTE (O), INSTITUTO, LA UNION FSA., OBERA, OBRAS, OLIMPICO (LB), PEÑAROL (MDP), PLATENSE, QUIMSA, RACING (CH), REGATAS (C), SAN LORENZO, SAN MARTÍN (C), UNION (SF)
 
 **Metadata guardada en Supabase** (`auth/v1/signup` → campo `data`):
 ```json
@@ -82,7 +83,7 @@ Cada página tiene botones de navegación cruzada en el header. Estilo uniforme 
 - `display:inline-flex; align-items:center; justify-content:center; gap:5px; min-width:120px`
 - `padding:3px 10px; border-radius:20px; font-size:0.68rem; font-weight:600`
 - Ícono `›` **siempre a la derecha** del texto (nunca a la izquierda)
-- Color teal (`--teal-l`) para Liga Argentina y Liga Nacional; violeta (`--purple-l`) para Liga Femenina
+- Color teal (`--teal-l`) para Liga Argentina y Liga Nacional; violeta (`--purple-l`) para Liga Femenina y Liga de Desarrollo
 - Al agregar una nueva liga: replicar este estilo exacto en los botones de todas las páginas existentes
 
 ### Actualizar CSVs de una liga desplegada
@@ -98,17 +99,21 @@ docs/
   fixture_upcoming.csv    # Partidos por jugar (fecha,hora,local,visitante,estadio)
   liga_nacional/          # Liga Nacional (misma estructura, sirve en /liga_nacional/)
   liga_femenina/          # Liga Femenina (misma estructura, sirve en /liga_femenina/)
+  liga_proximo/           # Liga de Desarrollo (misma estructura, sirve en /liga_proximo/)
   logos/                  # JPEGs de equipos + scouteado_logo.png
 Scraper/
   data_scraper.py         # Scraper principal de stats (Liga Argentina)
   data_scraper_nacional.py # Scraper principal de stats (Liga Nacional)
   data_scraper_femenina.py # Scraper principal de stats (Liga Femenina)
+  data_scraper_proximo.py  # Scraper principal de stats (Liga de Desarrollo)
   shot_map_scraper.py     # Scraper de mapas de tiro (Liga Argentina)
   shot_map_scraper_nacional.py # Scraper de mapas de tiro (Liga Nacional)
   shot_map_scraper_femenina.py # Scraper de mapas de tiro (Liga Femenina)
+  shot_map_scraper_proximo.py  # Scraper de mapas de tiro (Liga de Desarrollo)
   pbp_scraper.py          # Scraper de jugada a jugada (Liga Argentina)
   pbp_scraper_nacional.py # Scraper de jugada a jugada (Liga Nacional)
   pbp_scraper_femenina.py # Scraper de jugada a jugada (Liga Femenina)
+  pbp_scraper_proximo.py  # Scraper de jugada a jugada (Liga de Desarrollo)
   requirements.txt        # cloudscraper, pandas, bs4, lxml, playwright
 ```
 
@@ -116,13 +121,16 @@ Scraper/
 - Liga Argentina URL base: `https://www.laliganacional.com.ar/laligaargentina`
 - Liga Nacional URL base: `https://www.laliganacional.com.ar/laliga`
 - Liga Femenina URL base: `https://www.laliganacional.com.ar/lfb`
+- Liga de Desarrollo URL base: `https://www.laliganacional.com.ar/ligaproximo`
 - Temporada Liga Argentina: desde `30/10/2025`
 - Temporada Liga Nacional: desde `23/09/2025`
 - Temporada Liga Femenina: desde `03/10/2025` (CSV completo), pero el dashboard filtra desde `09/01/2026` (Segunda Vuelta)
+- Temporada Liga de Desarrollo: desde `22/09/2025`
 - Scraper usa `cloudscraper` para evadir protección anti-bot
 - `shot_map_scraper.py --full` regenera el CSV completo de tiros (Liga Argentina)
 - `shot_map_scraper_nacional.py --full` regenera el CSV completo de tiros (Liga Nacional)
 - `shot_map_scraper_femenina.py --full` regenera el CSV completo de tiros (Liga Femenina)
+- `shot_map_scraper_proximo.py --full` regenera el CSV completo de tiros (Liga de Desarrollo)
 
 ## CSV: liga_argentina.csv
 Columnas clave: `Fecha, Condicion equipos, Equipo, Rival, Nombre completo, IdPartido, Etapa, Titular`
@@ -461,6 +469,20 @@ Mismo esquema y formato que `liga_argentina_pbp.csv` y `liga_nacional_pbp.csv`.
 - Scraper: `Scraper/pbp_scraper_femenina.py`
 - Datos lazy cargados del `docs/liga_femenina/liga_femenina.csv`
 
+## CSV: liga_proximo_pbp.csv
+Mismo esquema y formato que los demás PBP CSVs.
+- Fuente: `https://www.laliganacional.com.ar/ligaproximo/partido/en-vivo/{game_id}`
+- Scraper: `Scraper/pbp_scraper_proximo.py`
+- Datos lazy cargados del `docs/liga_proximo/liga_proximo.csv`
+
+## Liga de Desarrollo — particularidades del dashboard
+- Sirve en `/liga_proximo/` (subcarpeta `docs/liga_proximo/`)
+- Una sola conferencia (igual que Liga Nacional, sin división Norte/Sur)
+- Logos referenciados desde `../liga_nacional/logos/` (equipos idénticos a Liga Nacional)
+- Sin filtro de `START_DATE` — muestra toda la temporada desde `22/09/2025`
+- Jugador por defecto en Tiro: SOÑORA (OBRAS)
+- CSVs: `liga_proximo.csv`, `liga_proximo_shots.csv`, `liga_proximo_pbp.csv`
+
 ## Liga Femenina — particularidades del dashboard
 - El CSV `liga_femenina.csv` contiene datos desde `03/10/2025` (inicio de temporada)
 - El dashboard filtra en `initApp()` las filas anteriores al `09/01/2026` (inicio Segunda Vuelta) con `START_DATE = new Date(2026, 0, 9)` antes de llamar a `buildRAW_J`/`buildRAW_T`
@@ -594,4 +616,19 @@ python Scraper/pbp_scraper_femenina.py
 
 # Forzar re-scrape completo de jugada a jugada — Liga Femenina
 python Scraper/pbp_scraper_femenina.py --full
+
+# Actualizar stats de jugadores — Liga de Desarrollo
+python Scraper/data_scraper_proximo.py
+
+# Actualizar mapa de tiros (sólo nuevos partidos) — Liga de Desarrollo
+python Scraper/shot_map_scraper_proximo.py
+
+# Forzar re-scrape completo de tiros — Liga de Desarrollo
+python Scraper/shot_map_scraper_proximo.py --full
+
+# Actualizar jugada a jugada (sólo partidos nuevos) — Liga de Desarrollo
+python Scraper/pbp_scraper_proximo.py
+
+# Forzar re-scrape completo de jugada a jugada — Liga de Desarrollo
+python Scraper/pbp_scraper_proximo.py --full
 ```
