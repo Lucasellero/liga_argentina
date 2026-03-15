@@ -1816,34 +1816,50 @@ canvas{display:block;width:100%;cursor:crosshair;}
 <script>
 // ── Auth guard ────────────────────────────────────────────────────────────────
 (function() {
+  const LOGIN_URL    = '../login.html?returnTo=liga_nacional/';
+  const REGISTER_URL = '../register.html';
   const token = localStorage.getItem('auth_token');
-  if (!token) { window.location.replace('../login.html?returnTo=liga_nacional/'); return; }
-  try {
-    // Decodificar payload sin verificar firma (solo para leer exp en cliente)
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    if (payload.exp && Date.now() / 1000 > payload.exp) {
+  let isAuthed = false;
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (!payload.exp || Date.now() / 1000 <= payload.exp) {
+        isAuthed = true;
+      } else {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_user');
+      }
+    } catch(e) {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_user');
-      window.location.replace('../login.html?returnTo=liga_nacional/');
-      return;
     }
-  } catch(e) {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_user');
-    window.location.replace('../login.html?returnTo=liga_nacional/');
-    return;
   }
-  // Mostrar nombre de usuario en el header
-  try {
-    const user = JSON.parse(localStorage.getItem('auth_user') || '{}');
-    if (user.nombre) {
-      const el = document.getElementById('headerUser');
-      if (el) {
-        document.getElementById('headerUserName').textContent = user.nombre + ' ' + (user.apellido || '');
-        el.style.display = 'flex';
+  if (isAuthed) {
+    try {
+      const user = JSON.parse(localStorage.getItem('auth_user') || '{}');
+      if (user.nombre) {
+        const el = document.getElementById('headerUser');
+        if (el) {
+          document.getElementById('headerUserName').textContent = user.nombre + ' ' + (user.apellido || '');
+          el.style.display = 'flex';
+        }
       }
-    }
-  } catch(e) {}
+    } catch(e) {}
+  } else {
+    const delay = 420000; // 7 min
+    setTimeout(function() {
+      const ov = document.createElement('div');
+      ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(11,11,22,.93);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:16px;';
+      ov.innerHTML = '<div style="background:#18182e;border:1px solid rgba(139,92,246,.25);border-radius:18px;padding:40px 36px;width:100%;max-width:400px;text-align:center;box-shadow:0 8px 48px rgba(0,0,0,.65);">'
+        + '<div style="width:80px;height:80px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;"><img src="logos/scouteado_logo.png" alt="Scouteado" style="width:130px;height:130px;object-fit:contain;"></div>'
+        + '<h2 style="color:#f8fafc;font-size:1.3rem;font-weight:700;margin-bottom:8px;">¡Seguí explorando!</h2>'
+        + '<p style="color:#64748b;font-size:.88rem;margin-bottom:28px;line-height:1.55;">Creá tu cuenta gratis para continuar navegando las estadísticas de la liga.</p>'
+        + '<a href="' + LOGIN_URL + '" style="display:block;padding:13px;background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff;font-weight:600;font-size:.92rem;border-radius:10px;text-decoration:none;margin-bottom:12px;box-shadow:0 4px 18px rgba(139,92,246,.4);">Iniciar sesión</a>'
+        + '<a href="' + REGISTER_URL + '" style="display:block;padding:13px;background:transparent;color:#a78bfa;font-weight:600;font-size:.92rem;border-radius:10px;text-decoration:none;border:1.5px solid rgba(139,92,246,.38);">Registrarme gratis</a>'
+        + '</div>';
+      document.body.appendChild(ov);
+    }, delay);
+  }
 })();
 
 function authLogout() {
