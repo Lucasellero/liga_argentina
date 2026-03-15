@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Liga Nacional de Básquet 2025/26</title>
+<title>Liga Femenina de Básquet 2025/26</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -963,21 +963,21 @@ canvas{display:block;width:100%;cursor:crosshair;}
     <img src="logos/scouteado_logo.png" style="width:90px;height:90px;object-fit:contain;position:relative;z-index:1;" alt="Scouteado">
     <div>
       <div class="title">SCOUTEADO</div>
-      <div class="subtitle">Liga Nacional · Temporada Regular 2025/2026</div>
+      <div class="subtitle">Liga Femenina · Segunda Vuelta 2025/2026</div>
       <div id="lastUpdate" style="font-size:0.65rem;color:var(--text-muted,#9ca3af);margin-top:2px;"></div>
       <a href="../" style="display:inline-flex;align-items:center;justify-content:center;gap:5px;margin-top:5px;font-size:0.68rem;font-weight:600;color:var(--teal-l,#5eead4);text-decoration:none;padding:3px 10px;border-radius:20px;border:1px solid rgba(45,212,191,.3);background:rgba(45,212,191,.08);transition:background .15s;min-width:120px;" onmouseover="this.style.background='rgba(45,212,191,.18)'" onmouseout="this.style.background='rgba(45,212,191,.08)'">
         Liga Argentina
         <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
       </a>
-      <a href="../liga_femenina/" style="display:inline-flex;align-items:center;justify-content:center;gap:5px;margin-top:5px;font-size:0.68rem;font-weight:600;color:var(--purple-l,#a78bfa);text-decoration:none;padding:3px 10px;border-radius:20px;border:1px solid rgba(139,92,246,.3);background:rgba(139,92,246,.08);transition:background .15s;min-width:120px;" onmouseover="this.style.background='rgba(139,92,246,.18)'" onmouseout="this.style.background='rgba(139,92,246,.08)'">
-        Liga Femenina
+      <a href="../liga_nacional/" style="display:inline-flex;align-items:center;justify-content:center;gap:5px;margin-top:5px;font-size:0.68rem;font-weight:600;color:var(--teal-l,#5eead4);text-decoration:none;padding:3px 10px;border-radius:20px;border:1px solid rgba(45,212,191,.3);background:rgba(45,212,191,.08);transition:background .15s;min-width:120px;" onmouseover="this.style.background='rgba(45,212,191,.18)'" onmouseout="this.style.background='rgba(45,212,191,.08)'">
+        Liga Nacional
         <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
       </a>
     </div>
   </div>
   <div class="header-badges">
-    <span class="badge badge-p">323 Jugadores</span>
-    <span class="badge badge-t">19 Equipos</span>
+    <span class="badge badge-p">Liga Femenina</span>
+    <span class="badge badge-t">2ª Vuelta 2025/26</span>
   </div>
   <div id="headerUser" style="display:none;align-items:center;gap:10px;margin-left:auto;">
     <span id="headerUserName" style="font-size:.78rem;color:var(--purple-l);font-weight:600;"></span>
@@ -1062,9 +1062,9 @@ canvas{display:block;width:100%;cursor:crosshair;}
       <select id="jTeam" onchange="onJFilter()"><option value="">Todos los equipos</option></select>
       <select id="jMinG" onchange="onJFilter()">
         <option value="0">Todos los PJ</option>
-        <option value="10">10+ PJ</option>
+        <option value="10" selected>10+ PJ</option>
         <option value="15">15+ PJ</option>
-        <option value="20" selected>20+ PJ</option>
+        <option value="20">20+ PJ</option>
         <option value="23">23+ PJ</option>
       </select>
       <div class="ctrl-spacer"></div>
@@ -1644,16 +1644,30 @@ canvas{display:block;width:100%;cursor:crosshair;}
 <div class="section active" id="sec-posiciones">
   <div class="pos-outer">
     <div class="pos-conf-block">
-      <div class="pos-conf-title">Liga Nacional · Temporada Regular</div>
+      <div class="pos-conf-title">Conferencia Norte</div>
       <div class="pos-table-scroll">
         <table class="pos-table">
           <thead><tr>
-            <th data-tip="Posición en la tabla">#</th><th data-tip="Nombre del equipo">Equipo</th>
+            <th data-tip="Posición en la conferencia">#</th><th data-tip="Nombre del equipo">Equipo</th>
             <th data-tip="Partidos jugados">PJ</th><th data-tip="Partidos ganados">G</th><th data-tip="Partidos perdidos">P</th>
             <th data-tip="% de victorias · G / PJ">W%</th><th data-tip="Puntos anotados por partido">PTS/P</th><th data-tip="Puntos recibidos por partido">PTS REC/P</th><th data-tip="Diferencial de puntos/partido · PTS/P − PTS REC/P">DIF/P</th>
             <th data-tip="Récord como local (G-P)">LOCAL</th><th data-tip="Récord como visitante (G-P)">VISITA</th><th data-tip="Récord en los últimos 5 partidos (G-P)">ÚLTIMOS 5</th>
           </tr></thead>
-          <tbody id="posAllTbody"></tbody>
+          <tbody id="posNorteTbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="pos-conf-block">
+      <div class="pos-conf-title">Conferencia Sur</div>
+      <div class="pos-table-scroll">
+        <table class="pos-table">
+          <thead><tr>
+            <th data-tip="Posición en la conferencia">#</th><th data-tip="Nombre del equipo">Equipo</th>
+            <th data-tip="Partidos jugados">PJ</th><th data-tip="Partidos ganados">G</th><th data-tip="Partidos perdidos">P</th>
+            <th data-tip="% de victorias · G / PJ">W%</th><th data-tip="Puntos anotados por partido">PTS/P</th><th data-tip="Puntos recibidos por partido">PTS REC/P</th><th data-tip="Diferencial de puntos/partido · PTS/P − PTS REC/P">DIF/P</th>
+            <th data-tip="Récord como local (G-P)">LOCAL</th><th data-tip="Récord como visitante (G-P)">VISITA</th><th data-tip="Récord en los últimos 5 partidos (G-P)">ÚLTIMOS 5</th>
+          </tr></thead>
+          <tbody id="posSurTbody"></tbody>
         </table>
       </div>
     </div>
@@ -1817,20 +1831,20 @@ canvas{display:block;width:100%;cursor:crosshair;}
 // ── Auth guard ────────────────────────────────────────────────────────────────
 (function() {
   const token = localStorage.getItem('auth_token');
-  if (!token) { window.location.replace('../login.html?returnTo=liga_nacional/'); return; }
+  if (!token) { window.location.replace('../login.html?returnTo=liga_femenina/'); return; }
   try {
     // Decodificar payload sin verificar firma (solo para leer exp en cliente)
     const payload = JSON.parse(atob(token.split('.')[1]));
     if (payload.exp && Date.now() / 1000 > payload.exp) {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_user');
-      window.location.replace('../login.html?returnTo=liga_nacional/');
+      window.location.replace('../login.html?returnTo=liga_femenina/');
       return;
     }
   } catch(e) {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
-    window.location.replace('../login.html?returnTo=liga_nacional/');
+    window.location.replace('../login.html?returnTo=liga_femenina/');
     return;
   }
   // Mostrar nombre de usuario en el header
@@ -1849,14 +1863,14 @@ canvas{display:block;width:100%;cursor:crosshair;}
 function authLogout() {
   localStorage.removeItem('auth_token');
   localStorage.removeItem('auth_user');
-  window.location.replace('../login.html?returnTo=liga_nacional/');
+  window.location.replace('../login.html?returnTo=liga_femenina/');
 }
 
 // ============================================================
 // ============================================================
 // DATA — loaded dynamically from CSV
 // ============================================================
-const CSV_PATH = 'liga_nacional.csv';
+const CSV_PATH = 'liga_femenina.csv';
 let TEAM_MAP = {}, PLAYERS = [], TEAMS = [];
 let GAMES_ALL = [];        // all unique games (deduplicated)
 
@@ -2037,7 +2051,7 @@ let jPts=[], tPts=[];
 let jHov=-1, jPin=new Set(), tHov=-1, tPin=-1;
 
 // ── SHOTS DATA ──────────────────────────────────────
-const SHOTS_CSV = 'liga_nacional_shots.csv';
+const SHOTS_CSV = 'liga_femenina_shots.csv';
 let SHOTS_MAP = null; // null=not loaded, Map keyed by gameId
 let SHOTS_BY_PLAYER = null; // Map keyed by "Equipo||Dorsal"
 let LEAGUE_ZONE_STATS = null;
@@ -3001,30 +3015,36 @@ function buildLeaders() {
 // ============================================================
 // POSICIONES POR CONFERENCIA
 // ============================================================
-// Liga Nacional no tiene conferencias — tabla única de posiciones
+const CONF_NORTE = new Set([
+  'CHAÑARES','HINDU (C)','INSTITUTO','QUIMSA','NÁUTICO (R)',
+  'GORRIONES (RIO IV)','SAN JOSE (MENDOZA)','BOCHAS (CC)','FUSION RIOJANA'
+]);
+const CONF_SUR = new Set([
+  'OBRAS','FERRO','DEP. BERAZATEGUI','EL TALAR','UNION FLORIDA',
+  'INDEPENDIENTE (NQN)','EL BIGUA (NQN)','LANUS','ROCAMORA'
+]);
 
 const LOGOS = {
   // Conferencia Norte
-  'ARGENTINO (J)':  'logos/argentino_j.jpeg',
-  'ATENAS (C)':     'logos/atenas_c.jpeg',
-  'GIMNASIA (CR)':  'logos/gimnasia_cr.jpeg',
-  'INDEPENDIENTE (O)':'logos/independiente_o.jpeg',
-  'INSTITUTO':      'logos/instituto.jpeg',
-  'LA UNION FSA.':  'logos/la_union_fsa.jpeg',
-  'OBERÁ':          'logos/obera.jpeg',
-  'QUIMSA':         'logos/quimsa.jpeg',
-  'REGATAS (C)':    'logos/regatas_c.jpeg',
-  'SAN MARTÍN (C)': 'logos/san_martin_c.jpeg',
+  'CHAÑARES':           'logos/chanares.jpeg',
+  'HINDU (C)':          'logos/hindu_c.jpeg',
+  'INSTITUTO':          'logos/instituto.jpeg',
+  'QUIMSA':             'logos/quimsa.jpeg',
+  'NÁUTICO (R)':        'logos/nautico_r.jpeg',
+  'GORRIONES (RIO IV)': 'logos/gorriones_rio_iv.jpeg',
+  'SAN JOSE (MENDOZA)': 'logos/san_jose_mendoza.jpeg',
+  'BOCHAS (CC)':        'logos/bochas_cc.jpeg',
+  'FUSION RIOJANA':     'logos/fusion_riojana.jpeg',
   // Conferencia Sur
-  'BOCA':           'logos/boca.jpeg',
-  'FERRO':          'logos/ferro.jpeg',
-  'OLÍMPICO (LB)':  'logos/olimpico_lb.jpeg',
-  'OBRAS':          'logos/obras.jpeg',
-  'PEÑAROL (MDP)':  'logos/peñarol_mdp.jpeg',
-  'PLATENSE':       'logos/platense.jpeg',
-  'RACING (CH)':    'logos/racing_ch.jpeg',
-  'SAN LORENZO':    'logos/san_lorenzo.jpeg',
-  'UNION (SF)':     'logos/union_sf.jpeg',
+  'OBRAS':                'logos/obras.jpeg',
+  'FERRO':                'logos/ferro.jpeg',
+  'DEP. BERAZATEGUI':     'logos/dep_berazategui.jpeg',
+  'EL TALAR':             'logos/el_talar.jpeg',
+  'UNION FLORIDA':        'logos/union_florida.jpeg',
+  'INDEPENDIENTE (NQN)':  'logos/independiente_nqn.jpeg',
+  'EL BIGUA (NQN)':       'logos/el_bigua_nqn.jpeg',
+  'LANUS':                'logos/lanus.jpeg',
+  'ROCAMORA':             'logos/rocamora.jpeg',
 };
 
 function teamLogoHtml(teamName, size) {
@@ -3035,44 +3055,50 @@ function teamLogoHtml(teamName, size) {
 }
 
 function renderStandings() {
-  const rows = [...TEAMS].sort((a,b) => {
-    if (b['W%'] !== a['W%']) return b['W%'] - a['W%'];
-    if (b.PJ !== a.PJ) return b.PJ - a.PJ;
-    return (b.PTSPG||0) - (a.PTSPG||0);
-  });
-  const tbody = document.getElementById('posAllTbody');
-  if (!tbody) return;
-  tbody.innerHTML = '';
-  const cutoff = Math.ceil(rows.length / 2);
-  rows.forEach((t, i) => {
-    const pos = i + 1;
-    const wc = t['W%'] >= 60 ? 'win-rate-high' : t['W%'] >= 40 ? 'win-rate-mid' : 'win-rate-low';
-    const dif = Math.round(((t.PTSPG||0) - (t.PTSOPP_PG||0)) * 10) / 10;
-    const difClass = dif >= 0 ? 'pos-diff-pos' : 'pos-diff-neg';
-    const difStr = (dif >= 0 ? '+' : '') + dif.toFixed(1);
-    const topClass = pos <= cutoff ? ' pos-top8' : '';
-    const logoSrc = LOGOS[t.Equipo];
-    const logoHtml = logoSrc
-      ? `<img src="${logoSrc}" class="pos-logo" alt="" onerror="this.style.visibility='hidden'">`
-      : '<span class="pos-logo-ph"></span>';
-    tbody.innerHTML += `<tr class="${topClass}">
-      <td>${pos}</td>
-      <td style="background:var(--bg);cursor:pointer" onclick="showTeamGames('${t.Equipo.replace(/'/g,"\\'")}')" title="Ver partidos">${logoHtml}${t.Equipo}</td>
-      <td>${t.PJ}</td>
-      <td style="color:var(--green);font-weight:700">${t.Ganados}</td>
-      <td style="color:var(--red)">${t.Perdidos}</td>
-      <td class="${wc}">${t['W%'].toFixed(1)}%</td>
-      <td class="pos-pts-f">${(t.PTSPG||0).toFixed(1)}</td>
-      <td class="pos-pts-a">${(t.PTSOPP_PG||0).toFixed(1)}</td>
-      <td class="${difClass}">${difStr}</td>
-      <td style="color:var(--muted);font-size:.78rem">${t.LocalG}-${t.LocalP}</td>
-      <td style="color:var(--muted);font-size:.78rem">${t.VisitG}-${t.VisitP}</td>
-      <td style="text-align:center">${(t.last5||[]).map(g=>g
-        ? `<span style="color:var(--green);font-weight:700;font-size:.72rem">V</span>`
-        : `<span style="color:var(--red);font-weight:700;font-size:.72rem">D</span>`
-      ).join('<span style="color:var(--muted);opacity:.3;margin:0 1px">·</span>')}</td>
-    </tr>`;
-  });
+  function fillTable(tbodyId, confSet) {
+    const rows = TEAMS
+      .filter(t => confSet.has(t.Equipo))
+      .sort((a,b) => {
+        if (b['W%'] !== a['W%']) return b['W%'] - a['W%'];
+        if (b.PJ !== a.PJ) return b.PJ - a.PJ;
+        return (b.PTSPG||0) - (a.PTSPG||0);
+      });
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    const cutoff = Math.ceil(rows.length / 2);
+    rows.forEach((t, i) => {
+      const pos = i + 1;
+      const wc = t['W%'] >= 60 ? 'win-rate-high' : t['W%'] >= 40 ? 'win-rate-mid' : 'win-rate-low';
+      const dif = Math.round(((t.PTSPG||0) - (t.PTSOPP_PG||0)) * 10) / 10;
+      const difClass = dif >= 0 ? 'pos-diff-pos' : 'pos-diff-neg';
+      const difStr = (dif >= 0 ? '+' : '') + dif.toFixed(1);
+      const topClass = pos <= cutoff ? ' pos-top8' : '';
+      const logoSrc = LOGOS[t.Equipo];
+      const logoHtml = logoSrc
+        ? `<img src="${logoSrc}" class="pos-logo" alt="" onerror="this.style.visibility='hidden'">`
+        : '<span class="pos-logo-ph"></span>';
+      tbody.innerHTML += `<tr class="${topClass}">
+        <td>${pos}</td>
+        <td style="background:var(--bg);cursor:pointer" onclick="showTeamGames('${t.Equipo.replace(/'/g,"\\'")}')" title="Ver partidos">${logoHtml}${t.Equipo}</td>
+        <td>${t.PJ}</td>
+        <td style="color:var(--green);font-weight:700">${t.Ganados}</td>
+        <td style="color:var(--red)">${t.Perdidos}</td>
+        <td class="${wc}">${t['W%'].toFixed(1)}%</td>
+        <td class="pos-pts-f">${(t.PTSPG||0).toFixed(1)}</td>
+        <td class="pos-pts-a">${(t.PTSOPP_PG||0).toFixed(1)}</td>
+        <td class="${difClass}">${difStr}</td>
+        <td style="color:var(--muted);font-size:.78rem">${t.LocalG}-${t.LocalP}</td>
+        <td style="color:var(--muted);font-size:.78rem">${t.VisitG}-${t.VisitP}</td>
+        <td style="text-align:center">${(t.last5||[]).map(g=>g
+          ? `<span style="color:var(--green);font-weight:700;font-size:.72rem">V</span>`
+          : `<span style="color:var(--red);font-weight:700;font-size:.72rem">D</span>`
+        ).join('<span style="color:var(--muted);opacity:.3;margin:0 1px">·</span>')}</td>
+      </tr>`;
+    });
+  }
+  fillTable('posNorteTbody', CONF_NORTE);
+  fillTable('posSurTbody',   CONF_SUR);
 }
 
 // ============================================================
@@ -3729,7 +3755,14 @@ async function initApp() {
     const resp = await fetch(CSV_PATH + '?v=' + Date.now(), { cache: 'no-store' });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const text = await resp.text();
-    const rows = parseCSV(text);
+    const allRows = parseCSV(text);
+    // Solo partidos desde el 09/01/2026 (Segunda Vuelta)
+    const START_DATE = new Date(2026, 0, 9);
+    const rows = allRows.filter(r => {
+      if (!r['Fecha']) return false;
+      const [d, m, y] = r['Fecha'].split('/');
+      return new Date(+y, +m - 1, +d) >= START_DATE;
+    });
     const RAW_J = buildRAW_J(rows);
     const RAW_T = buildRAW_T(rows);
 
@@ -4378,7 +4411,7 @@ function updateJFilterVisibility(){
 // ============================================================
 // QUINTETOS
 // ============================================================
-const PBP_CSV = 'liga_nacional_pbp.csv';
+const PBP_CSV = 'liga_femenina_pbp.csv';
 let PBP_MAP = null;    // null=not loaded, Map<gameId, rows[]>
 let LINEUP_DATA = null; // Map<teamName, Map<lineupKey, {players,secs,pf,pa,games}>>
 let qntSort = 'min', qntDir = 'desc';

@@ -51,6 +51,14 @@ El `login.html` vive en `docs/` (raíz) y es compartido por todas las ligas.
 
 **Regla al agregar una nueva liga:** los 4 `window.location.replace` del auth guard deben apuntar a `../login.html?returnTo=<nombre-liga>/`, no a `login.html` sin path relativo (eso buscaría el archivo dentro de la subcarpeta y daría 404).
 
+### Botones de navegación entre ligas (header)
+Cada página tiene botones de navegación cruzada en el header. Estilo uniforme en las 3 páginas:
+- `display:inline-flex; align-items:center; justify-content:center; gap:5px; min-width:120px`
+- `padding:3px 10px; border-radius:20px; font-size:0.68rem; font-weight:600`
+- Ícono `›` **siempre a la derecha** del texto (nunca a la izquierda)
+- Color teal (`--teal-l`) para Liga Argentina y Liga Nacional; violeta (`--purple-l`) para Liga Femenina
+- Al agregar una nueva liga: replicar este estilo exacto en los botones de todas las páginas existentes
+
 ### Actualizar CSVs de una liga desplegada
 Reemplazar los archivos en `docs/<nombre-liga>/` y pushear. Vercel re-deploya automáticamente.
 
@@ -63,6 +71,7 @@ docs/
   liga_argentina_pbp.csv  # Jugada a jugada (eventos por partido)
   fixture_upcoming.csv    # Partidos por jugar (fecha,hora,local,visitante,estadio)
   liga_nacional/          # Liga Nacional (misma estructura, sirve en /liga_nacional/)
+  liga_femenina/          # Liga Femenina (misma estructura, sirve en /liga_femenina/)
   logos/                  # JPEGs de equipos + scouteado_logo.png
 Scraper/
   data_scraper.py         # Scraper principal de stats (Liga Argentina)
@@ -83,7 +92,7 @@ Scraper/
 - Liga Femenina URL base: `https://www.laliganacional.com.ar/lfb`
 - Temporada Liga Argentina: desde `30/10/2025`
 - Temporada Liga Nacional: desde `23/09/2025`
-- Temporada Liga Femenina: desde `03/10/2025`
+- Temporada Liga Femenina: desde `03/10/2025` (CSV completo), pero el dashboard filtra desde `09/01/2026` (Segunda Vuelta)
 - Scraper usa `cloudscraper` para evadir protección anti-bot
 - `shot_map_scraper.py --full` regenera el CSV completo de tiros (Liga Argentina)
 - `shot_map_scraper_nacional.py --full` regenera el CSV completo de tiros (Liga Nacional)
@@ -419,6 +428,22 @@ Mismo esquema y formato que `liga_argentina_pbp.csv`. Columnas idénticas: `IdPa
 - Fuente: `https://www.laliganacional.com.ar/laliga/partido/en-vivo/{game_id}` (HTML puro, misma estructura)
 - Scraper: `Scraper/pbp_scraper_nacional.py` — lógica de parsing idéntica a `pbp_scraper.py`, solo cambia `LEAGUE = "/laliga"` y los paths a `docs/liga_nacional/`
 - Datos lazy cargados del `docs/liga_nacional/liga_nacional.csv` para obtener la lista de partidos y nombres de equipos
+
+## CSV: liga_femenina_pbp.csv
+Mismo esquema y formato que `liga_argentina_pbp.csv` y `liga_nacional_pbp.csv`.
+- Fuente: `https://www.laliganacional.com.ar/lfb/partido/en-vivo/{game_id}`
+- Scraper: `Scraper/pbp_scraper_femenina.py`
+- Datos lazy cargados del `docs/liga_femenina/liga_femenina.csv`
+
+## Liga Femenina — particularidades del dashboard
+- El CSV `liga_femenina.csv` contiene datos desde `03/10/2025` (inicio de temporada)
+- El dashboard filtra en `initApp()` las filas anteriores al `09/01/2026` (inicio Segunda Vuelta) con `START_DATE = new Date(2026, 0, 9)` antes de llamar a `buildRAW_J`/`buildRAW_T`
+- Logos en `docs/liga_femenina/logos/` — objeto `LOGOS` poblado con los 18 equipos
+- Tabla de posiciones dividida en **Conferencia Norte** y **Conferencia Sur** (igual que Liga Argentina), usando `CONF_NORTE` / `CONF_SUR` y `fillTable()` en `renderStandings()`
+- **Conferencia Norte**: CHAÑARES, HINDU (C), INSTITUTO, QUIMSA, NÁUTICO (R), GORRIONES (RIO IV), SAN JOSE (MENDOZA), BOCHAS (CC), FUSION RIOJANA
+- **Conferencia Sur**: OBRAS, FERRO, DEP. BERAZATEGUI, EL TALAR, UNION FLORIDA, INDEPENDIENTE (NQN), EL BIGUA (NQN), LANUS, ROCAMORA
+- Filtro mínimo de PJ en tabla de jugadores: **10+ PJ** por defecto (vs 20+ en las otras ligas), porque se juegan menos partidos
+- IDs de tabla: `posNorteTbody` / `posSurTbody` (reemplazaron `posAllTbody`)
 
 ## Integridad de datos PBP
 
