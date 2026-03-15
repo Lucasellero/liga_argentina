@@ -433,7 +433,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     }));
 
     const returnTo = new URLSearchParams(window.location.search).get('returnTo');
-    window.location.href = returnTo || 'index.html';
+    window.location.href = returnTo || 'liga_nacional/';
 
   } catch (err) {
     setFormError('No se pudo conectar. Intentá de nuevo.');
