@@ -949,6 +949,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
   .cnx-legend{gap:12px;}
 }
 </style>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 <div id="loadingOverlay" style="display:flex;position:fixed;inset:0;z-index:9999;
@@ -980,8 +981,8 @@ canvas{display:block;width:100%;cursor:crosshair;}
     </div>
   </div>
   <div class="header-badges">
-    <span class="badge badge-p">Liga Femenina</span>
-    <span class="badge badge-t">Serie Regular 2025/26</span>
+    <span class="badge badge-p" id="badgePlayers">— Jugadores</span>
+    <span class="badge badge-t" id="badgeTeams">— Equipos</span>
   </div>
   <div id="headerUser" style="display:none;align-items:center;gap:10px;margin-left:auto;">
     <span id="headerUserName" style="font-size:.78rem;color:var(--purple-l);font-weight:600;"></span>
@@ -4062,6 +4063,8 @@ async function initApp() {
       '<small style="color:#9ca3af">' + err.message + '</small></div>';
     return;
   }
+  document.getElementById('badgePlayers').textContent = PLAYERS.length + ' Jugadores';
+  document.getElementById('badgeTeams').textContent = TEAMS.length + ' Equipos';
   document.getElementById('loadingOverlay').style.display = 'none';
 }
 

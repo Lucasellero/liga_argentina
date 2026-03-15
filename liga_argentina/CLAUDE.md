@@ -410,6 +410,18 @@ Todas las tablas tienen tooltips custom que se muestran al hacer hover sobre un 
 - Tablas estáticas (HTML): `jCardBasic`, `jCardAdv`, `tCardBasic`, `tCardAdv`, tabla de posiciones Norte y Sur
 - Tablas dinámicas (JS): box score (`renderBoxScore` → array `cols` con campo `tip`), quintetos (`QNT_COLS` con campo `tip`, template usa `data-tip="${c.tip}"`), conexiones equipo (array `cols` con campo `title`, template usa `data-tip="${c.title}"`)
 
+## Vercel Analytics
+
+Todos los HTML tienen Vercel Analytics habilitado via:
+```html
+<script defer src="/_vercel/insights/script.js"></script>
+```
+Ubicado justo antes de `</head>` en los 6 archivos: `docs/index.html`, `docs/login.html`, `docs/register.html`, `docs/liga_femenina/index.html`, `docs/liga_nacional/index.html`, `docs/liga_proximo/index.html`.
+
+**Al agregar una nueva liga:** incluir este script en el nuevo `index.html` antes de `</head>`.
+
+El script es servido automáticamente por Vercel cuando Analytics está habilitado en el dashboard (Settings → Analytics → Enable). En local no hace nada.
+
 ## Cambios que Claude debe evitar
 
 - No cambiar el formato de los CSV
