@@ -42,14 +42,35 @@ Cada liga vive como subcarpeta dentro de `docs/`. Pasos:
 
 ### Auth — login compartido entre ligas
 
-El `login.html` vive en `docs/` (raíz) y es compartido por todas las ligas.
+El `login.html` y `register.html` viven en `docs/` (raíz) y son compartidos por todas las ligas.
 
-**Flujo:**
+**Flujo de login:**
 1. Cada `docs/<liga>/index.html` tiene un auth guard al inicio del script que redirige a `../login.html?returnTo=<liga>/` si no hay token válido.
 2. `login.html` lee el parámetro `returnTo` después del login exitoso y redirige a esa ruta. Si no hay `returnTo`, vuelve a `index.html` (liga_argentina).
 3. El logout (`authLogout()`) también redirige a `../login.html?returnTo=<liga>/`.
 
 **Regla al agregar una nueva liga:** los 4 `window.location.replace` del auth guard deben apuntar a `../login.html?returnTo=<nombre-liga>/`, no a `login.html` sin path relativo (eso buscaría el archivo dentro de la subcarpeta y daría 404).
+
+### Register — selección de liga y club
+
+`register.html` tiene un selector encadenado de **Liga → Club**:
+
+1. El usuario primero elige su liga (`<select id="liga">`): `liga_argentina`, `liga_nacional` o `liga_femenina`.
+2. Al cambiar la liga, `onLigaChange()` puebla dinámicamente el `<select id="club">` con los equipos de esa liga y lo habilita (arranca `disabled`).
+3. Ambos campos son requeridos. Si el usuario intenta registrarse sin seleccionarlos, aparecen los mensajes de error `ligaErr` / `clubErr`.
+
+**Equipos por liga (objeto `TEAMS_BY_LIGA` en el script de `register.html`):**
+- `liga_argentina` (34 equipos): AMANCAY (LR), BARRIO PARQUE, BOCHAS (CC), CENTENARIO (VT), CENTRAL ENTRERRIANO, CICLISTA (J), COLON (SF), COMUNICACIONES, DEP. NORTE, DEP. VIEDMA, EL TALAR, ESTUDIANTES (T), FUSION RIOJANA, GIMNASIA (LP), HINDU (C), HURACAN (LH), INDEPENDIENTE (SDE), JUJUY BASQUET, LA UNION (C), LANUS, PERGAMINO BASQUET, PICO F.C., PROVINCIAL (R), QUILMES (MDP), RACING (A), RIVADAVIA (MZA), ROCAMORA, SALTA BASKET, SAN ISIDRO, SANTA PAULA (G), SP. SUARDI, UNION (MDP), VILLA MITRE (BB), VILLA SAN MARTIN
+- `liga_nacional` (19 equipos): ARGENTINO (J), ATENAS (C), BOCA, FERRO, GIMNASIA (CR), INDEPENDIENTE (O), INSTITUTO, LA UNION FSA., OBERA, OBRAS, OLIMPICO (LB), PEÑAROL (MDP), PLATENSE, QUIMSA, RACING (CH), REGATAS (C), SAN LORENZO, SAN MARTIN (C), UNION (SF)
+- `liga_femenina` (18 equipos): BOCHAS (CC), CHAÑARES, DEP. BERAZATEGUI, EL BIGUA (NQN), EL TALAR, FERRO, FUSION RIOJANA, GORRIONES (RIO IV), HINDU (C), INDEPENDIENTE (NQN), INSTITUTO, LANUS, NAUTICO (R), OBRAS, QUIMSA, ROCAMORA, SAN JOSE (MENDOZA), UNION FLORIDA
+
+**Metadata guardada en Supabase** (`auth/v1/signup` → campo `data`):
+```json
+{ "nombre": "...", "apellido": "...", "telefono": "...", "liga": "liga_nacional", "club": "OBRAS" }
+```
+El campo `liga` usa el valor del `<option value="">` (snake_case), no el label visible.
+
+**Al agregar un nuevo equipo a una liga:** actualizar el array correspondiente en `TEAMS_BY_LIGA` dentro de `register.html`.
 
 ### Botones de navegación entre ligas (header)
 Cada página tiene botones de navegación cruzada en el header. Estilo uniforme en las 3 páginas:

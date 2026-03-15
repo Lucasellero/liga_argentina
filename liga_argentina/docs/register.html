@@ -338,6 +338,12 @@ select option { background: var(--surface2); color: var(--text); }
 .terms a { color: var(--purple-l); text-decoration: none; }
 .terms a:hover { text-decoration: underline; }
 
+/* ── SELECT DISABLED ── */
+select:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
 /* ── MOBILE ── */
 @media (max-width: 520px) {
   .header { padding: 14px 16px; }
@@ -407,6 +413,23 @@ select option { background: var(--surface2); color: var(--text); }
         <span class="error-msg" id="telefonoErr">Ingresá un teléfono válido.</span>
       </div>
 
+      <!-- LIGA -->
+      <div class="form-group">
+        <label for="liga">Liga</label>
+        <div class="input-wrap select-wrap">
+          <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          </svg>
+          <select id="liga" onchange="onLigaChange()">
+            <option value="">Seleccioná tu liga…</option>
+            <option value="liga_argentina">Liga Argentina</option>
+            <option value="liga_nacional">Liga Nacional</option>
+            <option value="liga_femenina">Liga Femenina</option>
+          </select>
+        </div>
+        <span class="error-msg" id="ligaErr">Seleccioná tu liga.</span>
+      </div>
+
       <!-- CLUB -->
       <div class="form-group">
         <label for="club">Club</label>
@@ -414,42 +437,8 @@ select option { background: var(--surface2); color: var(--text); }
           <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M10.496 2.132a1 1 0 00-.992 0l-7 4A1 1 0 003 7v7a1 1 0 100 2h14a1 1 0 100-2V7a1 1 0 00.496-1.868l-7-4z" clip-rule="evenodd"/>
           </svg>
-          <select id="club">
-            <option value="">Seleccioná tu club…</option>
-            <option>AMANCAY (LR)</option>
-            <option>BARRIO PARQUE</option>
-            <option>BOCHAS (CC)</option>
-            <option>CENTENARIO (VT)</option>
-            <option>CENTRAL ENTRERRIANO</option>
-            <option>CICLISTA (J)</option>
-            <option>COLON (SF)</option>
-            <option>COMUNICACIONES</option>
-            <option>DEP. NORTE</option>
-            <option>DEP. VIEDMA</option>
-            <option>EL TALAR</option>
-            <option>ESTUDIANTES (T)</option>
-            <option>FUSIÓN RIOJANA</option>
-            <option>GIMNASIA (LP)</option>
-            <option>HINDÚ (C)</option>
-            <option>HURACÁN (LH)</option>
-            <option>INDEPENDIENTE (SDE)</option>
-            <option>JUJUY BÁSQUET</option>
-            <option>LA UNIÓN (C)</option>
-            <option>LANÚS</option>
-            <option>PERGAMINO BÁSQUET</option>
-            <option>PICO F.C.</option>
-            <option>PROVINCIAL (R)</option>
-            <option>QUILMES (MDP)</option>
-            <option>RACING (A)</option>
-            <option>RIVADAVIA (MZA)</option>
-            <option>ROCAMORA</option>
-            <option>SALTA BASKET</option>
-            <option>SAN ISIDRO</option>
-            <option>SANTA PAULA (G)</option>
-            <option>SP. SUARDI</option>
-            <option>UNIÓN (MDP)</option>
-            <option>VILLA MITRE (BB)</option>
-            <option>VILLA SAN MARTÍN</option>
+          <select id="club" disabled>
+            <option value="">Primero seleccioná una liga…</option>
           </select>
         </div>
         <span class="error-msg" id="clubErr">Seleccioná tu club.</span>
@@ -531,6 +520,50 @@ select option { background: var(--surface2); color: var(--text); }
 </main>
 
 <script>
+const TEAMS_BY_LIGA = {
+  liga_argentina: [
+    'AMANCAY (LR)', 'BARRIO PARQUE', 'BOCHAS (CC)', 'CENTENARIO (VT)',
+    'CENTRAL ENTRERRIANO', 'CICLISTA (J)', 'COLON (SF)', 'COMUNICACIONES',
+    'DEP. NORTE', 'DEP. VIEDMA', 'EL TALAR', 'ESTUDIANTES (T)',
+    'FUSION RIOJANA', 'GIMNASIA (LP)', 'HINDU (C)', 'HURACAN (LH)',
+    'INDEPENDIENTE (SDE)', 'JUJUY BASQUET', 'LA UNION (C)', 'LANUS',
+    'PERGAMINO BASQUET', 'PICO F.C.', 'PROVINCIAL (R)', 'QUILMES (MDP)',
+    'RACING (A)', 'RIVADAVIA (MZA)', 'ROCAMORA', 'SALTA BASKET',
+    'SAN ISIDRO', 'SANTA PAULA (G)', 'SP. SUARDI', 'UNION (MDP)',
+    'VILLA MITRE (BB)', 'VILLA SAN MARTIN',
+  ],
+  liga_nacional: [
+    'ARGENTINO (J)', 'ATENAS (C)', 'BOCA', 'FERRO', 'GIMNASIA (CR)',
+    'INDEPENDIENTE (O)', 'INSTITUTO', 'LA UNION FSA.', 'OBERA', 'OBRAS',
+    'OLIMPICO (LB)', 'PEÑAROL (MDP)', 'PLATENSE', 'QUIMSA', 'RACING (CH)',
+    'REGATAS (C)', 'SAN LORENZO', 'SAN MARTIN (C)', 'UNION (SF)',
+  ],
+  liga_femenina: [
+    'BOCHAS (CC)', 'CHAÑARES', 'DEP. BERAZATEGUI', 'EL BIGUA (NQN)',
+    'EL TALAR', 'FERRO', 'FUSION RIOJANA', 'GORRIONES (RIO IV)',
+    'HINDU (C)', 'INDEPENDIENTE (NQN)', 'INSTITUTO', 'LANUS',
+    'NAUTICO (R)', 'OBRAS', 'QUIMSA', 'ROCAMORA',
+    'SAN JOSE (MENDOZA)', 'UNION FLORIDA',
+  ],
+};
+
+function onLigaChange() {
+  const liga  = document.getElementById('liga').value;
+  const club  = document.getElementById('club');
+  const teams = TEAMS_BY_LIGA[liga] || [];
+
+  club.innerHTML = teams.length
+    ? '<option value="">Seleccioná tu club…</option>' +
+      teams.map(t => `<option>${t}</option>`).join('')
+    : '<option value="">Primero seleccioná una liga…</option>';
+
+  club.disabled = !teams.length;
+
+  // Limpiar error de liga al seleccionar
+  setError('liga', 'ligaErr', false);
+  setError('club', 'clubErr', false);
+}
+
 const SUPABASE_URL  = 'https://repsndqhmyklxukffovf.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJlcHNuZHFobXlrbHh1a2Zmb3ZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMjk2MjQsImV4cCI6MjA4ODkwNTYyNH0.-qf2As-3z6-doBhDYg-4mUt4mWLjxPyf4THZPUTaGYo';
 
@@ -603,6 +636,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
   const nombre   = document.getElementById('nombre').value.trim();
   const apellido = document.getElementById('apellido').value.trim();
   const telefono = document.getElementById('telefono').value.trim();
+  const liga     = document.getElementById('liga').value;
   const club     = document.getElementById('club').value;
   const email    = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value;
@@ -619,6 +653,9 @@ document.getElementById('registerForm').addEventListener('submit', async functio
   if (!telefono || !/^[\d\s\+\-\(\)]{7,}$/.test(telefono)) {
     setError('telefono', 'telefonoErr', true); valid = false;
   } else setError('telefono', 'telefonoErr', false);
+
+  if (!liga)     { setError('liga',     'ligaErr',     true); valid = false; }
+  else             setError('liga',     'ligaErr',     false);
 
   if (!club)     { setError('club',     'clubErr',     true); valid = false; }
   else             setError('club',     'clubErr',     false);
@@ -653,7 +690,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
       body: JSON.stringify({
         email,
         password,
-        data: { nombre, apellido, telefono, club },
+        data: { nombre, apellido, telefono, liga, club },
       }),
     });
     const data = await res.json();
