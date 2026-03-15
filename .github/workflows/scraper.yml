@@ -1,0 +1,77 @@
+name: Scraper diario
+
+on:
+  schedule:
+    - cron: '0 9 * * *'   # 06:00 ART (UTC-3)
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    defaults:
+      run:
+        working-directory: liga_argentina   # todos los comandos corren desde aquí
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: pip install -r Scraper/requirements.txt
+
+      # ── Liga Argentina ──────────────────────────────────────────────────────
+      - name: Stats – Liga Argentina
+        run: python Scraper/data_scraper.py
+
+      - name: Tiros – Liga Argentina
+        run: python Scraper/shot_map_scraper.py
+
+      - name: Jugada a jugada – Liga Argentina
+        run: python Scraper/pbp_scraper.py
+
+      # ── Liga Nacional ───────────────────────────────────────────────────────
+      - name: Stats – Liga Nacional
+        run: python Scraper/data_scraper_nacional.py
+
+      - name: Tiros – Liga Nacional
+        run: python Scraper/shot_map_scraper_nacional.py
+
+      - name: Jugada a jugada – Liga Nacional
+        run: python Scraper/pbp_scraper_nacional.py
+
+      # ── Liga Femenina ───────────────────────────────────────────────────────
+      - name: Stats – Liga Femenina
+        run: python Scraper/data_scraper_femenina.py
+
+      - name: Tiros – Liga Femenina
+        run: python Scraper/shot_map_scraper_femenina.py
+
+      - name: Jugada a jugada – Liga Femenina
+        run: python Scraper/pbp_scraper_femenina.py
+
+      # ── Commit + push (dispara deploy en Vercel) ────────────────────────────
+      - name: Commitear CSVs actualizados
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add \
+            docs/liga_argentina.csv \
+            docs/liga_argentina_shots.csv \
+            docs/liga_argentina_pbp.csv \
+            docs/liga_nacional/liga_nacional.csv \
+            docs/liga_nacional/liga_nacional_shots.csv \
+            docs/liga_nacional/liga_nacional_pbp.csv \
+            docs/liga_femenina/liga_femenina.csv \
+            docs/liga_femenina/liga_femenina_shots.csv \
+            docs/liga_femenina/liga_femenina_pbp.csv
+          git diff --cached --quiet || git commit -m "data: actualizar CSVs $(date +'%d-%m-%Y')"
+          git push
