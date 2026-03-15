@@ -79,12 +79,24 @@ El campo `liga` usa el valor del `<option value="">` (snake_case), no el label v
 **Al agregar un nuevo equipo a una liga:** actualizar el array correspondiente en `TEAMS_BY_LIGA` dentro de `register.html`.
 
 ### Botones de navegación entre ligas (header)
-Cada página tiene botones de navegación cruzada en el header. Estilo uniforme en las 3 páginas:
+Cada página tiene **4 botones** de navegación cruzada en el header, uno por cada liga. Orden fijo: **Liga Nacional → Liga Argentina → Liga Femenina → Liga Desarrollo**.
+
+**Botón de la liga activa (página actual):**
+- Renderizado como `<span>` (no `<a>`, no es clickeable)
+- `cursor:default; font-weight:700`
+- Color teal (`--teal-l`): `border:1.5px solid rgba(45,212,191,.7); background:rgba(45,212,191,.22)`
+- Aplica a **todas** las ligas (Nacional, Argentina, Femenina y Desarrollo)
+
+**Botones de las otras ligas (links):**
+- Renderizado como `<a href="...">`
+- Color violeta (`--purple-l`) para todos: `border:1px solid rgba(139,92,246,.3); background:rgba(139,92,246,.08)`
+- Hover: `rgba(139,92,246,.18)`; `font-weight:600`
+
+**Estilo común a todos los botones:**
 - `display:inline-flex; align-items:center; justify-content:center; gap:5px; min-width:120px`
-- `padding:3px 10px; border-radius:20px; font-size:0.68rem; font-weight:600`
+- `padding:3px 10px; border-radius:20px; font-size:0.68rem`
 - Ícono `›` **siempre a la derecha** del texto (nunca a la izquierda)
-- Color teal (`--teal-l`) para Liga Argentina y Liga Nacional; violeta (`--purple-l`) para Liga Femenina y Liga de Desarrollo
-- Al agregar una nueva liga: replicar este estilo exacto en los botones de todas las páginas existentes
+- Al agregar una nueva liga: añadir su botón activo en la nueva página y su botón link (violeta) en las 4 páginas existentes, respetando el orden
 
 ### Actualizar CSVs de una liga desplegada
 Reemplazar los archivos en `docs/<nombre-liga>/` y pushear. Vercel re-deploya automáticamente.
@@ -494,6 +506,7 @@ Mismo esquema y formato que los demás PBP CSVs.
 - Sin filtro de `START_DATE` — muestra toda la temporada desde `22/09/2025`
 - Jugador por defecto en Tiro: SOÑORA (OBRAS)
 - CSVs: `liga_proximo.csv`, `liga_proximo_shots.csv`, `liga_proximo_pbp.csv`
+- Filtro mínimo de PJ en tabla de jugadores: **10+ PJ** por defecto (mismo criterio que Liga Femenina)
 
 ## Liga Femenina — particularidades del dashboard
 - El CSV `liga_femenina.csv` contiene datos desde `03/10/2025` (inicio de temporada)
