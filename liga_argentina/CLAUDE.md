@@ -67,21 +67,27 @@ docs/
 Scraper/
   data_scraper.py         # Scraper principal de stats (Liga Argentina)
   data_scraper_nacional.py # Scraper principal de stats (Liga Nacional)
+  data_scraper_femenina.py # Scraper principal de stats (Liga Femenina)
   shot_map_scraper.py     # Scraper de mapas de tiro (Liga Argentina)
   shot_map_scraper_nacional.py # Scraper de mapas de tiro (Liga Nacional)
+  shot_map_scraper_femenina.py # Scraper de mapas de tiro (Liga Femenina)
   pbp_scraper.py          # Scraper de jugada a jugada (Liga Argentina)
   pbp_scraper_nacional.py # Scraper de jugada a jugada (Liga Nacional)
+  pbp_scraper_femenina.py # Scraper de jugada a jugada (Liga Femenina)
   requirements.txt        # cloudscraper, pandas, bs4, lxml, playwright
 ```
 
 ## Fuente de datos
 - Liga Argentina URL base: `https://www.laliganacional.com.ar/laligaargentina`
 - Liga Nacional URL base: `https://www.laliganacional.com.ar/laliga`
+- Liga Femenina URL base: `https://www.laliganacional.com.ar/lfb`
 - Temporada Liga Argentina: desde `30/10/2025`
 - Temporada Liga Nacional: desde `23/09/2025`
+- Temporada Liga Femenina: desde `03/10/2025`
 - Scraper usa `cloudscraper` para evadir protección anti-bot
 - `shot_map_scraper.py --full` regenera el CSV completo de tiros (Liga Argentina)
 - `shot_map_scraper_nacional.py --full` regenera el CSV completo de tiros (Liga Nacional)
+- `shot_map_scraper_femenina.py --full` regenera el CSV completo de tiros (Liga Femenina)
 
 ## CSV: liga_argentina.csv
 Columnas clave: `Fecha, Condicion equipos, Equipo, Rival, Nombre completo, IdPartido, Etapa, Titular`
@@ -499,6 +505,9 @@ python Scraper/data_scraper.py
 # Actualizar stats de jugadores — Liga Nacional
 python Scraper/data_scraper_nacional.py
 
+# Actualizar stats de jugadores — Liga Femenina
+python Scraper/data_scraper_femenina.py
+
 # Actualizar mapa de tiros (sólo nuevos partidos) — Liga Argentina
 python Scraper/shot_map_scraper.py
 
@@ -511,6 +520,12 @@ python Scraper/shot_map_scraper_nacional.py
 # Forzar re-scrape completo de tiros — Liga Nacional
 python Scraper/shot_map_scraper_nacional.py --full
 
+# Actualizar mapa de tiros (sólo nuevos partidos) — Liga Femenina
+python Scraper/shot_map_scraper_femenina.py
+
+# Forzar re-scrape completo de tiros — Liga Femenina
+python Scraper/shot_map_scraper_femenina.py --full
+
 # Actualizar jugada a jugada (sólo partidos nuevos) — Liga Argentina
 python Scraper/pbp_scraper.py
 
@@ -522,4 +537,10 @@ python Scraper/pbp_scraper_nacional.py
 
 # Forzar re-scrape completo de jugada a jugada — Liga Nacional
 python Scraper/pbp_scraper_nacional.py --full
+
+# Actualizar jugada a jugada (sólo partidos nuevos) — Liga Femenina
+python Scraper/pbp_scraper_femenina.py
+
+# Forzar re-scrape completo de jugada a jugada — Liga Femenina
+python Scraper/pbp_scraper_femenina.py --full
 ```
