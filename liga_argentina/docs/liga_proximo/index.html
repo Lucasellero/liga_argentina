@@ -2110,7 +2110,7 @@ function switchSection(id) {
     const main = document.getElementById('szcMain');
     if (main && main.style.display !== 'block') {
       const _norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
-      const idx = PLAYERS.findIndex(p => _norm(p['Nombre completo']).includes('BARRALES') && _norm(p.Equipo).includes('OBERA'));
+      const idx = PLAYERS.findIndex(p => _norm(p['Nombre completo']).includes('SONORA') && _norm(p.Equipo).includes('OBRAS'));
       if (idx >= 0) selectSzcPlayer(idx);
     }
   }
