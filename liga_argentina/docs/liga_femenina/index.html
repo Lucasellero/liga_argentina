@@ -1055,13 +1055,15 @@ canvas{display:block;width:100%;cursor:crosshair;}
       </a>
     </div>
   </div>
-  <div class="header-badges">
-    <span class="badge badge-p" id="badgePlayers">— Jugadores</span>
-    <span class="badge badge-t" id="badgeTeams">— Equipos</span>
-  </div>
-  <div id="headerUser" style="display:none;align-items:center;gap:10px;margin-left:auto;">
-    <span id="headerUserName" style="font-size:.78rem;color:var(--purple-l);font-weight:600;"></span>
-    <button onclick="authLogout()" style="font-size:.72rem;font-weight:600;padding:5px 12px;border-radius:20px;border:1px solid rgba(139,92,246,.32);background:rgba(139,92,246,.1);color:var(--purple-l);cursor:pointer;font-family:inherit;transition:background .15s;" onmouseover="this.style.background='rgba(139,92,246,.22)'" onmouseout="this.style.background='rgba(139,92,246,.1)'">Salir</button>
+  <div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+    <div id="headerUser" style="display:none;align-items:center;gap:10px;">
+      <span id="headerUserName" style="font-size:.78rem;color:var(--purple-l);font-weight:600;"></span>
+      <button onclick="authLogout()" style="font-size:.72rem;font-weight:600;padding:5px 12px;border-radius:20px;border:1px solid rgba(139,92,246,.32);background:rgba(139,92,246,.1);color:var(--purple-l);cursor:pointer;font-family:inherit;transition:background .15s;" onmouseover="this.style.background='rgba(139,92,246,.22)'" onmouseout="this.style.background='rgba(139,92,246,.1)'">Salir</button>
+    </div>
+    <div class="header-badges">
+      <span class="badge badge-p" id="badgePlayers">— Jugadores</span>
+      <span class="badge badge-t" id="badgeTeams">— Equipos</span>
+    </div>
   </div>
 </div>
 
