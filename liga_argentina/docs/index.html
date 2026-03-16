@@ -948,13 +948,16 @@ canvas{display:block;width:100%;cursor:crosshair;}
   .filter2-row{flex-wrap:wrap;}
 
   /* Tables */
-  .tbl-toggle-wrap{padding:8px 12px 0;flex-direction:column;align-items:flex-start;gap:8px;}
-  .tbl-toggle button{padding:6px 13px;}
+  .tbl-toggle-wrap{padding:8px 12px;flex-direction:row;align-items:center;flex-wrap:wrap;gap:6px;}
+  .tbl-toggle button{padding:6px 10px;font-size:.72rem;}
+  .cmp-toggle-btn{font-size:.72rem;padding:6px 10px;}
   .table-wrap{padding:10px 8px 8px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
-  .table-wrap::-webkit-scrollbar{display:none;}
+  .table-wrap::-webkit-scrollbar{height:5px;}
+  .table-wrap::-webkit-scrollbar-track{background:rgba(255,255,255,.04);}
+  .table-wrap::-webkit-scrollbar-thumb{background:rgba(139,92,246,.5);border-radius:4px;}
   .table-card{transform:none;overflow-x:visible;}
   .table-card>table{transform:none;}
-  .scroll-bar-outer{margin:0 8px 0;}
+  .scroll-bar-outer{display:none;}
 
   /* Leaders */
   .leaders-outer{padding:16px 10px 32px;}
