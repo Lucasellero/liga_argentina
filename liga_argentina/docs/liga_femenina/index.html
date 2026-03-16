@@ -76,7 +76,7 @@ body{
   -webkit-backdrop-filter:blur(24px);
   border-bottom:1px solid var(--border);
   padding:18px 40px;
-  display:flex;align-items:center;justify-content:space-between;
+  display:flex;align-items:stretch;justify-content:space-between;
   position:relative;z-index:10;
   box-shadow:0 4px 32px rgba(0,0,0,.5),0 1px 0 rgba(139,92,246,.25);
 }
@@ -233,17 +233,17 @@ select option{background:var(--surface2);color:var(--text);}
 .filter2-row{display:flex;align-items:center;gap:6px;}
 
 /* ── SIDEBAR LAYOUT ──────────────────────────────── */
-.sidebar-layout{display:flex;align-items:flex-start;}
+.sidebar-layout{display:flex;align-items:stretch;}
 .ctrl-sidebar{
   width:224px;min-width:224px;flex-shrink:0;
   background:var(--surface);
   padding:14px 14px 16px;
-  display:flex;flex-direction:column;gap:9px;
+  display:flex;flex-direction:column;gap:16px;
 }
 .sidebar-main{flex:1;min-width:0;overflow:hidden;border-left:1px solid var(--border2);}
 .fsb-group{display:flex;flex-direction:column;gap:5px;}
 .fsb-lbl{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted2);}
-.fsb-sep{height:1px;background:var(--border2);margin:3px 0;}
+.fsb-sep{display:none;}
 .fsb-pills{display:flex;flex-direction:column;gap:2px;background:rgba(0,0,0,.22);border:1px solid var(--border2);border-radius:9px;padding:3px;}
 .fsb-pills button{border:none;background:transparent;padding:6px 10px;border-radius:6px;font-size:.76rem;font-weight:600;cursor:pointer;color:var(--muted);font-family:inherit;transition:all .15s;text-align:left;}
 .fsb-pills button:hover:not(.active){background:rgba(139,92,246,.1);color:var(--text);}
@@ -276,7 +276,7 @@ select option{background:var(--surface2);color:var(--text);}
 .ctrl-collapse-toggle.cct-open .cct-chevron{transform:rotate(180deg);}
 
 /* ── TABLE TOGGLE ────────────────────────────────── */
-.tbl-toggle-wrap{padding:10px 40px;background:var(--surface);border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;}
+.tbl-toggle-wrap{padding:10px 40px;background:var(--surface);border-bottom:1px solid var(--border2);display:flex;align-items:stretch;justify-content:space-between;}
 .tbl-toggle{
   display:inline-flex;
   background:rgba(0,0,0,.3);
@@ -463,7 +463,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .leader-card-header{
   padding:13px 16px 11px;
   border-bottom:1px solid var(--border2);
-  display:flex;align-items:center;justify-content:space-between;
+  display:flex;align-items:stretch;justify-content:space-between;
   background:var(--surface2);
 }
 .leader-card-header h3{font-size:.68rem;font-weight:700;color:var(--purple-l);letter-spacing:1.5px;text-transform:uppercase;}
@@ -1055,7 +1055,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
       </a>
     </div>
   </div>
-  <div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+  <div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;gap:8px;">
     <div id="headerUser" style="display:none;align-items:center;gap:10px;">
       <span id="headerUserName" style="font-size:.78rem;color:var(--purple-l);font-weight:600;"></span>
       <button onclick="authLogout()" style="font-size:.72rem;font-weight:600;padding:5px 12px;border-radius:20px;border:1px solid rgba(139,92,246,.32);background:rgba(139,92,246,.1);color:var(--purple-l);cursor:pointer;font-family:inherit;transition:background .15s;" onmouseover="this.style.background='rgba(139,92,246,.22)'" onmouseout="this.style.background='rgba(139,92,246,.1)'"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
@@ -1097,13 +1097,17 @@ canvas{display:block;width:100%;cursor:crosshair;}
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
     Tabla
   </button>
-  <button class="sub-tab" onclick="switchSection('quintetos')">
-    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="10" r="2"/><circle cx="19" cy="10" r="2"/><circle cx="8" cy="18" r="2"/><circle cx="16" cy="18" r="2"/></svg>
-    Quintetos
+  <button class="sub-tab" onclick="switchSection('t-tcmp')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Comparar T-T
   </button>
   <button class="sub-tab" onclick="switchSection('t-chart')">
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="5" cy="18" r="2"/><circle cx="12" cy="10" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="8" cy="14" r="2"/><circle cx="16" cy="16" r="2"/></svg>
-    Comparar
+    Gráfico
+  </button>
+  <button class="sub-tab" onclick="switchSection('quintetos')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="10" r="2"/><circle cx="19" cy="10" r="2"/><circle cx="8" cy="18" r="2"/><circle cx="16" cy="18" r="2"/></svg>
+    Quintetos
   </button>
   <button class="sub-tab" onclick="switchSection('t-conexiones')">
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="12" r="3"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><path d="M12 12l5-4M12 12l5 4"/></svg>
@@ -1141,16 +1145,17 @@ canvas{display:block;width:100%;cursor:crosshair;}
     Filtros
     <svg class="cct-chevron" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
   </div>
-  <div class="tbl-toggle-wrap">
-    <div class="tbl-toggle">
-      <button class="active" id="jToggleBasic" onclick="toggleJTable('basic')">Básica</button>
-      <button id="jToggleAdv" onclick="toggleJTable('adv')">Avanzada</button>
-    </div>
-    <button class="cmp-toggle-btn" onclick="switchSection('j-chart')">Comparar jugadores</button>
-  </div>
   <div class="sidebar-layout">
     <!-- LEFT SIDEBAR -->
     <div class="ctrl-sidebar" id="jCtrlBody">
+      <div class="fsb-group">
+        <span class="fsb-lbl">Estadísticas</span>
+        <div class="fsb-pills">
+          <button class="active" id="jToggleBasic" onclick="toggleJTable('basic')">Básica</button>
+          <button id="jToggleAdv" onclick="toggleJTable('adv')">Avanzada</button>
+        </div>
+      </div>
+      <div class="fsb-sep"></div>
       <div class="fsb-group">
         <span class="fsb-lbl">Buscar jugador</span>
         <div class="search-wrap">
@@ -1428,13 +1433,6 @@ canvas{display:block;width:100%;cursor:crosshair;}
     Filtros
     <svg class="cct-chevron" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
   </div>
-  <div class="tbl-toggle-wrap">
-    <div class="tbl-toggle">
-      <button class="active" id="tToggleBasic" onclick="toggleTTable('basic')">Básica</button>
-      <button id="tToggleAdv" onclick="toggleTTable('adv')">Avanzada</button>
-    </div>
-    <button class="cmp-toggle-btn" id="cmpToggleBtn" onclick="toggleCmpPanel()">Comparar equipos</button>
-  </div>
   <!-- TEAM COMPARISON PANEL -->
   <div id="cmpPanel" class="cmp-panel" style="display:none">
     <div class="cmp-panel-title">Comparador de Equipos <span style="font-size:.72rem;font-weight:500;color:var(--muted);margin-left:4px">— hacé clic en filas de la tabla para seleccionar hasta 4 equipos</span></div>
@@ -1446,6 +1444,14 @@ canvas{display:block;width:100%;cursor:crosshair;}
   <div class="sidebar-layout">
     <!-- LEFT SIDEBAR -->
     <div class="ctrl-sidebar" id="tCtrlBody">
+      <div class="fsb-group">
+        <span class="fsb-lbl">Estadísticas</span>
+        <div class="fsb-pills">
+          <button class="active" id="tToggleBasic" onclick="toggleTTable('basic')">Básica</button>
+          <button id="tToggleAdv" onclick="toggleTTable('adv')">Avanzada</button>
+        </div>
+      </div>
+      <div class="fsb-sep"></div>
       <div class="fsb-group">
         <span class="fsb-lbl">Ordenar por</span>
         <select id="tSort" onchange="onTFilter()">
@@ -2224,11 +2230,11 @@ const f1=v=>v==null||isNaN(v)?'—':v.toFixed(1);
 // NAV
 // ============================================================
 const _SUB_GROUP = {
-  't-tabla':'equipos','quintetos':'equipos','t-chart':'equipos','t-conexiones':'equipos',
+  't-tabla':'equipos','t-tcmp':'equipos','t-chart':'equipos','quintetos':'equipos','t-conexiones':'equipos',
   'j-tabla':'jugadores','j-tiro':'jugadores','j-chart':'jugadores','j-conexiones':'jugadores'
 };
 const _SUB_IDX = {
-  't-tabla':0,'quintetos':1,'t-chart':2,'t-conexiones':3,
+  't-tabla':0,'t-tcmp':1,'t-chart':2,'quintetos':3,'t-conexiones':4,
   'j-tabla':0,'j-tiro':1,'j-chart':2,'j-conexiones':3
 };
 
@@ -2242,10 +2248,12 @@ function openGroup(group, defaultSection) {
 }
 
 function switchSection(id) {
+  const isTcmp = id === 't-tcmp';
+  const domId = isTcmp ? 't-tabla' : id;
   document.querySelectorAll('.main-tab').forEach(b=>b.classList.remove('active','grp-active'));
   document.querySelectorAll('.sub-tab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.getElementById('sec-'+id).classList.add('active');
+  document.getElementById('sec-'+domId).classList.add('active');
   const grp = _SUB_GROUP[id];
   if (grp) {
     const grpBtn = document.getElementById(grp==='equipos'?'grpEquipos':'grpJugadores');
@@ -2258,6 +2266,11 @@ function switchSection(id) {
     document.getElementById('subEquipos').style.display = 'none';
     document.getElementById('subJugadores').style.display = 'none';
     if (event && event.currentTarget) event.currentTarget.classList.add('active');
+  }
+  // t-tcmp: show cmpPanel full-width, hide sidebar; t-tabla: hide cmpPanel, show sidebar
+  if (domId === 't-tabla') {
+    document.getElementById('cmpPanel').style.display = isTcmp ? 'block' : 'none';
+    document.getElementById('tCtrlBody').style.display = isTcmp ? 'none' : '';
   }
   if(id==='partidos') showUpcomingDefault();
   if(id==='j-tiro') {
@@ -2272,7 +2285,7 @@ function switchSection(id) {
   if(id==='t-conexiones') { tCnxInit(); }
   if(id==='t-chart') setTimeout(drawTChart,30);
   if(id==='j-tabla') setTimeout(()=>remeasureScroll('jTableWrap'), 50);
-  if(id==='t-tabla') setTimeout(()=>remeasureScroll('tTableWrap'), 50);
+  if(id==='t-tabla'||isTcmp) setTimeout(()=>remeasureScroll('tTableWrap'), 50);
   if(id==='quintetos') {
     const sel = document.getElementById('qntTeam');
     if (sel.options.length <= 1) {
@@ -2975,8 +2988,7 @@ function toggleTeamSelection(teamName) {
   if (selectedTeams.length >= 2) {
     const panel = document.getElementById('cmpPanel');
     if (panel.style.display === 'none') {
-      panel.style.display = 'block';
-      document.getElementById('cmpToggleBtn').classList.add('cmp-active');
+      switchSection('t-tcmp');
     }
     renderCmp();
   } else if (selectedTeams.length < 2) {
@@ -2985,12 +2997,7 @@ function toggleTeamSelection(teamName) {
 }
 
 function updateCmpBtn() {
-  const btn = document.getElementById('cmpToggleBtn');
-  if (selectedTeams.length > 0) {
-    btn.textContent = `Comparar equipos (${selectedTeams.length})`;
-  } else {
-    btn.textContent = 'Comparar equipos';
-  }
+  // cmpToggleBtn removed; count visible in cmpChips
 }
 
 function updateCmpChips() {
@@ -3008,23 +3015,16 @@ function updateCmpChips() {
   }).join('') + (selectedTeams.length > 0 ? `<span style="font-size:.73rem;color:var(--muted);margin-left:6px;cursor:pointer;text-decoration:underline" onclick="clearCmp()">Limpiar todo</span>` : '');
 }
 
-function toggleCmpPanel(){
-  const panel = document.getElementById('cmpPanel');
-  const btn = document.getElementById('cmpToggleBtn');
-  const visible = panel.style.display !== 'none';
-  panel.style.display = visible ? 'none' : 'block';
-  btn.classList.toggle('cmp-active', !visible);
-}
-
 function clearCmp(){
   selectedTeams = [];
   updateCmpBtn();
   updateCmpChips();
   renderTTable();
   renderCmp();
-  const panel = document.getElementById('cmpPanel');
-  panel.style.display = 'none';
-  document.getElementById('cmpToggleBtn').classList.remove('cmp-active');
+  document.getElementById('cmpPanel').style.display = 'none';
+  document.getElementById('tCtrlBody').style.display = '';
+  document.querySelectorAll('#subEquipos .sub-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('#subEquipos .sub-tab')[0].classList.add('active');
 }
 
 function renderCmp(){
