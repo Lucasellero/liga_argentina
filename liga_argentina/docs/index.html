@@ -2,6 +2,12 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<script>
+  // Redirect to liga_nacional when visiting root directly (not from within the site)
+  const _ref = document.referrer;
+  const _sameOrigin = _ref && new URL(_ref).host === window.location.host;
+  if (!_sameOrigin) window.location.replace('liga_nacional/');
+</script>
 <link rel="icon" type="image/png" href="logos/scouteados_favicon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Scouteado</title>
