@@ -1192,6 +1192,14 @@ canvas{display:block;width:100%;cursor:crosshair;}
         <select id="jTeam" onchange="onJFilter()"><option value="">Todos los equipos</option></select>
       </div>
       <div class="fsb-group">
+        <span class="fsb-lbl">Conferencia</span>
+        <div class="fsb-pills">
+          <button class="active" id="jConfAll" onclick="setJConf('all')">Todos</button>
+          <button id="jConfNorte" onclick="setJConf('norte')">Conf. Norte</button>
+          <button id="jConfSur" onclick="setJConf('sur')">Conf. Sur</button>
+        </div>
+      </div>
+      <div class="fsb-group">
         <span class="fsb-lbl">Mínimo PJ</span>
         <select id="jMinG" onchange="onJFilter()">
           <option value="0">Todos los PJ</option>
@@ -1440,6 +1448,14 @@ canvas{display:block;width:100%;cursor:crosshair;}
           <option value="none">Uniforme</option>
         </select>
       </div>
+      <div class="axis-group" style="min-width:130px">
+        <label>Conferencia</label>
+        <select id="jChartConf" onchange="setJConf(this.value)">
+          <option value="all">Todas</option>
+          <option value="norte">Conf. Norte</option>
+          <option value="sur">Conf. Sur</option>
+        </select>
+      </div>
       <div style="margin-left:auto;font-size:.73rem;color:var(--muted);max-width:190px;line-height:1.6;">
         Cursor para ver detalle.<br>Clic para fijar jugador.
       </div>
@@ -1494,6 +1510,14 @@ canvas{display:block;width:100%;cursor:crosshair;}
           <option value="ASTPG">AST/partido</option>
           <option value="POSPG">Posesiones/partido</option>
         </select>
+      </div>
+      <div class="fsb-group">
+        <span class="fsb-lbl">Conferencia</span>
+        <div class="fsb-pills">
+          <button class="active" id="tConfAll" onclick="setTConf('all')">Todos</button>
+          <button id="tConfNorte" onclick="setTConf('norte')">Conf. Norte</button>
+          <button id="tConfSur" onclick="setTConf('sur')">Conf. Sur</button>
+        </div>
       </div>
       <div class="fsb-sep"></div>
       <div class="fsb-group">
@@ -1718,6 +1742,14 @@ canvas{display:block;width:100%;cursor:crosshair;}
           <option value="PTSPG">Puntos/partido</option>
           <option value="POSPG">Posesiones/partido</option>
           <option value="Ganados">Victorias</option>
+        </select>
+      </div>
+      <div class="axis-group" style="min-width:130px">
+        <label>Conferencia</label>
+        <select id="tChartConf" onchange="setTConf(this.value)">
+          <option value="all">Todas</option>
+          <option value="norte">Conf. Norte</option>
+          <option value="sur">Conf. Sur</option>
         </select>
       </div>
       <div style="margin-left:auto;font-size:.73rem;color:var(--muted);max-width:200px;line-height:1.6;">
@@ -1992,8 +2024,17 @@ canvas{display:block;width:100%;cursor:crosshair;}
 <div class="section" id="sec-lideres">
   <div class="leaders-outer">
     <div class="leaders-header">
-      <h2>Líderes <span>·</span> Últimos 5 partidos</h2>
-      <p>Promedio por partido · mín. 3 de los últimos 5 jugados · porcentajes con mín. 3 intentos</p>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <h2>Líderes <span>·</span> Últimos 5 partidos</h2>
+          <p>Promedio por partido · mín. 3 de los últimos 5 jugados · porcentajes con mín. 3 intentos</p>
+        </div>
+        <div class="fsb-pills" style="flex-shrink:0">
+          <button class="active" id="lConfAll" onclick="setLConf('all')">Todos</button>
+          <button id="lConfNorte" onclick="setLConf('norte')">Conf. Norte</button>
+          <button id="lConfSur" onclick="setLConf('sur')">Conf. Sur</button>
+        </div>
+      </div>
     </div>
     <div class="leaders-grid" id="leadersGrid"></div>
   </div>
@@ -2044,6 +2085,10 @@ canvas{display:block;width:100%;cursor:crosshair;}
         + '<p style="color:#64748b;font-size:.88rem;margin-bottom:28px;line-height:1.55;">Creá tu cuenta gratis para continuar navegando las estadísticas de la liga.</p>'
         + '<a href="' + LOGIN_URL + '" style="display:block;padding:13px;background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff;font-weight:600;font-size:.92rem;border-radius:10px;text-decoration:none;margin-bottom:12px;box-shadow:0 4px 18px rgba(139,92,246,.4);">Iniciar sesión</a>'
         + '<a href="' + REGISTER_URL + '" style="display:block;padding:13px;background:transparent;color:#a78bfa;font-weight:600;font-size:.92rem;border-radius:10px;text-decoration:none;border:1.5px solid rgba(139,92,246,.38);">Registrarme gratis</a>'
+        + '<div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;gap:18px;">'
+        + '<a href="mailto:scoutea2@gmail.com" style="color:#64748b;text-decoration:none;font-size:.76rem;display:inline-flex;align-items:center;gap:5px;transition:color .2s;" onmouseover="this.style.color=\'#a78bfa\'" onmouseout="this.style.color=\'#64748b\'">✉ scoutea2@gmail.com</a>'
+        + '<a href="https://instagram.com/scouteado" target="_blank" rel="noopener noreferrer" style="color:#64748b;text-decoration:none;font-size:.76rem;display:inline-flex;align-items:center;gap:5px;transition:color .2s;" onmouseover="this.style.color=\'#5eead4\'" onmouseout="this.style.color=\'#64748b\'"><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><rect x=\'2\' y=\'2\' width=\'20\' height=\'20\' rx=\'5\' ry=\'5\'/><circle cx=\'12\' cy=\'12\' r=\'4.5\'/><circle cx=\'17.5\' cy=\'6.5\' r=\'1\' fill=\'currentColor\' stroke=\'none\'/></svg> @scouteado</a>'
+        + '</div>'
         + '</div>';
       document.body.appendChild(ov);
     }, delay);
@@ -2232,8 +2277,11 @@ let jFiltered=[], tFiltered=[];
 let jSort='PPG', jDir='desc';
 let jPeriod='all';
 let jLocVis='all';
+let jConf='all';
 let tPeriod='all';
 let tLocVis='all';
+let tConf='all';
+let lConf='all';
 let szcPeriod='all';
 let szcCurrentIdx=-1;
 let tSort='W%', tDir='desc';
@@ -2348,6 +2396,8 @@ function getJFiltered() {
   const av4=parseFloat(document.getElementById('jAttrVal4').value);
   function chk(v,op,av){if(op==='gte'&&v<av)return false;if(op==='lte'&&v>av)return false;if(op==='eq'&&Math.abs(v-av)>0.01)return false;return true;}
   return PLAYERS.filter(p=>{
+    if(jConf==='norte'&&!CONF_NORTE.has(p.Equipo))return false;
+    if(jConf==='sur'&&!CONF_SUR.has(p.Equipo))return false;
     if(team&&p.Equipo!==team)return false;
     if(p.PJ<minG)return false;
     if(s&&!p.name.toLowerCase().includes(s)&&!p.Equipo.toLowerCase().includes(s))return false;
@@ -2450,6 +2500,15 @@ function setJLocVis(v) {
   const map={all:'jLocVisAll',local:'jLocVisLocal',visit:'jLocVisVisit'};
   document.getElementById(map[v]).classList.add('active');
   renderJTable();
+}
+
+function setJConf(v) {
+  jConf=v;
+  ['jConfAll','jConfNorte','jConfSur'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});
+  const map={all:'jConfAll',norte:'jConfNorte',sur:'jConfSur'};
+  const btn=document.getElementById(map[v]); if(btn)btn.classList.add('active');
+  const sel=document.getElementById('jChartConf'); if(sel)sel.value=v;
+  onJFilter();
 }
 
 function renderJTable() {
@@ -2592,6 +2651,8 @@ function getTFiltered() {
   const av4=parseFloat(document.getElementById('tAttrVal4').value);
   function chk(v,op,av){if(op==='gte'&&v<av)return false;if(op==='lte'&&v>av)return false;if(op==='eq'&&Math.abs(v-av)>0.01)return false;return true;}
   return TEAMS.filter(t=>{
+    if(tConf==='norte'&&!CONF_NORTE.has(t.Equipo))return false;
+    if(tConf==='sur'&&!CONF_SUR.has(t.Equipo))return false;
     if(ak&&!isNaN(av)&&!chk(t[ak],op,av))return false;
     if(ak2&&!isNaN(av2)&&!chk(t[ak2],op2,av2))return false;
     if(ak3&&!isNaN(av3)&&!chk(t[ak3],op3,av3))return false;
@@ -2708,6 +2769,23 @@ function setTLocVis(v) {
   const map={all:'tLocVisAll',local:'tLocVisLocal',visit:'tLocVisVisit'};
   document.getElementById(map[v]).classList.add('active');
   renderTTable();
+}
+
+function setTConf(v) {
+  tConf=v;
+  ['tConfAll','tConfNorte','tConfSur'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});
+  const map={all:'tConfAll',norte:'tConfNorte',sur:'tConfSur'};
+  const btn=document.getElementById(map[v]); if(btn)btn.classList.add('active');
+  const sel=document.getElementById('tChartConf'); if(sel)sel.value=v;
+  onTFilter();
+}
+
+function setLConf(v) {
+  lConf=v;
+  ['lConfAll','lConfNorte','lConfSur'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});
+  const map={all:'lConfAll',norte:'lConfNorte',sur:'lConfSur'};
+  const btn=document.getElementById(map[v]); if(btn)btn.classList.add('active');
+  buildLeaders();
 }
 
 function renderTTable() {
@@ -3176,10 +3254,12 @@ function buildLeaders() {
   const grid = document.getElementById('leadersGrid');
   if(!grid) return;
   grid.innerHTML = '';
+  const _lConfSet = lConf==='norte' ? CONF_NORTE : lConf==='sur' ? CONF_SUR : null;
   Object.values(LEADERS_DATA).forEach(cat => {
     const card = document.createElement('div');
     card.className = 'leader-card';
-    const rows = cat.entries.map((e,i) => {
+    const allEntries = _lConfSet ? cat.entries.filter(e=>_lConfSet.has(e.equipo)) : cat.entries;
+    const rows = allEntries.slice(0,5).map((e,i) => {
       const isPct = cat.key.endsWith('PCT');
       const displayVal = isPct ? e.val.toFixed(1)+'%' : (e.val % 1 === 0 ? e.val.toFixed(0) : e.val.toFixed(1));
       const initials = e.name.split(',')[0].trim().slice(0,2);
@@ -4121,12 +4201,12 @@ async function initApp() {
     // Leaders — últimos 5 partidos de cada jugador
     const L5 = PLAYERS.map(p => p._last5).filter(d => d && d.PJ >= 3);
     function top5(arr, keyFn) {
-      return [...arr].sort((a,b)=>keyFn(b)-keyFn(a)).slice(0,5)
+      return [...arr].sort((a,b)=>keyFn(b)-keyFn(a))
         .map(d=>({name:d.name,equipo:d.Equipo,val:Math.round(keyFn(d)*10)/10,gp:d.PJ}));
     }
     function top5Pct(arr, filterFn, pctFn) {
       return [...arr].filter(filterFn)
-        .sort((a,b)=>pctFn(b)-pctFn(a)).slice(0,5)
+        .sort((a,b)=>pctFn(b)-pctFn(a))
         .map(d=>({name:d.name,equipo:d.Equipo,val:Math.round(pctFn(d)*10)/10,gp:d.PJ}));
     }
     LEADERS_DATA = {
@@ -5682,5 +5762,9 @@ function updateTFilterVisibility(){
   });
 })();
 </script>
+<footer style="text-align:center;padding:18px 40px;margin-top:12px;border-top:1px solid var(--border);color:var(--muted);font-size:.78rem;display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;">
+  <a href="mailto:scoutea2@gmail.com" style="color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:color .2s;" onmouseover="this.style.color='var(--purple-l)'" onmouseout="this.style.color='var(--muted)'">✉ scoutea2@gmail.com</a>
+  <a href="https://instagram.com/scouteado" target="_blank" rel="noopener noreferrer" style="color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:color .2s;" onmouseover="this.style.color='var(--teal-l)'" onmouseout="this.style.color='var(--muted)'"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg> @scouteado</a>
+</footer>
 </body>
 </html>

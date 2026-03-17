@@ -211,6 +211,17 @@ Ambas tablas (`j-tabla`, `t-tabla`) tienen un toggle de período: **Temporada / 
 - **Equipos**: `buildRAW_T` ya construye `_gamelog[]` ordenado por fecha. Se pasan a `computeTeamStatsFromGames(gamelog)` que computa W%, PTS/p, tiros, rebotes, ORtg, DRtg, NetRtg, EFG%, TS%, TOV%, ORB%, PACE.
 - Layout del toggle wrap: `[Básica/Avanzada] [Temporada/Últ.5/Últ.10] [Todos/Local/Visitante] [Comparar jugadores / Comparar equipos]`. En mobile (`flex-direction:column`) se apilan verticalmente.
 
+**Filtro por Conferencia (Jugadores, Equipos, Destacados):**
+Permite ver estadísticas solo de la Conferencia Norte, Conferencia Sur, o ambas.
+- **Estados**: `jConf` (jugadores), `tConf` (equipos), `lConf` (destacados). Valores: `'all'|'norte'|'sur'`.
+- **Setter functions**: `setJConf(v)`, `setTConf(v)`, `setLConf(v)`. Cada una actualiza el estado, sincroniza todos los controles de UI asociados y llama a `onJFilter()` / `onTFilter()` / `buildLeaders()`.
+- **Jugadores>Tabla** (`j-tabla`): pills en el sidebar (`jConfAll`, `jConfNorte`, `jConfSur`). Filtra en `getJFiltered()` usando `CONF_NORTE` / `CONF_SUR`.
+- **Jugadores>Comparar** (`j-chart`): select `#jChartConf` en los controles del scatter plot. Comparte el estado `jConf` con Jugadores>Tabla — al cambiar uno el otro se sincroniza.
+- **Equipos>Tabla** (`t-tabla`): pills en el sidebar (`tConfAll`, `tConfNorte`, `tConfSur`). Filtra en `getTFiltered()`.
+- **Equipos>Comparar** (`t-chart`): select `#tChartConf` en los controles del scatter plot. Comparte el estado `tConf` con Equipos>Tabla.
+- **Destacados** (`lideres`): pills en el header de la sección (`lConfAll`, `lConfNorte`, `lConfSur`). `buildLeaders()` filtra `cat.entries` por conferencia y luego toma `.slice(0,5)`.
+- **LEADERS_DATA**: `top5()` y `top5Pct()` ya no hacen `.slice(0,5)` — almacenan todos los jugadores ordenados. El slice a 5 lo hace `buildLeaders()` después de filtrar por conferencia, garantizando siempre top 5 dentro de la conferencia seleccionada.
+
 **Filtro Local/Visitante (solo Jugadores):**
 La tabla `j-tabla` tiene un toggle adicional: **Todos / Local / Visitante**.
 - Estado: `jLocVis` (`'all'|'local'|'visit'`). Función: `setJLocVis(v)`.
