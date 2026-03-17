@@ -402,7 +402,7 @@ tbody td:nth-child(2){text-align:left;color:var(--muted);font-size:.76rem;}
 .pos-table td:nth-child(2){text-align:left;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px;}
 .pos-logo{width:26px;height:26px;object-fit:contain;flex-shrink:0;}
 .pos-logo-ph{display:inline-block;width:26px;height:26px;flex-shrink:0;}
-.pos-table tbody tr:hover{background:rgba(139,92,246,.06);}
+.pos-table tbody tr{cursor:pointer;}.pos-table tbody tr:hover{background:rgba(139,92,246,.08);}.pos-table .pos-row-chevron{color:var(--muted2);font-size:.9rem;text-align:center;width:18px;opacity:.5;transition:opacity .15s;}.pos-table tbody tr:hover .pos-row-chevron{opacity:1;color:var(--purple-l);}
 .pos-table .pos-top8{border-left:2px solid var(--purple);}
 .pos-pts-f{color:var(--purple-l);font-weight:700;}
 .pos-pts-a{color:var(--muted);}
@@ -615,12 +615,19 @@ canvas{display:block;width:100%;cursor:crosshair;}
   letter-spacing:.6px;text-transform:uppercase;padding:9px 12px;text-align:right;
   border-bottom:1px solid var(--border2);position:sticky;top:0;
 }
-#teamGamesModal thead th:first-child,#teamGamesModal thead th:nth-child(2),
-#teamGamesModal thead th:nth-child(3),#teamGamesModal thead th:nth-child(4){text-align:left;}
-#teamGamesModal tbody td{padding:9px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,.04);}
+#teamGamesModal table{table-layout:fixed;width:100%;}
+#teamGamesModal thead th:first-child{text-align:left;width:17%;}
+#teamGamesModal thead th:nth-child(2){text-align:center;width:13%;}
+#teamGamesModal thead th:nth-child(3){text-align:left;width:24%;}
+#teamGamesModal thead th:nth-child(4){text-align:center;width:20%;}
+#teamGamesModal thead th:nth-child(5){text-align:center;width:14%;}
+#teamGamesModal thead th:nth-child(6){width:12%;}
+#teamGamesModal tbody td{padding:9px 12px;text-align:center;border-bottom:1px solid rgba(255,255,255,.04);}
 #teamGamesModal tbody td:first-child{text-align:left;color:var(--muted);font-size:.74rem;}
 #teamGamesModal tbody td:nth-child(2){text-align:center;}
-#teamGamesModal tbody td:nth-child(3),#teamGamesModal tbody td:nth-child(4){text-align:left;}
+#teamGamesModal tbody td:nth-child(3){text-align:left;}
+#teamGamesModal tbody td:nth-child(6){color:var(--muted2);opacity:.4;transition:opacity .15s;}
+#teamGamesModal tbody tr:hover td:nth-child(6){opacity:1;color:var(--purple-l);}
 #teamGamesModal tbody tr:hover{background:rgba(139,92,246,.06);}
 .tgm-win{color:var(--green);font-weight:700;}
 .tgm-loss{color:var(--red);font-weight:700;}
@@ -1779,7 +1786,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
       <table>
         <thead><tr>
           <th>Fecha</th><th>Cond.</th><th>Rival</th>
-          <th>PTS</th><th>PTS RIV</th><th>Res.</th>
+          <th>Score</th><th>Res.</th><th></th>
         </tr></thead>
         <tbody id="tgmTbody"></tbody>
       </table>
@@ -1859,7 +1866,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
             <th data-tip="Posición en la conferencia">#</th><th data-tip="Nombre del equipo">Equipo</th>
             <th data-tip="Partidos jugados">PJ</th><th data-tip="Partidos ganados">G</th><th data-tip="Partidos perdidos">P</th>
             <th data-tip="% de victorias · G / PJ">W%</th><th data-tip="Puntos anotados por partido">PTS/P</th><th data-tip="Puntos recibidos por partido">PTS REC/P</th><th data-tip="Diferencial de puntos/partido · PTS/P − PTS REC/P">DIF/P</th>
-            <th data-tip="Récord como local (G-P)">LOCAL</th><th data-tip="Récord como visitante (G-P)">VISITA</th><th data-tip="Récord en los últimos 5 partidos (G-P)">ÚLTIMOS 5</th>
+            <th data-tip="Récord como local (G-P)">LOCAL</th><th data-tip="Récord como visitante (G-P)">VISITA</th><th data-tip="Récord en los últimos 5 partidos (G-P)">ÚLTIMOS 5</th><th></th>
           </tr></thead>
           <tbody id="posNorteTbody"></tbody>
         </table>
@@ -1873,7 +1880,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
             <th data-tip="Posición en la conferencia">#</th><th data-tip="Nombre del equipo">Equipo</th>
             <th data-tip="Partidos jugados">PJ</th><th data-tip="Partidos ganados">G</th><th data-tip="Partidos perdidos">P</th>
             <th data-tip="% de victorias · G / PJ">W%</th><th data-tip="Puntos anotados por partido">PTS/P</th><th data-tip="Puntos recibidos por partido">PTS REC/P</th><th data-tip="Diferencial de puntos/partido · PTS/P − PTS REC/P">DIF/P</th>
-            <th data-tip="Récord como local (G-P)">LOCAL</th><th data-tip="Récord como visitante (G-P)">VISITA</th><th data-tip="Récord en los últimos 5 partidos (G-P)">ÚLTIMOS 5</th>
+            <th data-tip="Récord como local (G-P)">LOCAL</th><th data-tip="Récord como visitante (G-P)">VISITA</th><th data-tip="Récord en los últimos 5 partidos (G-P)">ÚLTIMOS 5</th><th></th>
           </tr></thead>
           <tbody id="posSurTbody"></tbody>
         </table>
@@ -3375,9 +3382,9 @@ function renderStandings() {
       const logoHtml = logoSrc
         ? `<img src="${logoSrc}" class="pos-logo" alt="" onerror="this.style.visibility='hidden'">`
         : '<span class="pos-logo-ph"></span>';
-      tbody.innerHTML += `<tr class="${topClass}">
+      tbody.innerHTML += `<tr class="${topClass}" onclick="showTeamGames('${t.Equipo.replace(/'/g,"\\'")}')">
         <td>${pos}</td>
-        <td style="background:var(--bg);cursor:pointer" onclick="showTeamGames('${t.Equipo.replace(/'/g,"\\'")}')" title="Ver partidos">${logoHtml}${t.Equipo}</td>
+        <td>${logoHtml}${t.Equipo}</td>
         <td>${t.PJ}</td>
         <td style="color:var(--green);font-weight:700">${t.Ganados}</td>
         <td style="color:var(--red)">${t.Perdidos}</td>
@@ -3391,6 +3398,7 @@ function renderStandings() {
           ? `<span style="color:var(--green);font-weight:700;font-size:.72rem">V</span>`
           : `<span style="color:var(--red);font-weight:700;font-size:.72rem">D</span>`
         ).join('<span style="color:var(--muted);opacity:.3;margin:0 1px">·</span>')}</td>
+        <td class="pos-row-chevron">›</td>
       </tr>`;
     });
   }
@@ -3909,11 +3917,11 @@ function showTeamGames(teamName) {
     tr.className = 'tgm-clickable';
     tr.innerHTML = `
       <td>${g.fecha}</td>
-      <td style="text-align:left">${condHtml}</td>
+      <td>${condHtml}</td>
       <td>${rivalLogo}${g.rival}</td>
-      <td style="font-weight:700;color:${scoreColor}">${g.ptsFor}</td>
-      <td style="color:var(--muted)">${g.ptsAgainst}</td>
-      <td>${resHtml}</td>`;
+      <td><span style="font-weight:700;color:${scoreColor}">${g.ptsFor}</span><span style="color:var(--muted2);margin:0 4px">—</span><span style="color:var(--muted)">${g.ptsAgainst}</span></td>
+      <td>${resHtml}</td>
+      <td><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></td>`;
     tr.addEventListener('click', () => showGameDetail(g, teamName));
     tbody.appendChild(tr);
   });
