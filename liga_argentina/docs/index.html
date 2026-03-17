@@ -807,12 +807,12 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .szc-pstat{font-size:.68rem;color:var(--muted);white-space:nowrap;background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:3px 8px;}
 .szc-pstat b{color:var(--text-bright);font-weight:700;}
 /* Main body */
-.szc-body{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;}
+.szc-body{display:flex;gap:24px;align-items:stretch;flex-wrap:wrap;}
 .szc-canvas-wrap{flex:0 0 auto;width:min(420px,100%);position:relative;}
 #szcCanvas{display:block;width:100%;border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,.55);}
 #szcSvg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;border-radius:12px;overflow:hidden;}
 /* Right panel */
-.szc-right-panel{flex:1;min-width:150px;display:flex;flex-direction:column;gap:18px;padding-top:4px;}
+.szc-right-panel{flex:1;min-width:150px;display:flex;flex-direction:column;gap:0;padding-top:0;}
 .szc-legend{display:flex;flex-direction:column;gap:6px;font-size:.73rem;color:var(--muted);}
 .szc-legend-title{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:2px;}
 .szc-legend-grad-wrap{display:flex;gap:8px;align-items:stretch;}
@@ -825,16 +825,18 @@ canvas{display:block;width:100%;cursor:crosshair;}
     rgb(29,78,216) 100%);}
 .szc-legend-grad-labels{display:flex;flex-direction:column;justify-content:space-between;font-size:.63rem;color:var(--muted);padding:1px 0;}
 /* Zone cards */
+.szc-zone-cards{flex:1;display:flex;flex-direction:column;}
+#szcZoneCards{flex:1;display:flex;flex-direction:column;gap:4px;}
 .szc-zone-cards-title{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:6px;}
-.szc-zone-card{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:7px 10px;
-  display:flex;align-items:center;gap:8px;border-left:3px solid #334155;margin-bottom:5px;transition:border-left-color .15s;}
+.szc-zone-card{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:6px 10px;
+  display:flex;align-items:center;gap:8px;border-left:3px solid #334155;flex:1;transition:border-left-color .15s;}
 .szc-zone-card.szc-no-data{opacity:.35;}
 .szc-zone-card-info{flex:1;min-width:0;}
-.szc-zone-card-name{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--muted);}
-.szc-zone-card-att{font-size:.62rem;color:var(--muted2);margin-top:1px;}
+.szc-zone-card-name{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--muted);}
+.szc-zone-card-att{font-size:.6rem;color:var(--muted2);margin-top:1px;}
 .szc-zone-card-right{text-align:right;}
 .szc-zone-card-pct{font-size:.9rem;font-weight:800;color:var(--text-bright);line-height:1.1;}
-.szc-zone-card-diff{font-size:.6rem;font-weight:700;display:block;margin-top:2px;}
+.szc-zone-card-diff{font-size:.58rem;font-weight:700;display:block;margin-top:1px;}
 .szc-zone-card-diff.pos{color:#fb923c;}
 .szc-zone-card-diff.neg{color:#93c5fd;}
 .szc-zone-card-diff.neu{color:var(--muted2);}
@@ -2284,6 +2286,7 @@ let tConf='all';
 let lConf='all';
 let szcPeriod='all';
 let szcCurrentIdx=-1;
+let szcPlayerAllShots=[];
 let tSort='W%', tDir='desc';
 let jPts=[], tPts=[];
 let jHov=-1, jPin=new Set(), tHov=-1, tPin=-1;
@@ -4537,20 +4540,20 @@ const SZC_ZONE_LABELS = {
 };
 
 
-function szcRenderZoneCards(pStats, lStats) {
+function szcRenderZoneCards(statsAll, statsL10, statsL5, lStats) {
   const el = document.getElementById('szcZoneCards');
   if (!el) return;
+  const aps = szcPeriod === 'all' ? statsAll : szcPeriod === 'last10' ? statsL10 : statsL5;
   el.innerHTML = SZC_ZONES.map(zone => {
-    const ps = pStats[zone];
-    const ls = lStats ? lStats[zone] : null;
+    const ps = aps[zone];
     const hasData = ps && ps.att > 0;
-
+    const hasAny = [statsAll, statsL10, statsL5].some(s => s[zone] && s[zone].att > 0);
     let borderColor = '#1e293b';
     let pctText = '—';
     let shotsText = '';
     let ligaHTML = '';
-
     if (hasData) {
+      const ls = lStats ? lStats[zone] : null;
       const zc = szcZoneColor(ps, ls);
       borderColor = `rgb(${zc[0]},${zc[1]},${zc[2]})`;
       pctText = (ps.makes / ps.att * 100).toFixed(1) + '%';
@@ -4561,8 +4564,7 @@ function szcRenderZoneCards(pStats, lStats) {
         ligaHTML = `<span class="szc-zone-card-diff ${cls}">Liga ${(ls.makes / ls.att * 100).toFixed(1)}%</span>`;
       }
     }
-
-    return `<div class="szc-zone-card${hasData ? '' : ' szc-no-data'}" style="border-left-color:${borderColor}">
+    return `<div class="szc-zone-card${hasAny ? '' : ' szc-no-data'}" style="border-left-color:${borderColor}">
       <div class="szc-zone-card-info">
         <div class="szc-zone-card-name">${SZC_ZONE_LABELS[zone]}</div>
         <div class="szc-zone-card-att">${shotsText}</div>
@@ -4593,7 +4595,10 @@ function renderZoneChart(canvas, playerShots) {
   const pStats = szcComputeStats(playerShots);
   szcDrawZoneColors(ctx, W, H, m, pStats, LEAGUE_ZONE_STATS);
   szcUpdateSvg(pStats, LEAGUE_ZONE_STATS);
-  szcRenderZoneCards(pStats, LEAGUE_ZONE_STATS);
+  const statsAll = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'all'));
+  const statsL10 = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'last10'));
+  const statsL5  = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'last5'));
+  szcRenderZoneCards(statsAll, statsL10, statsL5, LEAGUE_ZONE_STATS);
 }
 
 function onSzcInput() {
@@ -4655,6 +4660,7 @@ function selectSzcPlayer(idx) {
     const dNum = String(Math.round(parseFloat(player.DORSAL) || 0));
     const key = player.Equipo + '||' + dNum;
     const allShots = SHOTS_BY_PLAYER ? (SHOTS_BY_PLAYER.get(key) || []) : [];
+    szcPlayerAllShots = allShots;
     const shots = szcFilterByPeriod(allShots, szcPeriod);
     // Shot summary badges
     const t2i = shots.filter(s => s['Tipo'] === 'TIRO2').length;
