@@ -249,7 +249,10 @@ La tabla `j-tabla` tiene un toggle adicional: **Todos / Local / Visitante**.
 - Media cancha coloreada por zonas de eficiencia vs promedio de liga
 - **Filtro de período**: toggle **Temporada / Últ. 5 / Últ. 10** en el `.szc-header` (junto al buscador). Estado: `szcPeriod` (`'all'|'last5'|'last10'`), jugador activo: `szcCurrentIdx`.
   - `setSzcPeriod(p)`: actualiza estado, botón activo, y re-renderiza si hay jugador seleccionado.
-  - `szcFilterByPeriod(shots, period)`: agrupa tiros por `IdPartido`, ordena por `Fecha`, retorna solo los últimos N partidos.
+  - `szcFilterByPeriod(shots, period, gameIds)`: filtra tiros a los últimos N partidos. Acepta un tercer argumento `gameIds` (array de `IdPartido` ya ordenados cronológicamente desde `player._gameIds`). Si `gameIds` está presente, usa `gameIds.slice(-n)` como fuente de verdad — esto garantiza que "último 5" coincida exactamente con la tabla de jugadores. Sin `gameIds` (fallback), deriva los partidos del shots CSV ordenando fechas con `new Date(ay,am-1,ad)` (DD/MM/YYYY). **No usar comparación lexicográfica sobre strings DD/MM/YYYY** — da resultados incorrectos entre fechas de distintos meses.
+  - `player._gameIds`: array de `IdPartido` (strings) correspondiente a `player._games`, en orden cronológico ascendente. Se computa en `initApp()` junto a `_last5`/`_last10`. Permite que `szcFilterByPeriod` use la misma ventana de partidos que la tabla.
+  - `szcPlayerGameIds`: variable global (inicialmente `null`) que se actualiza en `selectSzcPlayer()` con `player._gameIds`. Se pasa a todas las llamadas de `szcFilterByPeriod` (incluyendo las de `renderZoneChart` para las zone cards).
+  - **Limitación conocida**: el matching `Equipo||Dorsal` falla si el jugador cambió dorsal durante la temporada (ej. NOVATTI en Liga Femenina usó #6 en un partido) o si hay dos jugadores con el mismo nombre abreviado en el mismo equipo (ej. MARTINEZ, M. #14 y #55 en UNION FLORIDA). En esos casos el mapa de tiros puede mostrar stats incompletas.
 - **7 zonas** (1 pintura + 3 mid-range 2pt + 3 triples):
   - `PAINT` — dentro del rectángulo de la pintura + área restringida (RA fusionada)
   - `MID_TOP` — mid-range techo (dy < -1.5m desde el aro, fuera de pintura, dentro del arco)

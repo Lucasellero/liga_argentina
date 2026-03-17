@@ -2207,6 +2207,7 @@ let tLocVis='all';
 let szcPeriod='all';
 let szcCurrentIdx=-1;
 let szcPlayerAllShots=[];
+let szcPlayerGameIds=null;
 let tSort='W%', tDir='desc';
 let jPts=[], tPts=[];
 let jHov=-1, jPin=new Set(), tHov=-1, tPin=-1;
@@ -3969,6 +3970,7 @@ async function initApp() {
       };
       player._last5=mkPeriod(5);
       player._last10=mkPeriod(10);
+      player._gameIds=games.map(r=>String(r['IdPartido']));
       const gamesLocal=games.filter(r=>r['Condicion equipos']==='LOCAL');
       const gamesVisit=games.filter(r=>r['Condicion equipos']==='VISITANTE');
       const mkLocVisPeriod=(g,n)=>{
@@ -4451,9 +4453,9 @@ function renderZoneChart(canvas, playerShots) {
   const pStats = szcComputeStats(playerShots);
   szcDrawZoneColors(ctx, W, H, m, pStats, LEAGUE_ZONE_STATS);
   szcUpdateSvg(pStats, LEAGUE_ZONE_STATS);
-  const statsAll = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'all'));
-  const statsL10 = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'last10'));
-  const statsL5  = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'last5'));
+  const statsAll = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'all', szcPlayerGameIds));
+  const statsL10 = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'last10', szcPlayerGameIds));
+  const statsL5  = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'last5', szcPlayerGameIds));
   szcRenderZoneCards(statsAll, statsL10, statsL5, LEAGUE_ZONE_STATS);
 }
 
@@ -4483,13 +4485,21 @@ document.addEventListener('click', e => {
   }
 });
 
-function szcFilterByPeriod(shots, period) {
+function szcFilterByPeriod(shots, period, gameIds) {
   if (period === 'all') return shots;
   const n = period === 'last5' ? 5 : 10;
-  const gameMap = new Map();
-  shots.forEach(s => { if (!gameMap.has(s['IdPartido'])) gameMap.set(s['IdPartido'], s['Fecha']); });
-  const sorted = [...gameMap.entries()].sort((a, b) => a[1] > b[1] ? 1 : -1);
-  const lastN = new Set(sorted.slice(-n).map(g => g[0]));
+  let lastN;
+  if (gameIds && gameIds.length > 0) {
+    lastN = new Set(gameIds.slice(-n));
+  } else {
+    const gameMap = new Map();
+    shots.forEach(s => { if (!gameMap.has(s['IdPartido'])) gameMap.set(s['IdPartido'], s['Fecha']); });
+    const sorted = [...gameMap.entries()].sort((a, b) => {
+      const [ad,am,ay]=a[1].split('/'); const [bd,bm,by]=b[1].split('/');
+      return new Date(ay,am-1,ad)-new Date(by,bm-1,bd);
+    });
+    lastN = new Set(sorted.slice(-n).map(g => g[0]));
+  }
   return shots.filter(s => lastN.has(s['IdPartido']));
 }
 
@@ -4517,7 +4527,8 @@ function selectSzcPlayer(idx) {
     const key = player.Equipo + '||' + dNum;
     const allShots = SHOTS_BY_PLAYER ? (SHOTS_BY_PLAYER.get(key) || []) : [];
     szcPlayerAllShots = allShots;
-    const shots = szcFilterByPeriod(allShots, szcPeriod);
+    szcPlayerGameIds = player._gameIds || null;
+    const shots = szcFilterByPeriod(allShots, szcPeriod, szcPlayerGameIds);
     // Shot summary badges
     const t2i = shots.filter(s => s['Tipo'] === 'TIRO2').length;
     const t2a = shots.filter(s => s['Tipo'] === 'TIRO2' && s['Resultado'] === 'CONVERTIDO').length;
