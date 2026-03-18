@@ -2462,11 +2462,11 @@ canvas{display:block;width:100%;cursor:crosshair;}
     <div id="cnxLoading" class="cnx-loading" style="display:none">Cargando datos de jugada a jugada...</div>
     <div id="cnxContent" style="display:none">
       <div class="cnx-legend">
-        <div class="cnx-legend-item">
+        <div class="cnx-legend-item cnx-legend-btn" id="cnxLegGiven" onclick="cnxSetFilter('given')" style="cursor:pointer;user-select:none;border-radius:6px;padding:2px 6px;transition:background .15s">
           <svg width="36" height="16" style="vertical-align:middle;overflow:visible"><defs><marker id="lgArP" markerWidth="12" markerHeight="16" refX="11" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0.5 L11,8 L0,15.5 L3,8 z" fill="#8b5cf6"/></marker></defs><line x1="2" y1="8" x2="22" y2="8" stroke="#8b5cf6" stroke-width="2.5" marker-end="url(#lgArP)"/></svg>
           <span>Asistencias dadas</span>
         </div>
-        <div class="cnx-legend-item">
+        <div class="cnx-legend-item cnx-legend-btn" id="cnxLegReceived" onclick="cnxSetFilter('received')" style="cursor:pointer;user-select:none;border-radius:6px;padding:2px 6px;transition:background .15s">
           <svg width="36" height="16" style="vertical-align:middle;overflow:visible"><defs><marker id="lgArT" markerWidth="12" markerHeight="16" refX="11" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0.5 L11,8 L0,15.5 L3,8 z" fill="#2dd4bf"/></marker></defs><line x1="2" y1="8" x2="22" y2="8" stroke="#2dd4bf" stroke-width="2.5" marker-end="url(#lgArT)"/></svg>
           <span>Asistencias recibidas</span>
         </div>
@@ -5714,6 +5714,7 @@ function renderQuintetos() {
 // ============================================================
 let _cnxData   = null;  // computed connection data for current selection
 let _cnxNodes  = [];    // node positions for hit-test
+let _cnxFilter = 'all'; // 'all' | 'given' | 'received'
 
 function cnxInit() {
   const sel = document.getElementById('cnxTeam');
@@ -5732,7 +5733,10 @@ async function onCnxTeamChange() {
   pSel.disabled = true;
   document.getElementById('cnxContent').style.display = 'none';
   document.getElementById('cnxEmpty').style.display = '';
-  _cnxData = null; _cnxNodes = [];
+  _cnxData = null; _cnxNodes = []; _cnxFilter = 'all';
+  const gEl = document.getElementById('cnxLegGiven'), rEl = document.getElementById('cnxLegReceived');
+  if (gEl) { gEl.style.background = ''; gEl.style.opacity = '1'; }
+  if (rEl) { rEl.style.background = ''; rEl.style.opacity = '1'; }
   if (!team) return;
 
   if (PBP_MAP === null) {
@@ -5905,7 +5909,11 @@ function drawConnections() {
   const focusR = 38, nodeR = 22;
   const PURPLE = '#8b5cf6', TEAL = '#2dd4bf';
 
-  const allApg = connections.map(c => c.apg).filter(v => v > 0);
+  const allApg = connections.map(c =>
+    _cnxFilter === 'given'    ? c.astGiven   / totalGames :
+    _cnxFilter === 'received' ? c.astReceived / totalGames :
+    c.apg
+  ).filter(v => v > 0);
   const maxApg = allApg.length ? Math.max(...allApg) : 0.01;
 
   const n = connections.length;
@@ -5916,7 +5924,7 @@ function drawConnections() {
   _cnxNodes = [{ x: cx, y: cy, r: focusR, data: { name: focusName, isFocus: true } }, ...nodes];
 
   const f = v => v.toFixed(1);
-  const apgLbl = (focusApgGiven || 0).toFixed(1);
+  const apgLbl = (_cnxFilter === 'received' ? (_cnxData.focusApgReceived || 0) : (_cnxData.focusApgGiven || 0)).toFixed(1);
 
   let out = `<defs>
     <radialGradient id="cnxFG" cx="35%" cy="30%" r="65%">
@@ -5944,13 +5952,15 @@ function drawConnections() {
     const c = nd.data;
     const givenApg = c.astGiven  / totalGames;
     const recvApg  = c.astReceived / totalGames;
-    if (givenApg < 0.04 && recvApg < 0.04) return;
+    const showGiven = _cnxFilter !== 'received' && givenApg > 0.04;
+    const showRecv  = _cnxFilter !== 'given'    && recvApg  > 0.04;
+    if (!showGiven && !showRecv) return;
 
     const dx = nd.x - cx, dy = nd.y - cy;
     const dist = Math.sqrt(dx * dx + dy * dy);
     const ux = dx / dist, uy = dy / dist;
     const px = -uy, py = ux;  // perpendicular unit vector
-    const hasBoth = givenApg > 0.04 && recvApg > 0.04;
+    const hasBoth = showGiven && showRecv;
     const curve = hasBoth ? dist * 0.14 : 0;  // bezier curve bulge for bidirectional
     const midX = (cx + nd.x) / 2, midY = (cy + nd.y) / 2;
 
@@ -5961,30 +5971,19 @@ function drawConnections() {
       if (hasBoth) {
         const qx = midX + px * curve * qSign;
         const qy = midY + py * curve * qSign;
-        // Tip (refX=11) lands at path endpoint = circle edge: no pullback needed
         out += `<path d="M${f(x1)},${f(y1)} Q${f(qx)},${f(qy)} ${f(x2)},${f(y2)}" fill="none" stroke="${color}" stroke-width="${lw}" opacity="0.88" marker-end="${markerId}"/>`;
-        if (apgVal >= 0.08) {
-          const lmx = 0.25*x1 + 0.5*qx + 0.25*x2 + px * qSign * (curve * 0.45 + 9);
-          const lmy = 0.25*y1 + 0.5*qy + 0.25*y2 + py * qSign * (curve * 0.45 + 9);
-          out += `<text x="${f(lmx)}" y="${f(lmy)}" text-anchor="middle" dominant-baseline="middle" fill="${color}" font-size="8" font-family="Inter,sans-serif" opacity="0.95">${apgVal.toFixed(2)}</text>`;
-        }
       } else {
-        // Straight line for unidirectional; tip at circle edge
         out += `<line x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}" stroke="${color}" stroke-width="${lw}" stroke-linecap="round" opacity="0.88" marker-end="${markerId}"/>`;
-        if (apgVal >= 0.08) {
-          const side = color === PURPLE ? 1 : -1;
-          out += `<text x="${f(midX + px * side * 12)}" y="${f(midY + py * side * 12)}" text-anchor="middle" dominant-baseline="middle" fill="${color}" font-size="8" font-family="Inter,sans-serif" opacity="0.95">${apgVal.toFixed(2)}</text>`;
-        }
       }
     };
 
     // Given: center → teammate (purple), bows to +perpendicular side
-    if (givenApg > 0.04) {
+    if (showGiven) {
       const lw = (0.8 + (givenApg / maxApg) * 5.5).toFixed(1);
       drawArc(cx + ux*(focusR+1), cy + uy*(focusR+1), nd.x - ux*nodeR, nd.y - uy*nodeR, PURPLE, lw, 1, givenApg);
     }
     // Received: teammate → center (teal), bows to −perpendicular side
-    if (recvApg > 0.04) {
+    if (showRecv) {
       const lw = (0.8 + (recvApg / maxApg) * 5.5).toFixed(1);
       drawArc(nd.x - ux*(nodeR+1), nd.y - uy*(nodeR+1), cx + ux*focusR, cy + uy*focusR, TEAL, lw, -1, recvApg);
     }
@@ -5997,14 +5996,19 @@ function drawConnections() {
     const c = nd.data;
     const givenApg = c.astGiven  / totalGames;
     const recvApg  = c.astReceived / totalGames;
-    const col = givenApg >= recvApg ? PURPLE : TEAL;
+    const col = _cnxFilter === 'received' ? TEAL : _cnxFilter === 'given' ? PURPLE : (givenApg >= recvApg ? PURPLE : TEAL);
     const apellido = esc(c.name.split(',')[0].trim());
     const lbl = apellido.length > 9 ? apellido.slice(0, 8) + '.' : apellido;
-    const astLbl = c.apg >= 0.08 ? c.apg.toFixed(2) + ' ast' : '';
+    const nodeApg = _cnxFilter === 'given' ? givenApg : _cnxFilter === 'received' ? recvApg : c.apg;
+    const nodeColor = _cnxFilter === 'received' ? 'rgba(45,212,191,.85)' : 'rgba(167,139,250,.85)';
+    const astLbl = nodeApg >= 0.08 ? nodeApg.toFixed(2) + ' ast' : '';
+    const ndDx = nd.x - cx, ndDy = nd.y - cy, ndDist = Math.sqrt(ndDx*ndDx + ndDy*ndDy) || 1;
+    const ndUx = ndDx / ndDist, ndUy = ndDy / ndDist;
+    const lblX = nd.x + ndUx * (nodeR + 20), lblY = nd.y + ndUy * (nodeR + 20);
     out += `<g style="cursor:pointer" onmouseover="cnxShowTip(event,${idx+1})" onmouseout="cnxHideTip()">
       <circle cx="${f(nd.x)}" cy="${f(nd.y)}" r="${nodeR}" fill="#1f1f3a" stroke="${col}" stroke-width="2.5" filter="url(#cnxShadow)"/>
       <text x="${f(nd.x)}" y="${f(nd.y)}" text-anchor="middle" dominant-baseline="middle" fill="#e2e8f0" font-size="9" font-weight="600" font-family="Inter,sans-serif" pointer-events="none">${lbl}</text>
-      ${astLbl ? `<text x="${f(nd.x)}" y="${f(nd.y + nodeR + 12)}" text-anchor="middle" fill="rgba(167,139,250,.85)" font-size="8" font-family="Inter,sans-serif" pointer-events="none">${astLbl}</text>` : ''}
+      ${astLbl ? `<text x="${f(lblX)}" y="${f(lblY)}" text-anchor="middle" dominant-baseline="middle" fill="${nodeColor}" font-size="8" font-family="Inter,sans-serif" pointer-events="none">${astLbl}</text>` : ''}
     </g>`;
   });
   out += '</g>';
@@ -6055,6 +6059,17 @@ function cnxShowTip(event, idx) {
 function cnxHideTip() {
   const t = document.getElementById('cnxTooltip');
   if (t) t.style.display = 'none';
+}
+
+function cnxSetFilter(type) {
+  _cnxFilter = (_cnxFilter === type) ? 'all' : type;
+  const gEl = document.getElementById('cnxLegGiven');
+  const rEl = document.getElementById('cnxLegReceived');
+  if (gEl) gEl.style.background = (_cnxFilter === 'given')    ? 'rgba(139,92,246,.18)' : '';
+  if (rEl) rEl.style.background = (_cnxFilter === 'received') ? 'rgba(45,212,191,.18)'  : '';
+  if (gEl) gEl.style.opacity    = (_cnxFilter === 'received') ? '0.4' : '1';
+  if (rEl) rEl.style.opacity    = (_cnxFilter === 'given')    ? '0.4' : '1';
+  drawConnections();
 }
 
 // ============================================================
