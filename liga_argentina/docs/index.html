@@ -2694,7 +2694,7 @@ function buildRAW_T(rows) {
     const eq = r['Equipo'];
     if (!map[eq]) map[eq] = {
       Equipo: eq, PJ: 0, Ganados: 0, Perdidos: 0, OPP_PTS: 0,
-      LocalG: 0, LocalP: 0, VisitG: 0, VisitP: 0,
+      LocalG: 0, LocalP: 0, VisitG: 0, VisitP: 0, OPP_DReb: 0,
       _games: [], _gamelog: [],
       PTS: 0, T2A: 0, T2I: 0, T3A: 0, T3I: 0,
       T1A: 0, T1I: 0, RD: 0, RO: 0, RT: 0, AST: 0, REC: 0, PER: 0, TAP: 0, VAL: 0
@@ -2721,6 +2721,7 @@ function buildRAW_T(rows) {
         const my = gr[i], opp = gr[1-i];
         if (map[my['Equipo']]) {
           map[my['Equipo']].OPP_PTS += parseFloat(opp['Puntos']) || 0;
+          map[my['Equipo']].OPP_DReb += parseFloat(opp['DReb']) || 0;
           const extractS = r => ({
             pts:  parseFloat(r['Puntos'])||0,
             t2a:  parseFloat(r['T2A'])||0,   t2i: parseFloat(r['T2I'])||0,
@@ -3199,6 +3200,7 @@ function onTFilter(){
   if(sv==='DRtg-asc'){tSort='DRtg';tDir='asc';}
   else if(sv==='TOV%-asc'){tSort='TOV%';tDir='asc';}
   else{tSort=sv;tDir='desc';}
+  tAdvSort=tSort;tAdvDir=tDir;
   renderTTable();
   if(document.getElementById('sec-t-chart').classList.contains('active'))drawTChart();
 }
@@ -3214,6 +3216,7 @@ function toggleTTable(mode) {
   } else {
     basic.style.display='none'; adv.style.display='';
     btnB.classList.remove('active'); btnA.classList.add('active');
+    tAdvSort=tSort; tAdvDir=tDir;
     renderTAdvTable();
   }
   setTimeout(()=>remeasureScroll('tTableWrap'), 30);
@@ -3223,7 +3226,7 @@ let tAdvSort='NetRtg', tAdvDir='desc';
 
 function computeTeamStatsFromGames(gamelog) {
   const pj=gamelog.length||1;
-  const acc={PTS:0,T2A:0,T2I:0,T3A:0,T3I:0,T1A:0,T1I:0,RD:0,RO:0,RT:0,AST:0,REC:0,PER:0,TAP:0,VAL:0,OPP_PTS:0,Ganados:0};
+  const acc={PTS:0,T2A:0,T2I:0,T3A:0,T3I:0,T1A:0,T1I:0,RD:0,RO:0,RT:0,AST:0,REC:0,PER:0,TAP:0,VAL:0,OPP_PTS:0,OPP_RD:0,Ganados:0};
   gamelog.forEach(g=>{
     const s=g.myS;
     acc.PTS+=s.pts||0; acc.T2A+=s.t2a||0; acc.T2I+=s.t2i||0;
@@ -3232,6 +3235,7 @@ function computeTeamStatsFromGames(gamelog) {
     acc.AST+=s.ast||0; acc.REC+=s.rec||0; acc.PER+=s.per||0;
     acc.TAP+=s.tap||0; acc.VAL+=s.val||0;
     acc.OPP_PTS+=g.ptsAgainst||0;
+    acc.OPP_RD+=(g.oppS&&g.oppS.dreb)||0;
     if(g.ganado)acc.Ganados++;
   });
   const d={PJ:pj,Ganados:acc.Ganados,Perdidos:pj-acc.Ganados};
@@ -3258,8 +3262,8 @@ function computeTeamStatsFromGames(gamelog) {
   d['TS%']=tsAdj>0?Math.round((acc.PTS||0)/tsAdj*1000)/10:null;
   const tovDenom=tci+0.44*(acc.T1I||0)+(acc.PER||0);
   d['TOV%']=tovDenom>0?Math.round((acc.PER||0)/tovDenom*1000)/10:null;
-  const totReb=(acc.RO||0)+(acc.RD||0);
-  d['ORB%']=totReb>0?Math.round((acc.RO||0)/totReb*1000)/10:null;
+  const orbDenom=(acc.RO||0)+(acc.OPP_RD||0);
+  d['ORB%']=orbDenom>0?Math.round((acc.RO||0)/orbDenom*1000)/10:null;
   d['PACE']=d.POSPG;
   return d;
 }
@@ -4696,8 +4700,8 @@ async function initApp() {
       d['TS%'] = tsAdj>0 ? Math.round((t.PTS||0)/tsAdj*1000)/10 : null;
       const tovDenom = tci+0.44*(t.T1I||0)+(t.PER||0);
       d['TOV%'] = tovDenom>0 ? Math.round((t.PER||0)/tovDenom*1000)/10 : null;
-      const totReb = (t.RO||0)+(t.RD||0);
-      d['ORB%'] = totReb>0 ? Math.round((t.RO||0)/totReb*1000)/10 : null;
+      const orbDenom = (t.RO||0)+(t.OPP_DReb||0);
+      d['ORB%'] = orbDenom>0 ? Math.round((t.RO||0)/orbDenom*1000)/10 : null;
       d['PACE'] = d.POSPG || (tovDenom>0 ? Math.round(tovDenom/pj*10)/10 : null);
       d.PTSOPP_PG = Math.round((t.OPP_PTS/pj)*100)/100;
       return d;
