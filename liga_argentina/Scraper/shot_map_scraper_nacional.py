@@ -33,6 +33,11 @@ OUTPUT_CSV = DOCS_DIR / "liga_nacional_shots.csv"
 DELAY   = 1.0
 TIMEOUT = 30
 
+# Partidos excluidos explícitamente (ej. supercopa, partido amistoso fuera de la competencia)
+BLOCKED_GAME_IDS: set[str] = {
+    "7HOd8ZYdbHXIjwhorMzAnQ==",  # Supercopa Boca vs Instituto 05/03/2026
+}
+
 CSV_COLUMNS = [
     "IdPartido", "Fecha", "Equipo_local", "Equipo_visitante",
     "Local", "Equipo", "Dorsal", "Periodo", "Tipo",
@@ -180,7 +185,7 @@ def main():
         cached_ids = set(existing_df["IdPartido"].dropna().astype(str).unique())
         log.info(f"Cache: {len(cached_ids)} partidos ya scrapeados")
 
-    new_game_ids = [gid for gid in games if gid not in cached_ids]
+    new_game_ids = [gid for gid in games if gid not in cached_ids and gid not in BLOCKED_GAME_IDS]
     log.info(f"A scrapear: {len(new_game_ids)} partidos")
 
     if args.dry_run:

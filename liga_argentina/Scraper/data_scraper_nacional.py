@@ -30,6 +30,11 @@ BASE_URL = "https://www.laliganacional.com.ar"
 LEAGUE_PATH = "/laliga"
 FIXTURE_START_DATE = "23/09/2025"  # Fixed season start
 
+# Partidos excluidos explícitamente (ej. supercopa, partido amistoso fuera de la competencia)
+BLOCKED_GAME_IDS: set[str] = {
+    "7HOd8ZYdbHXIjwhorMzAnQ==",  # Supercopa Boca vs Instituto 05/03/2026
+}
+
 OUTPUT_DIR = Path(__file__).parent.parent / "docs" / "liga_nacional"
 DEBUG_DIR = Path(__file__).parent / "debug_html_nacional"
 
@@ -727,6 +732,7 @@ def main():
     new_games = [
         g for g in all_fixture_games
         if g["game_id"] not in cached_ids
+        and g["game_id"] not in BLOCKED_GAME_IDS
         and g.get("home_score") is not None   # played games only
     ]
     log.info(f"Fixture total: {len(all_fixture_games)} | Sin resultado: {len(no_score)} | Ya cacheados: {len(already_cached)} | A scrapear: {len(new_games)}")
