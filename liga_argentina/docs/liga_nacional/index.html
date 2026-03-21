@@ -4183,12 +4183,29 @@ function onPartidoFilter() {
 }
 
 function showUpcomingDefault() {
-  document.getElementById('pTeam').value     = '';
-  document.getElementById('pDateFrom').value = '';
-  document.getElementById('pDateTo').value   = '';
-  const upcoming = GAMES_ALL.filter(g => g.upcoming);
-  document.getElementById('pCount').textContent = upcoming.length;
-  renderPartidoList(upcoming, true);
+  document.getElementById('pTeam').value = '';
+  const toISO = s => { const [d,m,y]=s.split('/'); return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`; };
+  const now = new Date();
+  const todayISO = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const todayGames = GAMES_ALL.filter(g => toISO(g.fecha) === todayISO);
+  if (todayGames.length) {
+    document.getElementById('pDateFrom').value = todayISO;
+    document.getElementById('pDateTo').value   = todayISO;
+    renderPartidoList(todayGames, true);
+  } else {
+    const upcoming = GAMES_ALL.filter(g => g.upcoming);
+    if (upcoming.length) {
+      const nextISO = toISO(upcoming[0].fecha);
+      const nextGames = upcoming.filter(g => toISO(g.fecha) === nextISO);
+      document.getElementById('pDateFrom').value = nextISO;
+      document.getElementById('pDateTo').value   = nextISO;
+      renderPartidoList(nextGames, true);
+    } else {
+      document.getElementById('pDateFrom').value = '';
+      document.getElementById('pDateTo').value   = '';
+      renderPartidoList([], true);
+    }
+  }
 }
 
 function clearPartidoFilter() {
