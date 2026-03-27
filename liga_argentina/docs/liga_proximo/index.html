@@ -1518,6 +1518,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
           <th data-ca="ORtg" data-da="desc" data-tip="Puntos producidos por 100 posesiones individuales">ORtg</th>
           <th data-ca="USG%" data-da="desc" data-tip="% de posesiones del equipo usadas por el jugador mientras está en cancha">USG%</th>
           <th data-ca="ORB%" data-da="desc" data-tip="% de rebotes ofensivos disponibles capturados por el jugador">ORB%</th>
+          <th data-ca="FTr" data-da="desc" data-tip="Free Throw Rate: tiros libres intentados por tiro de campo intentado · T1I / (T2I + T3I)">FTr</th>
         </tr></thead>
         <tbody id="jTbodyAdv"></tbody>
       </table>
@@ -2057,6 +2058,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
           <th data-ca="TS%" data-da="desc" data-tip="True Shooting: eficiencia real incluyendo libres · PTS / (2×(TCA + 0.44×T1A))">TS%</th>
           <th data-ca="TOV%" data-da="asc" data-tip="Pérdidas por cada 100 posesiones (menor = mejor)">TOV%</th>
           <th data-ca="ORB%" data-da="desc" data-tip="% de rebotes ofensivos disponibles capturados">ORB%</th>
+          <th data-ca="FTr" data-da="desc" data-tip="Free Throw Rate: tiros libres intentados por tiro de campo intentado · T1I / (T2I + T3I)">FTr</th>
           <th data-ca="PTSPG" data-da="desc" data-tip="Puntos por partido">PTS</th>
           <th data-ca="ASTPG" data-da="desc" data-tip="Asistencias/partido">AST</th>
           <th data-ca="PERPG" data-da="desc" data-tip="Pérdidas/partido">PÉR</th>
@@ -2912,6 +2914,7 @@ function computeStatsFromGames(games, tm) {
   d['USG%']=(tmPossUsed>0&&playerMinTotal>0)?Math.round(pos*tmMinTotal/(5*playerMinTotal*tmPossUsed)*1000)/10:null;
   const tmRO=tm?tm.RO||0:0;
   d['ORB%']=(tmRO>0&&playerMinTotal>0)?Math.round((acc.RO||0)*(tmMinTotal/5)/(playerMinTotal*tmRO)*1000)/10:null;
+  d['FTr']=tci>0?Math.round((acc.T1I||0)/tci*1000)/1000:null;
   return d;
 }
 
@@ -3053,7 +3056,8 @@ function renderJAdvTable() {
       <td>${fPct(d['3PI/TI'])}</td>
       <td class="${d['ORtg']>=110?'adv-hi':d['ORtg']<90?'adv-lo':''}">${d['ORtg']!=null?d['ORtg'].toFixed(1):'—'}</td>
       <td class="${d['USG%']>=28?'adv-hi':''}">${fPct(d['USG%'])}</td>
-      <td class="${d['ORB%']>=12?'adv-hi':''}">${fPct(d['ORB%'])}</td>`;
+      <td class="${d['ORB%']>=12?'adv-hi':''}">${fPct(d['ORB%'])}</td>
+      <td class="${d['FTr']>=0.35?'adv-hi':''}">${fVal(d['FTr'])}</td>`;
     tbody.appendChild(tr);
   });
   document.querySelectorAll('#jCardAdv thead th').forEach(th=>{
@@ -3172,6 +3176,7 @@ function computeTeamStatsFromGames(gamelog) {
   d['TOV%']=tovDenom>0?Math.round((acc.PER||0)/tovDenom*1000)/10:null;
   const orbDenom=(acc.RO||0)+(acc.OPP_RD||0);
   d['ORB%']=orbDenom>0?Math.round((acc.RO||0)/orbDenom*1000)/10:null;
+  d['FTr']=tci>0?Math.round((acc.T1I||0)/tci*1000)/1000:null;
   d['PACE']=d.POSPG;
   return d;
 }
@@ -3288,6 +3293,7 @@ function renderTAdvTable() {
       <td class="${d['TS%']>=57?'adv-hi':d['TS%']<50?'adv-lo':''}">${fPct(d['TS%'])}</td>
       <td class="${d['TOV%']<=12?'adv-hi':d['TOV%']>=18?'adv-lo':''}">${fPct(d['TOV%'])}</td>
       <td class="${d['ORB%']>=30?'adv-hi':d['ORB%']<22?'adv-lo':''}">${fPct(d['ORB%'])}</td>
+      <td class="${d['FTr']>=0.28?'adv-hi':d['FTr']<0.18?'adv-lo':''}">${fVal(d['FTr'])}</td>
       <td class="pts-cell">${f2(d.PTSPG)}</td>
       <td>${f2(d.ASTPG)}</td><td>${f2(d.PERPG)}</td><td>${f2(d.RECPG)}</td><td>${f2(d.TAPPG)}</td>`;
     tbody.appendChild(tr);
@@ -4511,6 +4517,7 @@ async function initApp() {
       d['USG%'] = (tmPossUsed>0 && playerMinTotal>0) ? Math.round(pos*tmMinTotal/(5*playerMinTotal*tmPossUsed)*1000)/10 : null;
       const tmRO = tm.RO||0;
       d['ORB%'] = (tmRO>0 && playerMinTotal>0) ? Math.round((p.RO||0)*(tmMinTotal/5)/(playerMinTotal*tmRO)*1000)/10 : null;
+      d['FTr'] = tci>0 ? Math.round((p.T1I||0)/tci*1000)/1000 : null;
       return d;
     });
 
@@ -4573,6 +4580,7 @@ async function initApp() {
       d['TOV%'] = tovDenom>0 ? Math.round((t.PER||0)/tovDenom*1000)/10 : null;
       const orbDenom = (t.RO||0)+(t.OPP_DReb||0);
       d['ORB%'] = orbDenom>0 ? Math.round((t.RO||0)/orbDenom*1000)/10 : null;
+      d['FTr'] = tci>0 ? Math.round((t.T1I||0)/tci*1000)/1000 : null;
       d['PACE'] = d.POSPG || (tovDenom>0 ? Math.round(tovDenom/pj*10)/10 : null);
       d.PTSOPP_PG = Math.round((t.OPP_PTS/pj)*100)/100;
       return d;

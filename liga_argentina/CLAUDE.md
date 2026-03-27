@@ -208,7 +208,7 @@ Ambas tablas (`j-tabla`, `t-tabla`) tienen un toggle de período: **Temporada / 
 - `getPlayerData(p)` / `getTeamData(t)` devuelven `p._last5`, `p._last10` o el objeto completo según el período activo.
 - Las stats de período se precomputan en `initApp()` y se guardan en `player._last5`, `player._last10`, `team._last5`, `team._last10`.
 - **Jugadores**: `buildRAW_J` guarda `_games[]` (filas CSV con `Segundos jugados > 0`). En `initApp` se ordenan por fecha y se pasan a `computeStatsFromGames(games, tm)` que replica todas las fórmulas de stats básicas y avanzadas.
-- **Equipos**: `buildRAW_T` ya construye `_gamelog[]` ordenado por fecha. Se pasan a `computeTeamStatsFromGames(gamelog)` que computa W%, PTS/p, tiros, rebotes, ORtg, DRtg, NetRtg, EFG%, TS%, TOV%, ORB%, PACE.
+- **Equipos**: `buildRAW_T` ya construye `_gamelog[]` ordenado por fecha. Se pasan a `computeTeamStatsFromGames(gamelog)` que computa W%, PTS/p, tiros, rebotes, ORtg, DRtg, NetRtg, EFG%, TS%, TOV%, ORB%, FTr, PACE.
 - Layout del toggle wrap: `[Básica/Avanzada] [Temporada/Últ.5/Últ.10] [Todos/Local/Visitante] [Comparar jugadores / Comparar equipos]`. En mobile (`flex-direction:column`) se apilan verticalmente.
 
 **Filtro por Conferencia (Jugadores, Equipos, Destacados):**
@@ -364,6 +364,7 @@ fetch('liga_argentina.csv?v=<timestamp>')   ← cache-busting, no-store
 | `USG%` | `posesiones_jugador * min_equipo / (5 * min_jugador * posesiones_equipo)` |
 | `ORtg` | `PTS / posesiones * 100` |
 | `DRtg` | Tomado de `TEAM_MAP[equipo].DRtg` |
+| `FTr` | `T1I / (T2I+T3I)` — Free Throw Rate (tiros libres intentados / tiros de campo intentados). Calculado en `initApp()`, `computeStatsFromGames()` y `computeTeamStatsFromGames()`. Aparece en la tabla avanzada de jugadores (verde ≥ 0.35) y equipos (verde ≥ 0.28, rojo < 0.18). Usa `fVal()` (2 decimales, sin %). |
 | `PACE` | Posesiones por partido del equipo |
 
 ### Datos de tiros (`SHOTS_MAP` + `SHOTS_BY_PLAYER`)
