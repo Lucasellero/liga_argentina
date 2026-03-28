@@ -5106,9 +5106,11 @@ function selectSzcPlayer(idx) {
   const doRender = () => {
     const dNum = String(Math.round(parseFloat(player.DORSAL) || 0));
     const key = player.Equipo + '||' + dNum;
-    const allShots = SHOTS_BY_PLAYER ? (SHOTS_BY_PLAYER.get(key) || []) : [];
-    szcPlayerAllShots = allShots;
+    const rawShots = SHOTS_BY_PLAYER ? (SHOTS_BY_PLAYER.get(key) || []) : [];
     szcPlayerGameIds = player._gameIds || null;
+    const gidSet = szcPlayerGameIds ? new Set(szcPlayerGameIds) : null;
+    const allShots = gidSet ? rawShots.filter(s => gidSet.has(s['IdPartido'])) : rawShots;
+    szcPlayerAllShots = allShots;
     const shots = szcFilterByPeriod(allShots, szcPeriod, szcPlayerGameIds);
     // Shot summary badges
     const t2i = shots.filter(s => s['Tipo'] === 'TIRO2').length;
