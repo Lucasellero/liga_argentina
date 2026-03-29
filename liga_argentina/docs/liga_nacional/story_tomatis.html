@@ -1,0 +1,446 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>Tomatis T. — Story</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg:          #0b0b16;
+  --bg2:         #111127;
+  --surface:     #18182e;
+  --surface2:    #1f1f3a;
+  --border:      rgba(139,92,246,.22);
+  --border2:     rgba(255,255,255,.07);
+  --purple:      #8b5cf6;
+  --purple-d:    #6d28d9;
+  --purple-l:    #a78bfa;
+  --purple-soft: rgba(139,92,246,.13);
+  --teal:        #2dd4bf;
+  --teal-l:      #5eead4;
+  --teal-soft:   rgba(45,212,191,.11);
+  --text:        #e2e8f0;
+  --text-bright: #f8fafc;
+  --muted:       #64748b;
+  --muted2:      #475569;
+  --green:       #34d399;
+  --red:         #f87171;
+  --orange:      #fb923c;
+}
+
+html, body {
+  width: 1080px;
+  height: 1920px;
+  background: var(--bg);
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  overflow: hidden;
+}
+
+.story {
+  width: 1080px;
+  height: 1920px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 110% 40% at 50% -2%, rgba(139,92,246,.38) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 35% at 88% 92%, rgba(45,212,191,.1) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 20% at 10% 70%, rgba(139,92,246,.06) 0%, transparent 55%);
+}
+
+/* ── HEADER ── */
+.s-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 54px 64px 40px;
+}
+.s-logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.s-logo-icon {
+  display: flex; align-items: center; justify-content: center;
+}
+.s-logo-text {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-bright);
+}
+.s-badge-liga {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--teal-l);
+  background: rgba(45,212,191,.12);
+  border: 1px solid rgba(45,212,191,.3);
+  border-radius: 20px;
+  padding: 8px 22px;
+  letter-spacing: 0.04em;
+}
+
+/* ── HERO PLAYER ── */
+.s-hero {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  padding: 8px 64px 28px;
+}
+.s-player-avatar {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  border: 3px solid rgba(139,92,246,.5);
+  background: transparent;
+  flex-shrink: 0;
+}
+.s-player-info { flex: 1; }
+.s-player-team {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--teal-l);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+.s-player-name {
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: var(--text-bright);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.s-player-sub {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.s-dorsal-badge {
+  background: linear-gradient(135deg, var(--purple-d), var(--purple));
+  border-radius: 16px;
+  padding: 10px 26px;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #fff;
+  white-space: nowrap;
+  box-shadow: 0 4px 24px rgba(139,92,246,.4);
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+/* ── DIVIDER ── */
+.s-divider {
+  height: 1px;
+  margin: 0 64px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+/* ── STATS PRINCIPALES ── */
+.s-main-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 28px 64px 16px;
+}
+.s-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px 18px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.s-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--purple-d), var(--purple));
+  opacity: 0.6;
+}
+.s-stat-card.teal::before  { background: linear-gradient(90deg, #0d9488, var(--teal)); }
+.s-stat-card.green::before { background: linear-gradient(90deg, #059669, var(--green)); }
+.s-stat-value {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: var(--text-bright);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.s-stat-value.purple { color: var(--purple-l); }
+.s-stat-value.teal   { color: var(--teal-l); }
+.s-stat-value.green  { color: var(--green); }
+.s-stat-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+/* ── FILA SECUNDARIA ── */
+.s-record-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 64px 16px;
+}
+.s-record-block {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.s-record-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.s-record-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-bright);
+  letter-spacing: -0.02em;
+}
+
+/* ── SECTION TITLE ── */
+.s-section-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--purple-l);
+  padding: 14px 64px 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.s-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── SPLITS DE TIRO ── */
+.s-shoots-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding: 0 64px 16px;
+}
+.s-shoot-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 18px;
+  padding: 20px 14px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.s-shoot-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--purple-d), var(--purple));
+  opacity: 0.4;
+}
+.s-shoot-pct {
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+.s-shoot-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+.s-shoot-made {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted2);
+}
+
+/* ── PLACEHOLDER ── */
+.s-placeholder {
+  margin: 0 64px;
+  border-radius: 20px;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--muted2);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.s-placeholder-icon {
+  font-size: 2.2rem;
+  opacity: 0.35;
+}
+
+/* ── FOOTER ── */
+.s-footer {
+  margin-top: auto;
+  padding: 18px 64px 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255,255,255,.05);
+}
+.s-footer-brand {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted2);
+}
+.s-footer-brand span {
+  background: linear-gradient(90deg, var(--purple-l), var(--teal-l));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+}
+.s-footer-date {
+  font-size: 0.78rem;
+  color: var(--muted2);
+}
+</style>
+</head>
+<body>
+<div class="story">
+
+  <!-- HEADER -->
+  <div class="s-header">
+    <div class="s-logo">
+      <div class="s-logo-icon"><img src="logos/scouteado_logo.png" style="width:52px;height:52px;object-fit:contain;"></div>
+      <div class="s-logo-text">Scouteado</div>
+    </div>
+    <div class="s-badge-liga">Liga de Desarrollo 2025/26</div>
+  </div>
+
+  <!-- HERO JUGADOR -->
+  <div class="s-hero">
+    <div class="s-player-avatar"></div>
+    <div class="s-player-info">
+      <div class="s-player-team">Atenas (C) · Alero</div>
+      <div class="s-player-name">TOMATIS<br>TIAGO</div>
+      <div class="s-player-sub">18 partidos · 32.3 min/p</div>
+    </div>
+    <div class="s-dorsal-badge">#5</div>
+  </div>
+
+  <div class="s-divider"></div>
+
+  <!-- STATS PRINCIPALES -->
+  <div class="s-main-stats">
+    <div class="s-stat-card">
+      <div class="s-stat-value purple">23.8</div>
+      <div class="s-stat-label">PTS/p</div>
+    </div>
+    <div class="s-stat-card teal">
+      <div class="s-stat-value teal">6.8</div>
+      <div class="s-stat-label">REB/p</div>
+    </div>
+    <div class="s-stat-card">
+      <div class="s-stat-value">1.6</div>
+      <div class="s-stat-label">AST/p</div>
+    </div>
+    <div class="s-stat-card green">
+      <div class="s-stat-value green">18.8</div>
+      <div class="s-stat-label">VAL/p</div>
+    </div>
+  </div>
+
+  <!-- FILA SECUNDARIA -->
+  <div class="s-record-row">
+    <div class="s-record-block">
+      <div>
+        <div class="s-record-title">REC/p</div>
+        <div class="s-record-value" style="color:var(--teal-l)">1.7</div>
+      </div>
+      <div style="text-align:right">
+        <div class="s-record-title">PER/p</div>
+        <div class="s-record-value" style="color:var(--red)">2.5</div>
+      </div>
+    </div>
+    <div class="s-record-block">
+      <div>
+        <div class="s-record-title">EFG%</div>
+        <div class="s-record-value" style="color:var(--orange)">43.8%</div>
+      </div>
+      <div style="text-align:right">
+        <div class="s-record-title">TS%</div>
+        <div class="s-record-value" style="color:var(--orange)">48.4%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPLITS DE TIRO -->
+  <div class="s-section-title">Tiro</div>
+  <div class="s-shoots-row">
+    <div class="s-shoot-card">
+      <div class="s-shoot-pct" style="color:var(--orange)">44.9%</div>
+      <div class="s-shoot-label">Dobles</div>
+      <div class="s-shoot-made">115/256</div>
+    </div>
+    <div class="s-shoot-card">
+      <div class="s-shoot-pct" style="color:var(--red)">27.6%</div>
+      <div class="s-shoot-label">Triples</div>
+      <div class="s-shoot-made">34/123</div>
+    </div>
+    <div class="s-shoot-card">
+      <div class="s-shoot-pct" style="color:var(--orange)">67.1%</div>
+      <div class="s-shoot-label">Tiros Libres</div>
+      <div class="s-shoot-made">96/143</div>
+    </div>
+  </div>
+
+  <!-- MAPA DE TIROS — placeholder -->
+  <div class="s-section-title">Mapa de Tiros</div>
+  <div class="s-placeholder" style="height:510px;">
+    <div class="s-placeholder-icon">🎯</div>
+    <div>Mapa de zonas</div>
+  </div>
+
+  <!-- CONEXIONES — placeholder -->
+  <div class="s-section-title">Red de Asistencias</div>
+  <div class="s-placeholder" style="height:390px;">
+    <div class="s-placeholder-icon">🔗</div>
+    <div>Conexiones</div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="s-footer">
+    <div class="s-footer-brand">análisis por <span>Scouteado</span></div>
+    <div class="s-footer-date">28 · 03 · 2026</div>
+  </div>
+
+</div>
+</body>
+</html>
