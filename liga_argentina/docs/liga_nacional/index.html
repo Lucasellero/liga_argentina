@@ -2070,11 +2070,6 @@ canvas{display:block;width:100%;cursor:crosshair;}
           <th data-ca="TOV%" data-da="asc" data-tip="Pérdidas por cada 100 posesiones (menor = mejor)">TOV%</th>
           <th data-ca="ORB%" data-da="desc" data-tip="% de rebotes ofensivos disponibles capturados">ORB%</th>
           <th data-ca="FTr" data-da="desc" data-tip="Free Throw Rate: tiros libres intentados por tiro de campo intentado · T1I / (T2I + T3I)">FTr</th>
-          <th data-ca="PTSPG" data-da="desc" data-tip="Puntos por partido">PTS</th>
-          <th data-ca="ASTPG" data-da="desc" data-tip="Asistencias/partido">AST</th>
-          <th data-ca="PERPG" data-da="desc" data-tip="Pérdidas/partido">PÉR</th>
-          <th data-ca="RECPG" data-da="desc" data-tip="Recuperos/partido (robos de balón)">REC</th>
-          <th data-ca="TAPPG" data-da="desc" data-tip="Tapones/partido">TAP</th>
         </tr></thead>
         <tbody id="tTbodyAdv"></tbody>
       </table>
@@ -3292,6 +3287,7 @@ function renderTAdvTable() {
   });
   const tbody=document.getElementById('tTbodyAdv'); if(!tbody)return; tbody.innerHTML='';
   const fPct=v=>v==null||isNaN(v)?'—':v.toFixed(1)+'%';
+  const fVal=v=>v==null||isNaN(v)?'—':v.toFixed(2);
   rows.forEach((t,i)=>{
     const d=getTeamData(t);
     const tr=document.createElement('tr');
@@ -3317,9 +3313,7 @@ function renderTAdvTable() {
       <td class="${d['TS%']>=57?'adv-hi':d['TS%']<50?'adv-lo':''}">${fPct(d['TS%'])}</td>
       <td class="${d['TOV%']<=12?'adv-hi':d['TOV%']>=18?'adv-lo':''}">${fPct(d['TOV%'])}</td>
       <td class="${d['ORB%']>=30?'adv-hi':d['ORB%']<22?'adv-lo':''}">${fPct(d['ORB%'])}</td>
-      <td class="${d['FTr']>=0.28?'adv-hi':d['FTr']<0.18?'adv-lo':''}">${fVal(d['FTr'])}</td>
-      <td class="pts-cell">${f2(d.PTSPG)}</td>
-      <td>${f2(d.ASTPG)}</td><td>${f2(d.PERPG)}</td><td>${f2(d.RECPG)}</td><td>${f2(d.TAPPG)}</td>`;
+      <td class="${d['FTr']>=0.28?'adv-hi':d['FTr']<0.18?'adv-lo':''}">${fVal(d['FTr'])}</td>`;
     tbody.appendChild(tr);
   });
   document.querySelectorAll('#tCardAdv thead th').forEach(th=>{
