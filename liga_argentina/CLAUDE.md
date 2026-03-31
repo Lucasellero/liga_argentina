@@ -149,6 +149,17 @@ Columnas clave: `Fecha, Condicion equipos, Equipo, Rival, Nombre completo, IdPar
 Stats: `Puntos, T2A/T2I/T2%, T3A/T3I/T3%, T1A/T1I/T1%, DReb, OReb, TReb, Asistencias, Recuperos, Perdidas, Tapones cometidos/recibidos, Faltas Cometidas/Recibidas, Valoracion, Ganado`
 - Filas `Nombre completo == "TOTALES"` son los totales de equipo por partido
 
+## CSV: players_dob.csv
+Columnas: `liga, nombre_completo, nombre_abreviado, fecha_nacimiento, url_perfil`
+- Compartido por todas las ligas (una fila por jugador registrado)
+- `liga`: nombre de la liga tal como aparece en el dashboard (ej. `"Liga Nacional"`, `"Liga Argentina"`)
+- `nombre_abreviado`: formato `"APELLIDO, I."` — coincide con el campo `Nombre completo` del CSV de stats de cada liga. **Esta es la clave de matching.**
+- `nombre_completo`: nombre completo sin abreviar (ej. `"AGUSTIN CAFFARO"`). No usar como clave de lookup.
+- `fecha_nacimiento`: formato `DD/MM/YYYY`
+- Usado en cada `index.html` para calcular la columna `Edad` de la tabla de jugadores. Se carga en paralelo con el CSV de stats en `initApp()` via `Promise.all`. Se indexa en `DOB_MAP` por `nombre_abreviado`.
+- `calcAge(dob)` calcula la edad exacta en años enteros (considera si el cumpleaños ya ocurrió en el año actual).
+- Si el archivo no existe o falla el fetch, la app continúa sin errores y los jugadores sin DOB muestran `—`.
+
 ## CSV: liga_argentina_shots.csv
 Columnas: `IdPartido, Fecha, Equipo_local, Equipo_visitante, Local, Equipo, Dorsal, Periodo, Tipo, Resultado, Zona, Left_pct, Top_pct`
 - `Tipo`: `TIRO1 | TIRO2 | TIRO3`
@@ -332,11 +343,15 @@ Media query `@media (max-width:640px)` cubre:
 Se llama al final del script al cargar la página. Muestra `#loadingOverlay` mientras trabaja.
 
 ```
-fetch('liga_argentina.csv?v=<timestamp>')   ← cache-busting, no-store
+Promise.all([
+  fetch('<liga>.csv?v=<timestamp>'),          ← stats principales
+  fetch('../players_dob.csv?v=<timestamp>')   ← fechas de nacimiento (catch→null si falla)
+])
   → parseCSV(text)          ← parser CSV propio (maneja comillas, sin dependencias)
+  → DOB_MAP = { [nombre_abreviado]: fecha_nacimiento }  ← indexado por liga
   → buildRAW_J(rows)        ← agrega stats de jugador por clave "Nombre||Equipo"
   → buildRAW_T(rows)        ← agrega stats de equipo desde filas TOTALES
-  → calcular promedios y stats derivadas
+  → calcular promedios y stats derivadas; d.Edad = calcAge(DOB_MAP[p['Nombre completo']])
   → poblar PLAYERS[], TEAMS[], TEAM_MAP{}, LEADERS_DATA{}
   → buildear GAMES_ALL (partidos únicos desde _gamelog[])
   → buildear GAME_PLAYERS_MAP (filas CSV por IdPartido, para box score)
@@ -367,6 +382,7 @@ fetch('liga_argentina.csv?v=<timestamp>')   ← cache-busting, no-store
 | `DRtg` | Tomado de `TEAM_MAP[equipo].DRtg` |
 | `FTr` | `T1I / (T2I+T3I)` — Free Throw Rate (tiros libres intentados / tiros de campo intentados). Calculado en `initApp()`, `computeStatsFromGames()` y `computeTeamStatsFromGames()`. Aparece en la tabla avanzada de jugadores (verde ≥ 0.35) y equipos (verde ≥ 0.28, rojo < 0.18). Usa `fVal()` (2 decimales, sin %). |
 | `PACE` | Posesiones por partido del equipo |
+| `Edad` | `calcAge(DOB_MAP[nombre_abreviado])` — edad en años enteros al día de hoy. Propagada a todos los objetos de período (`mkPeriod`, `mkLocVisPeriod`) para que el sort por edad funcione en todos los modos de vista. Jugadores sin DOB muestran `—`. |
 
 ### Datos de tiros (`SHOTS_MAP` + `SHOTS_BY_PLAYER`)
 Carga **lazy**: se inicializa `null` y solo se fetch al abrir el tab "Mapa de tiro" o "Tiro" por primera vez.
