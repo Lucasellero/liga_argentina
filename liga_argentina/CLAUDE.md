@@ -255,6 +255,7 @@ La tabla `j-tabla` tiene un toggle adicional: **Todos / Local / Visitante**.
 - Tab "Box Score": tabla por equipo con todos los jugadores del partido. Columnas: #dorsal, Min, PTS, Dobles (M/I), Triples (M/I), TL (M/I), REB, RD, RO, AST, REC, PER, TAP, VAL. Titulares marcados con ●. DNP atenuados.
 - Botón "‹ Volver": si fue abierto desde `partidos` (`_partidoMode=true`) cierra el modal; si fue desde `t-tabla` vuelve a la lista de juegos del equipo (`closeGameDetail`)
 - `switchGameTab(tab)` maneja los 3 tabs (`'stats'|'map'|'box'`); al activar `'box'` llama `renderBoxScore(_smState.gameId, _smState.local, _smState.visit)`
+- **Scroll horizontal del Box Score**: `.tgm-box-table-wrap` tiene `overflow-x:auto`. El selector `#teamGamesModal table{table-layout:fixed}` aplica a todas las tablas del modal y causaría que el box score recortara columnas en lugar de crear scroll. Se sobreescribe con `#teamGamesModal .tgm-box-table{table-layout:auto;}` (mayor especificidad: ID+clase > ID+elemento). **Al agregar una nueva liga, incluir esta regla CSS.**
 
 **Sección "Tiro" (`j-tiro`):**
 - Media cancha coloreada por zonas de eficiencia vs promedio de liga
