@@ -426,6 +426,36 @@ tbody td:nth-child(2){text-align:left;color:var(--muted);font-size:.76rem;}
 .pos-pts-a{color:var(--muted);}
 .pos-diff-pos{color:var(--green);font-weight:700;}
 .pos-diff-neg{color:var(--red);font-weight:700;}
+/* ── Pos tabs ── */
+.pos-tab-bar{display:flex;gap:8px;padding:16px 20px 0;max-width:900px;margin:0 auto;}
+.pos-tab{padding:7px 18px;border-radius:20px;font-size:.76rem;font-weight:700;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s;}
+.pos-tab.active{background:rgba(139,92,246,.18);border-color:rgba(139,92,246,.6);color:var(--purple-l);}
+.pos-tab:hover:not(.active){background:rgba(139,92,246,.08);}
+/* ── Post temporada ── */
+.playoff-outer{padding:20px;max-width:900px;margin:0 auto;}
+.playoff-conf-title{font-size:.75rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--purple-l);border-bottom:2px solid var(--purple);padding-bottom:6px;margin-bottom:16px;}
+.playoff-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:32px;}
+@media(max-width:640px){.playoff-grid{grid-template-columns:1fr;}}
+.series-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.series-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.series-team{display:flex;flex-direction:column;align-items:center;gap:5px;width:88px;padding:6px 4px;border-radius:8px;transition:background .15s;}
+.series-team.lead{background:rgba(139,92,246,.08);}
+.series-team img{width:36px;height:36px;object-fit:contain;}
+.series-team-name{font-size:.62rem;font-weight:700;color:var(--muted);text-align:center;line-height:1.2;}
+.series-team-name.lead{color:var(--text-bright);font-weight:800;}
+.series-score-wrap{text-align:center;flex:1;}
+.series-score{font-size:1.6rem;font-weight:800;color:var(--text-bright);line-height:1;}
+.series-games{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--border2);padding-top:10px;margin-top:4px;}
+.series-game{display:flex;align-items:center;gap:8px;}
+.sg-label{color:var(--muted2);font-size:.6rem;font-weight:700;letter-spacing:.3px;width:20px;flex-shrink:0;}
+.sg-scores{display:flex;align-items:center;gap:4px;flex:1;}
+.sg-pts{font-size:.8rem;font-weight:600;color:var(--muted);width:28px;text-align:center;}
+.sg-pts.w{color:var(--text-bright);font-weight:800;}
+.sg-sep{color:var(--muted2);font-size:.65rem;}
+.sg-date{color:var(--muted2);font-size:.6rem;}
+.sg-pending{color:var(--muted2);font-size:.69rem;font-style:italic;flex:1;}
+.sg-stats-btn{margin-left:auto;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);color:var(--purple-l);font-size:.58rem;font-weight:700;padding:2px 8px;border-radius:10px;cursor:pointer;font-family:inherit;letter-spacing:.3px;transition:all .15s;white-space:nowrap;}
+.sg-stats-btn:hover{background:rgba(139,92,246,.22);border-color:rgba(139,92,246,.55);}
 .ortg-hi{color:var(--purple-l);font-weight:700;}
 .drtg-lo{color:var(--teal-l);font-weight:700;}
 .netrtg-pos{color:var(--green);font-weight:700;}
@@ -1267,6 +1297,14 @@ canvas{display:block;width:100%;cursor:crosshair;}
       </div>
       <div class="fsb-sep"></div>
       <div class="fsb-group">
+        <span class="fsb-lbl">Etapa</span>
+        <div class="fsb-pills">
+          <button class="active" id="jPhaseAll" onclick="setJPhase('all')">Todos</button>
+          <button id="jPhaseReg" onclick="setJPhase('regular')">Temporada Regular</button>
+          <button id="jPhasePost" onclick="setJPhase('post')">Post Temporada</button>
+        </div>
+      </div>
+      <div class="fsb-group">
         <span class="fsb-lbl">Período</span>
         <div class="fsb-pills">
           <button class="active" id="jPeriodAll" onclick="setJPeriod('all')">Temporada completa</button>
@@ -1837,6 +1875,14 @@ canvas{display:block;width:100%;cursor:crosshair;}
       </div>
       <div class="fsb-sep"></div>
       <div class="fsb-group">
+        <span class="fsb-lbl">Etapa</span>
+        <div class="fsb-pills">
+          <button class="active" id="tPhaseAll" onclick="setTPhase('all')">Todos</button>
+          <button id="tPhaseReg" onclick="setTPhase('regular')">Temporada Regular</button>
+          <button id="tPhasePost" onclick="setTPhase('post')">Post Temporada</button>
+        </div>
+      </div>
+      <div class="fsb-group">
         <span class="fsb-lbl">Período</span>
         <div class="fsb-pills">
           <button class="active" id="tPeriodAll" onclick="setTPeriod('all')">Temporada completa</button>
@@ -2379,35 +2425,49 @@ canvas{display:block;width:100%;cursor:crosshair;}
 
 <!-- ============================= POSICIONES ============================= -->
 <div class="section active" id="sec-posiciones">
-  <div class="pos-outer">
-    <div class="pos-conf-block">
-      <div class="pos-conf-title">Conferencia Norte</div>
-      <div class="pos-table-scroll">
-        <table class="pos-table">
-          <thead><tr>
-            <th data-tip="Posición en la conferencia">#</th><th data-tip="Nombre del equipo">Equipo</th>
-            <th data-tip="Partidos jugados">PJ</th><th data-tip="Partidos ganados">G</th><th data-tip="Partidos perdidos">P</th>
-            <th data-tip="% de victorias · G / PJ">W%</th><th data-tip="Puntos anotados por partido">PTS/P</th><th data-tip="Puntos recibidos por partido">PTS REC/P</th><th data-tip="Diferencial de puntos/partido · PTS/P − PTS REC/P">DIF/P</th>
-            <th data-tip="Récord como local (G-P)">LOCAL</th><th data-tip="Récord como visitante (G-P)">VISITA</th><th data-tip="Récord en los últimos 5 partidos (G-P)">ÚLTIMOS 5</th><th></th>
-          </tr></thead>
-          <tbody id="posNorteTbody"></tbody>
-        </table>
+  <!-- Tab bar -->
+  <div class="pos-tab-bar">
+    <button class="pos-tab active" id="posTabReg" onclick="switchPosTab('regular')">Temporada Regular</button>
+    <button class="pos-tab" id="posTabPost" onclick="switchPosTab('post')">Post Temporada</button>
+  </div>
+
+  <!-- Regular season panel -->
+  <div id="posRegPanel">
+    <div class="pos-outer">
+      <div class="pos-conf-block">
+        <div class="pos-conf-title">Conferencia Norte</div>
+        <div class="pos-table-scroll">
+          <table class="pos-table">
+            <thead><tr>
+              <th data-tip="Posición en la conferencia">#</th><th data-tip="Nombre del equipo">Equipo</th>
+              <th data-tip="Partidos jugados">PJ</th><th data-tip="Partidos ganados">G</th><th data-tip="Partidos perdidos">P</th>
+              <th data-tip="% de victorias · G / PJ">W%</th><th data-tip="Puntos anotados por partido">PTS/P</th><th data-tip="Puntos recibidos por partido">PTS REC/P</th><th data-tip="Diferencial de puntos/partido · PTS/P − PTS REC/P">DIF/P</th>
+              <th data-tip="Récord como local (G-P)">LOCAL</th><th data-tip="Récord como visitante (G-P)">VISITA</th><th data-tip="Récord en los últimos 5 partidos (G-P)">ÚLTIMOS 5</th><th></th>
+            </tr></thead>
+            <tbody id="posNorteTbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="pos-conf-block">
+        <div class="pos-conf-title">Conferencia Sur</div>
+        <div class="pos-table-scroll">
+          <table class="pos-table">
+            <thead><tr>
+              <th data-tip="Posición en la conferencia">#</th><th data-tip="Nombre del equipo">Equipo</th>
+              <th data-tip="Partidos jugados">PJ</th><th data-tip="Partidos ganados">G</th><th data-tip="Partidos perdidos">P</th>
+              <th data-tip="% de victorias · G / PJ">W%</th><th data-tip="Puntos anotados por partido">PTS/P</th><th data-tip="Puntos recibidos por partido">PTS REC/P</th><th data-tip="Diferencial de puntos/partido · PTS/P − PTS REC/P">DIF/P</th>
+              <th data-tip="Récord como local (G-P)">LOCAL</th><th data-tip="Récord como visitante (G-P)">VISITA</th><th data-tip="Récord en los últimos 5 partidos (G-P)">ÚLTIMOS 5</th><th></th>
+            </tr></thead>
+            <tbody id="posSurTbody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
-    <div class="pos-conf-block">
-      <div class="pos-conf-title">Conferencia Sur</div>
-      <div class="pos-table-scroll">
-        <table class="pos-table">
-          <thead><tr>
-            <th data-tip="Posición en la conferencia">#</th><th data-tip="Nombre del equipo">Equipo</th>
-            <th data-tip="Partidos jugados">PJ</th><th data-tip="Partidos ganados">G</th><th data-tip="Partidos perdidos">P</th>
-            <th data-tip="% de victorias · G / PJ">W%</th><th data-tip="Puntos anotados por partido">PTS/P</th><th data-tip="Puntos recibidos por partido">PTS REC/P</th><th data-tip="Diferencial de puntos/partido · PTS/P − PTS REC/P">DIF/P</th>
-            <th data-tip="Récord como local (G-P)">LOCAL</th><th data-tip="Récord como visitante (G-P)">VISITA</th><th data-tip="Récord en los últimos 5 partidos (G-P)">ÚLTIMOS 5</th><th></th>
-          </tr></thead>
-          <tbody id="posSurTbody"></tbody>
-        </table>
-      </div>
-    </div>
+  </div>
+
+  <!-- Post season panel -->
+  <div id="posPostPanel" style="display:none">
+    <div id="playoffContent"></div>
   </div>
 </div>
 
@@ -2819,9 +2879,11 @@ const LBL_T={ORtg:'ORtg',DRtg:'DRtg',NetRtg:'NetRtg','W%':'W%',PTSPG:'PTS/p',POS
 let jFiltered=[], tFiltered=[];
 let jSort='PPG', jDir='desc';
 let jPeriod='all';
+let jPhase='all'; // 'all' | 'regular' | 'post'
 let jLocVis='all';
 let jConf='all';
 let tPeriod='all';
+let tPhase='all'; // 'all' | 'regular' | 'post'
 let tLocVis='all';
 let tConf='all';
 let lConf='all';
@@ -2943,6 +3005,8 @@ function getJFiltered() {
   return PLAYERS.filter(p=>{
     if(jConf==='norte'&&!CONF_NORTE.has(p.Equipo))return false;
     if(jConf==='sur'&&!CONF_SUR.has(p.Equipo))return false;
+    if(jPhase==='regular'&&!p._regular)return false;
+    if(jPhase==='post'&&!p._post)return false;
     if(team&&p.Equipo!==team)return false;
     if(p.PJ<minG)return false;
     if(s&&!p.name.toLowerCase().includes(s)&&!p.Equipo.toLowerCase().includes(s))return false;
@@ -3017,6 +3081,16 @@ function computeStatsFromGames(games, tm) {
 }
 
 function getPlayerData(p) {
+  if(jPhase==='regular'){
+    if(jLocVis==='local') return p._regularLocal||p._regular||p;
+    if(jLocVis==='visit') return p._regularVisit||p._regular||p;
+    return p._regular||p;
+  }
+  if(jPhase==='post'){
+    if(jLocVis==='local') return p._postLocal||p._post||p;
+    if(jLocVis==='visit') return p._postVisit||p._post||p;
+    return p._post||p;
+  }
   if(jLocVis==='local'){
     if(jPeriod==='last5'&&p._last5Local)return p._last5Local;
     if(jPeriod==='last10'&&p._last10Local)return p._last10Local;
@@ -3038,6 +3112,14 @@ function setJPeriod(period) {
   const map={all:'jPeriodAll',last5:'jPeriodL5',last10:'jPeriodL10'};
   document.getElementById(map[period]).classList.add('active');
   renderJTable();
+}
+
+function setJPhase(v) {
+  jPhase=v;
+  ['jPhaseAll','jPhaseReg','jPhasePost'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});
+  const map={all:'jPhaseAll',regular:'jPhaseReg',post:'jPhasePost'};
+  const btn=document.getElementById(map[v]); if(btn)btn.classList.add('active');
+  onJFilter();
 }
 
 function setJLocVis(v) {
@@ -3202,6 +3284,8 @@ function getTFiltered() {
   return TEAMS.filter(t=>{
     if(tConf==='norte'&&!CONF_NORTE.has(t.Equipo))return false;
     if(tConf==='sur'&&!CONF_SUR.has(t.Equipo))return false;
+    if(tPhase==='regular'&&!t._regular)return false;
+    if(tPhase==='post'&&!t._post)return false;
     if(ak&&!isNaN(av)&&!chk(t[ak],op,av))return false;
     if(ak2&&!isNaN(av2)&&!chk(t[ak2],op2,av2))return false;
     if(ak3&&!isNaN(av3)&&!chk(t[ak3],op3,av3))return false;
@@ -3293,6 +3377,16 @@ function computeTeamStatsFromGames(gamelog) {
 }
 
 function getTeamData(t) {
+  if(tPhase==='regular'){
+    if(tLocVis==='local') return t._regularLocal||t._regular||t;
+    if(tLocVis==='visit') return t._regularVisit||t._regular||t;
+    return t._regular||t;
+  }
+  if(tPhase==='post'){
+    if(tLocVis==='local') return t._postLocal||t._post||t;
+    if(tLocVis==='visit') return t._postVisit||t._post||t;
+    return t._post||t;
+  }
   if(tLocVis==='local'){
     if(tPeriod==='last5'&&t._last5Local)return t._last5Local;
     if(tPeriod==='last10'&&t._last10Local)return t._last10Local;
@@ -3314,6 +3408,14 @@ function setTPeriod(period) {
   const map={all:'tPeriodAll',last5:'tPeriodL5',last10:'tPeriodL10'};
   document.getElementById(map[period]).classList.add('active');
   renderTTable();
+}
+
+function setTPhase(v) {
+  tPhase=v;
+  ['tPhaseAll','tPhaseReg','tPhasePost'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});
+  const map={all:'tPhaseAll',regular:'tPhaseReg',post:'tPhasePost'};
+  const btn=document.getElementById(map[v]); if(btn)btn.classList.add('active');
+  onTFilter();
 }
 
 function setTLocVis(v) {
@@ -3841,6 +3943,13 @@ function buildLeaders() {
 // ============================================================
 // POSICIONES POR CONFERENCIA
 // ============================================================
+const PLAYOFF_DATE = new Date(2026, 3, 1); // 1 de abril de 2026
+function isPostSeason(fechaStr) {
+  if (!fechaStr) return false;
+  const [d,m,y] = fechaStr.split('/');
+  return new Date(+y,+m-1,+d) >= PLAYOFF_DATE;
+}
+
 const CONF_NORTE = new Set([
   'AMANCAY (LR)','BARRIO PARQUE','BOCHAS (CC)','COLON (SF)','COMUNICACIONES',
   'ESTUDIANTES (T)','FUSION RIOJANA','HINDU (C)','HURACAN (LH)',
@@ -3902,23 +4011,39 @@ function teamLogoHtml(teamName, size) {
 
 function renderStandings() {
   function fillTable(tbodyId, confSet) {
-    const rows = TEAMS
-      .filter(t => confSet.has(t.Equipo))
-      .sort((a,b) => {
-        if (b['W%'] !== a['W%']) return b['W%'] - a['W%'];
-        if (b.PJ !== a.PJ) return b.PJ - a.PJ;
-        return (b.PTSPG||0) - (a.PTSPG||0);
+    // Compute stats from regular season games only (before PLAYOFF_DATE)
+    const statsMap = {};
+    TEAMS.filter(t => confSet.has(t.Equipo)).forEach(t => {
+      let PJ=0,G=0,P=0,ptsFor=0,ptsAgainst=0,localG=0,localP=0,visitG=0,visitP=0;
+      const results=[];
+      (t._gamelog||[]).forEach(g => {
+        const [fd,fm,fy]=g.fecha.split('/');
+        if (new Date(+fy,+fm-1,+fd) >= PLAYOFF_DATE) return;
+        PJ++; ptsFor+=g.ptsFor||0; ptsAgainst+=g.ptsAgainst||0;
+        if (g.ganado) { G++; if(g.condicion==='LOCAL') localG++; else visitG++; }
+        else          { P++; if(g.condicion==='LOCAL') localP++; else visitP++; }
+        results.push(g.ganado);
       });
+      statsMap[t.Equipo]={Equipo:t.Equipo,PJ,G,P,ptsFor,ptsAgainst,localG,localP,visitG,visitP,last5:results.slice(-5)};
+    });
+    const rows = Object.values(statsMap).sort((a,b) => {
+      const wa=a.PJ?a.G/a.PJ:0, wb=b.PJ?b.G/b.PJ:0;
+      if(wb!==wa) return wb-wa;
+      if(b.PJ!==a.PJ) return b.PJ-a.PJ;
+      return (b.PJ?b.ptsFor/b.PJ:0)-(a.PJ?a.ptsFor/a.PJ:0);
+    });
     const tbody = document.getElementById(tbodyId);
     if (!tbody) return;
     tbody.innerHTML = '';
     const cutoff = Math.ceil(rows.length / 2);
     rows.forEach((t, i) => {
       const pos = i + 1;
-      const wc = t['W%'] >= 60 ? 'win-rate-high' : t['W%'] >= 40 ? 'win-rate-mid' : 'win-rate-low';
-      const dif = Math.round(((t.PTSPG||0) - (t.PTSOPP_PG||0)) * 10) / 10;
+      const wpct = t.PJ ? t.G/t.PJ*100 : 0;
+      const ptspg = t.PJ ? t.ptsFor/t.PJ : 0;
+      const ptsapg = t.PJ ? t.ptsAgainst/t.PJ : 0;
+      const dif = ptspg - ptsapg;
+      const wc = wpct >= 60 ? 'win-rate-high' : wpct >= 40 ? 'win-rate-mid' : 'win-rate-low';
       const difClass = dif >= 0 ? 'pos-diff-pos' : 'pos-diff-neg';
-      const difStr = (dif >= 0 ? '+' : '') + dif.toFixed(1);
       const topClass = pos <= cutoff ? ' pos-top8' : '';
       const logoSrc = LOGOS[t.Equipo];
       const logoHtml = logoSrc
@@ -3928,15 +4053,15 @@ function renderStandings() {
         <td>${pos}</td>
         <td>${logoHtml}${t.Equipo}</td>
         <td>${t.PJ}</td>
-        <td style="color:var(--green);font-weight:700">${t.Ganados}</td>
-        <td style="color:var(--red)">${t.Perdidos}</td>
-        <td class="${wc}">${t['W%'].toFixed(1)}%</td>
-        <td class="pos-pts-f">${(t.PTSPG||0).toFixed(1)}</td>
-        <td class="pos-pts-a">${(t.PTSOPP_PG||0).toFixed(1)}</td>
-        <td class="${difClass}">${difStr}</td>
-        <td style="color:var(--muted);font-size:.78rem">${t.LocalG}-${t.LocalP}</td>
-        <td style="color:var(--muted);font-size:.78rem">${t.VisitG}-${t.VisitP}</td>
-        <td style="text-align:center">${(t.last5||[]).map(g=>g
+        <td style="color:var(--green);font-weight:700">${t.G}</td>
+        <td style="color:var(--red)">${t.P}</td>
+        <td class="${wc}">${wpct.toFixed(1)}%</td>
+        <td class="pos-pts-f">${ptspg.toFixed(1)}</td>
+        <td class="pos-pts-a">${ptsapg.toFixed(1)}</td>
+        <td class="${difClass}">${(dif>=0?'+':'')+dif.toFixed(1)}</td>
+        <td style="color:var(--muted);font-size:.78rem">${t.localG}-${t.localP}</td>
+        <td style="color:var(--muted);font-size:.78rem">${t.visitG}-${t.visitP}</td>
+        <td style="text-align:center">${t.last5.map(g=>g
           ? `<span style="color:var(--green);font-weight:700;font-size:.72rem">V</span>`
           : `<span style="color:var(--red);font-weight:700;font-size:.72rem">D</span>`
         ).join('<span style="color:var(--muted);opacity:.3;margin:0 1px">·</span>')}</td>
@@ -3946,6 +4071,115 @@ function renderStandings() {
   }
   fillTable('posNorteTbody', CONF_NORTE);
   fillTable('posSurTbody',   CONF_SUR);
+}
+
+function switchPosTab(tab) {
+  const isReg = tab === 'regular';
+  document.getElementById('posTabReg').classList.toggle('active', isReg);
+  document.getElementById('posTabPost').classList.toggle('active', !isReg);
+  document.getElementById('posRegPanel').style.display = isReg ? '' : 'none';
+  document.getElementById('posPostPanel').style.display = isReg ? 'none' : '';
+  if (!isReg && !document.getElementById('playoffContent').innerHTML.trim()) {
+    renderPostSeason();
+  }
+}
+
+function renderPostSeason() {
+  const postGames = GAMES_ALL.filter(g => {
+    const [d,m,y]=g.fecha.split('/');
+    return new Date(+y,+m-1,+d) >= PLAYOFF_DATE;
+  }).sort((a,b)=>{
+    const [ad,am,ay]=a.fecha.split('/'); const [bd,bm,by]=b.fecha.split('/');
+    return new Date(+ay,+am-1,+ad)-new Date(+by,+bm-1,+bd);
+  });
+
+  if (!postGames.length) {
+    document.getElementById('playoffContent').innerHTML =
+      '<div style="text-align:center;color:var(--muted);padding:40px 20px">No hay partidos de post temporada disponibles aún.</div>';
+    return;
+  }
+
+  // Group games into series by team pair (key = alphabetically sorted teams)
+  const seriesMap = new Map();
+  postGames.forEach(g => {
+    const key = [g.local, g.visit].sort().join('|');
+    if (!seriesMap.has(key)) {
+      // teamA = local of first game encountered for this pair
+      seriesMap.set(key, { teamA: g.local, teamB: g.visit, games: [] });
+    }
+    seriesMap.get(key).games.push(g);
+  });
+
+  // Compute series wins
+  seriesMap.forEach(s => {
+    s.winsA = 0; s.winsB = 0;
+    s.games.forEach(g => {
+      if (g.upcoming || g.ganLocal === null) return;
+      const aIsLocal = g.local === s.teamA;
+      if ((aIsLocal && g.ganLocal) || (!aIsLocal && !g.ganLocal)) s.winsA++;
+      else s.winsB++;
+    });
+  });
+
+  // Separate into conferences
+  const northSeries=[], southSeries=[];
+  seriesMap.forEach(s => {
+    (CONF_NORTE.has(s.teamA)||CONF_NORTE.has(s.teamB) ? northSeries : southSeries).push(s);
+  });
+
+  function seriesCard(s) {
+    const logoA = LOGOS[s.teamA]?`<img src="${LOGOS[s.teamA]}" style="width:36px;height:36px;object-fit:contain">`:'<span style="width:36px;height:36px;display:block"></span>';
+    const logoB = LOGOS[s.teamB]?`<img src="${LOGOS[s.teamB]}" style="width:36px;height:36px;object-fit:contain">`:'<span style="width:36px;height:36px;display:block"></span>';
+    const aLeads = s.winsA > s.winsB, bLeads = s.winsB > s.winsA;
+
+    const gamesHtml = s.games.map((g, idx) => {
+      if (g.upcoming) {
+        return `<div class="series-game">
+          <span class="sg-label">J${idx+1}</span>
+          <span class="sg-pending">${g.hora} hs &nbsp;${g.fecha}</span>
+        </div>`;
+      }
+      const aIsLocal = g.local === s.teamA;
+      const aScore = aIsLocal ? g.ptsLocal : g.ptsVisit;
+      const bScore = aIsLocal ? g.ptsVisit : g.ptsLocal;
+      const aWin = (aIsLocal && g.ganLocal) || (!aIsLocal && !g.ganLocal);
+      const safeId = (g.gameId||'').replace(/'/g, "\\'");
+      return `<div class="series-game">
+        <span class="sg-label">J${idx+1}</span>
+        <div class="sg-scores">
+          <span class="sg-pts${aWin?' w':''}">${aScore}</span>
+          <span class="sg-sep">–</span>
+          <span class="sg-pts${aWin?'':' w'}">${bScore}</span>
+        </div>
+        <span class="sg-date">${g.fecha}</span>
+        <button class="sg-stats-btn" onclick="openPartidoModal(GAMES_ALL.find(x=>x.gameId==='${safeId}'))">Stats</button>
+      </div>`;
+    }).join('');
+
+    return `<div class="series-card">
+      <div class="series-header">
+        <div class="series-team${aLeads?' lead':''}">${logoA}<div class="series-team-name${aLeads?' lead':''}">${s.teamA}</div></div>
+        <div class="series-score-wrap">
+          <div class="series-score">${s.winsA} <span style="color:var(--muted2);font-size:1rem">–</span> ${s.winsB}</div>
+        </div>
+        <div class="series-team${bLeads?' lead':''}">${logoB}<div class="series-team-name${bLeads?' lead':''}">${s.teamB}</div></div>
+      </div>
+      <div class="series-games">${gamesHtml}</div>
+    </div>`;
+  }
+
+  let html = '';
+  if (northSeries.length) {
+    html += `<div class="playoff-outer"><div class="playoff-conf-title">Conferencia Norte</div><div class="playoff-grid">`;
+    northSeries.forEach(s => { html += seriesCard(s); });
+    html += `</div></div>`;
+  }
+  if (southSeries.length) {
+    html += `<div class="playoff-outer" style="padding-top:0"><div class="playoff-conf-title">Conferencia Sur</div><div class="playoff-grid">`;
+    southSeries.forEach(s => { html += seriesCard(s); });
+    html += `</div></div>`;
+  }
+  document.getElementById('playoffContent').innerHTML = html;
 }
 
 function fcsToggle(id){
@@ -4728,6 +4962,15 @@ async function initApp() {
       player._last10Local=mkLocVisPeriod(gamesLocal,10);
       player._last5Visit=mkLocVisPeriod(gamesVisit,5);
       player._last10Visit=mkLocVisPeriod(gamesVisit,10);
+      // Phase (regular season vs post season)
+      const gamesReg=games.filter(r=>!isPostSeason(r['Fecha']));
+      const gamesPost=games.filter(r=>isPostSeason(r['Fecha']));
+      player._regular=mkLocVisPeriod(gamesReg,0);
+      player._post=mkLocVisPeriod(gamesPost,0);
+      player._regularLocal=mkLocVisPeriod(gamesReg.filter(r=>r['Condicion equipos']==='LOCAL'),0);
+      player._regularVisit=mkLocVisPeriod(gamesReg.filter(r=>r['Condicion equipos']==='VISITANTE'),0);
+      player._postLocal=mkLocVisPeriod(gamesPost.filter(r=>r['Condicion equipos']==='LOCAL'),0);
+      player._postVisit=mkLocVisPeriod(gamesPost.filter(r=>r['Condicion equipos']==='VISITANTE'),0);
     });
 
     // Team per-game
@@ -4786,6 +5029,15 @@ async function initApp() {
       team._last10Local=mkTLocVisPeriod(glLocal,10);
       team._last5Visit=mkTLocVisPeriod(glVisit,5);
       team._last10Visit=mkTLocVisPeriod(glVisit,10);
+      // Phase (regular season vs post season)
+      const glReg=gl.filter(g=>!isPostSeason(g.fecha));
+      const glPost=gl.filter(g=>isPostSeason(g.fecha));
+      team._regular=mkTLocVisPeriod(glReg,0);
+      team._post=mkTLocVisPeriod(glPost,0);
+      team._regularLocal=mkTLocVisPeriod(glReg.filter(g=>g.condicion==='LOCAL'),0);
+      team._regularVisit=mkTLocVisPeriod(glReg.filter(g=>g.condicion==='VISITANTE'),0);
+      team._postLocal=mkTLocVisPeriod(glPost.filter(g=>g.condicion==='LOCAL'),0);
+      team._postVisit=mkTLocVisPeriod(glPost.filter(g=>g.condicion==='VISITANTE'),0);
     });
 
     // Colors
