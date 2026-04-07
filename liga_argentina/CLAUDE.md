@@ -188,7 +188,7 @@ SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades 
 | Jugadores | Conexiones | `j-conexiones` |
 
 **Secciones (IDs en el DOM):**
-- `posiciones` — Tabla de posiciones por conferencia
+- `posiciones` — Home: dos tabs internos ("Temporada Regular" con tablas de posiciones filtradas a < PLAYOFF_DATE, y "Post Temporada" con series head-to-head del bracket)
 - `lideres` — Líderes individuales por categoría (cards por categoría)
 - `partidos` — Fixture: lista de partidos con filtros de fecha/equipo
 - `t-tabla` — Tabla filtrable de equipos
@@ -418,6 +418,32 @@ computeLineups()   ← llamado una sola vez después de loadPbp()
 - Al `FINAL-PARTIDO`: se limpian courts, segs y poss completamente.
 - Este doble mecanismo evita: (1) court creciendo a >5 por CAMBIO-ENTRA periódicos superponiéndose al court anterior, y (2) pérdida de tracking en partidos sin esos CAMBIO.
 ```
+
+**Sección "Home" / Posiciones (`posiciones`):**
+La sección Home tiene dos tabs internos: **Temporada Regular** y **Post Temporada**.
+
+- `PLAYOFF_DATE = new Date(2026, 3, 1)` — constante que delimita el fin de la temporada regular (1/04/2026). Definida antes de `CONF_NORTE` en el JS.
+- `switchPosTab(tab)` — alterna entre `'regular'` y `'post'`. Muestra/oculta `#posRegPanel` / `#posPostPanel`. Si cambia a `'post'` y `#playoffContent` está vacío, llama `renderPostSeason()` (lazy).
+- Tabs en HTML: `#posTabReg` / `#posTabPost` (clase `.pos-tab`, activo con `.active`).
+
+**Tab "Temporada Regular" (`#posRegPanel`):**
+- Tablas de posiciones Norte y Sur (`posNorteTbody` / `posSurTbody`).
+- `renderStandings()` recalcula stats directamente desde `t._gamelog[]` filtrando por fecha `< PLAYOFF_DATE`. **No usa los totales acumulados de `TEAMS`** (que incluirían playoffs una vez scrapeados). Stats por juego: PJ, G, P, ptsFor, ptsAgainst, localG/P, visitG/P, last5. Ordenamiento: W% → PJ → PTS/P.
+
+**Tab "Post Temporada" (`#posPostPanel`):**
+- `renderPostSeason()` filtra `GAMES_ALL` por fecha `>= PLAYOFF_DATE`, ordena cronológicamente, y agrupa en series por par de equipos (clave = `[local, visit].sort().join('|')`).
+- `teamA` = equipo local del primer partido de la serie. Los scores siempre se expresan como `teamA – teamB` independientemente de la localía en cada juego.
+- Separación por conferencia: si `teamA` o `teamB` ∈ `CONF_NORTE` → `northSeries`, sino → `southSeries`.
+- HTML inyectado en `#playoffContent`.
+
+**Tarjetas de serie (`.series-card`):**
+- Header: logo + nombre de equipo + marcador de serie (`winsA – winsB`). El equipo que va ganando recibe clase `.lead` en el contenedor (`.series-team.lead` → fondo violeta sutil) y en el nombre (`.series-team-name.lead` → texto brillante). No hay texto de estado ("Gana X-Y" eliminado; el score lo comunica).
+- Filas de juego: `J1`, `J2`, `J3`. Jugado: `teamA_score – teamB_score` + fecha + botón **Stats**. Pendiente: hora + fecha en itálica.
+- Botón **Stats** (`.sg-stats-btn`): `onclick="openPartidoModal(GAMES_ALL.find(x=>x.gameId==='${safeId}'))"` → abre el modal completo con estadísticas, mapa de tiros y box score. El `gameId` puede contener caracteres Base64 (`+`, `/`, `=`); se escapan las comillas simples con `safeId`.
+
+**`fixture_upcoming.csv` en post-temporada:**
+- Durante playoffs el archivo contiene el bracket completo (best-of-3). La deduplicación por `fecha|local|visit` garantiza que un partido ya scrapeado desplaza su entrada upcoming automáticamente.
+- Los partidos de post-temporada aparecen tanto en la sección Fixture como en el tab Post Temporada de Home.
 
 **Sección "Partidos" (`partidos`):**
 - Filtros: rango de fechas (`pDateFrom`/`pDateTo`, inputs tipo `date`) + equipo (`pTeam`). `onPartidoFilter()` filtra `GAMES_ALL` y llama `renderPartidoList(filtered)`.

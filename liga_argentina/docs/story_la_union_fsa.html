@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>La Unión (FSA) — Story</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg:          #0b0b16;
+  --bg2:         #111127;
+  --surface:     #18182e;
+  --surface2:    #1f1f3a;
+  --border:      rgba(139,92,246,.22);
+  --border2:     rgba(255,255,255,.07);
+  --purple:      #8b5cf6;
+  --purple-d:    #6d28d9;
+  --purple-l:    #a78bfa;
+  --purple-soft: rgba(139,92,246,.13);
+  --teal:        #2dd4bf;
+  --teal-l:      #5eead4;
+  --teal-soft:   rgba(45,212,191,.11);
+  --text:        #e2e8f0;
+  --text-bright: #f8fafc;
+  --muted:       #64748b;
+  --muted2:      #475569;
+  --green:       #34d399;
+  --red:         #f87171;
+  --orange:      #fb923c;
+}
+
+html, body {
+  width: 1080px;
+  height: 1920px;
+  background: var(--bg);
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  overflow: hidden;
+}
+
+.story {
+  width: 1080px;
+  height: 1920px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 110% 40% at 50% -2%, rgba(139,92,246,.38) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 35% at 88% 92%, rgba(45,212,191,.1) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 20% at 10% 70%, rgba(139,92,246,.06) 0%, transparent 55%);
+}
+
+/* ── HEADER ── */
+.s-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 54px 64px 40px;
+}
+.s-logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.s-logo-icon {
+  width: 56px; height: 56px;
+  background: linear-gradient(135deg, var(--purple-d), var(--purple));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 0 28px rgba(139,92,246,.5);
+}
+.s-logo-text {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, var(--purple-l), var(--teal-l));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.s-badge-liga {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--teal-l);
+  background: rgba(45,212,191,.12);
+  border: 1px solid rgba(45,212,191,.3);
+  border-radius: 20px;
+  padding: 8px 22px;
+  letter-spacing: 0.04em;
+}
+
+/* ── HERO TEAM ── */
+.s-hero {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  padding: 16px 64px 28px;
+  position: relative;
+}
+.s-team-logo {
+  width: 130px; height: 130px;
+  border-radius: 50%;
+  border: 3px solid rgba(139,92,246,.5);
+  object-fit: cover;
+  background: var(--surface2);
+  box-shadow: 0 0 40px rgba(139,92,246,.3);
+  flex-shrink: 0;
+}
+.s-team-info {
+  flex: 1;
+}
+.s-team-conference {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--teal-l);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+.s-team-name {
+  font-size: 3.2rem;
+  font-weight: 900;
+  color: var(--text-bright);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.s-team-sub {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.s-rank-badge {
+  background: linear-gradient(135deg, var(--purple-d), var(--purple));
+  border-radius: 16px;
+  padding: 10px 24px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  box-shadow: 0 4px 24px rgba(139,92,246,.4);
+  align-self: flex-start;
+  margin-top: 6px;
+}
+
+/* ── DIVIDER ── */
+.s-divider {
+  height: 1px;
+  margin: 0 64px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+/* ── STATS PRINCIPALES ── */
+.s-main-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 32px 64px 20px;
+}
+.s-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.s-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--purple-d), var(--purple));
+  opacity: 0.6;
+}
+.s-stat-card.teal::before {
+  background: linear-gradient(90deg, #0d9488, var(--teal));
+}
+.s-stat-card.green::before {
+  background: linear-gradient(90deg, #059669, var(--green));
+}
+.s-stat-value {
+  font-size: 2.6rem;
+  font-weight: 900;
+  color: var(--text-bright);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.s-stat-value.purple { color: var(--purple-l); }
+.s-stat-value.teal   { color: var(--teal-l); }
+.s-stat-value.green  { color: var(--green); }
+.s-stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+/* ── RECORD ROW ── */
+.s-record-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 64px;
+}
+.s-record-block {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.s-record-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.s-record-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-bright);
+  letter-spacing: -0.02em;
+}
+.s-record-pct {
+  font-size: 1.0rem;
+  font-weight: 700;
+  color: var(--green);
+  background: rgba(52,211,153,.12);
+  border: 1px solid rgba(52,211,153,.25);
+  border-radius: 10px;
+  padding: 4px 14px;
+}
+
+/* ── SECTION TITLE ── */
+.s-section-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--purple-l);
+  padding: 16px 64px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.s-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── COMPARATIVA 2 COLUMNAS ── */
+.s-compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 0 64px 20px;
+}
+.s-compare-item {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 22px 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.s-compare-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.s-compare-vals {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.s-compare-prov {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--purple-l);
+}
+.s-compare-liga {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted2);
+}
+.s-compare-arrow {
+  font-size: 0.9rem;
+  color: var(--green);
+}
+.s-compare-arrow.down { color: var(--red); }
+
+/* ── TABLA JUGADORES ── */
+.s-roster-wrap {
+  padding: 0 64px 20px;
+}
+.s-roster-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+}
+.s-roster-table thead th {
+  padding: 16px 14px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--muted);
+  background: rgba(139,92,246,.08);
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.s-roster-table thead th:first-child { text-align: left; padding-left: 22px; }
+.s-roster-table tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  transition: background .15s;
+}
+.s-roster-table tbody tr:last-child { border-bottom: none; }
+.s-roster-table tbody td {
+  padding: 14px 14px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--text);
+  text-align: center;
+}
+.s-roster-table tbody td.name {
+  text-align: left;
+  padding-left: 22px;
+  font-weight: 700;
+  color: var(--text-bright);
+  white-space: nowrap;
+}
+.s-roster-table tbody td.dorsal {
+  color: var(--muted2);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.val-purple { color: var(--purple-l); font-weight: 700; }
+.val-teal   { color: var(--teal-l);   font-weight: 700; }
+.val-green  { color: var(--green);    font-weight: 700; }
+.val-muted  { color: var(--muted);    font-weight: 500; }
+
+/* ── LOCAL/VISIT ROW ── */
+.s-split-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 0 64px 24px;
+}
+.s-split-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 24px 28px;
+}
+.s-split-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.s-split-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+.s-split-badge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 20px;
+}
+.s-split-badge.local {
+  color: var(--purple-l);
+  background: rgba(139,92,246,.15);
+  border: 1px solid rgba(139,92,246,.3);
+}
+.s-split-badge.visit {
+  color: var(--teal-l);
+  background: rgba(45,212,191,.1);
+  border: 1px solid rgba(45,212,191,.25);
+}
+.s-split-record {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--text-bright);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.s-split-detail {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.s-split-detail span { color: var(--text); font-weight: 600; }
+
+/* ── MARGIN HIGHLIGHTS ── */
+.s-margins-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 0 64px 28px;
+}
+.s-margin-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 22px 18px;
+  text-align: center;
+}
+.s-margin-val {
+  font-size: 1.7rem;
+  font-weight: 900;
+  margin-bottom: 5px;
+}
+.s-margin-lbl {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+/* ── FOOTER ── */
+.s-footer {
+  margin-top: auto;
+  padding: 20px 64px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255,255,255,.05);
+}
+.s-footer-brand {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted2);
+}
+.s-footer-brand span {
+  background: linear-gradient(90deg, var(--purple-l), var(--teal-l));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+}
+.s-footer-date {
+  font-size: 0.78rem;
+  color: var(--muted2);
+}
+</style>
+</head>
+<body>
+<div class="story">
+
+  <!-- HEADER -->
+  <div class="s-header">
+    <div class="s-logo">
+      <div class="s-logo-icon">🏀</div>
+      <div class="s-logo-text">Scouteado</div>
+    </div>
+    <div class="s-badge-liga">Liga Nacional 2025/26</div>
+  </div>
+
+  <!-- HERO -->
+  <div class="s-hero">
+    <img class="s-team-logo" src="liga_nacional/logos/la_union_fsa.jpeg" alt="La Unión (FSA)">
+    <div class="s-team-info">
+      <div class="s-team-conference">#4 Liga Nacional</div>
+      <div class="s-team-name">LA UNIÓN<br><span style="color:var(--purple-l);">(FSA)</span></div>
+      <div class="s-team-sub">Formosa · Top 4 de la Liga</div>
+    </div>
+    <div class="s-rank-badge">#4 Liga</div>
+  </div>
+
+  <div class="s-divider"></div>
+
+  <!-- STATS PRINCIPALES -->
+  <div class="s-main-stats">
+    <div class="s-stat-card">
+      <div class="s-stat-value purple">59.4%</div>
+      <div class="s-stat-label">Win %</div>
+    </div>
+    <div class="s-stat-card">
+      <div class="s-stat-value" style="font-size:2.2rem">19-13</div>
+      <div class="s-stat-label">Récord</div>
+    </div>
+    <div class="s-stat-card teal">
+      <div class="s-stat-value teal">111.9</div>
+      <div class="s-stat-label">OffRtg</div>
+    </div>
+    <div class="s-stat-card green">
+      <div class="s-stat-value green">+4.8</div>
+      <div class="s-stat-label">NetRtg</div>
+    </div>
+  </div>
+
+  <!-- RECORD DETALLE -->
+  <div class="s-record-row">
+    <div class="s-record-block">
+      <div>
+        <div class="s-record-title">DefRtg</div>
+        <div class="s-record-value">107.2</div>
+      </div>
+      <div style="text-align:right">
+        <div class="s-record-title">PTS/p</div>
+        <div class="s-record-value">81.7</div>
+      </div>
+    </div>
+    <div class="s-record-block">
+      <div>
+        <div class="s-record-title">AST/p</div>
+        <div class="s-record-value">14.4</div>
+      </div>
+      <div style="text-align:right">
+        <div class="s-record-title">Dif/p</div>
+        <div class="s-record-value" style="color:var(--green)">+1.9</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EFICIENCIA OFENSIVA -->
+  <div class="s-section-title">Eficiencia ofensiva vs Liga</div>
+  <div class="s-compare-grid">
+    <div class="s-compare-item">
+      <div class="s-compare-label">EFG%</div>
+      <div class="s-compare-vals">
+        <span class="s-compare-arrow">▲</span>
+        <span class="s-compare-prov">53.1%</span>
+        <span class="s-compare-liga">vs 51.6%</span>
+      </div>
+    </div>
+    <div class="s-compare-item">
+      <div class="s-compare-label">TS%</div>
+      <div class="s-compare-vals">
+        <span class="s-compare-arrow">▲</span>
+        <span class="s-compare-prov">57.3%</span>
+        <span class="s-compare-liga">vs 55.1%</span>
+      </div>
+    </div>
+    <div class="s-compare-item">
+      <div class="s-compare-label">T3%</div>
+      <div class="s-compare-vals">
+        <span class="s-compare-arrow">▲</span>
+        <span class="s-compare-prov">35.0%</span>
+        <span class="s-compare-liga">vs 32.8%</span>
+      </div>
+    </div>
+    <div class="s-compare-item">
+      <div class="s-compare-label">AST/p</div>
+      <div class="s-compare-vals">
+        <span class="s-compare-arrow">▲</span>
+        <span class="s-compare-prov">14.4</span>
+        <span class="s-compare-liga">vs 14.3</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROSTER -->
+  <div class="s-section-title">Rotación principal</div>
+  <div class="s-roster-wrap">
+    <table class="s-roster-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th style="text-align:left;padding-left:22px">Jugador</th>
+          <th>PTS</th>
+          <th>REB</th>
+          <th>AST</th>
+          <th>EFG%</th>
+          <th>TS%</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="dorsal">7</td>
+          <td class="name">ELSENER, A.</td>
+          <td class="val-purple">13.1</td>
+          <td>5.3</td>
+          <td>1.1</td>
+          <td>54.9</td>
+          <td>57.2</td>
+        </tr>
+        <tr>
+          <td class="dorsal">15</td>
+          <td class="name">GRATEROL, W.</td>
+          <td class="val-purple">11.3</td>
+          <td class="val-teal">6.4</td>
+          <td>1.1</td>
+          <td class="val-green">55.7</td>
+          <td class="val-green">58.0</td>
+        </tr>
+        <tr>
+          <td class="dorsal">0</td>
+          <td class="name">BEAVERS, B.</td>
+          <td class="val-purple">11.1</td>
+          <td>4.3</td>
+          <td class="val-teal">3.1</td>
+          <td>53.3</td>
+          <td>57.2</td>
+        </tr>
+        <tr>
+          <td class="dorsal">8</td>
+          <td class="name">MACHUCA, J.</td>
+          <td>10.2</td>
+          <td>1.9</td>
+          <td>2.4</td>
+          <td class="val-muted">48.8</td>
+          <td>57.9</td>
+        </tr>
+        <tr>
+          <td class="dorsal">6</td>
+          <td class="name">ACEVEDO, S.</td>
+          <td>9.8</td>
+          <td class="val-teal">5.2</td>
+          <td>1.3</td>
+          <td>50.6</td>
+          <td>56.1</td>
+        </tr>
+        <tr>
+          <td class="dorsal">21</td>
+          <td class="name">SPANO, T.</td>
+          <td>9.6</td>
+          <td>3.3</td>
+          <td>2.8</td>
+          <td>50.9</td>
+          <td>54.8</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- LOCAL / VISITANTE -->
+  <div class="s-section-title">Casa vs Visitante</div>
+  <div class="s-split-row">
+    <div class="s-split-card">
+      <div class="s-split-header">
+        <div class="s-split-title">Local</div>
+        <div class="s-split-badge local">68.8%</div>
+      </div>
+      <div class="s-split-record">11-5</div>
+      <div class="s-split-detail">PTS: <span>85.3</span> — PTC: <span>81.1</span> — Dif: <span style="color:var(--green)">+4.2</span></div>
+    </div>
+    <div class="s-split-card">
+      <div class="s-split-header">
+        <div class="s-split-title">Visitante</div>
+        <div class="s-split-badge visit">50.0%</div>
+      </div>
+      <div class="s-split-record">8-8</div>
+      <div class="s-split-detail">PTS: <span>78.0</span> — PTC: <span>78.4</span> — Dif: <span style="color:var(--red)">−0.4</span></div>
+    </div>
+  </div>
+
+  <!-- MÁRGENES -->
+  <div class="s-section-title">Márgenes</div>
+  <div class="s-margins-row">
+    <div class="s-margin-card">
+      <div class="s-margin-val" style="color:var(--green)">+10.7</div>
+      <div class="s-margin-lbl">Avg victoria</div>
+    </div>
+    <div class="s-margin-card">
+      <div class="s-margin-val" style="color:var(--red)">−10.8</div>
+      <div class="s-margin-lbl">Avg derrota</div>
+    </div>
+    <div class="s-margin-card">
+      <div class="s-margin-val" style="color:var(--purple-l)">32</div>
+      <div class="s-margin-lbl">PJ jugados</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="s-footer">
+    <div class="s-footer-brand">análisis por <span>Scouteado</span></div>
+    <div class="s-footer-date">31 · 03 · 2026</div>
+  </div>
+
+</div>
+</body>
+</html>
