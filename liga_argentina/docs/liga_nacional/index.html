@@ -1115,8 +1115,8 @@ canvas{display:block;width:100%;cursor:crosshair;}
 
   /* Radar */
   .radar-outer{padding:14px 10px 32px;}
-  .radar-controls{flex-direction:column;gap:10px;}
-  .radar-search-group{min-width:0;}
+  .radar-controls{flex-direction:column;gap:10px;align-items:center;width:100%;}
+  .radar-search-group{min-width:0;width:100%;max-width:340px;}
   .radar-chart-col{width:100%;}
   .radar-similar-col{min-width:100%;}
   .radar-svg-wrap{width:100%;max-width:380px;}
@@ -6727,10 +6727,16 @@ let _radarAcFocusIdx = { A: -1, B: -1 };
 function radarAcBuildList(query) {
   if (!query || query.length < 2) return [];
   const q = query.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
-  return PLAYERS
+  const matched = PLAYERS
     .map((p, i) => ({ i, name: p['Nombre completo'], team: p.Equipo }))
-    .filter(x => x.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().includes(q))
-    .slice(0, 12);
+    .filter(x => x.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().includes(q));
+  // Francisco Caffaro siempre primero
+  matched.sort((a, b) => {
+    const aIsCaffaro = a.name.toUpperCase().includes('CAFFARO') ? -1 : 0;
+    const bIsCaffaro = b.name.toUpperCase().includes('CAFFARO') ? -1 : 0;
+    return aIsCaffaro - bIsCaffaro;
+  });
+  return matched.slice(0, 12);
 }
 
 function radarAcInput(side) {
