@@ -2531,6 +2531,10 @@ canvas{display:block;width:100%;cursor:crosshair;}
     } catch(e) {}
   } else {
     const delay = 420000; // 7 min
+    const SK = 'scouteado_session_start';
+    if (!sessionStorage.getItem(SK)) sessionStorage.setItem(SK, Date.now());
+    const elapsed = Date.now() - parseInt(sessionStorage.getItem(SK));
+    const remaining = Math.max(0, delay - elapsed);
     setTimeout(function() {
       const ov = document.createElement('div');
       ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(11,11,22,.93);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:16px;';
@@ -2546,7 +2550,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
         + '</div>'
         + '</div>';
       document.body.appendChild(ov);
-    }, delay);
+    }, remaining);
   }
 })();
 

@@ -52,7 +52,7 @@ El `login.html` y `register.html` viven en `docs/` (raíz) y son compartidos por
 5. `login.html` lee el parámetro `returnTo` después del login exitoso y redirige a esa ruta. Si no hay `returnTo`, vuelve a `index.html` (liga_argentina).
 6. El logout (`authLogout()`) redirige a `../login.html?returnTo=<liga>/`.
 
-**Nota:** el timer vive en memoria. Si el usuario recarga la página, los 7 minutos se reinician. Esto es intencional.
+**Nota:** el tiempo transcurrido se persiste en `sessionStorage` con la clave `scouteado_session_start`. Si el usuario recarga la página, el timer continúa desde donde quedó. Al cerrar la pestaña, `sessionStorage` se limpia y el timer vuelve a 0. Si navega entre ligas dentro de la misma pestaña, la clave persiste y el tiempo sigue corriendo.
 
 **Regla al agregar una nueva liga:** definir `LOGIN_URL` y `REGISTER_URL` correctos en el auth guard (`../login.html?returnTo=<nombre-liga>/` y `../register.html`). El modal los usa para los botones.
 
