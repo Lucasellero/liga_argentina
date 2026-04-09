@@ -2518,7 +2518,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
   <div class="radar-outer">
     <div class="radar-controls">
       <div class="radar-search-group">
-        <label>Jugador A</label>
+        <label style="color:var(--purple-l)">Jugador A</label>
         <div class="radar-search-wrap">
           <input class="radar-search-input" id="radarInputA" type="text" placeholder="Buscar jugador..." autocomplete="off" oninput="radarAcInput('A')" onkeydown="radarAcKey(event,'A')" onfocus="radarAcOpen('A')" onblur="setTimeout(()=>radarAcClose('A'),180)">
           <div class="radar-autocomplete" id="radarAcA"></div>
@@ -2529,7 +2529,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
         Comparar con otro jugador
       </label>
       <div class="radar-search-group" id="radarSearchB" style="display:none">
-        <label>Jugador B</label>
+        <label style="color:var(--teal-l)">Jugador B</label>
         <div class="radar-search-wrap">
           <input class="radar-search-input" id="radarInputB" type="text" placeholder="Buscar jugador..." autocomplete="off" oninput="radarAcInput('B')" onkeydown="radarAcKey(event,'B')" onfocus="radarAcOpen('B')" onblur="setTimeout(()=>radarAcClose('B'),180)">
           <div class="radar-autocomplete" id="radarAcB"></div>
