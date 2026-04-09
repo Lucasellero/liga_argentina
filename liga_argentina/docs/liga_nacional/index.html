@@ -2939,6 +2939,15 @@ function switchSection(id) {
       if (idx >= 0) selectSzcPlayer(idx);
     }
   }
+  if(id==='j-radar' && _radarIdxA === null) {
+    const _norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
+    const idx = PLAYERS.findIndex(p => _norm(p['Nombre completo']).includes('CAFFARO'));
+    if (idx >= 0) {
+      _radarIdxA = idx;
+      document.getElementById('radarInputA').value = PLAYERS[idx]['Nombre completo'];
+      radarRender();
+    }
+  }
   if(id==='j-chart') setTimeout(drawJChart,30);
   if(id==='j-conexiones') { cnxInit(); setTimeout(drawConnections,30); }
   if(id==='t-conexiones') { tCnxInit(); }
