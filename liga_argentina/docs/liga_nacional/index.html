@@ -939,10 +939,18 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .radar-legend-label{color:var(--text);}
 .radar-legend-val{color:var(--muted);margin-left:auto;font-variant-numeric:tabular-nums;}
 .radar-empty{text-align:center;padding:60px 0;color:var(--muted);font-size:.9rem;}
-.radar-axis-defs{display:flex;flex-direction:column;gap:6px;margin-top:20px;}
-.radar-axis-row{font-size:.72rem;color:var(--muted);display:flex;flex-direction:column;gap:2px;}
-.radar-axis-name{font-weight:700;color:var(--purple-l);font-size:.74rem;}
-.radar-axis-desc{color:var(--muted2);}
+.radar-axis-defs{margin-top:24px;}
+.radar-axis-defs-title{font-size:.68rem;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;}
+.radar-axis-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.radar-axis-card{background:var(--surface);border-radius:10px;padding:10px 12px;border:1px solid rgba(139,92,246,.15);display:flex;flex-direction:column;gap:5px;}
+.radar-axis-card-header{display:flex;align-items:center;justify-content:space-between;gap:6px;}
+.radar-axis-card-icon{font-size:1rem;line-height:1;}
+.radar-axis-card-label{font-size:.68rem;font-weight:800;color:var(--purple-l);letter-spacing:.06em;text-transform:uppercase;flex:1;}
+.radar-axis-card-score{font-size:1.1rem;font-weight:800;color:var(--text-bright);line-height:1;}
+.radar-axis-card-bar-wrap{width:100%;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;}
+.radar-axis-card-bar{height:100%;border-radius:2px;background:var(--purple);}
+.radar-axis-card-metrics{display:flex;flex-wrap:wrap;gap:3px 6px;}
+.radar-axis-metric{font-size:.6rem;color:var(--muted);background:rgba(255,255,255,.05);border-radius:4px;padding:2px 5px;white-space:nowrap;}
 .radar-main-row{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;}
 .radar-chart-col{flex:0 0 auto;max-width:100%;}
 .radar-similar-col{flex:1 1 190px;min-width:180px;}
@@ -1121,6 +1129,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
   .radar-similar-col{min-width:100%;}
   .radar-svg-wrap{width:100%;max-width:380px;}
   .radar-cards-row{grid-template-columns:repeat(3,1fr);gap:6px;}
+  .radar-axis-grid{grid-template-columns:repeat(2,1fr);}
 }
 </style>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -6405,12 +6414,12 @@ let _radarIdxB = null;
 const RADAR_MIN_SEG = 12000; // 200 min × 60 s
 
 const RADAR_AXES = [
-  { key: 'SCORING',    label: 'SCORING',    desc: 'PTS/40 + TCI/40' },
-  { key: 'SHOOTING',   label: 'SHOOTING',   desc: '3PA Rate + 3P%' },
-  { key: 'DEFENSE',    label: 'DEFENSE',    desc: 'REC/40 + TAP/40' },
-  { key: 'REBOUNDING', label: 'REBOUNDING', desc: 'REB/40 + ORB% + DRB%' },
-  { key: 'PLAYMAKING', label: 'PLAYMAKING', desc: 'AST/40 + AST/PER' },
-  { key: 'EFFICIENCY', label: 'EFFICIENCY', desc: 'TS% + EFG%' },
+  { key: 'SCORING',    label: 'SCORING',    icon: '🏀', metrics: ['PTS/40', 'TCI/40'],           desc: 'Volumen anotador: puntos y tiros de campo intentados por 40 min' },
+  { key: 'SHOOTING',   label: 'SHOOTING',   icon: '🎯', metrics: ['3PA Rate', '3P%'],             desc: 'Perfil de tiro exterior: frecuencia e impacto del triple' },
+  { key: 'DEFENSE',    label: 'DEFENSE',    icon: '🛡️', metrics: ['REC/40', 'TAP/40'],            desc: 'Impacto defensivo: recuperos y tapones por 40 min' },
+  { key: 'REBOUNDING', label: 'REBOUNDING', icon: '💪', metrics: ['REB/40', 'ORB%', 'DRB%'],     desc: 'Dominio en el tablero: volumen, rebote ofensivo y defensivo' },
+  { key: 'PLAYMAKING', label: 'PLAYMAKING', icon: '🎨', metrics: ['AST/40', 'AST/PER'],          desc: 'Creación de juego: asistencias por 40 min y ratio AST/pérdida' },
+  { key: 'EFFICIENCY', label: 'EFFICIENCY', icon: '⚡', metrics: ['TS%', 'EFG%'],                desc: 'Eficiencia anotadora: True Shooting % y Effective FG%' },
 ];
 // Clockwise from top: SCORING, SHOOTING, DEFENSE, REBOUNDING, PLAYMAKING, EFFICIENCY
 const RADAR_COLORS = {
@@ -6721,10 +6730,19 @@ function radarRender() {
   similar.innerHTML = simHtml;
 
   // Axis definitions (bottom)
-  let defsHtml = `<div class="radar-legend-title" style="margin-top:20px;font-size:.7rem;font-weight:700;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;">Composición de ejes</div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:8px;">`;
+  let defsHtml = `<div class="radar-axis-defs-title">Composición de ejes</div><div class="radar-axis-grid">`;
   for (const ax of RADAR_AXES) {
-    defsHtml += `<div class="radar-axis-row"><span class="radar-axis-name">${ax.label}</span><span class="radar-axis-desc">${ax.desc}</span></div>`;
+    const score = scoresA[ax.key] ?? 0;
+    const metricsHtml = ax.metrics.map(m => `<span class="radar-axis-metric">${m}</span>`).join('');
+    defsHtml += `<div class="radar-axis-card" title="${ax.desc}">
+      <div class="radar-axis-card-header">
+        <span class="radar-axis-card-icon">${ax.icon}</span>
+        <span class="radar-axis-card-label">${ax.label}</span>
+        <span class="radar-axis-card-score">${score}</span>
+      </div>
+      <div class="radar-axis-card-bar-wrap"><div class="radar-axis-card-bar" style="width:${score}%"></div></div>
+      <div class="radar-axis-card-metrics">${metricsHtml}</div>
+    </div>`;
   }
   defsHtml += '</div>';
   axisDefs.innerHTML = defsHtml;
