@@ -2484,6 +2484,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
         <button class="active" id="szcPeriodAll" onclick="setSzcPeriod('all')">Temporada</button>
         <button id="szcPeriodL5" onclick="setSzcPeriod('last5')">Últ. 5</button>
         <button id="szcPeriodL10" onclick="setSzcPeriod('last10')">Últ. 10</button>
+        <button id="szcPeriodPost" onclick="setSzcPeriod('post')">Post Temp.</button>
       </div>
     </div>
     <div id="szcEmpty" class="szc-empty">Buscá un jugador para ver su mapa de tiro por zonas</div>
@@ -5400,14 +5401,14 @@ const SZC_ZONE_LABELS = {
 };
 
 
-function szcRenderZoneCards(statsAll, statsL10, statsL5, lStats) {
+function szcRenderZoneCards(statsAll, statsL10, statsL5, lStats, statsPost) {
   const el = document.getElementById('szcZoneCards');
   if (!el) return;
-  const aps = szcPeriod === 'all' ? statsAll : szcPeriod === 'last10' ? statsL10 : statsL5;
+  const aps = szcPeriod === 'all' ? statsAll : szcPeriod === 'last10' ? statsL10 : szcPeriod === 'post' ? (statsPost || statsAll) : statsL5;
   el.innerHTML = SZC_ZONES.map(zone => {
     const ps = aps[zone];
     const hasData = ps && ps.att > 0;
-    const hasAny = [statsAll, statsL10, statsL5].some(s => s[zone] && s[zone].att > 0);
+    const hasAny = [statsAll, statsL10, statsL5, statsPost].filter(Boolean).some(s => s[zone] && s[zone].att > 0);
     let borderColor = '#1e293b';
     let pctText = '—';
     let shotsText = '';
@@ -5455,10 +5456,11 @@ function renderZoneChart(canvas, playerShots) {
   const pStats = szcComputeStats(playerShots);
   szcDrawZoneColors(ctx, W, H, m, pStats, LEAGUE_ZONE_STATS);
   szcUpdateSvg(pStats, LEAGUE_ZONE_STATS);
-  const statsAll = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'all', szcPlayerGameIds));
-  const statsL10 = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'last10', szcPlayerGameIds));
-  const statsL5  = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'last5', szcPlayerGameIds));
-  szcRenderZoneCards(statsAll, statsL10, statsL5, LEAGUE_ZONE_STATS);
+  const statsAll  = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'all', szcPlayerGameIds));
+  const statsL10  = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'last10', szcPlayerGameIds));
+  const statsL5   = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'last5', szcPlayerGameIds));
+  const statsPost = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'post', szcPlayerGameIds));
+  szcRenderZoneCards(statsAll, statsL10, statsL5, LEAGUE_ZONE_STATS, statsPost);
 }
 
 function onSzcInput() {
@@ -5489,6 +5491,14 @@ document.addEventListener('click', e => {
 
 function szcFilterByPeriod(shots, period, gameIds) {
   if (period === 'all') return shots;
+  if (period === 'post') {
+    return shots.filter(s => {
+      const f = s['Fecha'];
+      if (!f) return false;
+      const [d, m, y] = f.split('/');
+      return new Date(+y, +m - 1, +d) >= PLAYOFF_DATE;
+    });
+  }
   const n = period === 'last5' ? 5 : 10;
   let lastN;
   if (gameIds && gameIds.length > 0) {
@@ -5509,8 +5519,8 @@ function szcFilterByPeriod(shots, period, gameIds) {
 
 function setSzcPeriod(period) {
   szcPeriod = period;
-  ['szcPeriodAll','szcPeriodL5','szcPeriodL10'].forEach(id => document.getElementById(id).classList.remove('active'));
-  const map = {all:'szcPeriodAll', last5:'szcPeriodL5', last10:'szcPeriodL10'};
+  ['szcPeriodAll','szcPeriodL5','szcPeriodL10','szcPeriodPost'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const map = {all:'szcPeriodAll', last5:'szcPeriodL5', last10:'szcPeriodL10', post:'szcPeriodPost'};
   document.getElementById(map[period]).classList.add('active');
   if (szcCurrentIdx >= 0) selectSzcPlayer(szcCurrentIdx);
 }
