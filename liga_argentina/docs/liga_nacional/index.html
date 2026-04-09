@@ -749,8 +749,15 @@ canvas{display:block;width:100%;cursor:crosshair;}
   background:rgba(139,92,246,.18);color:var(--purple-l);letter-spacing:.3px;}
 .pcard-badge-v{font-size:.55rem;font-weight:800;padding:1px 5px;border-radius:3px;
   background:rgba(45,212,191,.12);color:var(--teal-l);letter-spacing:.3px;}
-.partido-card.upcoming{cursor:default;}
+.partido-card.upcoming{cursor:default;grid-template-rows:auto auto;}
 .partido-card.upcoming:hover{border-color:var(--border2);background:var(--surface);box-shadow:none;}
+.pcard-pred{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding-top:6px;border-top:1px solid var(--border2);margin-top:2px;}
+.pcard-pred-label{font-size:.55rem;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;margin-right:2px;}
+.pcard-pred-pct{font-size:.68rem;font-weight:800;min-width:34px;letter-spacing:.3px;}
+.pcard-pred-pct.local{color:var(--purple-l);text-align:left;}
+.pcard-pred-pct.visit{color:var(--teal-l);text-align:right;}
+.pcard-pred-bar{flex:1;height:5px;border-radius:3px;background:rgba(45,212,191,.2);overflow:hidden;position:relative;}
+.pcard-pred-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,rgba(139,92,246,.9),rgba(139,92,246,.6));}
 .pcard-hora{font-size:1.05rem;font-weight:800;color:var(--muted);letter-spacing:.5px;}
 .pcard-estadio{font-size:.56rem;color:var(--muted2);text-align:center;max-width:96px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -1008,6 +1015,9 @@ canvas{display:block;width:100%;cursor:crosshair;}
   .pcard-name{font-size:.72rem;}
   .pcard-score{font-size:1.1rem;}
   .pcard-logo{width:22px;height:22px;}
+  .pcard-pred{gap:6px;padding-top:5px;}
+  .pcard-pred-label{display:none;}
+  .pcard-pred-pct{font-size:.65rem;min-width:28px;}
 
   /* Shot map */
   .sm-court-wrap{width:96%;}
@@ -2757,6 +2767,7 @@ let jHov=-1, jPin=new Set(), tHov=-1, tPin=-1;
 // ── SHOTS DATA ──────────────────────────────────────
 const SHOTS_CSV = 'liga_nacional_shots.csv';
 let SHOTS_MAP = null; // null=not loaded, Map keyed by gameId
+let PRED_MAP  = {};   // keyed by "fecha|local|visitante" → {prob_local, prob_visit}
 let SHOTS_BY_PLAYER = null; // Map keyed by "Equipo||Dorsal"
 let LEAGUE_ZONE_STATS = null;
 let _smState = { gameId: null, local: '', visit: '', filter: { team: 'all', tipo: 'all', result: 'all' } };
@@ -4266,6 +4277,14 @@ function renderPartidoList(games, ascending=false) {
       const ll = LOGOS[g.local]  ? `<img src="${LOGOS[g.local]}"  class="pcard-logo" alt="" onerror="this.style.display='none'">` : '';
       const vl = LOGOS[g.visit]  ? `<img src="${LOGOS[g.visit]}"  class="pcard-logo" alt="" onerror="this.style.display='none'">` : '';
       if (g.upcoming) {
+        const pred = PRED_MAP[`${g.fecha}|${g.local}|${g.visit}`];
+        const predBar = pred ? `
+          <div class="pcard-pred">
+            <span class="pcard-pred-label">prob. victoria</span>
+            <span class="pcard-pred-pct local">${Math.round(pred.prob_local*100)}%</span>
+            <div class="pcard-pred-bar"><div class="pcard-pred-fill" style="width:${Math.round(pred.prob_local*100)}%"></div></div>
+            <span class="pcard-pred-pct visit">${Math.round(pred.prob_visit*100)}%</span>
+          </div>` : '';
         return `<div class="partido-card upcoming" data-gid="${g.gameId}">
           <div class="pcard-side local">
             ${ll}
@@ -4284,6 +4303,7 @@ function renderPartidoList(games, ascending=false) {
             ${vl}
             <span class="pcard-name">${fmtTeamName(g.visit)}</span>
           </div>
+          ${predBar}
         </div>`;
       }
       const lw = g.ganLocal;
@@ -4750,6 +4770,19 @@ async function initApp() {
         });
       }
     } catch(e) { /* fixture_upcoming.csv no disponible, se ignora */ }
+
+    // Cargar predicciones del modelo
+    try {
+      const prResp = await fetch('predicciones_upcoming.csv?v=' + Date.now(), { cache: 'no-store' });
+      if (prResp.ok) {
+        const prRows = parseCSV(await prResp.text());
+        prRows.forEach(r => {
+          const k = `${r['fecha']}|${r['local']}|${r['visitante']}`;
+          PRED_MAP[k] = { prob_local: parseFloat(r['prob_local']), prob_visit: parseFloat(r['prob_visit']) };
+        });
+      }
+    } catch(e) { /* predicciones no disponibles, se ignoran */ }
+
     GAMES_ALL.sort((a,b)=>{
       const [ad,am,ay]=a.fecha.split('/'); const [bd,bm,by]=b.fecha.split('/');
       return new Date(+ay,+am-1,+ad)-new Date(+by,+bm-1,+bd);
