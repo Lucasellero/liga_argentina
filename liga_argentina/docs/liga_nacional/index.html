@@ -944,7 +944,6 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .radar-axis-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
 .radar-axis-card{background:var(--surface);border-radius:10px;padding:10px 12px;border:1px solid rgba(139,92,246,.15);display:flex;flex-direction:column;gap:5px;}
 .radar-axis-card-header{display:flex;align-items:center;justify-content:space-between;gap:6px;}
-.radar-axis-card-icon{font-size:1rem;line-height:1;}
 .radar-axis-card-label{font-size:.68rem;font-weight:800;color:var(--purple-l);letter-spacing:.06em;text-transform:uppercase;flex:1;}
 .radar-axis-card-score{font-size:1.1rem;font-weight:800;color:var(--text-bright);line-height:1;}
 .radar-axis-card-bar-wrap{width:100%;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;}
@@ -6414,12 +6413,12 @@ let _radarIdxB = null;
 const RADAR_MIN_SEG = 12000; // 200 min × 60 s
 
 const RADAR_AXES = [
-  { key: 'SCORING',    label: 'SCORING',    icon: '🏀', metrics: ['PTS/40', 'TCI/40'],           desc: 'Volumen anotador: puntos y tiros de campo intentados por 40 min' },
-  { key: 'SHOOTING',   label: 'SHOOTING',   icon: '🎯', metrics: ['3PA Rate', '3P%'],             desc: 'Perfil de tiro exterior: frecuencia e impacto del triple' },
-  { key: 'DEFENSE',    label: 'DEFENSE',    icon: '🛡️', metrics: ['REC/40', 'TAP/40'],            desc: 'Impacto defensivo: recuperos y tapones por 40 min' },
-  { key: 'REBOUNDING', label: 'REBOUNDING', icon: '💪', metrics: ['REB/40', 'ORB%', 'DRB%'],     desc: 'Dominio en el tablero: volumen, rebote ofensivo y defensivo' },
-  { key: 'PLAYMAKING', label: 'PLAYMAKING', icon: '🎨', metrics: ['AST/40', 'AST/PER'],          desc: 'Creación de juego: asistencias por 40 min y ratio AST/pérdida' },
-  { key: 'EFFICIENCY', label: 'EFFICIENCY', icon: '⚡', metrics: ['TS%', 'EFG%'],                desc: 'Eficiencia anotadora: True Shooting % y Effective FG%' },
+  { key: 'SCORING',    label: 'SCORING',    metrics: ['PTS/40', 'TCI/40'],           desc: 'Volumen anotador: puntos y tiros de campo intentados por 40 min' },
+  { key: 'SHOOTING',   label: 'SHOOTING',   metrics: ['3PA Rate', '3P%'],             desc: 'Perfil de tiro exterior: frecuencia e impacto del triple' },
+  { key: 'DEFENSE',    label: 'DEFENSE',    metrics: ['REC/40', 'TAP/40'],            desc: 'Impacto defensivo: recuperos y tapones por 40 min' },
+  { key: 'REBOUNDING', label: 'REBOUNDING', metrics: ['REB/40', 'ORB%', 'DRB%'],     desc: 'Dominio en el tablero: volumen, rebote ofensivo y defensivo' },
+  { key: 'PLAYMAKING', label: 'PLAYMAKING', metrics: ['AST/40', 'AST/PER'],          desc: 'Creación de juego: asistencias por 40 min y ratio AST/pérdida' },
+  { key: 'EFFICIENCY', label: 'EFFICIENCY', metrics: ['TS%', 'EFG%'],                desc: 'Eficiencia anotadora: True Shooting % y Effective FG%' },
 ];
 // Clockwise from top: SCORING, SHOOTING, DEFENSE, REBOUNDING, PLAYMAKING, EFFICIENCY
 const RADAR_COLORS = {
@@ -6736,7 +6735,6 @@ function radarRender() {
     const metricsHtml = ax.metrics.map(m => `<span class="radar-axis-metric">${m}</span>`).join('');
     defsHtml += `<div class="radar-axis-card" title="${ax.desc}">
       <div class="radar-axis-card-header">
-        <span class="radar-axis-card-icon">${ax.icon}</span>
         <span class="radar-axis-card-label">${ax.label}</span>
         <span class="radar-axis-card-score">${score}</span>
       </div>
