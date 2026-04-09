@@ -1529,6 +1529,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
           <th data-ca="ORtg" data-da="desc" data-tip="Puntos producidos por 100 posesiones individuales">ORtg</th>
           <th data-ca="USG%" data-da="desc" data-tip="% de posesiones del equipo usadas por el jugador mientras está en cancha">USG%</th>
           <th data-ca="ORB%" data-da="desc" data-tip="% de rebotes ofensivos disponibles capturados por el jugador">ORB%</th>
+          <th data-ca="DRB%" data-da="desc" data-tip="% de rebotes defensivos disponibles capturados por el jugador · DReb × (MinEq/5) / (Min × (DRebEq + ORebRival))">DRB%</th>
           <th data-ca="FTr" data-da="desc" data-tip="Free Throw Rate: tiros libres intentados por tiro de campo intentado · T1I / (T2I + T3I)">FTr</th>
         </tr></thead>
         <tbody id="jTbodyAdv"></tbody>
@@ -2636,7 +2637,7 @@ function buildRAW_T(rows) {
     const eq = r['Equipo'];
     if (!map[eq]) map[eq] = {
       Equipo: eq, PJ: 0, Ganados: 0, Perdidos: 0, OPP_PTS: 0,
-      LocalG: 0, LocalP: 0, VisitG: 0, VisitP: 0, OPP_DReb: 0,
+      LocalG: 0, LocalP: 0, VisitG: 0, VisitP: 0, OPP_DReb: 0, OPP_RO: 0,
       _games: [], _gamelog: [],
       PTS: 0, T2A: 0, T2I: 0, T3A: 0, T3I: 0,
       T1A: 0, T1I: 0, RD: 0, RO: 0, RT: 0, AST: 0, REC: 0, PER: 0, TAP: 0, VAL: 0
@@ -2664,6 +2665,7 @@ function buildRAW_T(rows) {
         if (map[my['Equipo']]) {
           map[my['Equipo']].OPP_PTS += parseFloat(opp['Puntos']) || 0;
           map[my['Equipo']].OPP_DReb += parseFloat(opp['DReb']) || 0;
+          map[my['Equipo']].OPP_RO += parseFloat(opp['OReb']) || 0;
           const extractS = r => ({
             pts:  parseFloat(r['Puntos'])||0,
             t2a:  parseFloat(r['T2A'])||0,   t2i: parseFloat(r['T2I'])||0,
@@ -2931,6 +2933,9 @@ function computeStatsFromGames(games, tm) {
   d['USG%']=(tmPossUsed>0&&playerMinTotal>0)?Math.round(pos*tmMinTotal/(5*playerMinTotal*tmPossUsed)*1000)/10:null;
   const tmRO=tm?tm.RO||0:0;
   d['ORB%']=(tmRO>0&&playerMinTotal>0)?Math.round((acc.RO||0)*(tmMinTotal/5)/(playerMinTotal*tmRO)*1000)/10:null;
+  const tmRD=tm?tm.RD||0:0;
+  const tmOppRO=tm?tm.OPP_RO||0:0;
+  d['DRB%']=(playerMinTotal>0&&(tmRD+tmOppRO)>0)?Math.round((acc.RD||0)*(tmMinTotal/5)/(playerMinTotal*(tmRD+tmOppRO))*1000)/10:null;
   d['FTr']=tci>0?Math.round((acc.T1I||0)/tci*1000)/1000:null;
   return d;
 }
@@ -3076,6 +3081,7 @@ function renderJAdvTable() {
       <td class="${d['ORtg']>=110?'adv-hi':d['ORtg']<90?'adv-lo':''}">${d['ORtg']!=null?d['ORtg'].toFixed(1):'—'}</td>
       <td class="${d['USG%']>=28?'adv-hi':''}">${fPct(d['USG%'])}</td>
       <td class="${d['ORB%']>=12?'adv-hi':''}">${fPct(d['ORB%'])}</td>
+      <td class="${d['DRB%']>=75?'adv-hi':d['DRB%']!=null&&d['DRB%']<60?'adv-lo':''}">${fPct(d['DRB%'])}</td>
       <td class="${d['FTr']>=0.35?'adv-hi':''}">${fVal(d['FTr'])}</td>`;
     tbody.appendChild(tr);
   });
@@ -3157,7 +3163,7 @@ let tAdvSort='NetRtg', tAdvDir='desc';
 
 function computeTeamStatsFromGames(gamelog) {
   const pj=gamelog.length||1;
-  const acc={PTS:0,T2A:0,T2I:0,T3A:0,T3I:0,T1A:0,T1I:0,RD:0,RO:0,RT:0,AST:0,REC:0,PER:0,TAP:0,VAL:0,OPP_PTS:0,OPP_RD:0,Ganados:0};
+  const acc={PTS:0,T2A:0,T2I:0,T3A:0,T3I:0,T1A:0,T1I:0,RD:0,RO:0,RT:0,AST:0,REC:0,PER:0,TAP:0,VAL:0,OPP_PTS:0,OPP_RD:0,OPP_RO:0,Ganados:0};
   gamelog.forEach(g=>{
     const s=g.myS;
     acc.PTS+=s.pts||0; acc.T2A+=s.t2a||0; acc.T2I+=s.t2i||0;
@@ -3167,6 +3173,7 @@ function computeTeamStatsFromGames(gamelog) {
     acc.TAP+=s.tap||0; acc.VAL+=s.val||0;
     acc.OPP_PTS+=g.ptsAgainst||0;
     acc.OPP_RD+=(g.oppS&&g.oppS.dreb)||0;
+    acc.OPP_RO+=(g.oppS&&g.oppS.oreb)||0;
     if(g.ganado)acc.Ganados++;
   });
   const d={PJ:pj,Ganados:acc.Ganados,Perdidos:pj-acc.Ganados};
@@ -4542,6 +4549,9 @@ async function initApp() {
       d['USG%'] = (tmPossUsed>0 && playerMinTotal>0) ? Math.round(pos*tmMinTotal/(5*playerMinTotal*tmPossUsed)*1000)/10 : null;
       const tmRO = tm.RO||0;
       d['ORB%'] = (tmRO>0 && playerMinTotal>0) ? Math.round((p.RO||0)*(tmMinTotal/5)/(playerMinTotal*tmRO)*1000)/10 : null;
+      const tmRD = tm.RD||0;
+      const tmOppRO = tm.OPP_RO||0;
+      d['DRB%'] = (playerMinTotal>0 && (tmRD+tmOppRO)>0) ? Math.round((p.RD||0)*(tmMinTotal/5)/(playerMinTotal*(tmRD+tmOppRO))*1000)/10 : null;
       d['FTr'] = tci>0 ? Math.round((p.T1I||0)/tci*1000)/1000 : null;
       d.Edad = calcAge(DOB_MAP[p['Nombre completo']]);
       return d;

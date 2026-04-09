@@ -381,6 +381,8 @@ Promise.all([
 | `USG%` | `posesiones_jugador * min_equipo / (5 * min_jugador * posesiones_equipo)` |
 | `ORtg` | `PTS / posesiones * 100` |
 | `DRtg` | Tomado de `TEAM_MAP[equipo].DRtg` |
+| `ORB%` | `DReb_jugador × (MinEq/5) / (Min_jugador × DRebEq)` — % de rebotes ofensivos disponibles capturados. Calculado en `computeStatsFromGames()` usando `tm.RO`. |
+| `DRB%` | `DReb_jugador × (MinEq/5) / (Min_jugador × (DRebEq + ORebRival))` — % de rebotes defensivos disponibles capturados. Calculado en `computeStatsFromGames()` usando `tm.RD` y `tm.OPP_RO`. `OPP_RO` se acumula en `buildRAW_T` como rebotes ofensivos del rival por partido. Verde ≥ 75%, rojo < 60%. |
 | `FTr` | `T1I / (T2I+T3I)` — Free Throw Rate (tiros libres intentados / tiros de campo intentados). Calculado en `initApp()`, `computeStatsFromGames()` y `computeTeamStatsFromGames()`. Aparece en la tabla avanzada de jugadores (verde ≥ 0.35) y equipos (verde ≥ 0.28, rojo < 0.18). Usa `fVal()` (2 decimales, sin %). |
 | `PACE` | Posesiones por partido del equipo |
 | `Edad` | `calcAge(DOB_MAP[nombre_abreviado])` — edad en años enteros al día de hoy. Propagada a todos los objetos de período (`mkPeriod`, `mkLocVisPeriod`) para que el sort por edad funcione en todos los modos de vista. Jugadores sin DOB muestran `—`. |
