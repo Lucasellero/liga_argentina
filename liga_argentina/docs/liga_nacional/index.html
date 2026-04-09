@@ -910,6 +910,59 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .cnx-legend-dot.low{background:#8b5cf6;}
 .cnx-legend-dot.high{background:#2dd4bf;}
 
+/* ── RADAR CHART ─────────────────────────────────── */
+.radar-outer{padding:24px 40px 48px;max-width:1100px;margin:0 auto;}
+.radar-controls{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:28px;}
+.radar-search-group{display:flex;flex-direction:column;gap:6px;min-width:240px;}
+.radar-search-group label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);}
+.radar-search-wrap{position:relative;}
+.radar-search-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-size:.85rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;}
+.radar-search-input:focus{border-color:var(--purple);}
+.radar-autocomplete{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface2);border:1px solid var(--border);border-radius:8px;z-index:100;max-height:220px;overflow-y:auto;display:none;box-shadow:0 8px 32px rgba(0,0,0,.5);}
+.radar-autocomplete.open{display:block;}
+.radar-ac-item{padding:9px 14px;cursor:pointer;font-size:.82rem;border-bottom:1px solid var(--border2);display:flex;justify-content:space-between;align-items:center;}
+.radar-ac-item:last-child{border-bottom:none;}
+.radar-ac-item:hover,.radar-ac-item.focused{background:rgba(139,92,246,.15);}
+.radar-ac-name{color:var(--text);font-weight:600;}
+.radar-ac-team{color:var(--muted);font-size:.75rem;}
+.radar-cmp-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.8rem;color:var(--muted);padding:10px 0;user-select:none;white-space:nowrap;}
+.radar-cmp-toggle input{accent-color:var(--purple);}
+.radar-min-note{font-size:.7rem;color:var(--muted2);margin-top:4px;font-style:italic;}
+
+.radar-chart-area{display:flex;gap:32px;align-items:flex-start;justify-content:center;flex-wrap:wrap;}
+.radar-svg-wrap{position:relative;flex-shrink:0;}
+.radar-svg-wrap svg{display:block;}
+.radar-legend-block{display:flex;flex-direction:column;gap:10px;min-width:180px;padding-top:16px;}
+.radar-legend-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:4px;}
+.radar-legend-row{display:flex;align-items:center;gap:10px;font-size:.8rem;}
+.radar-legend-swatch{width:14px;height:14px;border-radius:3px;flex-shrink:0;}
+.radar-legend-label{color:var(--text);}
+.radar-legend-val{color:var(--muted);margin-left:auto;font-variant-numeric:tabular-nums;}
+.radar-empty{text-align:center;padding:60px 0;color:var(--muted);font-size:.9rem;}
+.radar-axis-defs{display:flex;flex-direction:column;gap:6px;margin-top:20px;}
+.radar-axis-row{font-size:.72rem;color:var(--muted);display:flex;flex-direction:column;gap:2px;}
+.radar-axis-name{font-weight:700;color:var(--purple-l);font-size:.74rem;}
+.radar-axis-desc{color:var(--muted2);}
+.radar-main-row{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;}
+.radar-chart-col{flex:0 0 auto;max-width:100%;}
+.radar-similar-col{flex:1 1 190px;min-width:180px;}
+.radar-similar-title{font-size:.7rem;font-weight:700;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:10px;}
+.radar-sim-item{display:flex;flex-direction:column;gap:4px;padding:8px 10px;border-radius:8px;background:var(--surface);margin-bottom:7px;cursor:default;}
+.radar-sim-header{display:flex;justify-content:space-between;align-items:baseline;gap:6px;}
+.radar-sim-name{font-size:.78rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.radar-sim-meta{font-size:.68rem;color:var(--muted);white-space:nowrap;}
+.radar-sim-score-row{display:flex;align-items:center;gap:6px;}
+.radar-sim-bar-wrap{flex:1;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;}
+.radar-sim-bar{height:100%;background:var(--purple);border-radius:2px;}
+.radar-sim-score{font-size:.68rem;font-weight:700;color:var(--purple-l);}
+.radar-cards-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;}
+.radar-card{background:var(--surface);border-radius:10px;padding:10px 8px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;border:1px solid rgba(139,92,246,.18);}
+.radar-card-lbl{font-size:.6rem;font-weight:700;color:var(--purple-l);letter-spacing:.06em;text-transform:uppercase;}
+.radar-card-val{font-size:1.55rem;font-weight:800;color:var(--text-bright);line-height:1;}
+.radar-card-val-b{font-size:.82rem;font-weight:700;color:#2dd4bf;line-height:1;}
+.radar-card-bar-wrap{width:100%;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:2px;}
+.radar-card-bar{height:100%;background:var(--purple);border-radius:2px;}
+
 /* ── RESPONSIVE ──────────────────────────────────── */
 @media (max-width:640px){
 
@@ -1059,6 +1112,15 @@ canvas{display:block;width:100%;cursor:crosshair;}
   .cnx-outer{padding:14px 10px 32px;}
   .cnx-header{gap:8px;}
   .cnx-legend{gap:12px;}
+
+  /* Radar */
+  .radar-outer{padding:14px 10px 32px;}
+  .radar-controls{flex-direction:column;gap:10px;}
+  .radar-search-group{min-width:0;}
+  .radar-chart-col{width:100%;}
+  .radar-similar-col{min-width:100%;}
+  .radar-svg-wrap{width:100%;max-width:380px;}
+  .radar-cards-row{grid-template-columns:repeat(3,1fr);gap:6px;}
 }
 </style>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -1174,6 +1236,10 @@ canvas{display:block;width:100%;cursor:crosshair;}
   <button class="sub-tab" onclick="switchSection('j-conexiones')">
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="12" r="3"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><path d="M12 12l5-4M12 12l5 4"/></svg>
     Conexiones
+  </button>
+  <button class="sub-tab" onclick="switchSection('j-radar')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="8.5" x2="22" y2="8.5"/><line x1="2" y1="15.5" x2="22" y2="15.5"/></svg>
+    Radar
   </button>
   <div class="sub-tabs-spacer"></div>
 </div>
@@ -2439,6 +2505,43 @@ canvas{display:block;width:100%;cursor:crosshair;}
   </div>
 </div>
 
+<!-- ============================= RADAR JUGADOR ============================= -->
+<div class="section" id="sec-j-radar">
+  <div class="radar-outer">
+    <div class="radar-controls">
+      <div class="radar-search-group">
+        <label>Jugador A</label>
+        <div class="radar-search-wrap">
+          <input class="radar-search-input" id="radarInputA" type="text" placeholder="Buscar jugador..." autocomplete="off" oninput="radarAcInput('A')" onkeydown="radarAcKey(event,'A')" onfocus="radarAcOpen('A')" onblur="setTimeout(()=>radarAcClose('A'),180)">
+          <div class="radar-autocomplete" id="radarAcA"></div>
+        </div>
+      </div>
+      <label class="radar-cmp-toggle">
+        <input type="checkbox" id="radarCmpCheck" onchange="radarToggleCmp()">
+        Comparar con otro jugador
+      </label>
+      <div class="radar-search-group" id="radarSearchB" style="display:none">
+        <label>Jugador B</label>
+        <div class="radar-search-wrap">
+          <input class="radar-search-input" id="radarInputB" type="text" placeholder="Buscar jugador..." autocomplete="off" oninput="radarAcInput('B')" onkeydown="radarAcKey(event,'B')" onfocus="radarAcOpen('B')" onblur="setTimeout(()=>radarAcClose('B'),180)">
+          <div class="radar-autocomplete" id="radarAcB"></div>
+        </div>
+      </div>
+    </div>
+    <div id="radarEmpty" class="radar-empty">Seleccioná un jugador para ver su perfil estadístico</div>
+    <div id="radarContent" style="display:none">
+      <div class="radar-main-row">
+        <div class="radar-chart-col">
+          <div class="radar-svg-wrap" id="radarSvgWrap"></div>
+          <div class="radar-cards-row" id="radarCards"></div>
+        </div>
+        <div class="radar-similar-col" id="radarSimilar"></div>
+      </div>
+      <div class="radar-axis-defs" id="radarAxisDefs"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ============================= CONEXIONES EQUIPO ============================= -->
 <div class="section" id="sec-t-conexiones">
   <div class="qnt-outer">
@@ -2786,11 +2889,11 @@ const f1=v=>v==null||isNaN(v)?'—':v.toFixed(1);
 // ============================================================
 const _SUB_GROUP = {
   't-tabla':'equipos','t-tcmp':'equipos','t-chart':'equipos','quintetos':'equipos','t-conexiones':'equipos',
-  'j-tabla':'jugadores','j-tiro':'jugadores','j-chart':'jugadores','j-conexiones':'jugadores'
+  'j-tabla':'jugadores','j-tiro':'jugadores','j-chart':'jugadores','j-conexiones':'jugadores','j-radar':'jugadores'
 };
 const _SUB_IDX = {
   't-tabla':0,'t-tcmp':1,'t-chart':2,'quintetos':3,'t-conexiones':4,
-  'j-tabla':0,'j-tiro':1,'j-chart':2,'j-conexiones':3
+  'j-tabla':0,'j-tiro':1,'j-chart':2,'j-conexiones':3,'j-radar':4
 };
 
 function openGroup(group, defaultSection) {
@@ -6281,6 +6384,404 @@ function updateTFilterVisibility(){
       document.getElementById(resetVal).value='';
     }
   });
+}
+
+// ============================================================
+// RADAR CHART — Perfil Estadístico de Jugador
+// ============================================================
+let _radarPct = null;   // percentile arrays per feature, computed once
+let _radarIdxA = null;
+let _radarIdxB = null;
+
+const RADAR_MIN_SEG = 12000; // 200 min × 60 s
+
+const RADAR_AXES = [
+  { key: 'SCORING',    label: 'SCORING',    desc: 'PTS/40 + TCI/40' },
+  { key: 'SHOOTING',   label: 'SHOOTING',   desc: '3PA Rate + 3P%' },
+  { key: 'DEFENSE',    label: 'DEFENSE',    desc: 'REC/40 + TAP/40' },
+  { key: 'REBOUNDING', label: 'REBOUNDING', desc: 'REB/40 + ORB% + DRB%' },
+  { key: 'PLAYMAKING', label: 'PLAYMAKING', desc: 'AST/40 + AST/PER' },
+  { key: 'EFFICIENCY', label: 'EFFICIENCY', desc: 'TS% + EFG%' },
+];
+// Clockwise from top: SCORING, SHOOTING, DEFENSE, REBOUNDING, PLAYMAKING, EFFICIENCY
+const RADAR_COLORS = {
+  A: { fill: 'rgba(139,92,246,.25)', stroke: '#8b5cf6' },
+  B: { fill: 'rgba(45,212,191,.18)', stroke: '#2dd4bf' },
+};
+
+function radarGetRaw(p) {
+  const seg = p.SEG || 0;
+  if (seg < 1) return null;
+  const min = seg / 60;
+  const tci = (p.T2I || 0) + (p.T3I || 0);
+  const per40 = v => v / min * 40;
+  const astTov = (p.PER || 0) > 0 ? (p.AST || 0) / p.PER : (p.AST > 0 ? 10 : 0);
+  const tsAdj = tci * 2 + 0.44 * 2 * (p.T1I || 0);
+  const ts = tsAdj > 0 ? (p.PTS || 0) / tsAdj * 100 : null;
+  const efg = tci > 0 ? ((p.T2A || 0) + 1.5 * (p.T3A || 0)) / tci * 100 : null;
+  const t3rate = tci > 0 ? (p.T3I || 0) / tci * 100 : null;
+  const t3pct = (p.T3I || 0) > 0 ? (p.T3A || 0) / p.T3I * 100 : null;
+  const t1i = p.T1I || 0;
+  const ftPct = t1i > 0 ? (p.T1A || 0) / t1i : null;
+  const ftaRate = tci > 0 ? t1i / tci : null;
+  return {
+    pts_per40:    per40(p.PTS || 0),
+    fga_per40:    per40(tci),
+    ast_per40:    per40(p.AST || 0),
+    ast_tov:      astTov,
+    trb_per40:    per40(p.RT || 0),
+    orb_pct:      p['ORB%'] != null ? p['ORB%'] : null,
+    drb_pct:      p['DRB%'] != null ? p['DRB%'] : null,
+    stl_per40:    per40(p.REC || 0),
+    blk_per40:    per40(p.TAP || 0),
+    ts_pct:       ts,
+    efg_pct:      efg,
+    t3pa_rate:    t3rate,
+    t3p_pct:      t3pct,
+    ft_pct:       ftPct,
+    fta_rate:     ftaRate,
+  };
+}
+
+function radarComputePercentiles() {
+  if (_radarPct) return;
+  // qualifying players: >= 200 min
+  const qualified = PLAYERS.filter(p => (p.SEG || 0) >= RADAR_MIN_SEG);
+  const features = ['pts_per40','fga_per40','ast_per40','ast_tov','trb_per40',
+                    'orb_pct','drb_pct','stl_per40','blk_per40','ts_pct','efg_pct','t3pa_rate','t3p_pct'];
+  const rawAll = qualified.map(p => radarGetRaw(p));
+
+  // For each feature build sorted array of non-null values
+  _radarPct = {};
+  for (const feat of features) {
+    const vals = rawAll.map(r => r ? r[feat] : null).filter(v => v != null && !isNaN(v));
+    vals.sort((a, b) => a - b);
+    _radarPct[feat] = vals;
+  }
+}
+
+function radarPercentile(feat, val) {
+  if (val == null || isNaN(val) || !_radarPct) return 0;
+  const arr = _radarPct[feat];
+  if (!arr || arr.length === 0) return 0;
+  // count how many are strictly below val
+  let lo = 0, hi = arr.length;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if (arr[mid] < val) lo = mid + 1; else hi = mid;
+  }
+  return Math.round(lo / arr.length * 100);
+}
+
+function radarGetScores(p) {
+  radarComputePercentiles();
+  const r = radarGetRaw(p);
+  if (!r) return null;
+  const pct = feat => radarPercentile(feat, r[feat]);
+
+  const scoring    = (pct('pts_per40') + pct('fga_per40')) / 2;
+  const efficiency = (pct('ts_pct') + pct('efg_pct')) / 2;
+  const playmaking = (pct('ast_per40') + pct('ast_tov')) / 2;
+  const rebounding = (pct('trb_per40') + (r.orb_pct != null ? pct('orb_pct') : 0) + (r.drb_pct != null ? pct('drb_pct') : 0)) /
+                     (1 + (r.orb_pct != null ? 1 : 0) + (r.drb_pct != null ? 1 : 0));
+  const defense    = (pct('stl_per40') + pct('blk_per40')) / 2;
+  const shooting   = (pct('t3pa_rate') + (r.t3p_pct != null ? pct('t3p_pct') : pct('t3pa_rate'))) / 2;
+
+  return {
+    SCORING:    Math.round(scoring),
+    SHOOTING:   Math.round(shooting),
+    DEFENSE:    Math.round(defense),
+    REBOUNDING: Math.round(rebounding),
+    PLAYMAKING: Math.round(playmaking),
+    EFFICIENCY: Math.round(efficiency),
+  };
+}
+
+function radarBuildSvg(scoresA, nameA, scoresB, nameB) {
+  const W = 460, H = 460;
+  const cx = W / 2, cy = H / 2;
+  const R = 148;
+  const N = 6;
+  const angles = RADAR_AXES.map((_, i) => -Math.PI / 2 + (2 * Math.PI / N) * i);
+  const refs = [20, 40, 60, 80, 100];
+
+  function pt(val, i) {
+    const r = (val / 100) * R;
+    return [cx + r * Math.cos(angles[i]), cy + r * Math.sin(angles[i])];
+  }
+  function polygon(scores, col) {
+    const pts = RADAR_AXES.map((ax, i) => pt(scores[ax.key] || 0, i));
+    const d = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ') + ' Z';
+    return `<path d="${d}" fill="${col.fill}" stroke="${col.stroke}" stroke-width="2" stroke-linejoin="round" opacity=".9"/>`;
+  }
+
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;">
+<defs>
+  <filter id="rdrGlow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+`;
+
+  // Reference rings
+  for (const ref of refs) {
+    const pts = angles.map(a => {
+      const r = (ref / 100) * R;
+      return `${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`;
+    }).join(' ');
+    const isMax = ref === 100;
+    svg += `<polygon points="${pts}" fill="none" stroke="${isMax ? 'rgba(139,92,246,.35)' : 'rgba(255,255,255,.08)'}" stroke-width="${isMax ? 1.5 : 1}" stroke-dasharray="${isMax ? 'none' : '3,4'}"/>`;
+    // Ring label
+    const labelPt = [cx, cy - (ref / 100) * R];
+    svg += `<text x="${labelPt[0].toFixed(1)}" y="${(labelPt[1] - 4).toFixed(1)}" text-anchor="middle" font-size="9" fill="rgba(255,255,255,.25)" font-family="Inter,sans-serif">${ref}</text>`;
+  }
+
+  // Axis lines
+  for (let i = 0; i < N; i++) {
+    const [x, y] = pt(100, i);
+    svg += `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,.12)" stroke-width="1"/>`;
+  }
+
+  // Polygons
+  if (scoresB) svg += polygon(scoresB, RADAR_COLORS.B);
+  svg += polygon(scoresA, RADAR_COLORS.A);
+
+  // Dots + value labels on axes
+  for (let i = 0; i < N; i++) {
+    const ax = RADAR_AXES[i];
+    const valA = scoresA[ax.key] || 0;
+    const [xA, yA] = pt(valA, i);
+    svg += `<circle cx="${xA.toFixed(1)}" cy="${yA.toFixed(1)}" r="4" fill="${RADAR_COLORS.A.stroke}" stroke="#0b0b16" stroke-width="1.5"/>`;
+    if (scoresB) {
+      const valB = scoresB[ax.key] || 0;
+      const [xB, yB] = pt(valB, i);
+      svg += `<circle cx="${xB.toFixed(1)}" cy="${yB.toFixed(1)}" r="4" fill="${RADAR_COLORS.B.stroke}" stroke="#0b0b16" stroke-width="1.5"/>`;
+    }
+  }
+
+  // Axis labels
+  for (let i = 0; i < N; i++) {
+    const ax = RADAR_AXES[i];
+    const offset = 18;
+    const [xE, yE] = pt(100 + offset * 100 / R, i);
+    const anchor = Math.abs(xE - cx) < 8 ? 'middle' : xE < cx ? 'end' : 'start';
+    const score = scoresA[ax.key] || 0;
+    svg += `<text x="${xE.toFixed(1)}" y="${(yE - 7).toFixed(1)}" text-anchor="${anchor}" font-size="10.5" font-weight="700" fill="#a78bfa" font-family="Inter,sans-serif" letter-spacing=".4">${ax.label}</text>`;
+    svg += `<text x="${xE.toFixed(1)}" y="${(yE + 6).toFixed(1)}" text-anchor="${anchor}" font-size="11" font-weight="800" fill="#f8fafc" font-family="Inter,sans-serif">${score}</text>`;
+    if (scoresB) {
+      const scoreB = scoresB[ax.key] || 0;
+      svg += `<text x="${xE.toFixed(1)}" y="${(yE + 18).toFixed(1)}" text-anchor="${anchor}" font-size="10" font-weight="700" fill="${RADAR_COLORS.B.stroke}" font-family="Inter,sans-serif">${scoreB}</text>`;
+    }
+  }
+
+  svg += '</svg>';
+  return svg;
+}
+
+// ── Similarity (cosine, weighted z-score — mirrors Python model) ─────────────
+let _radarSim = null;
+
+const _SIM_FEATS = [
+  { k: 'pts_per40',  w: 0.125  },
+  { k: 'fga_per40',  w: 0.125  },
+  { k: 'ts_pct',     w: 0.0625 },
+  { k: 'efg_pct',    w: 0.0625 },
+  { k: 't3p_pct',    w: 0.0625 },
+  { k: 'ft_pct',     w: 0.0625 },
+  { k: 'ast_per40',  w: 0.10   },
+  { k: 'ast_tov',    w: 0.10   },
+  { k: 'trb_per40',  w: 0.05   },
+  { k: 'orb_pct',    w: 0.05   },
+  { k: 'drb_pct',    w: 0.05   },
+  { k: 'stl_per40',  w: 0.05   },
+  { k: 'blk_per40',  w: 0.05   },
+  { k: 't3pa_rate',  w: 0.025  },
+  { k: 'fta_rate',   w: 0.025  },
+];
+
+function radarBuildSimVectors() {
+  if (_radarSim) return;
+  radarComputePercentiles();
+  const pool = PLAYERS
+    .map((p, i) => ({ p, i, raw: radarGetRaw(p) }))
+    .filter(x => x.raw && (x.p.SEG || 0) >= RADAR_MIN_SEG);
+
+  // Compute mean/std per feature
+  const stats = {};
+  _SIM_FEATS.forEach(({ k }) => {
+    const vals = pool.map(x => x.raw[k]).filter(v => v != null && !isNaN(v));
+    if (!vals.length) { stats[k] = { mean: 0, std: 1 }; return; }
+    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const variance = vals.reduce((a, b) => a + (b - mean) ** 2, 0) / vals.length;
+    stats[k] = { mean, std: Math.sqrt(variance) || 1 };
+  });
+
+  // Build weighted z-score vectors
+  pool.forEach(x => {
+    x.vec = _SIM_FEATS.map(({ k, w }) => {
+      const v = x.raw[k];
+      const z = (v != null && !isNaN(v)) ? (v - stats[k].mean) / stats[k].std : 0;
+      return z * Math.sqrt(w);
+    });
+  });
+
+  _radarSim = pool;
+}
+
+function radarGetSimilar(pA, n = 5) {
+  radarBuildSimVectors();
+  const ref = _radarSim.find(x => x.p === pA);
+  if (!ref) return [];
+  const vecA = ref.vec;
+  const normA = Math.sqrt(vecA.reduce((s, v) => s + v * v, 0));
+  if (!normA) return [];
+
+  return _radarSim
+    .filter(x => x.p !== pA)
+    .map(x => {
+      const normB = Math.sqrt(x.vec.reduce((s, v) => s + v * v, 0));
+      if (!normB) return { p: x.p, sim: 0 };
+      const dot = vecA.reduce((s, v, j) => s + v * x.vec[j], 0);
+      return { p: x.p, sim: dot / (normA * normB) };
+    })
+    .sort((a, b) => b.sim - a.sim)
+    .slice(0, n);
+}
+
+function radarRender() {
+  const empty = document.getElementById('radarEmpty');
+  const content = document.getElementById('radarContent');
+  const svgWrap = document.getElementById('radarSvgWrap');
+  const cards = document.getElementById('radarCards');
+  const similar = document.getElementById('radarSimilar');
+  const axisDefs = document.getElementById('radarAxisDefs');
+
+  if (_radarIdxA === null) {
+    empty.style.display = '';
+    content.style.display = 'none';
+    return;
+  }
+
+  const pA = PLAYERS[_radarIdxA];
+  const scoresA = radarGetScores(pA);
+  if (!scoresA) { empty.style.display = ''; content.style.display = 'none'; return; }
+
+  let scoresB = null, pB = null;
+  if (_radarIdxB !== null) {
+    pB = PLAYERS[_radarIdxB];
+    scoresB = radarGetScores(pB);
+  }
+
+  empty.style.display = 'none';
+  content.style.display = '';
+
+  // SVG
+  svgWrap.innerHTML = radarBuildSvg(scoresA, pA['Nombre completo'], scoresB, pB ? pB['Nombre completo'] : null);
+
+  // FIFA-style percentile cards
+  let cardsHtml = '';
+  for (const ax of RADAR_AXES) {
+    const vA = scoresA[ax.key];
+    const vB = scoresB ? scoresB[ax.key] : null;
+    cardsHtml += `<div class="radar-card">
+      <div class="radar-card-lbl">${ax.label}</div>
+      <div class="radar-card-val">${vA}</div>
+      ${vB !== null ? `<div class="radar-card-val-b">${vB}</div>` : ''}
+      <div class="radar-card-bar-wrap"><div class="radar-card-bar" style="width:${vA}%"></div></div>
+    </div>`;
+  }
+  cards.innerHTML = cardsHtml;
+
+  // Similar players panel
+  const simTitle = `<div class="radar-similar-title">Jugadores similares</div>`;
+  const sims = radarGetSimilar(pA);
+  let simHtml = simTitle;
+  if (sims.length) {
+    for (const { p, sim } of sims) {
+      const pct = Math.round(sim * 100);
+      simHtml += `<div class="radar-sim-item">
+        <div class="radar-sim-header">
+          <span class="radar-sim-name">${p['Nombre completo']}</span>
+          <span class="radar-sim-score">${pct}%</span>
+        </div>
+        <div class="radar-sim-meta">${p.Equipo}</div>
+        <div class="radar-sim-bar-wrap"><div class="radar-sim-bar" style="width:${pct}%"></div></div>
+      </div>`;
+    }
+  } else {
+    simHtml += `<div style="color:var(--muted);font-size:.8rem">Sin datos suficientes</div>`;
+  }
+  similar.innerHTML = simHtml;
+
+  // Axis definitions (bottom)
+  let defsHtml = `<div class="radar-legend-title" style="margin-top:20px;font-size:.7rem;font-weight:700;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;">Composición de ejes</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:8px;">`;
+  for (const ax of RADAR_AXES) {
+    defsHtml += `<div class="radar-axis-row"><span class="radar-axis-name">${ax.label}</span><span class="radar-axis-desc">${ax.desc}</span></div>`;
+  }
+  defsHtml += '</div>';
+  axisDefs.innerHTML = defsHtml;
+}
+
+// ── Autocomplete helpers ─────────────────────────────────────────────────────
+let _radarAcFocusIdx = { A: -1, B: -1 };
+
+function radarAcBuildList(query) {
+  if (!query || query.length < 2) return [];
+  const q = query.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+  return PLAYERS
+    .map((p, i) => ({ i, name: p['Nombre completo'], team: p.Equipo }))
+    .filter(x => x.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().includes(q))
+    .slice(0, 12);
+}
+
+function radarAcInput(side) {
+  const input = document.getElementById('radarInput' + side);
+  const ac = document.getElementById('radarAc' + side);
+  _radarAcFocusIdx[side] = -1;
+  const results = radarAcBuildList(input.value);
+  if (!results.length) { ac.classList.remove('open'); ac.innerHTML = ''; return; }
+  ac.innerHTML = results.map((r, j) =>
+    `<div class="radar-ac-item" data-idx="${r.i}" data-j="${j}" onmousedown="radarAcSelect('${side}',${r.i},'${r.name.replace(/'/g,"\\'")}')">
+      <span class="radar-ac-name">${r.name}</span>
+      <span class="radar-ac-team">${r.team}</span>
+    </div>`).join('');
+  ac.classList.add('open');
+}
+
+function radarAcOpen(side) { radarAcInput(side); }
+function radarAcClose(side) {
+  document.getElementById('radarAc' + side).classList.remove('open');
+}
+
+function radarAcKey(e, side) {
+  const ac = document.getElementById('radarAc' + side);
+  const items = ac.querySelectorAll('.radar-ac-item');
+  if (!items.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    _radarAcFocusIdx[side] = Math.min(_radarAcFocusIdx[side] + 1, items.length - 1);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    _radarAcFocusIdx[side] = Math.max(_radarAcFocusIdx[side] - 1, 0);
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    const fi = _radarAcFocusIdx[side];
+    if (fi >= 0 && items[fi]) items[fi].dispatchEvent(new MouseEvent('mousedown'));
+    return;
+  } else { return; }
+  items.forEach((el, j) => el.classList.toggle('focused', j === _radarAcFocusIdx[side]));
+}
+
+function radarAcSelect(side, idx, name) {
+  document.getElementById('radarInput' + side).value = name;
+  document.getElementById('radarAc' + side).classList.remove('open');
+  if (side === 'A') _radarIdxA = idx; else _radarIdxB = idx;
+  radarRender();
+}
+
+function radarToggleCmp() {
+  const on = document.getElementById('radarCmpCheck').checked;
+  document.getElementById('radarSearchB').style.display = on ? '' : 'none';
+  if (!on) { _radarIdxB = null; document.getElementById('radarInputB').value = ''; radarRender(); }
 }
 
 // ── Tooltip encabezados ──────────────────────────────────────────────────────

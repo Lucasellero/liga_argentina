@@ -186,6 +186,7 @@ SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades 
 | Jugadores | Tiros | `j-tiro` |
 | Jugadores | Comparar | `j-chart` |
 | Jugadores | Conexiones | `j-conexiones` |
+| Jugadores | Radar | `j-radar` |
 
 **Secciones (IDs en el DOM):**
 - `posiciones` — Home: dos tabs internos ("Temporada Regular" con tablas de posiciones filtradas a < PLAYOFF_DATE, y "Post Temporada" con series head-to-head del bracket)
@@ -199,6 +200,7 @@ SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades 
 - `j-tiro` — Mapa de zonas de tiro por jugador
 - `j-chart` — Scatter plot comparativo de jugadores
 - `j-conexiones` — Grafo de conexiones (asistencias + puntos juntos) entre un jugador y sus compañeros
+- `j-radar` — Radar hexagonal de perfil estadístico (percentiles en 6 ejes, estilo FIFA)
 
 **Sistema de navegación — dos barras:**
 - **`.main-tabs`**: barra principal con 5 botones (Home, Destacados, Fixture, Equipos, Jugadores). Los 3 primeros llaman `switchSection(id)` directamente. Equipos (`#grpEquipos`) y Jugadores (`#grpJugadores`) llaman `openGroup(group, defaultSection)`.
@@ -209,7 +211,7 @@ SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades 
 - `openGroup(group, defaultSection)` — activa el grupo (`'equipos'` | `'jugadores'`), muestra su sub-barra, y llama `switchSection(defaultSection)`.
 - `switchSection(id)` — muestra la sección `sec-{id}`, actualiza el estado activo de `.main-tab` y `.sub-tab`. Si `id` pertenece a un grupo (`_SUB_GROUP`), muestra la sub-barra correspondiente y marca el ítem correcto.
 - `_SUB_GROUP` — mapa `{sectionId → 'equipos'|'jugadores'}` para saber a qué grupo pertenece cada sección.
-- `_SUB_IDX` — mapa `{sectionId → 0|1|2|3}` para saber qué índice de `.sub-tab` marcar como activo.
+- `_SUB_IDX` — mapa `{sectionId → 0|1|2|3|4}` para saber qué índice de `.sub-tab` marcar como activo. Jugadores: `j-tabla`=0, `j-tiro`=1, `j-chart`=2, `j-conexiones`=3, `j-radar`=4.
 - `.main-tab.grp-active` — clase CSS adicional que se aplica al botón de grupo cuando alguna de sus sub-secciones está activa (color violeta, border-bottom violeta).
 
 **Filtro de período (Jugadores y Equipos):**
@@ -656,6 +658,84 @@ Mismo esquema y formato que los demás PBP CSVs.
 - `onCnxPlayerChange()` — llama `computeConnections()` + `drawConnections()`.
 - `drawConnections()` — escribe `svg.innerHTML`; re-dibuja en resize.
 - `cnxShowTip(event, idx)` / `cnxHideTip()` — tooltip; `idx` referencia `_cnxNodes[]`.
+
+**Sección "Radar de Jugador" (`j-radar`) — Liga Nacional únicamente:**
+- Visualización tipo radar hexagonal (estilo FIFA) con 6 ejes expresados en percentil 0–100.
+- **Criterio mínimo**: jugadores con ≥ 200 minutos jugados en la temporada (`RADAR_MIN_SEG = 12000` segundos). Los percentiles y la similitud se calculan solo dentro de ese conjunto.
+- **Búsqueda con autocomplete**: mismo patrón que `j-tiro`. Dos inputs: jugador A (obligatorio) y jugador B (opcional, se activa con el checkbox "Comparar con otro jugador").
+- **Implementación SVG pura**, sin librerías externas. El SVG se genera dinámicamente via `radarBuildSvg()` con `viewBox="0 0 460 460"` (cx=cy=230, R=148) y es responsive (`width:100%;height:auto`). El viewBox de 460×460 da margen suficiente para que los labels de los ejes no queden recortados.
+
+**6 ejes y su composición:**
+
+| Eje | Fórmula |
+|---|---|
+| SCORING | mean(pct(PTS/40), pct(TCI/40)) |
+| SHOOTING | mean(pct(T3I/TCI), pct(T3A/T3I)) |
+| DEFENSE | mean(pct(REC/40), pct(TAP/40)) |
+| REBOUNDING | mean(pct(REB/40), pct(ORB%), pct(DRB%)) |
+| PLAYMAKING | mean(pct(AST/40), pct(AST/PER)) |
+| EFFICIENCY | mean(pct(TS%), pct(EFG%)) |
+
+Orden de ejes en el radar (sentido horario desde arriba): SCORING → SHOOTING → DEFENSE → REBOUNDING → PLAYMAKING → EFFICIENCY.
+
+**Layout de la sección:**
+```
+#radarContent
+  └─ .radar-main-row (flex, gap 28px)
+       ├─ .radar-chart-col
+       │    ├─ #radarSvgWrap   ← SVG del radar
+       │    └─ #radarCards     ← cartas FIFA de percentiles (grid 3 columnas)
+       └─ .radar-similar-col
+            └─ #radarSimilar   ← panel de jugadores similares
+  └─ #radarAxisDefs            ← composición de los 6 ejes (al final, flex-wrap)
+```
+- El párrafo "Percentiles calculados entre jugadores con ≥ 200 min…" fue eliminado de la UI.
+
+**Cartas de percentiles (`#radarCards`):**
+- Grid de 3 columnas × 2 filas (una carta por eje).
+- Cada carta muestra: label del eje, score del jugador A (grande), score del jugador B si está en modo comparación (teal, más pequeño), barra de progreso.
+- Clases CSS: `.radar-card`, `.radar-card-lbl`, `.radar-card-val`, `.radar-card-val-b`, `.radar-card-bar-wrap`, `.radar-card-bar`.
+
+**Panel de jugadores similares (`#radarSimilar`):**
+- Muestra los 5 jugadores más similares al jugador A usando similitud coseno ponderada con z-scores.
+- El algoritmo replica el modelo Python `similitud_liga_nacional/` completamente en JS.
+- Cada ítem: nombre del jugador, equipo, barra de similitud, porcentaje.
+- Clases CSS: `.radar-similar-col`, `.radar-similar-title`, `.radar-sim-item`, `.radar-sim-header`, `.radar-sim-name`, `.radar-sim-meta`, `.radar-sim-bar-wrap`, `.radar-sim-bar`, `.radar-sim-score`.
+
+**Modelo de similitud en JS (replica `similitud_liga_nacional/`):**
+- 15 features con pesos (idénticos a `feature_engineering.py`):
+  `pts_per40`(0.125), `fga_per40`(0.125), `ts_pct`/`efg_pct`/`t3p_pct`/`ft_pct`(0.0625 c/u), `ast_per40`/`ast_tov`(0.10 c/u), `trb_per40`/`orb_pct`/`drb_pct`/`stl_per40`/`blk_per40`(0.05 c/u), `t3pa_rate`/`fta_rate`(0.025 c/u).
+- `radarBuildSimVectors()` — normaliza (z-score) por feature y aplica `sqrt(weight)` igual que el modelo Python. Cachea en `_radarSim`. Requiere que `radarComputePercentiles()` ya se haya ejecutado.
+- `radarGetSimilar(pA, n=5)` — similitud coseno sobre los vectores ponderados; excluye al propio jugador; retorna top-n.
+- `radarGetRaw(p)` fue extendido para incluir `ft_pct` (T1A/T1I) y `fta_rate` (T1I/TCI), necesarios para la similitud.
+
+**Funciones JS:**
+- `radarComputePercentiles()` — calcula y cachea en `_radarPct` los arrays ordenados de cada feature para los jugadores calificados. Se ejecuta una sola vez (lazy, guard `if (_radarPct) return`).
+- `radarGetRaw(p)` — extrae valores crudos (per-40, ratios, %) desde el objeto `p` de `PLAYERS`. Para `ast_tov`: si `PER === 0` y `AST > 0`, retorna 10 (máximo implícito); si `AST === 0`, retorna 0. Incluye `ft_pct` y `fta_rate`.
+- `radarPercentile(feat, val)` — búsqueda binaria en el array ordenado de la feature; retorna percentil 0–100.
+- `radarGetScores(p)` — retorna objeto `{ SCORING, SHOOTING, DEFENSE, REBOUNDING, PLAYMAKING, EFFICIENCY }` (0–100 enteros). Para REBOUNDING: si `ORB%` o `DRB%` son null, se excluyen del promedio sin penalizar. Para SHOOTING: si 0 intentos de triple, `t3p_pct` es null y se usa `t3pa_rate` dos veces.
+- `radarBuildSvg(scoresA, nameA, scoresB, nameB)` — genera el SVG completo. Incluye: anillos de referencia (20/40/60/80/100) con dashes, líneas de eje, polígono del jugador A (violeta), polígono del jugador B si presente (teal), dots en cada eje, labels de eje con nombre y valor.
+- `radarBuildSimVectors()` — construye vectores z-score ponderados para el pool de jugadores calificados. Cachea en `_radarSim`.
+- `radarGetSimilar(pA, n=5)` — similitud coseno sobre `_radarSim`; retorna top-n similares al jugador A.
+- `radarRender()` — orquesta: valida `_radarIdxA`, llama `radarGetScores()`, inyecta SVG en `#radarSvgWrap`, construye cartas en `#radarCards`, similares en `#radarSimilar`, composición de ejes en `#radarAxisDefs`.
+- `radarAcInput(side)` / `radarAcSelect(side, idx, name)` / `radarAcKey(event, side)` / `radarAcOpen(side)` / `radarAcClose(side)` — autocomplete; `side` es `'A'` o `'B'`. Guarda índice en `_radarIdxA` / `_radarIdxB`.
+- `radarToggleCmp()` — muestra/oculta el bloque `#radarSearchB` y limpia jugador B al desactivar.
+
+**Estado global:**
+- `_radarPct` — objeto con arrays ordenados por feature; `null` hasta primer uso.
+- `_radarIdxA` / `_radarIdxB` — índices en `PLAYERS`; `null` si no hay jugador seleccionado.
+- `_radarAcFocusIdx` — `{ A: -1, B: -1 }` para navegación teclado en el dropdown.
+- `_radarSim` — array de `{ p, i, raw, vec }` con los vectores ponderados; `null` hasta primer uso.
+
+**Constantes:**
+- `RADAR_MIN_SEG = 12000` — mínimo de segundos jugados para entrar al cálculo de percentiles y similitud.
+- `RADAR_AXES` — array de 6 objetos `{ key, label, desc }` que define ejes y su composición legible.
+- `RADAR_COLORS` — `{ A: { fill, stroke }, B: { fill, stroke } }`. A = violeta (`#8b5cf6`), B = teal (`#2dd4bf`).
+- `_SIM_FEATS` — array de 15 objetos `{ k, w }` con las features y pesos del modelo de similitud.
+
+**CSS relevante**: clases con prefijo `.radar-*`. El bloque responsive en `@media (max-width:640px)` apila `.radar-chart-col` y `.radar-similar-col` verticalmente y limita el SVG a `max-width:380px`. Las cartas FIFA (`#radarCards`) mantienen 3 columnas en mobile.
+
+**Nota de portabilidad**: esta sección existe actualmente solo en `docs/liga_nacional/index.html`. Si se porta a otras ligas, copiar el bloque CSS `.radar-*`, el HTML `sec-j-radar`, las funciones `radar*` y añadir `'j-radar':'jugadores'` a `_SUB_GROUP` y `'j-radar':4` a `_SUB_IDX`.
 
 ## Comandos útiles
 ```bash
