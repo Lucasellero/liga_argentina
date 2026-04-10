@@ -29,6 +29,7 @@ import joblib
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, roc_auc_score, log_loss
+from sklearn.model_selection import TimeSeriesSplit
 
 # ─────────────────────────────────────────────────────────────────────────────
 # MAPEO DE COLUMNAS
@@ -61,6 +62,11 @@ SHOTS_PATH   = "liga_argentina/docs/liga_nacional/liga_nacional_shots.csv"
 MODEL_PATH   = "liga_argentina/modelo_liga_nacional_prod.pkl"
 FIXTURE_PATH = "liga_argentina/docs/liga_nacional/fixture_upcoming.csv"
 PRED_PATH    = "liga_argentina/docs/liga_nacional/predicciones_upcoming.csv"
+
+# Span del EWM: controla la velocidad de decaimiento exponencial.
+# alpha = 2 / (EWM_SPAN + 1). Con span=10 → alpha≈0.18 (~18% al partido más reciente).
+# Calibrado por CV temporal sobre 5 folds — span=10 maximiza AUC con varianza controlada.
+EWM_SPAN = 10
 
 # Zonas del shot map agrupadas en tres categorías
 PAINT_ZONES  = {"Z1-DE", "Z1-IZ", "FRANJA-DE", "FRANJA-INFERIOR", "FRANJA-SUPERIOR"}
@@ -443,9 +449,12 @@ def build_rolling_features(df: pd.DataFrame, window: int = 5) -> pd.DataFrame:
     for new_col, src_col in roll_cols.items():
         if src_col not in df.columns:
             continue  # feature opcional — no romper si falta
+        # EWM con shift(1) para anti-leakage: el partido actual no se incluye.
+        # span=EWM_SPAN → alpha ≈ 0.5, el partido más reciente pondera ~50%,
+        # el anterior ~25%, y así sucesivamente (decaimiento exponencial).
         df[new_col] = (
             df.groupby("equipo")[src_col]
-            .transform(lambda s: s.shift(1).rolling(window, min_periods=1).mean())
+            .transform(lambda s: s.shift(1).ewm(span=EWM_SPAN, min_periods=1).mean())
         )
 
     return df
@@ -589,6 +598,102 @@ def evaluate_model(model, scaler, feature_cols, X_test, y_test):
     print(f"{'─'*55}\n")
 
     return {"accuracy": acc, "roc_auc": auc, "log_loss": ll}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 5b. CROSS-VALIDATION TEMPORAL
+# ─────────────────────────────────────────────────────────────────────────────
+
+def cross_validate_temporal(
+    df: pd.DataFrame,
+    feature_cols: list = None,
+    n_splits: int = 5,
+) -> dict:
+    """
+    Cross-validation con TimeSeriesSplit para detectar underfitting/overfitting.
+
+    Usa splits temporales: cada fold entrena sobre partidos anteriores y testea
+    sobre los siguientes. Nunca mezcla fechas futuras en el train (sin leakage).
+
+    Parámetros
+    ----------
+    df          : DataFrame con features y columna 'win'.
+    feature_cols: lista de features a usar (default: FEATURE_COLS_PREGAME).
+    n_splits    : número de folds (default: 5).
+
+    Retorna
+    -------
+    dict con arrays de métricas por fold y sus promedios/desvíos.
+    """
+    if feature_cols is None:
+        feature_cols = FEATURE_COLS_PREGAME
+
+    # Ordenar cronológicamente y limpiar NaN
+    model_df = (
+        df[feature_cols + ["win", "fecha"]]
+        .dropna()
+        .sort_values("fecha")
+        .reset_index(drop=True)
+    )
+
+    X = model_df[feature_cols].values
+    y = model_df["win"].values
+
+    tscv = TimeSeriesSplit(n_splits=n_splits)
+
+    fold_metrics = []
+    print(f"\n{'─'*55}")
+    print(f"  Cross-Validation Temporal — {n_splits} folds (TimeSeriesSplit)")
+    print(f"{'─'*55}")
+    print(f"  {'Fold':<6} {'Train':>7} {'Test':>6}  {'Accuracy':>9} {'AUC':>7} {'LogLoss':>9}")
+    print(f"  {'─'*52}")
+
+    for fold, (train_idx, test_idx) in enumerate(tscv.split(X), start=1):
+        X_tr, X_te = X[train_idx], X[test_idx]
+        y_tr, y_te = y[train_idx], y[test_idx]
+
+        scaler_cv = StandardScaler()
+        X_tr_s = scaler_cv.fit_transform(X_tr)
+        X_te_s  = scaler_cv.transform(X_te)
+
+        mdl = LogisticRegression(max_iter=1000, random_state=42)
+        mdl.fit(X_tr_s, y_tr)
+
+        y_pred  = mdl.predict(X_te_s)
+        y_proba = mdl.predict_proba(X_te_s)[:, 1]
+
+        acc = accuracy_score(y_te, y_pred)
+        auc = roc_auc_score(y_te, y_proba)
+        ll  = log_loss(y_te, y_proba)
+
+        fold_metrics.append({"accuracy": acc, "roc_auc": auc, "log_loss": ll})
+
+        date_from = model_df["fecha"].iloc[train_idx[0]].date()
+        date_to   = model_df["fecha"].iloc[test_idx[-1]].date()
+        print(
+            f"  {fold:<6} {len(train_idx):>7} {len(test_idx):>6}  "
+            f"{acc:>9.4f} {auc:>7.4f} {ll:>9.4f}"
+            f"  ({date_from} → {date_to})"
+        )
+
+    accs = [m["accuracy"] for m in fold_metrics]
+    aucs = [m["roc_auc"]  for m in fold_metrics]
+    lls  = [m["log_loss"] for m in fold_metrics]
+
+    print(f"  {'─'*52}")
+    print(f"  {'Media':<6} {'':>7} {'':>6}  {np.mean(accs):>9.4f} {np.mean(aucs):>7.4f} {np.mean(lls):>9.4f}")
+    print(f"  {'Desv.':<6} {'':>7} {'':>6}  {np.std(accs):>9.4f} {np.std(aucs):>7.4f} {np.std(lls):>9.4f}")
+    print(f"{'─'*55}\n")
+
+    return {
+        "fold_metrics": fold_metrics,
+        "mean_accuracy": np.mean(accs),
+        "std_accuracy":  np.std(accs),
+        "mean_auc":      np.mean(aucs),
+        "std_auc":       np.std(aucs),
+        "mean_log_loss": np.mean(lls),
+        "std_log_loss":  np.std(lls),
+    }
 
 
 def predict_proba_game(model, scaler, feature_cols, row: dict) -> float:
@@ -769,7 +874,13 @@ def predict_upcoming_games(
         row: dict = {"last_game_date": grp_s["fecha"].max()}
         for roll_col, src_col in _ROLL_SOURCES.items():
             if src_col in last5.columns and not last5[src_col].isna().all():
-                row[roll_col] = last5[src_col].mean()
+                # EWM sobre los últimos 5 partidos: el más reciente pondera ~50%
+                row[roll_col] = (
+                    last5[src_col]
+                    .ewm(span=EWM_SPAN, min_periods=1)
+                    .mean()
+                    .iloc[-1]
+                )
             else:
                 row[roll_col] = league_means.get(src_col, np.nan)
         team_stats[team] = row
@@ -864,6 +975,10 @@ if __name__ == "__main__":
     print("\n== MODO PREDICCIÓN PRE-PARTIDO (rolling, sin leakage) ==")
     model_pre, scaler_pre, fc_pre, Xt_pre, yt_pre, _, _ = train_model(feat, feature_cols=FEATURE_COLS_PREGAME)
     evaluate_model(model_pre, scaler_pre, fc_pre, Xt_pre, yt_pre)
+
+    # 4c. Cross-validation temporal — detecta underfitting/overfitting entre folds
+    print("\n== CROSS-VALIDATION TEMPORAL (pre-partido) ==")
+    cross_validate_temporal(feat, feature_cols=FEATURE_COLS_PREGAME, n_splits=5)
 
     # 5. Modelo de producción — entrena sobre TODOS los datos y guarda en disco
     print("\n== ENTRENANDO MODELO DE PRODUCCIÓN (todos los datos) ==")

@@ -659,7 +659,7 @@ Mismo esquema y formato que los demás PBP CSVs.
 - `drawConnections()` — escribe `svg.innerHTML`; re-dibuja en resize.
 - `cnxShowTip(event, idx)` / `cnxHideTip()` — tooltip; `idx` referencia `_cnxNodes[]`.
 
-**Sección "Radar de Jugador" (`j-radar`) — Liga Nacional únicamente:**
+**Sección "Radar de Jugador" (`j-radar`) — Liga Nacional y Liga Argentina:**
 - Visualización tipo radar hexagonal (estilo FIFA) con 6 ejes expresados en percentil 0–100.
 - **Criterio mínimo**: jugadores con ≥ 200 minutos jugados en la temporada (`RADAR_MIN_SEG = 12000` segundos). Los percentiles y la similitud se calculan solo dentro de ese conjunto.
 - **Búsqueda con autocomplete**: mismo patrón que `j-tiro`. Dos inputs: jugador A (obligatorio) y jugador B (opcional, se activa con el checkbox "Comparar con otro jugador").
@@ -744,7 +744,9 @@ Orden de ejes en el radar (sentido horario desde arriba): SCORING → SHOOTING �
 
 **CSS relevante**: clases con prefijo `.radar-*`. El bloque responsive en `@media (max-width:640px)` apila `.radar-chart-col` y `.radar-similar-col` verticalmente, limita el SVG a `max-width:380px`, y reduce `.radar-axis-grid` a 2 columnas. Las cartas FIFA (`#radarCards`) mantienen 3 columnas en mobile. En mobile, `.radar-controls` usa `align-items:center` y `.radar-search-group` tiene `width:100%;max-width:340px` para centrar la barra de búsqueda.
 
-**Nota de portabilidad**: esta sección existe actualmente solo en `docs/liga_nacional/index.html`. Si se porta a otras ligas, copiar el bloque CSS `.radar-*`, el HTML `sec-j-radar`, las funciones `radar*` y añadir `'j-radar':'jugadores'` a `_SUB_GROUP` y `'j-radar':4` a `_SUB_IDX`.
+**Jugador por defecto por liga**: Liga Nacional → CAFFARO; Liga Argentina → OSORES. Si el usuario ya eligió otro jugador antes, no lo pisa.
+
+**Nota de portabilidad**: esta sección existe en `docs/liga_nacional/index.html` y `docs/index.html` (Liga Argentina). Si se porta a otras ligas, copiar el bloque CSS `.radar-*`, el HTML `sec-j-radar`, las funciones `radar*` y añadir `'j-radar':'jugadores'` a `_SUB_GROUP` y `'j-radar':4` a `_SUB_IDX`.
 
 ## Comandos útiles
 ```bash

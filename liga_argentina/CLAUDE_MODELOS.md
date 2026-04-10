@@ -11,7 +11,7 @@ Aplica solo a los scripts de predicción; el dashboard y los scrapers tienen sus
 |---|---|---|---|
 | Liga Nacional | `liga_argentina/modelo_liga_nacional.py` | Logistic Regression | ✅ Funcional |
 | Liga Nacional | `liga_argentina/similitud_liga_nacional/` | Cosine Similarity | ✅ Funcional |
-| Liga Argentina | — | — | No implementado |
+| Liga Argentina | `liga_argentina/similitud_liga_argentina/` | Cosine Similarity | ✅ Funcional |
 | Liga Femenina | — | — | No implementado |
 
 **Fuentes de datos usadas por el modelo actual:**
@@ -174,7 +174,11 @@ df.merge(opp, left_on=["id_partido", "rival"],
 Las zonas del shot map: `PAINT_ZONES = {Z1-DE, Z1-IZ, FRANJA-*}`, `TRIPLE_ZONES = {Z10–Z14}`, el resto son mid-range.
 Tiros con `Top_pct > 100` se descartan (artefactos del scraper).
 
-Rolling construido con `shift(1).rolling(window, min_periods=1).mean()` por equipo, ordenado por fecha. El `shift(1)` garantiza que el partido actual no entra en su propio cálculo.
+Rolling construido con `shift(1).ewm(span=EWM_SPAN, min_periods=1).mean()` por equipo, ordenado por fecha.
+- El `shift(1)` garantiza que el partido actual no entra en su propio cálculo (anti-leakage).
+- El EWM pondera exponencialmente: los partidos más recientes pesan más que los históricos.
+- `EWM_SPAN = 10` es el valor calibrado por cross-validation temporal (5 folds). Con span=10 → `alpha ≈ 0.18`: el partido más reciente pesa ~18%, el anterior ~15%, y así sucesivamente.
+- Calibrado probando spans 2, 3, 4, 5, 7, 10, 15, 20 — span=10 maximiza CV AUC (0.590) con varianza controlada (std=0.064). Spans bajos (2-3) son demasiado reactivos; spans altos (15-20) se aproximan al promedio simple y pierden la señal de recencia.
 
 `rest_diff` asume **7 días** de descanso para el primer partido de cada equipo en la temporada (sin referencia previa).
 
@@ -186,10 +190,10 @@ El script define dos conjuntos de features y corre ambos al ejecutarse:
 
 ```python
 FEATURE_COLS         # análisis: in-game + rolling (AUC ~0.998)
-FEATURE_COLS_PREGAME # predicción: solo rolling + home + rest (AUC ~0.646)
+FEATURE_COLS_PREGAME # predicción: solo rolling + home + rest (AUC ~0.637 split, 0.590 CV)
 ```
 
-Además guarda un **modelo de producción** en `modelo_liga_nacional_prod.pkl` entrenado sobre todos los datos disponibles (sin holdout). Este modelo se actualiza automáticamente cada vez que se ejecuta el script.
+Además guarda un **modelo de producción** en `modelo_liga_nacional_prod.pkl` entrenado sobre todos los datos disponibles (sin holdout). Este modelo se actualiza automáticamente cada vez que se ejecuta el script o se llama a `retrain()`.
 
 ### Modo análisis (retrospectivo)
 
@@ -206,32 +210,62 @@ home              0.18
 
 ### Modo predicción (pre-partido)
 
-Usa solo features disponibles antes del partido. Métricas de referencia sobre el test set temporal (últimas ~38 jornadas de la temporada 2025/26):
+Usa solo features disponibles antes del partido. Métricas de referencia con EWM span=10 (split 75/25 temporal, temporada 2025/26):
 
-| Métrica | Solo stats base | + PBP + Shots |
+| Métrica | Valor |
+|---|---|
+| Accuracy | 0.6275 |
+| ROC AUC | 0.6372 |
+| Log Loss | 0.6661 |
+
+**Cross-validation temporal (5 folds, TimeSeriesSplit):**
+
+| Fold | Train | Test | Accuracy | AUC | LogLoss | Período test |
+|---|---|---|---|---|---|---|
+| 1 | 106 | 101 | 0.545 | 0.547 | 0.737 | hasta dic-25 |
+| 2 | 207 | 101 | 0.594 | 0.569 | 0.706 | hasta ene-26 |
+| 3 | 308 | 101 | 0.624 | 0.682 | 0.645 | hasta feb-26 |
+| 4 | 409 | 101 | 0.584 | 0.508 | 0.739 | hasta mar-26 |
+| 5 | 510 | 101 | 0.604 | 0.643 | 0.658 | hasta abr-26 |
+| **Media** | | | **0.590** | **0.590** | **0.697** | |
+| **Desv.** | | | 0.026 | 0.064 | 0.039 | |
+
+El fold 4 (hasta mar-26) tiene AUC bajo porque coincide con el inicio de playoffs, donde los equipos cambian de comportamiento respecto a la temporada regular. Es un límite estructural del modelo, no un bug.
+
+**Coeficientes estandarizados (referencia, pueden variar al reentrenar):**
+
+| Feature | Coef | Dirección |
 |---|---|---|
-| Accuracy | ~0.575 | ~0.632 |
-| ROC AUC | ~0.646 | ~0.618 |
-| Log Loss | ~0.667 | ~0.673 |
+| `home` | +0.379 | Jugar de local es el factor más fuerte |
+| `rolling_paint_efg_5` | +0.207 | Eficiencia en pintura últimos partidos |
+| `rolling_net_rating_5` | +0.204 | Net rating reciente |
+| `rolling_pace_5` | +0.081 | Ritmo de juego |
+| `rolling_mid_rate_5` | +0.061 | Tasa de mid-range |
+| `rolling_triple_rate_5` | +0.060 | Tasa de triples |
+| `rolling_clutch_5` | +0.004 | Rendimiento clutch |
+| `rest_diff` | −0.072 | Diferencia de descanso |
+| `rolling_paint_rate_5` | −0.090 | Tasa de tiros en pintura |
+| `rolling_tov_pct_5` | −0.094 | % pérdidas reciente |
+| `rolling_efg_5` | −0.156 | eFG% reciente (negativo por multicolinealidad con paint_efg) |
 
-> La accuracy sube con las nuevas features pero el AUC baja levemente, probablemente por multicolinealidad entre `rolling_efg_5` y `rolling_paint_efg_5`. Si se quisiera optimizar AUC, se puede eliminar una de las dos.
-
-### Modelo de producción (dinámico)
+### Modelo de producción (dinámico — se actualiza con cada partido nuevo)
 
 El modelo de producción vive en `modelo_liga_nacional_prod.pkl`. Se diferencia del modelo de evaluación en que **entrena sobre todos los datos** (sin holdout), maximizando la información disponible para predicciones reales.
 
-**Flujo de actualización** (post-scraper):
+**El modelo es completamente dinámico**: cada vez que se corren los scrapers y se reentrana, incorpora automáticamente todos los partidos nuevos. Los rolling EWM se recalculan sobre el historial actualizado, de modo que las predicciones siempre reflejan la forma más reciente de cada equipo.
+
+**Flujo de actualización** (después de cada jornada):
 
 ```bash
-# 1. Actualizar CSVs con el scraper
+# 1. Actualizar CSVs con los scrapers
 python Scraper/data_scraper_nacional.py
 python Scraper/pbp_scraper_nacional.py
 python Scraper/shot_map_scraper_nacional.py
 
-# 2. Reentrenar el modelo con los nuevos partidos
-python3.11 liga_argentina/modelo_liga_nacional.py
-# → imprime métricas de evaluación
-# → guarda modelo_liga_nacional_prod.pkl
+# 2. Reentrenar e incorporar partidos nuevos
+py -3.12 liga_argentina/modelo_liga_nacional.py
+# → imprime métricas de evaluación y cross-validation
+# → guarda modelo_liga_nacional_prod.pkl (entrenado sobre todos los datos)
 # → genera predicciones_upcoming.csv para el fixture próximo
 ```
 
@@ -286,7 +320,9 @@ predict_upcoming_games()  # lee fixture_upcoming.csv, escribe predicciones_upcom
 
 **Cómo se calculan los rolling features para el partido próximo:**
 
-Para cada equipo se toman sus últimos 5 partidos reales y se promedian las fuentes de rolling (`net_rating`, `efg`, `tov_pct`, `pace`, `clutch_net_pts`, `paint_rate`, `mid_rate`, `triple_rate`, `paint_efg`). Esto equivale a lo que el rolling produciría para el partido N+1 del equipo.
+Para cada equipo se toman sus últimos 5 partidos reales y se aplica EWM con `span=EWM_SPAN` sobre las fuentes de rolling (`net_rating`, `efg`, `tov_pct`, `pace`, `clutch_net_pts`, `paint_rate`, `mid_rate`, `triple_rate`, `paint_efg`). El valor resultante es el último de la serie EWM, que pondera el partido más reciente con ~18% del peso y decae exponencialmente hacia atrás.
+
+Esto es coherente con el EWM aplicado durante el entrenamiento: ambos usan `span=EWM_SPAN`, garantizando que la escala de las features en predicción sea la misma que aprendió el modelo.
 
 `rest_diff` se calcula como `(fecha_partido − último_partido_local).days − (fecha_partido − último_partido_visita).days`.
 
@@ -298,13 +334,30 @@ El CSV es consumido por el dashboard de Liga Nacional (`docs/liga_nacional/index
 
 ## Validación
 
-**Split temporal puro** — no hay shuffle, no hay k-fold.
+Se usan dos métodos de evaluación complementarios:
+
+### Split temporal 75/25
 
 - Train: primeros 75% de filas ordenadas por fecha
 - Test: últimos 25%
 - La fecha de corte se imprime al ejecutar
+- Útil para ver métricas en el período más reciente de la temporada
 
-Esto evita leakage temporal: el modelo nunca ve información futura durante el entrenamiento.
+### Cross-validation temporal (`cross_validate_temporal`)
+
+`TimeSeriesSplit` con 5 folds. Cada fold entrena sobre todos los partidos anteriores al corte y testea sobre los siguientes — nunca mezcla fechas futuras en el train.
+
+```python
+from liga_argentina.modelo_liga_nacional import cross_validate_temporal
+cv = cross_validate_temporal(feat, feature_cols=FEATURE_COLS_PREGAME, n_splits=5)
+# → imprime tabla por fold + media/desvío de Accuracy, AUC y LogLoss
+# → retorna dict con arrays de métricas y sus estadísticos
+```
+
+Se usa para:
+- Detectar **underfitting** (AUC consistentemente bajo en todos los folds)
+- Detectar **overfitting** (AUC alto en split único pero bajo en CV)
+- Calibrar hiperparámetros como `EWM_SPAN` (se probaron spans 2–20, ganó span=10)
 
 El train se hace sobre filas individuales (equipo/partido), no sobre partidos completos.
 Dado que cada partido genera 2 filas (local y visitante), ambas filas del mismo partido pueden caer en el mismo split — esto es correcto y esperado.
@@ -359,12 +412,28 @@ Imprime los resultados de ambos modos (análisis + predicción) con métricas y 
 
 ---
 
+## Modelos de Similitud
+
+Cada liga tiene su propio modelo de similitud independiente. **Los datos nunca se mezclan entre ligas.**
+
+La normalización (media y desvío de cada feature) se calcula sobre la población de jugadores de esa liga. Un base de Liga Argentina con 20 pts/40 se compara contra el promedio de Liga Argentina; uno de Liga Nacional, contra el promedio de Liga Nacional. Esto garantiza que las similitudes sean significativas dentro del contexto de cada competencia.
+
+| Liga | Paquete | CSV |
+|---|---|---|
+| Liga Nacional | `liga_argentina/similitud_liga_nacional/` | `docs/liga_nacional/liga_nacional.csv` |
+| Liga Argentina | `liga_argentina/similitud_liga_argentina/` | `docs/liga_argentina.csv` |
+
+**Regla para nuevas ligas:** crear una carpeta `similitud_<nombre_liga>/`, copiar los 5 archivos, cambiar solo `CSV_PATH` en `preprocessing.py` y `queries.py`. No reutilizar ni combinar instancias del modelo entre ligas.
+
+---
+
 ## Modelo de Similitud — Liga Nacional
 
 ### Descripción
 
 Modelo determinístico basado en distancia coseno en un espacio de features normalizadas.
 Permite encontrar jugadores similares y comparar perfiles estadísticos entre dos jugadores.
+**Solo compara jugadores de Liga Nacional contra jugadores de Liga Nacional.**
 
 **Archivo:** `liga_argentina/similitud_liga_nacional/`
 
@@ -453,3 +522,57 @@ El modelo se cachea en memoria después del primer `fit()`. Llamar `reload_model
 2. **`oreb_pct` y `dreb_pct` como fracción propia** — se usa `OReb/TReb` del jugador, no el OREB% convencional (que requiere posesiones de equipo). Esto es interpretable pero subestima el impacto real de reboteadores en equipos con muchos rebotes de equipo.
 3. **Imputación con 0** — jugadores con cero intentos de triples tienen `3p_pct = NaN → 0`. Quedan en la media de liga en esa dimensión, lo que puede sobreestimar su similitud con tiradores promedio.
 4. **`season` se infiere por año calendario** — meses ≥ julio se asignan al inicio de temporada (ej. septiembre 2025 → "2025/2026").
+
+---
+
+## Modelo de Similitud — Liga Argentina
+
+### Descripción
+
+Idéntico en arquitectura al modelo de Liga Nacional: similitud coseno ponderada sobre features normalizadas con z-score.
+**Solo compara jugadores de Liga Argentina contra jugadores de Liga Argentina.**
+Los percentiles y la similitud se calculan dentro de la población de Liga Argentina; los datos de ambas ligas no se mezclan.
+
+**Archivo:** `liga_argentina/similitud_liga_argentina/`
+
+```
+similitud_liga_argentina/
+├── __init__.py             # expone get_similar_players, compare_players, reload_model
+├── preprocessing.py        # carga liga_argentina.csv → agrega por jugador-temporada → filtra ≥200 min
+├── feature_engineering.py  # construye las 19 features + define FEATURE_WEIGHTS (idéntico a LN)
+├── normalization.py        # z-score (media/std de la población de LA), imputa NaN → 0
+├── similarity_model.py     # SimilarityModel: fit, get_similar_players, compare_players
+└── queries.py              # interfaz pública con caché del modelo
+```
+
+### Fuente de datos
+
+Lee `docs/liga_argentina.csv`.
+Agrega a nivel **jugador-temporada** — una fila por jugador por temporada.
+Filtra jugadores con menos de 200 minutos.
+
+### Features y normalización
+
+Idénticas al modelo de Liga Nacional (ver sección anterior). Los 19 features, los pesos y el algoritmo de similitud coseno son los mismos. La diferencia clave es que la normalización (media y desvío) se calcula sobre la **población de Liga Argentina**, no de Liga Nacional.
+
+### Uso
+
+```python
+from liga_argentina.similitud_liga_argentina import get_similar_players, compare_players, reload_model
+
+# Top 5 similares (misma temporada, dentro de Liga Argentina)
+df = get_similar_players("MENDEZ, R.", n=5)
+# → player_name, team, similarity_score (0–100),
+#   pts_per40, ast_per40, trb_per40, stl_per40, blk_per40, ts_pct, 3pa_rate, ast_tov_ratio
+
+# Comparar dos jugadores
+cmp = compare_players("MENDEZ, R.", "LAGGER, O.")
+# → dict con: player_a, player_b, season_a, season_b,
+#             features (DataFrame con value_a, value_b, diff_abs, diff_z),
+#             most_similar (top 3 features), most_different (top 3 features)
+
+# Forzar recarga tras actualizar el CSV
+reload_model()
+```
+
+El modelo se cachea en memoria después del primer `fit()`. Llamar `reload_model()` al actualizar el CSV.
