@@ -181,6 +181,7 @@ SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades 
 | Equipos | Tabla | `t-tabla` |
 | Equipos | Quintetos | `quintetos` |
 | Equipos | Comparar | `t-chart` |
+| Equipos | Tiros | `t-tiro` |
 | Equipos | Conexiones | `t-conexiones` |
 | Jugadores | Tabla | `j-tabla` |
 | Jugadores | Tiros | `j-tiro` |
@@ -195,6 +196,7 @@ SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades 
 - `t-tabla` — Tabla filtrable de equipos
 - `quintetos` — Mejores quintetos por equipo (requiere PBP)
 - `t-chart` — Scatter plot comparativo de equipos
+- `t-tiro` — Mapa de zonas de tiro consolidado por equipo
 - `t-conexiones` — Top 10 duplas de jugadores de un equipo ordenadas por asistencias/partido
 - `j-tabla` — Tabla filtrable de jugadores
 - `j-tiro` — Mapa de zonas de tiro por jugador
@@ -211,7 +213,7 @@ SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades 
 - `openGroup(group, defaultSection)` — activa el grupo (`'equipos'` | `'jugadores'`), muestra su sub-barra, y llama `switchSection(defaultSection)`.
 - `switchSection(id)` — muestra la sección `sec-{id}`, actualiza el estado activo de `.main-tab` y `.sub-tab`. Si `id` pertenece a un grupo (`_SUB_GROUP`), muestra la sub-barra correspondiente y marca el ítem correcto.
 - `_SUB_GROUP` — mapa `{sectionId → 'equipos'|'jugadores'}` para saber a qué grupo pertenece cada sección.
-- `_SUB_IDX` — mapa `{sectionId → 0|1|2|3|4}` para saber qué índice de `.sub-tab` marcar como activo. Jugadores: `j-tabla`=0, `j-tiro`=1, `j-chart`=2, `j-conexiones`=3, `j-radar`=4.
+- `_SUB_IDX` — mapa `{sectionId → índice}` para saber qué índice de `.sub-tab` marcar como activo. Equipos: `t-tabla`=0, `t-tcmp`=1, `t-chart`=2, `quintetos`=3, `t-tiro`=4, `t-conexiones`=5. Jugadores: `j-tabla`=0, `j-tiro`=1, `j-chart`=2, `j-conexiones`=3, `j-radar`=4.
 - `.main-tab.grp-active` — clase CSS adicional que se aplica al botón de grupo cuando alguna de sus sub-secciones está activa (color violeta, border-bottom violeta).
 
 **Filtro de período (Jugadores y Equipos):**
@@ -305,6 +307,20 @@ La tabla `j-tabla` tiene un toggle adicional: **Todos / Local / Visitante**.
 - `SHOTS_BY_PLAYER`: `Map<"Equipo||Dorsal" → rows[]>`, construido en `loadShots()` junto a `SHOTS_MAP`
 - `LEAGUE_ZONE_STATS`: stats de toda la liga por zona, calculado lazy una vez cargado `SHOTS_MAP`
 - `buildRAW_J` ahora guarda `DORSAL` (último valor de `Número Camiseta` visto por partido)
+
+**Sección "Tiro Equipos" (`t-tiro`):**
+Versión consolidada de `j-tiro` para un equipo completo. Misma lógica de zonas, coloreado y SVG overlay, pero con un `<select>` de equipos en lugar de autocomplete de jugadores.
+- **Selector de equipo**: `#tzcTeam` (`<select>`). Poblado en `tzcInit()` la primera vez que se abre la sección (guard `options.length > 1`). Orden alfabético. Al cambiar: `onTzcTeamChange()`.
+- **Filtro de período**: toggle **Temporada / Últ. 5 / Últ. 10**. Estado: `tzcPeriod` (`'all'|'last5'|'last10'`). Función: `setTzcPeriod(period)`.
+- **Recolección de tiros on-demand**: en lugar de un `SHOTS_BY_TEAM` separado, `onTzcTeamChange()` itera `SHOTS_MAP` y filtra `s['Equipo'] === teamName`. Esto evita modificar la función `loadShots()` ya existente.
+- **Ventana temporal para Últ. 5 / Últ. 10**: usa `team._gamelog.map(g => g.gameId)` (array ya ordenado cronológicamente por `buildRAW_T`) como `tzcTeamGameIds`, igual que `player._gameIds` en `j-tiro`. Se pasa a `szcFilterByPeriod(shots, period, tzcTeamGameIds)`.
+- **SVG overlay**: reutiliza `szcUpdateSvg(pStats, leagueStats, 'tzcSvg')` — el tercer argumento opcional `svgId` fue agregado a esa función para soportar ambas variantes sin duplicar código.
+- **Panel lateral de zonas**: `tzcRenderZoneCards(statsAll, statsL10, statsL5, LEAGUE_ZONE_STATS)` — espejo de `szcRenderZoneCards` pero con ID `#tzcZoneCards` y estado `tzcPeriod`.
+- **Canvas / SVG CSS**: `#tzcCanvas` y `#tzcSvg` tienen las mismas reglas que `#szcCanvas` / `#szcSvg`. En particular `#tzcSvg` necesita `position:absolute;top:0;left:0;width:100%;height:100%` para superponerse sobre el canvas como overlay.
+- **Estado global**: `tzcPeriod`, `tzcCurrentTeam`, `tzcTeamAllShots[]`, `tzcTeamGameIds`.
+- **Funciones JS**: `tzcInit()`, `onTzcTeamChange()`, `setTzcPeriod(period)`, `renderTzcZoneChart(canvas, teamShots)`, `tzcRenderZoneCards(statsAll, statsL10, statsL5, lStats)`.
+- **Nota de portabilidad**: al portar a otra liga, copiar el HTML `sec-t-tiro`, agregar `'t-tiro':'equipos'` a `_SUB_GROUP`, actualizar `_SUB_IDX` (ajustar el índice de `t-conexiones` si corresponde), y agregar `if(id==='t-tiro') { tzcInit(); }` en `switchSection`.
+- **Integridad de datos (dos fuentes)**: el gráfico usa `liga_*_shots.csv` (SHOTS_MAP) para contar tiros; las tablas usan `liga_*.csv` (box score). Para validar que cruzan: `t2i + t3i` de SHOTS_MAP debe coincidir con `team.T2I + team.T3I` del box score. Para filtros de período, comparar contra `sum(g.myS.t2i + g.myS.t3i)` de los gamelog entries filtrados por `tzcTeamGameIds.slice(-n)`. En la práctica puede haber un gap si el scraper de tiros no cubrió todos los partidos.
 
 **Shot map canvas:**
 - `renderShotMap()` lee `Left_pct/Top_pct` directamente como % del canvas

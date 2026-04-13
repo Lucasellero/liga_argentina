@@ -824,6 +824,8 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .szc-canvas-wrap{flex:0 0 auto;width:min(420px,100%);position:relative;}
 #szcCanvas{display:block;width:100%;border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,.55);}
 #szcSvg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;border-radius:12px;overflow:hidden;}
+#tzcCanvas{display:block;width:100%;border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,.55);}
+#tzcSvg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;border-radius:12px;overflow:hidden;}
 /* Right panel */
 .szc-right-panel{flex:1;min-width:150px;display:flex;flex-direction:column;gap:0;padding-top:0;}
 .szc-legend{display:flex;flex-direction:column;gap:6px;font-size:.73rem;color:var(--muted);}
@@ -1224,6 +1226,10 @@ canvas{display:block;width:100%;cursor:crosshair;}
   <button class="sub-tab" onclick="switchSection('quintetos')">
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="10" r="2"/><circle cx="19" cy="10" r="2"/><circle cx="8" cy="18" r="2"/><circle cx="16" cy="18" r="2"/></svg>
     Quintetos
+  </button>
+  <button class="sub-tab" onclick="switchSection('t-tiro')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg>
+    Tiros
   </button>
   <button class="sub-tab" onclick="switchSection('t-conexiones')">
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="12" r="3"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><path d="M12 12l5-4M12 12l5 4"/></svg>
@@ -2555,6 +2561,46 @@ canvas{display:block;width:100%;cursor:crosshair;}
   </div>
 </div>
 
+<!-- ============================= TIRO EQUIPOS ============================= -->
+<div class="section" id="sec-t-tiro">
+  <div class="szc-outer">
+    <div class="szc-header">
+      <div class="szc-search-wrap" style="display:flex;align-items:center;gap:0;">
+        <select id="tzcTeam" onchange="onTzcTeamChange()" style="width:100%;padding:7px 12px;background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:8px;font-size:.84rem;cursor:pointer;">
+          <option value="">Seleccioná un equipo...</option>
+        </select>
+      </div>
+      <div class="tbl-toggle">
+        <button class="active" id="tzcPeriodAll" onclick="setTzcPeriod('all')">Temporada</button>
+        <button id="tzcPeriodL5" onclick="setTzcPeriod('last5')">Últ. 5</button>
+        <button id="tzcPeriodL10" onclick="setTzcPeriod('last10')">Últ. 10</button>
+      </div>
+    </div>
+    <div id="tzcEmpty" class="szc-empty">Seleccioná un equipo para ver su mapa de tiro por zonas</div>
+    <div id="tzcLoading" class="szc-loading" style="display:none">Cargando datos de tiro...</div>
+    <div id="tzcMain" style="display:none">
+      <div class="szc-player-header">
+        <div>
+          <div class="szc-player-name" id="tzcTeamName"></div>
+        </div>
+        <div class="szc-player-shots" id="tzcTeamShots"></div>
+      </div>
+<div class="szc-body">
+        <div class="szc-canvas-wrap">
+          <canvas id="tzcCanvas"></canvas>
+          <svg id="tzcSvg" viewBox="0 0 14 15" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
+        <div class="szc-right-panel">
+          <div class="szc-zone-cards">
+            <div class="szc-zone-cards-title">Zonas</div>
+            <div id="tzcZoneCards"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ============================= CONEXIONES EQUIPO ============================= -->
 <div class="section" id="sec-t-conexiones">
   <div class="qnt-outer">
@@ -2882,6 +2928,10 @@ let szcPeriod='all';
 let szcCurrentIdx=-1;
 let szcPlayerAllShots=[];
 let szcPlayerGameIds=null;
+let tzcPeriod='all';
+let tzcCurrentTeam=null;
+let tzcTeamAllShots=[];
+let tzcTeamGameIds=null;
 let tSort='W%', tDir='desc';
 let jPts=[], tPts=[];
 let jHov=-1, jPin=new Set(), tHov=-1, tPin=-1;
@@ -2901,11 +2951,11 @@ const f1=v=>v==null||isNaN(v)?'—':v.toFixed(1);
 // NAV
 // ============================================================
 const _SUB_GROUP = {
-  't-tabla':'equipos','t-tcmp':'equipos','t-chart':'equipos','quintetos':'equipos','t-conexiones':'equipos',
+  't-tabla':'equipos','t-tcmp':'equipos','t-chart':'equipos','quintetos':'equipos','t-tiro':'equipos','t-conexiones':'equipos',
   'j-tabla':'jugadores','j-tiro':'jugadores','j-chart':'jugadores','j-conexiones':'jugadores','j-radar':'jugadores'
 };
 const _SUB_IDX = {
-  't-tabla':0,'t-tcmp':1,'t-chart':2,'quintetos':3,'t-conexiones':4,
+  't-tabla':0,'t-tcmp':1,'t-chart':2,'quintetos':3,'t-tiro':4,'t-conexiones':5,
   'j-tabla':0,'j-tiro':1,'j-chart':2,'j-conexiones':3,'j-radar':4
 };
 
@@ -2963,6 +3013,7 @@ function switchSection(id) {
   }
   if(id==='j-chart') setTimeout(drawJChart,30);
   if(id==='j-conexiones') { cnxInit(); setTimeout(drawConnections,30); }
+  if(id==='t-tiro') { tzcInit(); }
   if(id==='t-conexiones') { tCnxInit(); }
   if(id==='t-chart') setTimeout(drawTChart,30);
   if(id==='j-tabla') setTimeout(()=>remeasureScroll('jTableWrap'), 50);
@@ -5107,8 +5158,8 @@ function szcDrawZoneColors(ctx, W, H, m, playerStats, leagueStats) {
   ctx.putImageData(img, 0, 0);
 }
 
-function szcUpdateSvg(pStats, leagueStats) {
-  const svg = document.getElementById('szcSvg');
+function szcUpdateSvg(pStats, leagueStats, svgId='szcSvg') {
+  const svg = document.getElementById(svgId);
   if (!svg) return;
   const bx = 1.575, by = 7.5, R3 = 6.75;
   const dy1 = 0.9 - by; // -6.6
@@ -5325,6 +5376,140 @@ function selectSzcPlayer(idx) {
     document.getElementById('szcLoading').style.display = 'none';
     document.getElementById('szcMain').style.display = 'block';
     requestAnimationFrame(() => renderZoneChart(document.getElementById('szcCanvas'), shots));
+  };
+
+  if (SHOTS_MAP === null) loadShots().then(doRender); else doRender();
+}
+
+// ============================================================
+// TIRO POR ZONAS — EQUIPOS
+// ============================================================
+
+function tzcRenderZoneCards(statsAll, statsL10, statsL5, lStats) {
+  const el = document.getElementById('tzcZoneCards');
+  if (!el) return;
+  const aps = tzcPeriod === 'all' ? statsAll : tzcPeriod === 'last10' ? statsL10 : statsL5;
+  el.innerHTML = SZC_ZONES.map(zone => {
+    const ps = aps[zone];
+    const hasData = ps && ps.att > 0;
+    const hasAny = [statsAll, statsL10, statsL5].some(s => s[zone] && s[zone].att > 0);
+    let borderColor = '#1e293b';
+    let pctText = '—';
+    let shotsText = '';
+    let ligaHTML = '';
+    if (hasData) {
+      const ls = lStats ? lStats[zone] : null;
+      const zc = szcZoneColor(ps, ls);
+      borderColor = `rgb(${zc[0]},${zc[1]},${zc[2]})`;
+      pctText = (ps.makes / ps.att * 100).toFixed(1) + '%';
+      shotsText = `${ps.makes}/${ps.att}`;
+      if (ls && ls.att > 0) {
+        const diff = ps.makes / ps.att - ls.makes / ls.att;
+        const cls = diff >= 0.02 ? 'pos' : diff <= -0.02 ? 'neg' : 'neu';
+        ligaHTML = `<span class="szc-zone-card-diff ${cls}">Liga ${(ls.makes / ls.att * 100).toFixed(1)}%</span>`;
+      }
+    }
+    return `<div class="szc-zone-card${hasAny ? '' : ' szc-no-data'}" style="border-left-color:${borderColor}">
+      <div class="szc-zone-card-info">
+        <div class="szc-zone-card-name">${SZC_ZONE_LABELS[zone]}</div>
+        <div class="szc-zone-card-att">${shotsText}</div>
+      </div>
+      <div class="szc-zone-card-right">
+        <div class="szc-zone-card-pct">${pctText}</div>
+        ${ligaHTML}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderTzcZoneChart(canvas, teamShots) {
+  const W = canvas.offsetWidth || 400;
+  const H = Math.round(W * 15 / 14);
+  canvas.width = W; canvas.height = H;
+  const svg = document.getElementById('tzcSvg');
+  if (svg) svg.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  const m = W / 14;
+
+  if (!LEAGUE_ZONE_STATS && SHOTS_MAP) {
+    const all = [];
+    SHOTS_MAP.forEach(v => all.push(...v));
+    LEAGUE_ZONE_STATS = szcComputeStats(all);
+  }
+
+  const pStats = szcComputeStats(teamShots);
+  szcDrawZoneColors(ctx, W, H, m, pStats, LEAGUE_ZONE_STATS);
+  szcUpdateSvg(pStats, LEAGUE_ZONE_STATS, 'tzcSvg');
+  const statsAll = szcComputeStats(szcFilterByPeriod(tzcTeamAllShots, 'all', tzcTeamGameIds));
+  const statsL10 = szcComputeStats(szcFilterByPeriod(tzcTeamAllShots, 'last10', tzcTeamGameIds));
+  const statsL5  = szcComputeStats(szcFilterByPeriod(tzcTeamAllShots, 'last5', tzcTeamGameIds));
+  tzcRenderZoneCards(statsAll, statsL10, statsL5, LEAGUE_ZONE_STATS);
+}
+
+function setTzcPeriod(period) {
+  tzcPeriod = period;
+  ['tzcPeriodAll','tzcPeriodL5','tzcPeriodL10'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const map = {all:'tzcPeriodAll', last5:'tzcPeriodL5', last10:'tzcPeriodL10'};
+  document.getElementById(map[period]).classList.add('active');
+  if (tzcCurrentTeam) onTzcTeamChange();
+}
+
+function tzcInit() {
+  const sel = document.getElementById('tzcTeam');
+  if (!sel || sel.options.length > 1) return;
+  [...TEAMS].sort((a,b) => a.Equipo.localeCompare(b.Equipo)).forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.Equipo;
+    opt.textContent = t.Equipo;
+    sel.appendChild(opt);
+  });
+  if (tzcCurrentTeam) sel.value = tzcCurrentTeam;
+}
+
+function onTzcTeamChange() {
+  const sel = document.getElementById('tzcTeam');
+  const teamName = sel ? sel.value : '';
+  if (!teamName) {
+    document.getElementById('tzcEmpty').style.display = '';
+    document.getElementById('tzcMain').style.display = 'none';
+    document.getElementById('tzcLoading').style.display = 'none';
+    tzcCurrentTeam = null;
+    return;
+  }
+  tzcCurrentTeam = teamName;
+  document.getElementById('tzcEmpty').style.display = 'none';
+  document.getElementById('tzcMain').style.display = 'none';
+  document.getElementById('tzcLoading').style.display = 'block';
+
+  const doRender = () => {
+    // Collect all shots for this team
+    const allShots = [];
+    SHOTS_MAP.forEach(shots => {
+      shots.forEach(s => { if (s['Equipo'] === teamName) allShots.push(s); });
+    });
+    // Game IDs from gamelog (chronological order)
+    const team = TEAM_MAP[teamName];
+    tzcTeamGameIds = team ? team._gamelog.map(g => g.gameId) : null;
+    const gidSet = tzcTeamGameIds ? new Set(tzcTeamGameIds) : null;
+    const filteredShots = gidSet ? allShots.filter(s => gidSet.has(s['IdPartido'])) : allShots;
+    tzcTeamAllShots = filteredShots;
+    const shots = szcFilterByPeriod(filteredShots, tzcPeriod, tzcTeamGameIds);
+    // Shot summary badges
+    const t2i = shots.filter(s => s['Tipo'] === 'TIRO2').length;
+    const t2a = shots.filter(s => s['Tipo'] === 'TIRO2' && s['Resultado'] === 'CONVERTIDO').length;
+    const t3i = shots.filter(s => s['Tipo'] === 'TIRO3').length;
+    const t3a = shots.filter(s => s['Tipo'] === 'TIRO3' && s['Resultado'] === 'CONVERTIDO').length;
+    document.getElementById('tzcTeamName').textContent = teamName;
+    const shotsEl = document.getElementById('tzcTeamShots');
+    if (shotsEl) {
+      shotsEl.innerHTML = [
+        t2i ? `<span class="szc-pstat">2PT <b>${t2a}/${t2i}</b> ${(t2a/t2i*100).toFixed(0)}%</span>` : '',
+        t3i ? `<span class="szc-pstat">3PT <b>${t3a}/${t3i}</b> ${(t3a/t3i*100).toFixed(0)}%</span>` : '',
+      ].join('');
+    }
+document.getElementById('tzcLoading').style.display = 'none';
+    document.getElementById('tzcMain').style.display = 'block';
+    requestAnimationFrame(() => renderTzcZoneChart(document.getElementById('tzcCanvas'), shots));
   };
 
   if (SHOTS_MAP === null) loadShots().then(doRender); else doRender();
