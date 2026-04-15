@@ -4328,7 +4328,7 @@ function renderPostSeason() {
     (CONF_NORTE.has(s.teamA)||CONF_NORTE.has(s.teamB) ? northSeries : southSeries).push(s);
   });
 
-  function seriesCard(s) {
+  function seriesCard(s, phase) {
     const logoA = LOGOS[s.teamA]?`<img src="${LOGOS[s.teamA]}" style="width:38px;height:38px;object-fit:contain">`:'<span style="width:38px;height:38px;display:block"></span>';
     const logoB = LOGOS[s.teamB]?`<img src="${LOGOS[s.teamB]}" style="width:38px;height:38px;object-fit:contain">`:'<span style="width:38px;height:38px;display:block"></span>';
     const aLeads = s.winsA > s.winsB, bLeads = s.winsB > s.winsA;
@@ -4342,7 +4342,7 @@ function renderPostSeason() {
     // Status line
     let statusHtml = '';
     if (gamesPlayed === 0) {
-      statusHtml = `<div class="series-status">Serie al mejor de 3</div>`;
+      statusHtml = `<div class="series-status">Serie al mejor de ${phase==='playoff'?'5':'3'}</div>`;
     } else if (aLeads) {
       statusHtml = `<div class="series-status">Gana <span class="lead-name">${s.teamA}</span></div>`;
     } else if (bLeads) {
@@ -4404,12 +4404,12 @@ function renderPostSeason() {
     h += `<div class="playoff-conf-title">${confTitle}</div>`;
     if (playoff.length) {
       h += `<div class="playoff-phase-title">Playoffs</div><div class="playoff-grid">`;
-      playoff.forEach(s => { h += seriesCard(s); });
+      playoff.forEach(s => { h += seriesCard(s, 'playoff'); });
       h += `</div>`;
     }
     if (playin.length) {
       h += `<div class="playoff-phase-title">Play-in</div><div class="playoff-grid">`;
-      playin.forEach(s => { h += seriesCard(s); });
+      playin.forEach(s => { h += seriesCard(s, 'playin'); });
       h += `</div>`;
     }
     h += `</div>`;
