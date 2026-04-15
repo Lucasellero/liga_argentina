@@ -60,7 +60,7 @@ jobs:
 
       # ── Liga de Desarrollo ──────────────────────────────────────────────────
       - name: Stats – Liga de Desarrollo
-        run: python Scraper/data_scraper_proximo.py
+        run: python Scraper/data_scraper_proximo.py --full
 
       - name: Tiros – Liga de Desarrollo
         run: python Scraper/shot_map_scraper_proximo.py
