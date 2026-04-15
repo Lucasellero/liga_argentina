@@ -770,7 +770,11 @@ canvas{display:block;width:100%;cursor:crosshair;}
   font-size:.62rem;font-weight:800;color:var(--muted);
   text-transform:uppercase;letter-spacing:.9px;
   padding-bottom:8px;border-bottom:1px solid var(--border2);margin-bottom:8px;
+  display:flex;align-items:center;gap:10px;
 }
+.pday-post-badge{font-size:.58rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+  padding:2px 7px;border-radius:3px;color:#fbbf24;
+  border:1px solid rgba(251,191,36,.35);background:rgba(251,191,36,.10);}
 .pday-games{display:flex;flex-direction:column;gap:6px;}
 .partido-card{
   background:var(--surface);border:1px solid var(--border2);
@@ -4875,7 +4879,8 @@ function renderPartidoList(games, ascending=false) {
         </div>
       </div>`;
     }).join('');
-    html += `<div class="pday-group"><div class="pday-label">${label}</div><div class="pday-games">${cards}</div></div>`;
+    const postBadge = isPostSeason(fecha) ? '<span class="pday-post-badge">Post Temporada</span>' : '';
+    html += `<div class="pday-group"><div class="pday-label">${label}${postBadge}</div><div class="pday-games">${cards}</div></div>`;
   });
   el.innerHTML = html;
 

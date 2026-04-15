@@ -58,6 +58,16 @@ jobs:
       - name: Jugada a jugada – Liga Femenina
         run: python Scraper/pbp_scraper_femenina.py
 
+      # ── Liga de Desarrollo ──────────────────────────────────────────────────
+      - name: Stats – Liga de Desarrollo
+        run: python Scraper/data_scraper_proximo.py
+
+      - name: Tiros – Liga de Desarrollo
+        run: python Scraper/shot_map_scraper_proximo.py
+
+      - name: Jugada a jugada – Liga de Desarrollo
+        run: python Scraper/pbp_scraper_proximo.py
+
       # ── Commit + push (dispara deploy en Vercel) ────────────────────────────
       - name: Commitear CSVs actualizados
         run: |
@@ -72,6 +82,9 @@ jobs:
             docs/liga_nacional/liga_nacional_pbp.csv \
             docs/liga_femenina/liga_femenina.csv \
             docs/liga_femenina/liga_femenina_shots.csv \
-            docs/liga_femenina/liga_femenina_pbp.csv
+            docs/liga_femenina/liga_femenina_pbp.csv \
+            docs/liga_proximo/liga_proximo.csv \
+            docs/liga_proximo/liga_proximo_shots.csv \
+            docs/liga_proximo/liga_proximo_pbp.csv
           git diff --cached --quiet || git commit -m "data: actualizar CSVs $(date +'%d-%m-%Y')"
           git push
