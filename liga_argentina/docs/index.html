@@ -438,25 +438,32 @@ tbody td:nth-child(2){text-align:left;color:var(--muted);font-size:.76rem;}
 .playoff-conf-title{font-size:.75rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--purple-l);border-bottom:2px solid var(--purple);padding-bottom:6px;margin-bottom:16px;}
 .playoff-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:32px;}
 @media(max-width:640px){.playoff-grid{grid-template-columns:1fr;}}
-.series-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;}
-.series-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.series-team{display:flex;flex-direction:column;align-items:center;gap:5px;width:88px;padding:6px 4px;border-radius:8px;transition:background .15s;}
-.series-team.lead{background:rgba(139,92,246,.08);}
-.series-team img{width:36px;height:36px;object-fit:contain;}
-.series-team-name{font-size:.62rem;font-weight:700;color:var(--muted);text-align:center;line-height:1.2;}
+.series-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.series-card-top{padding:14px 16px 10px;}
+.series-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.series-team{display:flex;flex-direction:column;align-items:center;gap:5px;width:80px;}
+.series-team img{width:38px;height:38px;object-fit:contain;}
+.series-team-name{font-size:.6rem;font-weight:700;color:var(--muted);text-align:center;line-height:1.2;}
 .series-team-name.lead{color:var(--text-bright);font-weight:800;}
 .series-score-wrap{text-align:center;flex:1;}
-.series-score{font-size:1.6rem;font-weight:800;color:var(--text-bright);line-height:1;}
-.series-games{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--border2);padding-top:10px;margin-top:4px;}
-.series-game{display:flex;align-items:center;gap:8px;}
-.sg-label{color:var(--muted2);font-size:.6rem;font-weight:700;letter-spacing:.3px;width:20px;flex-shrink:0;}
-.sg-scores{display:flex;align-items:center;gap:4px;flex:1;}
-.sg-pts{font-size:.8rem;font-weight:600;color:var(--muted);width:28px;text-align:center;}
+.series-score{font-size:1.9rem;font-weight:900;color:var(--text-bright);line-height:1;letter-spacing:2px;}
+.series-score-vs{font-size:.75rem;font-weight:700;color:var(--muted2);letter-spacing:2px;margin-top:2px;}
+.series-status{text-align:center;font-size:.58rem;font-weight:700;letter-spacing:.4px;color:var(--muted2);text-transform:uppercase;margin-top:4px;padding-bottom:2px;}
+.series-status .lead-name{color:var(--purple-l);}
+.series-games{display:flex;flex-direction:column;border-top:1px solid var(--border2);}
+.series-game{display:flex;align-items:center;gap:6px;padding:7px 14px;border-bottom:1px solid var(--border2);}
+.series-game:last-child{border-bottom:none;}
+.series-game.sg-played{background:transparent;}
+.series-game.sg-next{background:rgba(139,92,246,.04);}
+.sg-label{color:var(--muted2);font-size:.58rem;font-weight:700;letter-spacing:.3px;width:18px;flex-shrink:0;}
+.sg-scores{display:flex;align-items:center;gap:5px;min-width:72px;}
+.sg-pts{font-size:.78rem;font-weight:600;color:var(--muted);width:26px;text-align:center;}
 .sg-pts.w{color:var(--text-bright);font-weight:800;}
-.sg-sep{color:var(--muted2);font-size:.65rem;}
-.sg-date{color:var(--muted2);font-size:.6rem;}
-.sg-pending{color:var(--muted2);font-size:.69rem;font-style:italic;flex:1;}
-.sg-stats-btn{margin-left:auto;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);color:var(--purple-l);font-size:.58rem;font-weight:700;padding:2px 8px;border-radius:10px;cursor:pointer;font-family:inherit;letter-spacing:.3px;transition:all .15s;white-space:nowrap;}
+.sg-sep{color:var(--border);font-size:.65rem;}
+.sg-date{color:var(--muted2);font-size:.58rem;flex:1;}
+.sg-hora{color:var(--muted);font-size:.7rem;font-weight:700;flex:1;}
+.sg-next-pill{font-size:.52rem;font-weight:800;letter-spacing:.4px;padding:2px 6px;border-radius:4px;color:#fbbf24;border:1px solid rgba(251,191,36,.3);background:rgba(251,191,36,.08);white-space:nowrap;}
+.sg-stats-btn{margin-left:auto;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);color:var(--purple-l);font-size:.57rem;font-weight:700;padding:2px 8px;border-radius:10px;cursor:pointer;font-family:inherit;letter-spacing:.3px;transition:all .15s;white-space:nowrap;}
 .sg-stats-btn:hover{background:rgba(139,92,246,.22);border-color:rgba(139,92,246,.55);}
 .ortg-hi{color:var(--purple-l);font-weight:700;}
 .drtg-lo{color:var(--teal-l);font-weight:700;}
@@ -4322,15 +4329,35 @@ function renderPostSeason() {
   });
 
   function seriesCard(s) {
-    const logoA = LOGOS[s.teamA]?`<img src="${LOGOS[s.teamA]}" style="width:36px;height:36px;object-fit:contain">`:'<span style="width:36px;height:36px;display:block"></span>';
-    const logoB = LOGOS[s.teamB]?`<img src="${LOGOS[s.teamB]}" style="width:36px;height:36px;object-fit:contain">`:'<span style="width:36px;height:36px;display:block"></span>';
+    const logoA = LOGOS[s.teamA]?`<img src="${LOGOS[s.teamA]}" style="width:38px;height:38px;object-fit:contain">`:'<span style="width:38px;height:38px;display:block"></span>';
+    const logoB = LOGOS[s.teamB]?`<img src="${LOGOS[s.teamB]}" style="width:38px;height:38px;object-fit:contain">`:'<span style="width:38px;height:38px;display:block"></span>';
     const aLeads = s.winsA > s.winsB, bLeads = s.winsB > s.winsA;
+    const gamesPlayed = s.games.filter(g => !g.upcoming).length;
+
+    // Series score or "vs" if not started
+    const scoreHtml = gamesPlayed === 0
+      ? `<div class="series-score-vs">VS</div>`
+      : `<div class="series-score">${s.winsA}<span style="color:var(--muted2);font-weight:400;font-size:1.2rem;margin:0 4px">–</span>${s.winsB}</div>`;
+
+    // Status line
+    let statusHtml = '';
+    if (gamesPlayed === 0) {
+      statusHtml = `<div class="series-status">Serie al mejor de 3</div>`;
+    } else if (aLeads) {
+      statusHtml = `<div class="series-status">Gana <span class="lead-name">${s.teamA}</span></div>`;
+    } else if (bLeads) {
+      statusHtml = `<div class="series-status">Gana <span class="lead-name">${s.teamB}</span></div>`;
+    } else {
+      statusHtml = `<div class="series-status">Serie igualada</div>`;
+    }
 
     const gamesHtml = s.games.map((g, idx) => {
       if (g.upcoming) {
-        return `<div class="series-game">
+        return `<div class="series-game sg-next">
           <span class="sg-label">J${idx+1}</span>
-          <span class="sg-pending">${g.hora} hs &nbsp;${g.fecha}</span>
+          <span class="sg-hora">${g.hora} hs</span>
+          <span class="sg-date">${g.fecha}</span>
+          <span class="sg-next-pill">Próximo</span>
         </div>`;
       }
       const aIsLocal = g.local === s.teamA;
@@ -4338,7 +4365,7 @@ function renderPostSeason() {
       const bScore = aIsLocal ? g.ptsVisit : g.ptsLocal;
       const aWin = (aIsLocal && g.ganLocal) || (!aIsLocal && !g.ganLocal);
       const safeId = (g.gameId||'').replace(/'/g, "\\'");
-      return `<div class="series-game">
+      return `<div class="series-game sg-played">
         <span class="sg-label">J${idx+1}</span>
         <div class="sg-scores">
           <span class="sg-pts${aWin?' w':''}">${aScore}</span>
@@ -4351,12 +4378,13 @@ function renderPostSeason() {
     }).join('');
 
     return `<div class="series-card">
-      <div class="series-header">
-        <div class="series-team${aLeads?' lead':''}">${logoA}<div class="series-team-name${aLeads?' lead':''}">${s.teamA}</div></div>
-        <div class="series-score-wrap">
-          <div class="series-score">${s.winsA} <span style="color:var(--muted2);font-size:1rem">–</span> ${s.winsB}</div>
+      <div class="series-card-top">
+        <div class="series-header">
+          <div class="series-team">${logoA}<div class="series-team-name${aLeads?' lead':''}">${s.teamA}</div></div>
+          <div class="series-score-wrap">${scoreHtml}</div>
+          <div class="series-team">${logoB}<div class="series-team-name${bLeads?' lead':''}">${s.teamB}</div></div>
         </div>
-        <div class="series-team${bLeads?' lead':''}">${logoB}<div class="series-team-name${bLeads?' lead':''}">${s.teamB}</div></div>
+        ${statusHtml}
       </div>
       <div class="series-games">${gamesHtml}</div>
     </div>`;
