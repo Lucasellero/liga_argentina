@@ -433,6 +433,8 @@ tbody td:nth-child(2){text-align:left;color:var(--muted);font-size:.76rem;}
 .pos-tab:hover:not(.active){background:rgba(139,92,246,.08);}
 /* ── Post temporada ── */
 .playoff-outer{padding:20px;max-width:900px;margin:0 auto;}
+.playoff-phase-block{padding:20px;max-width:900px;margin:0 auto;}
+.playoff-phase-title{font-size:1.1rem;font-weight:900;letter-spacing:.5px;color:var(--text-bright);margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid var(--border);}
 .playoff-conf-title{font-size:.75rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--purple-l);border-bottom:2px solid var(--purple);padding-bottom:6px;margin-bottom:16px;}
 .playoff-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:32px;}
 @media(max-width:640px){.playoff-grid{grid-template-columns:1fr;}}
@@ -4134,7 +4136,8 @@ function buildLeaders() {
 // ============================================================
 // POSICIONES POR CONFERENCIA
 // ============================================================
-const PLAYOFF_DATE = new Date(2026, 3, 1); // 1 de abril de 2026
+const PLAYOFF_DATE = new Date(2026, 3, 1);  // 1 de abril de 2026
+const PLAYOFF2_DATE = new Date(2026, 3, 15); // 15 de abril de 2026 — inicio Playoffs
 function isPostSeason(fechaStr) {
   if (!fechaStr) return false;
   const [d,m,y] = fechaStr.split('/');
@@ -4359,17 +4362,35 @@ function renderPostSeason() {
     </div>`;
   }
 
+  // Split series into Play-in vs Playoffs by date of first game
+  function seriesPhase(s) {
+    const [d,m,y] = s.games[0].fecha.split('/');
+    return new Date(+y,+m-1,+d) >= PLAYOFF2_DATE ? 'playoff' : 'playin';
+  }
+
+  function renderConf(series, confTitle) {
+    const playin  = series.filter(s => seriesPhase(s) === 'playin');
+    const playoff = series.filter(s => seriesPhase(s) === 'playoff');
+    if (!playin.length && !playoff.length) return '';
+    let h = `<div class="playoff-phase-block">`;
+    h += `<div class="playoff-conf-title">${confTitle}</div>`;
+    if (playoff.length) {
+      h += `<div class="playoff-phase-title">Playoffs</div><div class="playoff-grid">`;
+      playoff.forEach(s => { h += seriesCard(s); });
+      h += `</div>`;
+    }
+    if (playin.length) {
+      h += `<div class="playoff-phase-title">Play-in</div><div class="playoff-grid">`;
+      playin.forEach(s => { h += seriesCard(s); });
+      h += `</div>`;
+    }
+    h += `</div>`;
+    return h;
+  }
+
   let html = '';
-  if (northSeries.length) {
-    html += `<div class="playoff-outer"><div class="playoff-conf-title">Conferencia Norte</div><div class="playoff-grid">`;
-    northSeries.forEach(s => { html += seriesCard(s); });
-    html += `</div></div>`;
-  }
-  if (southSeries.length) {
-    html += `<div class="playoff-outer" style="padding-top:0"><div class="playoff-conf-title">Conferencia Sur</div><div class="playoff-grid">`;
-    southSeries.forEach(s => { html += seriesCard(s); });
-    html += `</div></div>`;
-  }
+  html += renderConf(northSeries, 'Conferencia Norte');
+  html += renderConf(southSeries, 'Conferencia Sur');
   document.getElementById('playoffContent').innerHTML = html;
 }
 
