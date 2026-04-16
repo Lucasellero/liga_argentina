@@ -919,6 +919,133 @@ Equipos confirmados hasta abril 2026:
 
 ---
 
+## Análisis Temporal por Cambio de Cuerpo Técnico — Liga Nacional
+
+Patrón para analizar el impacto de un cambio de entrenador durante la temporada.
+El informe divide la muestra en **3 períodos** y compara todas las métricas entre ellos.
+Implementado en `boca_scouting.py` para Boca Juniors (temporada 2025-26).
+
+### Archivos de datos (Liga Nacional)
+
+| Archivo | Descripción |
+|---|---|
+| `liga_argentina/docs/liga_nacional/liga_nacional.csv` | Box scores Liga Nacional |
+| `liga_argentina/docs/liga_nacional/liga_nacional_pbp.csv` | Play-by-play Liga Nacional |
+| `liga_argentina/docs/liga_nacional/liga_nacional_shots.csv` | Tiros Liga Nacional |
+
+### Segmentación de períodos
+
+```python
+CUTOFF = pd.Timestamp('YYYY-MM-DD')   # fecha del primer partido del nuevo técnico
+
+def get_period_dates(label):
+    if label == 'PRE':  return [d for d in game_dates if d < CUTOFF]
+    if label == 'CASA': return [d for d in game_dates if d >= CUTOFF]
+    if label == 'L5':   return game_dates[-5:]
+```
+
+> Para Boca Juniors — Casalanguida: `CUTOFF = pd.Timestamp('2026-02-02')`.
+> Identificar el corte imprimiendo el calendario del equipo ordenado por fecha.
+
+### Secciones del informe generado
+
+| # | Sección | Método |
+|---|---------|--------|
+| 1 | Perfil de tiro (evolución) | Box score: T2I/T3I/FGA, eFG%, FT Rate |
+| 2 | Ritmo y eficiencia | Pace, ORtg, DRtg, Net Rtg, TOV% |
+| 3 | Rebote | %OREB, %DREB vs rivales |
+| 4 | Puntos por cuarto | PBP: marcador al final de cada período |
+| 5 | Jugadores (Top 8 por min en L5) | Box score por período |
+| 6 | Distribución de tiro por zona | Shots CSV: Aro/Pintura, Media Dist, Triple |
+| 7 | Clutch | PBP: Q4 ≤5min, diff ≤5 pts — solo tiros de campo |
+| 8 | Conexiones (playmaking) | PBP: pares ASISTENCIA→CANASTA |
+| 9 | Quintetos (lineups) | PBP: tracking de cambios y segmentos |
+
+### Posesiones (estimación desde box score)
+
+```python
+# Una fila TOTALES por partido
+poss = FGA + 0.44 * FTA - OREB + TOV
+# FGA = T2I + T3I  |  FTA = T1I  |  OREB = OReb  |  TOV = Perdidas
+```
+
+### Clutch — detección correcta de eventos (¡bug crítico documentado!)
+
+Los tipos de evento en el PBP de Liga Nacional son:
+
+| Evento | Significado |
+|--------|-------------|
+| `CANASTA-2P` | Tiro de 2 convertido |
+| `CANASTA-3P` | Triple convertido |
+| `CANASTA-1P` | Tiro libre convertido — **NO contar como FGA** |
+| `TIRO2-FALLADO` | Tiro de 2 fallado |
+| `TIRO3-FALLADO` | Triple fallado |
+| `TIRO1-FALLADO` | Tiro libre fallado — **NO contar como FGA** |
+
+**Errores a evitar:**
+```python
+# INCORRECTO — nunca matchea
+if tipo.startswith('TIRO-FALLADO'): ...
+
+# CORRECTO — field goals únicamente
+CLUTCH_FG_TYPES = {'CANASTA-2P', 'CANASTA-3P', 'TIRO2-FALLADO', 'TIRO3-FALLADO'}
+if tipo not in CLUTCH_FG_TYPES: continue
+```
+
+### Conexiones (playmaking)
+
+El evento `ASISTENCIA` aparece **después** de `CANASTA-*` en el PBP, en el mismo timestamp.
+Buscar hacia atrás desde el evento de asistencia para encontrar la canasta previa:
+
+```python
+for i, row in game.iterrows():
+    if row['Tipo'] != 'ASISTENCIA': continue
+    # Buscar la canasta en las ~4 filas anteriores del mismo equipo
+    for j in range(i-1, max(i-5, -1), -1):
+        prev = game.iloc[j]
+        if prev['Equipo_lado'] == boca_side and prev['Tipo'].startswith('CANASTA'):
+            pairs.append((row['Jugador'], prev['Jugador']))
+            break
+```
+
+### Lineups — tracking via CAMBIO-JUGADOR
+
+```python
+# Eventos de sustitución:
+# 'CAMBIO-JUGADOR-ENTRA' → jugador ingresa
+# 'CAMBIO-JUGADOR-SALE'  → jugador sale
+# 'INICIO-PERIODO' / 'FINAL-PERIODO' → forzar cierre de segmento
+
+# El lineup de inicio de cada cuarto se reconstruye desde los
+# primeros CAMBIO-JUGADOR-ENTRA del período 1 del partido.
+```
+
+**Filtro mínimo recomendado:** quintetos con ≥ 5 minutos totales en el período.
+
+### Rating ofensivo y defensivo de lineup
+
+```python
+# Desde PBP, para cada segmento del quinteto:
+b_pts  = sum(pts_val for tipo in ['CANASTA-2P','CANASTA-3P','CANASTA-1P'])
+b_poss = FGA_seg - OREB_seg + TOV_seg + 0.44 * FTA_anunciados_seg
+
+ORtg = b_pts  / b_poss * 100
+DRtg = o_pts  / o_poss * 100
+Net  = ORtg - DRtg
+```
+
+### Parámetros a cambiar para otro equipo/técnico
+
+```python
+TEAM   = 'BOCA'                          # nombre exacto en df['Equipo'].unique()
+CUTOFF = pd.Timestamp('2026-02-02')      # fecha del primer partido del nuevo técnico
+BLUE   = RGBColor(0x00, 0x2D, 0x62)     # color primario del equipo
+GOLD   = RGBColor(0xF5, 0xC5, 0x18)     # color secundario
+OUT    = '/ruta/Scouting_Equipo.docx'    # path de salida
+```
+
+---
+
 ## Reportes generados
 
 | Archivo | Tipo | Equipo/Serie | Fecha |
@@ -926,5 +1053,6 @@ Equipos confirmados hasta abril 2026:
 | `scouting_la_union_vs_pico_fc.docx` | Serie playoffs | LA UNIÓN (C) vs PICO F.C. | Abril 2026 |
 | `scouting_provincial_vs_viedma.docx` | Serie playoffs | PROVINCIAL (R) vs DEP. VIEDMA | Abril 2026 |
 | `scouting_viedma_tendencias_reg_vs_playoffs.docx` | Tendencias Reg→PO | DEP. VIEDMA | Abril 2026 |
+| `Scouting_Boca_Juniors.docx` | Análisis temporal Pre/Post técnico | BOCA — Liga Nacional | Abril 2026 |
 
-> Script reutilizable en `/tmp/viedma_scouting.py` — parametrizar con `TEAM`, `TEAM_COLOR`, `PLAYOFF_CUTOFF`, `OUTPUT_NAME`.
+> Script Boca en `/Users/ramiellero/liga_argentina/boca_scouting.py` — reutilizable cambiando `TEAM`, `CUTOFF`, `BLUE`, `GOLD`, `OUT`.
