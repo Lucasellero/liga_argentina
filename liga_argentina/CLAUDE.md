@@ -102,32 +102,108 @@ Cada página tiene **4 botones** de navegación cruzada en el header, uno por ca
 Reemplazar los archivos en `docs/<nombre-liga>/` y pushear. Vercel re-deploya automáticamente.
 
 ## Estructura
+
+El repo tiene dos niveles: la raíz del repo (git root) y `liga_argentina/` que es el proyecto principal desplegado en Vercel.
+
 ```
-docs/
-  index.html              # App completa (SPA, ~3700 líneas, vanilla JS + Tailwind CDN)
-  liga_argentina.csv      # Stats por jugador/partido (~11k filas)
-  liga_argentina_shots.csv # Mapa de tiros (~57k filas)
-  liga_argentina_pbp.csv  # Jugada a jugada (eventos por partido)
-  fixture_upcoming.csv    # Partidos por jugar (fecha,hora,local,visitante,estadio)
-  liga_nacional/          # Liga Nacional (misma estructura, sirve en /liga_nacional/)
-  liga_femenina/          # Liga Femenina (misma estructura, sirve en /liga_femenina/)
-  liga_proximo/           # Liga de Desarrollo (misma estructura, sirve en /liga_proximo/)
-  logos/                  # JPEGs de equipos + scouteado_logo.png
-Scraper/
-  data_scraper.py         # Scraper principal de stats (Liga Argentina)
-  data_scraper_nacional.py # Scraper principal de stats (Liga Nacional)
-  data_scraper_femenina.py # Scraper principal de stats (Liga Femenina)
-  data_scraper_proximo.py  # Scraper principal de stats (Liga de Desarrollo)
-  shot_map_scraper.py     # Scraper de mapas de tiro (Liga Argentina)
-  shot_map_scraper_nacional.py # Scraper de mapas de tiro (Liga Nacional)
-  shot_map_scraper_femenina.py # Scraper de mapas de tiro (Liga Femenina)
-  shot_map_scraper_proximo.py  # Scraper de mapas de tiro (Liga de Desarrollo)
-  pbp_scraper.py          # Scraper de jugada a jugada (Liga Argentina)
-  pbp_scraper_nacional.py # Scraper de jugada a jugada (Liga Nacional)
-  pbp_scraper_femenina.py # Scraper de jugada a jugada (Liga Femenina)
-  pbp_scraper_proximo.py  # Scraper de jugada a jugada (Liga de Desarrollo)
-  requirements.txt        # cloudscraper, pandas, bs4, lxml, playwright
+<repo-root>/
+  .github/workflows/scraper.yml  # CI/CD: corre scrapers + retrain del modelo diariamente y pushea
+  backend/
+    .env                         # Variables de entorno del backend
+  scouting/                      # Análisis y reportes de scouting
+    boca_scouting.py             # Script de análisis ofensivo (rebotes) Boca
+    oreb_analysis.py             # Script de análisis de rebotes ofensivos
+    Claude_Scouting.md           # Guía de prompts para scouting con Claude
+    *.docx                       # Reportes de scouting exportados
+  liga_argentina/                # Proyecto principal (Vercel lo sirve desde aquí)
+
+liga_argentina/
+  vercel.json                    # Config Vercel: outputDirectory = "docs"
+  CLAUDE.md                      # Este archivo
+  Scraper/
+    data_scraper.py              # Scraper de stats (Liga Argentina)
+    data_scraper_nacional.py     # Scraper de stats (Liga Nacional)
+    data_scraper_femenina.py     # Scraper de stats (Liga Femenina)
+    data_scraper_proximo.py      # Scraper de stats (Liga de Desarrollo)
+    shot_map_scraper.py          # Scraper de mapas de tiro (Liga Argentina)
+    shot_map_scraper_nacional.py # Scraper de mapas de tiro (Liga Nacional)
+    shot_map_scraper_femenina.py # Scraper de mapas de tiro (Liga Femenina)
+    shot_map_scraper_proximo.py  # Scraper de mapas de tiro (Liga de Desarrollo)
+    pbp_scraper.py               # Scraper jugada a jugada (Liga Argentina)
+    pbp_scraper_nacional.py      # Scraper jugada a jugada (Liga Nacional)
+    pbp_scraper_femenina.py      # Scraper jugada a jugada (Liga Femenina)
+    pbp_scraper_proximo.py       # Scraper jugada a jugada (Liga de Desarrollo)
+    players_dob_scraper.py       # Scraper de fechas de nacimiento
+    update_nacional.py           # Orquestador: corre los 3 scrapers de Liga Nacional + retrain
+    requirements.txt             # cloudscraper, pandas, bs4, lxml, playwright, sklearn, joblib
+  modelos/                       # ML: predicción de resultados y similitud entre jugadores
+    CLAUDE_MODELOS.md            # Documentación técnica de los modelos
+    modelo_liga_nacional.py      # Regresión logística para predecir victorias (Liga Nacional)
+    modelo_liga_nacional_prod.pkl # Modelo serializado listo para producción
+    similitud_liga_argentina/    # Paquete Python: similitud entre jugadores (Liga Argentina)
+      feature_engineering.py
+      normalization.py
+      preprocessing.py
+      queries.py
+      similarity_model.py
+    similitud_liga_nacional/     # Paquete Python: similitud entre jugadores (Liga Nacional)
+      (misma estructura)
+  docs/                          # Raíz servida por Vercel
+    index.html                   # App Liga Argentina (SPA, ~3700 líneas, vanilla JS + Tailwind CDN)
+    liga_argentina.csv           # Stats por jugador/partido (~11k filas)
+    liga_argentina_shots.csv     # Mapa de tiros (~57k filas)
+    liga_argentina_pbp.csv       # Jugada a jugada (eventos por partido)
+    fixture_upcoming.csv         # Partidos por jugar (fecha,hora,local,visitante,estadio)
+    players_dob.csv              # Fechas de nacimiento (compartido entre ligas)
+    login.html                   # Auth compartida entre ligas
+    register.html                # Registro compartido entre ligas
+    logos/                       # JPEGs de equipos Liga Argentina + favicon/logo
+    stories/                     # Artículos de análisis (no linkeados desde la app)
+      story_equipos.html
+      story_ferro.html
+      story_independiente_o.html
+      story_la_union_fsa.html
+      story_jugador.html
+      story_obras.html
+      story_tomatis.html
+      story_equipos.md           # Borrador/fuente del artículo de equipos
+    liga_nacional/               # Liga Nacional (misma estructura, sirve en /liga_nacional/)
+      index.html
+      liga_nacional.csv
+      liga_nacional_shots.csv
+      liga_nacional_pbp.csv
+      fixture_upcoming.csv
+      predicciones_upcoming.csv  # Generado por modelos/modelo_liga_nacional.py
+      logos/
+    liga_femenina/               # Liga Femenina (sirve en /liga_femenina/)
+      (misma estructura)
+    liga_proximo/                # Liga de Desarrollo (sirve en /liga_proximo/)
+      (misma estructura)
 ```
+
+## Flujo de actualización automática
+
+El workflow `.github/workflows/scraper.yml` corre todos los días a las **06:00 ART** (cron `0 9 * * *` UTC). También se puede disparar manualmente desde GitHub Actions (`workflow_dispatch`).
+
+**Secuencia completa:**
+1. Scrapers Liga Argentina (stats, shots, PBP)
+2. Scrapers Liga Nacional (stats, shots, PBP)
+3. **Retrain del modelo de probabilidad** — `python modelos/modelo_liga_nacional.py`
+4. Scrapers Liga Femenina (stats, shots, PBP)
+5. Scrapers Liga de Desarrollo (stats, shots, PBP)
+6. `git commit` + `git push` → Vercel redeploya automáticamente
+
+**Archivos que actualiza el commit diario:**
+- Todos los CSVs de stats, shots y PBP de las 4 ligas
+- `docs/liga_nacional/predicciones_upcoming.csv` — probabilidades para partidos próximos
+- `modelos/modelo_liga_nacional_prod.pkl` — modelo serializado reentrenado
+
+**Para actualizar Liga Nacional manualmente** (equivale al workflow pero solo para esa liga):
+```bash
+python3.12 liga_argentina/Scraper/update_nacional.py
+```
+
+**Regla importante:** los scrapers individuales (`data_scraper_nacional.py`, etc.) siguen funcionando de forma independiente sin ningún cambio. `update_nacional.py` y el workflow los encadenan sin modificarlos.
 
 ## Fuente de datos
 - Liga Argentina URL base: `https://www.laliganacional.com.ar/laligaargentina`
