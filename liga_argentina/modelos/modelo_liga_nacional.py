@@ -56,12 +56,12 @@ COL = {
     "tov":        "Perdidas",
 }
 
-DATA_PATH    = "liga_argentina/docs/liga_nacional/liga_nacional.csv"
-PBP_PATH     = "liga_argentina/docs/liga_nacional/liga_nacional_pbp.csv"
-SHOTS_PATH   = "liga_argentina/docs/liga_nacional/liga_nacional_shots.csv"
-MODEL_PATH   = "liga_argentina/modelos/modelo_liga_nacional_prod.pkl"
-FIXTURE_PATH = "liga_argentina/docs/liga_nacional/fixture_upcoming.csv"
-PRED_PATH    = "liga_argentina/docs/liga_nacional/predicciones_upcoming.csv"
+DATA_PATH    = "docs/liga_nacional/liga_nacional.csv"
+PBP_PATH     = "docs/liga_nacional/liga_nacional_pbp.csv"
+SHOTS_PATH   = "docs/liga_nacional/liga_nacional_shots.csv"
+MODEL_PATH   = "modelos/modelo_liga_nacional_prod.pkl"
+FIXTURE_PATH = "docs/liga_nacional/fixture_upcoming.csv"
+PRED_PATH    = "docs/liga_nacional/predicciones_upcoming.csv"
 
 # Span del EWM: controla la velocidad de decaimiento exponencial.
 # alpha = 2 / (EWM_SPAN + 1). Con span=10 → alpha≈0.18 (~18% al partido más reciente).
