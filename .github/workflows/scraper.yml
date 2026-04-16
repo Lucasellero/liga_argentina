@@ -48,6 +48,10 @@ jobs:
       - name: Jugada a jugada – Liga Nacional
         run: python Scraper/pbp_scraper_nacional.py
 
+      # ── Modelo Liga Nacional ────────────────────────────────────────────────
+      - name: Reentrenar modelo de probabilidad – Liga Nacional
+        run: python modelos/modelo_liga_nacional.py
+
       # ── Liga Femenina ───────────────────────────────────────────────────────
       - name: Stats – Liga Femenina
         run: python Scraper/data_scraper_femenina.py
@@ -80,11 +84,13 @@ jobs:
             docs/liga_nacional/liga_nacional.csv \
             docs/liga_nacional/liga_nacional_shots.csv \
             docs/liga_nacional/liga_nacional_pbp.csv \
+            docs/liga_nacional/predicciones_upcoming.csv \
             docs/liga_femenina/liga_femenina.csv \
             docs/liga_femenina/liga_femenina_shots.csv \
             docs/liga_femenina/liga_femenina_pbp.csv \
             docs/liga_proximo/liga_proximo.csv \
             docs/liga_proximo/liga_proximo_shots.csv \
-            docs/liga_proximo/liga_proximo_pbp.csv
+            docs/liga_proximo/liga_proximo_pbp.csv \
+            modelos/modelo_liga_nacional_prod.pkl
           git diff --cached --quiet || git commit -m "data: actualizar CSVs $(date +'%d-%m-%Y')"
           git push
