@@ -437,7 +437,7 @@ tbody td:nth-child(2){text-align:left;color:var(--muted);font-size:.76rem;}
 .playoff-phase-title{font-size:1.1rem;font-weight:900;letter-spacing:.5px;color:var(--text-bright);margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid var(--border);}
 .playoff-conf-title{font-size:.75rem;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--purple-l);border-bottom:2px solid var(--purple);padding-bottom:6px;margin-bottom:16px;}
 .playoff-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:32px;}
-@media(max-width:640px){.playoff-grid{grid-template-columns:1fr;}}
+@media(max-width:640px){.playoff-grid{grid-template-columns:1fr;}.playoff-phase-block{padding:12px 14px;}.series-card-top{padding:10px 12px 8px;}}
 .series-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
 .series-card-top{padding:14px 16px 10px;}
 .series-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
@@ -4396,20 +4396,20 @@ function renderPostSeason() {
     return new Date(+y,+m-1,+d) >= PLAYOFF2_DATE ? 'playoff' : 'playin';
   }
 
-  function renderConf(series, confTitle) {
-    const playin  = series.filter(s => seriesPhase(s) === 'playin');
-    const playoff = series.filter(s => seriesPhase(s) === 'playoff');
-    if (!playin.length && !playoff.length) return '';
+  function renderPhase(phase, phaseTitle) {
+    const north = northSeries.filter(s => seriesPhase(s) === phase);
+    const south = southSeries.filter(s => seriesPhase(s) === phase);
+    if (!north.length && !south.length) return '';
     let h = `<div class="playoff-phase-block">`;
-    h += `<div class="playoff-conf-title">${confTitle}</div>`;
-    if (playoff.length) {
-      h += `<div class="playoff-phase-title">Playoffs</div><div class="playoff-grid">`;
-      playoff.forEach(s => { h += seriesCard(s, 'playoff'); });
+    h += `<div class="playoff-phase-title">${phaseTitle}</div>`;
+    if (north.length) {
+      h += `<div class="playoff-conf-title">Conferencia Norte</div><div class="playoff-grid">`;
+      north.forEach(s => { h += seriesCard(s, phase); });
       h += `</div>`;
     }
-    if (playin.length) {
-      h += `<div class="playoff-phase-title">Play-in</div><div class="playoff-grid">`;
-      playin.forEach(s => { h += seriesCard(s, 'playin'); });
+    if (south.length) {
+      h += `<div class="playoff-conf-title">Conferencia Sur</div><div class="playoff-grid">`;
+      south.forEach(s => { h += seriesCard(s, phase); });
       h += `</div>`;
     }
     h += `</div>`;
@@ -4417,8 +4417,8 @@ function renderPostSeason() {
   }
 
   let html = '';
-  html += renderConf(northSeries, 'Conferencia Norte');
-  html += renderConf(southSeries, 'Conferencia Sur');
+  html += renderPhase('playoff', 'Playoffs');
+  html += renderPhase('playin', 'Play-in');
   document.getElementById('playoffContent').innerHTML = html;
 }
 
