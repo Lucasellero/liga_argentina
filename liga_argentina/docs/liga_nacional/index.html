@@ -2454,6 +2454,11 @@ canvas{display:block;width:100%;cursor:crosshair;}
         <button id="szcPeriodL5" onclick="setSzcPeriod('last5')">Últ. 5</button>
         <button id="szcPeriodL10" onclick="setSzcPeriod('last10')">Últ. 10</button>
       </div>
+      <div class="tbl-toggle">
+        <button class="active" id="szcLocVisAll" onclick="setSzcLocVis('all')">Todos</button>
+        <button id="szcLocVisLocal" onclick="setSzcLocVis('local')">Local</button>
+        <button id="szcLocVisVisit" onclick="setSzcLocVis('visit')">Visitante</button>
+      </div>
     </div>
     <div id="szcEmpty" class="szc-empty">Buscá un jugador para ver su mapa de tiro por zonas</div>
     <div id="szcLoading" class="szc-loading" style="display:none">Cargando datos de tiro...</div>
@@ -2575,6 +2580,11 @@ canvas{display:block;width:100%;cursor:crosshair;}
         <button id="tzcPeriodL5" onclick="setTzcPeriod('last5')">Últ. 5</button>
         <button id="tzcPeriodL10" onclick="setTzcPeriod('last10')">Últ. 10</button>
       </div>
+      <div class="tbl-toggle">
+        <button class="active" id="tzcLocVisAll" onclick="setTzcLocVis('all')">Todos</button>
+        <button id="tzcLocVisLocal" onclick="setTzcLocVis('local')">Local</button>
+        <button id="tzcLocVisVisit" onclick="setTzcLocVis('visit')">Visitante</button>
+      </div>
     </div>
     <div id="tzcEmpty" class="szc-empty">Seleccioná un equipo para ver su mapa de tiro por zonas</div>
     <div id="tzcLoading" class="szc-loading" style="display:none">Cargando datos de tiro...</div>
@@ -2661,8 +2671,8 @@ canvas{display:block;width:100%;cursor:crosshair;}
 <div class="section" id="sec-lideres">
   <div class="leaders-outer">
     <div class="leaders-header">
-      <h2>Líderes <span>·</span> Últimos 5 partidos</h2>
-      <p>Promedio por partido · mín. 3 de los últimos 5 jugados · porcentajes con mín. 3 intentos</p>
+      <h2>Líderes <span>·</span> Últimos 5 Partidos</h2>
+      <p>Promedio por partido · mín. 1 partido jugado · porcentajes con mín. 3 intentos</p>
     </div>
     <div class="leaders-grid" id="leadersGrid"></div>
   </div>
@@ -2925,10 +2935,12 @@ let jLocVis='all';
 let tPeriod='all';
 let tLocVis='all';
 let szcPeriod='all';
+let szcLocVis='all';
 let szcCurrentIdx=-1;
 let szcPlayerAllShots=[];
 let szcPlayerGameIds=null;
 let tzcPeriod='all';
+let tzcLocVis='all';
 let tzcCurrentTeam=null;
 let tzcTeamAllShots=[];
 let tzcTeamGameIds=null;
@@ -3899,7 +3911,7 @@ function buildLeaders() {
   Object.values(LEADERS_DATA).forEach(cat => {
     const card = document.createElement('div');
     card.className = 'leader-card';
-    const rows = cat.entries.map((e,i) => {
+    const rows = cat.entries.slice(0,5).map((e,i) => {
       const isPct = cat.key.endsWith('PCT');
       const displayVal = isPct ? e.val.toFixed(1)+'%' : (e.val % 1 === 0 ? e.val.toFixed(0) : e.val.toFixed(1));
       const initials = e.name.split(',')[0].trim().slice(0,2);
@@ -3926,9 +3938,15 @@ function buildLeaders() {
 }
 
 // ============================================================
-// POSICIONES POR CONFERENCIA
+// POSICIONES
 // ============================================================
-// Liga Nacional no tiene conferencias — tabla única de posiciones
+
+const PLAYOFF_DATE = new Date(2026, 3, 1); // 1 de abril de 2026
+function isPostSeason(fechaStr) {
+  if (!fechaStr) return false;
+  const [d,m,y] = fechaStr.split('/');
+  return new Date(+y,+m-1,+d) >= PLAYOFF_DATE;
+}
 
 const LOGOS = {
   // Conferencia Norte
@@ -4795,6 +4813,11 @@ async function initApp() {
       player._last10Local=mkLocVisPeriod(gamesLocal,10);
       player._last5Visit=mkLocVisPeriod(gamesVisit,5);
       player._last10Visit=mkLocVisPeriod(gamesVisit,10);
+      // Phase (regular season vs post season)
+      const gamesReg=games.filter(r=>!isPostSeason(r['Fecha']));
+      const gamesPost=games.filter(r=>isPostSeason(r['Fecha']));
+      player._regular=mkLocVisPeriod(gamesReg,0);
+      player._post=mkLocVisPeriod(gamesPost,0);
     });
 
     // Team per-game
@@ -4876,29 +4899,32 @@ async function initApp() {
       }
     });
 
-    // Leaders — últimos 5 partidos de cada jugador
-    const L5 = PLAYERS.map(p => p._last5).filter(d => d && d.PJ >= 3);
+    // Leaders — últimos 5 partidos
     function top5(arr, keyFn) {
-      return [...arr].sort((a,b)=>keyFn(b)-keyFn(a)).slice(0,5)
+      return [...arr].sort((a,b)=>keyFn(b)-keyFn(a))
         .map(d=>({name:d.name,equipo:d.Equipo,val:Math.round(keyFn(d)*10)/10,gp:d.PJ}));
     }
     function top5Pct(arr, filterFn, pctFn) {
       return [...arr].filter(filterFn)
-        .sort((a,b)=>pctFn(b)-pctFn(a)).slice(0,5)
+        .sort((a,b)=>pctFn(b)-pctFn(a))
         .map(d=>({name:d.name,equipo:d.Equipo,val:Math.round(pctFn(d)*10)/10,gp:d.PJ}));
     }
-    LEADERS_DATA = {
-      VAL:   {label:'Valoración',  key:'VAL',   entries:top5(L5, d=>d.VPG)},
-      PTS:   {label:'Puntos',      key:'PTS',   entries:top5(L5, d=>d.PPG)},
-      REB:   {label:'Rebotes',     key:'REB',   entries:top5(L5, d=>d.RPG)},
-      AST:   {label:'Asistencias', key:'AST',   entries:top5(L5, d=>d.APG)},
-      REC:   {label:'Robos',       key:'REC',   entries:top5(L5, d=>d.SPG)},
-      TAP:   {label:'Tapones',     key:'TAP',   entries:top5(L5, d=>d.BPG)},
-      PER:   {label:'Pérdidas',    key:'PER',   entries:top5(L5, d=>d.TPG)},
-      T3PCT: {label:'% Triple',    key:'T3PCT', entries:top5Pct(L5, d=>d.T3IPG>=1, d=>d['T3%']||0)},
-      T2PCT: {label:'% Doble',     key:'T2PCT', entries:top5Pct(L5, d=>d.T2IPG>=2, d=>d['T2%']||0)},
-      T1PCT: {label:'% Libre',     key:'T1PCT', entries:top5Pct(L5, d=>d.T1IPG>=2, d=>d['T1%']||0)},
-    };
+    function buildLeadersDataset(arr) {
+      return {
+        VAL:   {label:'Valoración',  key:'VAL',   entries:top5(arr, d=>d.VPG)},
+        PTS:   {label:'Puntos',      key:'PTS',   entries:top5(arr, d=>d.PPG)},
+        REB:   {label:'Rebotes',     key:'REB',   entries:top5(arr, d=>d.RPG)},
+        AST:   {label:'Asistencias', key:'AST',   entries:top5(arr, d=>d.APG)},
+        REC:   {label:'Robos',       key:'REC',   entries:top5(arr, d=>d.SPG)},
+        TAP:   {label:'Tapones',     key:'TAP',   entries:top5(arr, d=>d.BPG)},
+        PER:   {label:'Pérdidas',    key:'PER',   entries:top5(arr, d=>d.TPG)},
+        T3PCT: {label:'% Triple',    key:'T3PCT', entries:top5Pct(arr, d=>d.T3IPG>=1, d=>d['T3%']||0)},
+        T2PCT: {label:'% Doble',     key:'T2PCT', entries:top5Pct(arr, d=>d.T2IPG>=2, d=>d['T2%']||0)},
+        T1PCT: {label:'% Libre',     key:'T1PCT', entries:top5Pct(arr, d=>d.T1IPG>=2, d=>d['T1%']||0)},
+      };
+    }
+    const L5 = PLAYERS.map(p => p._last5).filter(d => d && d.PJ >= 1);
+    LEADERS_DATA = buildLeadersDataset(L5);
 
     // Last update: max Fecha from rows
     const maxFecha = rows.reduce((max, r) => {
@@ -5283,9 +5309,11 @@ function renderZoneChart(canvas, playerShots) {
   const pStats = szcComputeStats(playerShots);
   szcDrawZoneColors(ctx, W, H, m, pStats, LEAGUE_ZONE_STATS);
   szcUpdateSvg(pStats, LEAGUE_ZONE_STATS);
-  const statsAll = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'all', szcPlayerGameIds));
-  const statsL10 = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'last10', szcPlayerGameIds));
-  const statsL5  = szcComputeStats(szcFilterByPeriod(szcPlayerAllShots, 'last5', szcPlayerGameIds));
+  const _lvShots = szcApplyLocVis(szcPlayerAllShots);
+  const _lvGIds = szcLocVis === 'all' ? szcPlayerGameIds : null;
+  const statsAll = szcComputeStats(szcFilterByPeriod(_lvShots, 'all', _lvGIds));
+  const statsL10 = szcComputeStats(szcFilterByPeriod(_lvShots, 'last10', _lvGIds));
+  const statsL5  = szcComputeStats(szcFilterByPeriod(_lvShots, 'last5', _lvGIds));
   szcRenderZoneCards(statsAll, statsL10, statsL5, LEAGUE_ZONE_STATS);
 }
 
@@ -5341,6 +5369,20 @@ function setSzcPeriod(period) {
   if (szcCurrentIdx >= 0) selectSzcPlayer(szcCurrentIdx);
 }
 
+function szcApplyLocVis(shots) {
+  if (szcLocVis === 'all') return shots;
+  const val = szcLocVis === 'local' ? 'True' : 'False';
+  return shots.filter(s => s['Local'] === val);
+}
+
+function setSzcLocVis(v) {
+  szcLocVis = v;
+  ['szcLocVisAll','szcLocVisLocal','szcLocVisVisit'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const map = {all:'szcLocVisAll', local:'szcLocVisLocal', visit:'szcLocVisVisit'};
+  document.getElementById(map[v]).classList.add('active');
+  if (szcCurrentIdx >= 0) selectSzcPlayer(szcCurrentIdx);
+}
+
 function selectSzcPlayer(idx) {
   szcCurrentIdx = idx;
   const player = PLAYERS[idx];
@@ -5360,7 +5402,9 @@ function selectSzcPlayer(idx) {
     const gidSet = szcPlayerGameIds ? new Set(szcPlayerGameIds) : null;
     const allShots = gidSet ? rawShots.filter(s => gidSet.has(s['IdPartido'])) : rawShots;
     szcPlayerAllShots = allShots;
-    const shots = szcFilterByPeriod(allShots, szcPeriod, szcPlayerGameIds);
+    const locVisShots = szcApplyLocVis(allShots);
+    const locVisGameIds = szcLocVis === 'all' ? szcPlayerGameIds : null;
+    const shots = szcFilterByPeriod(locVisShots, szcPeriod, locVisGameIds);
     // Shot summary badges
     const t2i = shots.filter(s => s['Tipo'] === 'TIRO2').length;
     const t2a = shots.filter(s => s['Tipo'] === 'TIRO2' && s['Resultado'] === 'CONVERTIDO').length;
@@ -5440,9 +5484,11 @@ function renderTzcZoneChart(canvas, teamShots) {
   const pStats = szcComputeStats(teamShots);
   szcDrawZoneColors(ctx, W, H, m, pStats, LEAGUE_ZONE_STATS);
   szcUpdateSvg(pStats, LEAGUE_ZONE_STATS, 'tzcSvg');
-  const statsAll = szcComputeStats(szcFilterByPeriod(tzcTeamAllShots, 'all', tzcTeamGameIds));
-  const statsL10 = szcComputeStats(szcFilterByPeriod(tzcTeamAllShots, 'last10', tzcTeamGameIds));
-  const statsL5  = szcComputeStats(szcFilterByPeriod(tzcTeamAllShots, 'last5', tzcTeamGameIds));
+  const _tlvShots = tzcApplyLocVis(tzcTeamAllShots);
+  const _tlvGIds = tzcLocVis === 'all' ? tzcTeamGameIds : null;
+  const statsAll = szcComputeStats(szcFilterByPeriod(_tlvShots, 'all', _tlvGIds));
+  const statsL10 = szcComputeStats(szcFilterByPeriod(_tlvShots, 'last10', _tlvGIds));
+  const statsL5  = szcComputeStats(szcFilterByPeriod(_tlvShots, 'last5', _tlvGIds));
   tzcRenderZoneCards(statsAll, statsL10, statsL5, LEAGUE_ZONE_STATS);
 }
 
@@ -5451,6 +5497,20 @@ function setTzcPeriod(period) {
   ['tzcPeriodAll','tzcPeriodL5','tzcPeriodL10'].forEach(id => document.getElementById(id).classList.remove('active'));
   const map = {all:'tzcPeriodAll', last5:'tzcPeriodL5', last10:'tzcPeriodL10'};
   document.getElementById(map[period]).classList.add('active');
+  if (tzcCurrentTeam) onTzcTeamChange();
+}
+
+function tzcApplyLocVis(shots) {
+  if (tzcLocVis === 'all') return shots;
+  const val = tzcLocVis === 'local' ? 'True' : 'False';
+  return shots.filter(s => s['Local'] === val);
+}
+
+function setTzcLocVis(v) {
+  tzcLocVis = v;
+  ['tzcLocVisAll','tzcLocVisLocal','tzcLocVisVisit'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const map = {all:'tzcLocVisAll', local:'tzcLocVisLocal', visit:'tzcLocVisVisit'};
+  document.getElementById(map[v]).classList.add('active');
   if (tzcCurrentTeam) onTzcTeamChange();
 }
 
@@ -5493,7 +5553,9 @@ function onTzcTeamChange() {
     const gidSet = tzcTeamGameIds ? new Set(tzcTeamGameIds) : null;
     const filteredShots = gidSet ? allShots.filter(s => gidSet.has(s['IdPartido'])) : allShots;
     tzcTeamAllShots = filteredShots;
-    const shots = szcFilterByPeriod(filteredShots, tzcPeriod, tzcTeamGameIds);
+    const tzcLocVisShots = tzcApplyLocVis(filteredShots);
+    const tzcLocVisGameIds = tzcLocVis === 'all' ? tzcTeamGameIds : null;
+    const shots = szcFilterByPeriod(tzcLocVisShots, tzcPeriod, tzcLocVisGameIds);
     // Shot summary badges
     const t2i = shots.filter(s => s['Tipo'] === 'TIRO2').length;
     const t2a = shots.filter(s => s['Tipo'] === 'TIRO2' && s['Resultado'] === 'CONVERTIDO').length;
