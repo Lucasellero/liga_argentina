@@ -992,6 +992,13 @@ if __name__ == "__main__":
     print("Construyendo rolling features (window=5)...")
     feat = build_rolling_features(feat)
 
+    # rolling_win_5: racha de victorias de los últimos 5 partidos (anti-leakage con shift(1))
+    feat = feat.sort_values(["equipo", "fecha"]).reset_index(drop=True)
+    feat["rolling_win_5"] = (
+        feat.groupby("equipo")["win"]
+        .transform(lambda s: s.shift(1).rolling(5, min_periods=1).mean())
+    )
+
     # 4a. Modelo completo (in-game + rolling) — análisis retrospectivo
     print("\n== MODO ANÁLISIS (in-game + rolling) ==")
     model_full, scaler_full, fc_full, Xt_full, yt_full, df_clean, _ = train_model(feat, feature_cols=FEATURE_COLS)
