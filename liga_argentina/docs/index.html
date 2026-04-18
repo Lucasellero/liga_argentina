@@ -2803,10 +2803,14 @@ canvas{display:block;width:100%;cursor:crosshair;}
     <div class="leaders-header">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
         <div>
-          <h2>Líderes <span>·</span> Últimos 5 Partidos</h2>
-          <p>Promedio por partido · mín. 1 partido jugado · porcentajes con mín. 3 intentos</p>
+          <h2 id="leadersTitle">Líderes <span>·</span> Post Temporada</h2>
+          <p id="leadersSubtitle">Promedio por partido · mín. 1 partido jugado · porcentajes con mín. 3 intentos</p>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0">
+          <div class="fsb-pills">
+            <button id="lPhaseReg" onclick="setLPhase('regular')">Temporada Regular</button>
+            <button class="active" id="lPhasePost" onclick="setLPhase('post')">Post Temporada</button>
+          </div>
           <div class="fsb-pills">
             <button class="active" id="lConfAll" onclick="setLConf('all')">Todos</button>
             <button id="lConfNorte" onclick="setLConf('norte')">Conf. Norte</button>
@@ -3080,6 +3084,7 @@ let tPhase='all'; // 'all' | 'regular' | 'post'
 let tLocVis='all';
 let tConf='all';
 let lConf='all';
+let lPhase='post';
 let szcPeriod='all';
 let szcLocVis='all';
 let szcCurrentIdx=-1;
@@ -3657,6 +3662,21 @@ function setLConf(v) {
   buildLeaders();
 }
 
+function setLPhase(v) {
+  lPhase=v;
+  ['lPhaseReg','lPhasePost'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});
+  const map={regular:'lPhaseReg',post:'lPhasePost'};
+  const btn=document.getElementById(map[v]); if(btn)btn.classList.add('active');
+  const titleEl=document.getElementById('leadersTitle');
+  const subEl=document.getElementById('leadersSubtitle');
+  if(titleEl) titleEl.innerHTML = v==='post' ? 'Líderes <span>·</span> Post Temporada' : 'Líderes <span>·</span> Temporada Regular';
+  if(subEl) subEl.textContent = v==='post'
+    ? 'Promedio por partido · mín. 1 partido jugado · porcentajes con mín. 3 intentos'
+    : 'Promedio por partido · mín. 5 partidos jugados · porcentajes con mín. 3 intentos';
+  LEADERS_DATA = v==='post' ? LEADERS_DATA_POST : LEADERS_DATA_REGULAR;
+  buildLeaders();
+}
+
 function renderTTable() {
   if(document.getElementById('tCardAdv')&&document.getElementById('tCardAdv').style.display!=='none'){renderTAdvTable();}
   let rows=[...tFiltered];
@@ -4115,6 +4135,8 @@ setupScrollSync('tTableWrap','tScrollOuter','tScrollInner');
 // LEADERS
 // ============================================================
 let LEADERS_DATA = {};
+let LEADERS_DATA_REGULAR = {};
+let LEADERS_DATA_POST = {};
 
 const LEADER_ICONS = {};
 const LEADER_COLORS = ['r1','r2','r3','',''];
@@ -5319,7 +5341,7 @@ async function initApp() {
       }
     });
 
-    // Leaders — últimos 5 partidos
+    // Leaders — por fase (Temporada Regular / Post Temporada)
     function top5(arr, keyFn) {
       return [...arr].sort((a,b)=>keyFn(b)-keyFn(a))
         .map(d=>({name:d.name,equipo:d.Equipo,val:Math.round(keyFn(d)*10)/10,gp:d.PJ}));
@@ -5343,8 +5365,11 @@ async function initApp() {
         T1PCT: {label:'% Libre',     key:'T1PCT', entries:top5Pct(arr, d=>d.T1IPG>=2, d=>d['T1%']||0)},
       };
     }
-    const L5 = PLAYERS.map(p => p._last5).filter(d => d && d.PJ >= 1);
-    LEADERS_DATA = buildLeadersDataset(L5);
+    const Lreg = PLAYERS.map(p => p._regular).filter(d => d && d.PJ >= 5);
+    const Lpost = PLAYERS.map(p => p._post).filter(d => d && d.PJ >= 1);
+    LEADERS_DATA_REGULAR = buildLeadersDataset(Lreg);
+    LEADERS_DATA_POST = buildLeadersDataset(Lpost);
+    LEADERS_DATA = LEADERS_DATA_POST;
 
     // Last update: max Fecha from rows
     const maxFecha = rows.reduce((max, r) => {
