@@ -2,7 +2,8 @@ name: Scraper diario
 
 on:
   schedule:
-    - cron: '0 9 * * *'   # 06:00 ART (UTC-3)
+    - cron: '30 4 * * *'   # 01:30 ART (UTC-3)
+    - cron: '0 9 * * *'    # 06:00 ART (UTC-3)
   workflow_dispatch:
 
 jobs:
