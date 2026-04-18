@@ -28,6 +28,7 @@ import pandas as pd
 import joblib
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import accuracy_score, roc_auc_score, log_loss
 from sklearn.model_selection import TimeSeriesSplit
 
@@ -564,7 +565,7 @@ def train_model(df: pd.DataFrame, train_frac: float = 0.75, feature_cols: list =
     X_train = scaler.fit_transform(X_train)
     X_test  = scaler.transform(X_test)
 
-    model = LogisticRegression(max_iter=1000, random_state=42)
+    model = LogisticRegression(max_iter=1000, random_state=42, C=0.2)
     model.fit(X_train, y_train)
 
     # Guardar índice de corte para referencia
@@ -668,7 +669,7 @@ def cross_validate_temporal(
         X_tr_s = scaler_cv.fit_transform(X_tr)
         X_te_s  = scaler_cv.transform(X_te)
 
-        mdl = LogisticRegression(max_iter=1000, random_state=42)
+        mdl = LogisticRegression(max_iter=1000, random_state=42, C=0.2)
         mdl.fit(X_tr_s, y_tr)
 
         y_pred  = mdl.predict(X_te_s)
@@ -804,7 +805,12 @@ def retrain(save: bool = True, verbose: bool = True) -> tuple:
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
-    model = LogisticRegression(max_iter=1000, random_state=42)
+    # C=0.2: regularización más fuerte para reducir el sesgo de local.
+    # CalibratedClassifierCV (Platt scaling, cv=5): ajusta las probabilidades
+    # para que el "65% local" refleje la tasa de victorias real en ese rango,
+    # no solo la confianza bruta del modelo lineal.
+    base_model = LogisticRegression(max_iter=1000, random_state=42, C=0.2)
+    model = CalibratedClassifierCV(base_model, method="sigmoid", cv=5)
     model.fit(X_scaled, y)
 
     n_games = df_clean["id_partido"].nunique()
@@ -814,6 +820,8 @@ def retrain(save: bool = True, verbose: bool = True) -> tuple:
         print(f"  Partidos incorporados : {n_games}")
         print(f"  Último partido        : {last_game.date()}")
         print(f"  Features              : {FEATURE_COLS_PREGAME}")
+        print(f"  Regularización        : C=0.2 (vs default C=1.0)")
+        print(f"  Calibración           : Platt scaling (sigmoid, cv=5)")
 
     if save:
         save_model(model, scaler, FEATURE_COLS_PREGAME, n_games=n_games)

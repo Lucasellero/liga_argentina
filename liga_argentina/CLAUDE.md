@@ -344,6 +344,13 @@ La tabla `j-tabla` tiene un toggle adicional: **Todos / Local / Visitante**.
   - `szcFilterByPeriod(shots, period, gameIds)`: filtra tiros a los últimos N partidos. Acepta un tercer argumento `gameIds` (array de `IdPartido` ya ordenados cronológicamente desde `player._gameIds`). Si `gameIds` está presente, usa `gameIds.slice(-n)` como fuente de verdad — esto garantiza que "último 5" coincida exactamente con la tabla de jugadores. Sin `gameIds` (fallback), deriva los partidos del shots CSV ordenando fechas con `new Date(ay,am-1,ad)` (DD/MM/YYYY). **No usar comparación lexicográfica sobre strings DD/MM/YYYY** — da resultados incorrectos entre fechas de distintos meses.
   - `player._gameIds`: array de `IdPartido` (strings) correspondiente a `player._games`, en orden cronológico ascendente. Se computa en `initApp()` junto a `_last5`/`_last10`. Permite que `szcFilterByPeriod` use la misma ventana de partidos que la tabla.
   - `szcPlayerGameIds`: variable global (inicialmente `null`) que se actualiza en `selectSzcPlayer()` con `player._gameIds`. Se pasa a todas las llamadas de `szcFilterByPeriod` (incluyendo las de `renderZoneChart` para las zone cards).
+- **Filtro Local/Visitante**: toggle **Todos / Local / Visitante** en el `.szc-header` (junto al filtro de período). Por defecto "Todos".
+  - Estado: `szcLocVis` (`'all'|'local'|'visit'`).
+  - `szcApplyLocVis(shots)`: filtra por `s['Local'] === 'True'` (local) o `'False'` (visitante). Devuelve el array sin modificar si `szcLocVis === 'all'`.
+  - `setSzcLocVis(v)`: actualiza estado, botón activo, y re-renderiza si hay jugador seleccionado.
+  - Cuando `szcLocVis !== 'all'`, se pasa `null` como `gameIds` a `szcFilterByPeriod` (en lugar de `szcPlayerGameIds`). Esto hace que "Últ. 5 Local" tome los últimos 5 partidos como local (derivados de los tiros ya filtrados), no los últimos 5 partidos totales.
+  - `selectSzcPlayer()` aplica `szcApplyLocVis` sobre `allShots` antes de llamar a `szcFilterByPeriod`. `renderZoneChart()` aplica `szcApplyLocVis` sobre `szcPlayerAllShots` al recomputar `statsAll`/`statsL10`/`statsL5` para las zone cards.
+  - Los badges 2PT/3PT del header del jugador también reflejan solo los tiros de la condición seleccionada.
   - **Limitación conocida**: el matching `Equipo||Dorsal` falla si el jugador cambió dorsal durante la temporada (ej. NOVATTI en Liga Femenina usó #6 en un partido) o si hay dos jugadores con el mismo nombre abreviado en el mismo equipo (ej. MARTINEZ, M. #14 y #55 en UNION FLORIDA). En esos casos el mapa de tiros puede mostrar stats incompletas.
   - **Jugadores que llegan mid-season con dorsal ya usado**: si un jugador nuevo toma un número que ya usó otro jugador en el mismo equipo (ej. SCHATTMANN llega a Instituto con #20, que era de BOONE), `SHOTS_BY_PLAYER.get('INSTITUTO||20')` mezclaría tiros de ambos. **Fix aplicado**: en `selectSzcPlayer()`, `allShots` se pre-filtra por `player._gameIds` antes de cualquier filtro de período. Así cada jugador ve solo los tiros de los partidos donde él efectivamente jugó para ese equipo, independientemente de quién más usó ese dorsal.
 - **7 zonas** (1 pintura + 3 mid-range 2pt + 3 triples):
@@ -388,13 +395,20 @@ La tabla `j-tabla` tiene un toggle adicional: **Todos / Local / Visitante**.
 Versión consolidada de `j-tiro` para un equipo completo. Misma lógica de zonas, coloreado y SVG overlay, pero con un `<select>` de equipos en lugar de autocomplete de jugadores.
 - **Selector de equipo**: `#tzcTeam` (`<select>`). Poblado en `tzcInit()` la primera vez que se abre la sección (guard `options.length > 1`). Orden alfabético. Al cambiar: `onTzcTeamChange()`.
 - **Filtro de período**: toggle **Temporada / Últ. 5 / Últ. 10**. Estado: `tzcPeriod` (`'all'|'last5'|'last10'`). Función: `setTzcPeriod(period)`.
+- **Filtro Local/Visitante**: toggle **Todos / Local / Visitante** en el `.szc-header` (junto al filtro de período). Por defecto "Todos".
+  - Estado: `tzcLocVis` (`'all'|'local'|'visit'`).
+  - `tzcApplyLocVis(shots)`: filtra por `s['Local'] === 'True'` (local) o `'False'` (visitante). Devuelve el array sin modificar si `tzcLocVis === 'all'`.
+  - `setTzcLocVis(v)`: actualiza estado, botón activo, y re-renderiza si hay equipo seleccionado.
+  - Cuando `tzcLocVis !== 'all'`, se pasa `null` como `gameIds` a `szcFilterByPeriod` (en lugar de `tzcTeamGameIds`). Así "Últ. 5 Local" toma los últimos 5 partidos como local (derivados de los tiros ya filtrados).
+  - `onTzcTeamChange()` aplica `tzcApplyLocVis` sobre `filteredShots` antes de `szcFilterByPeriod`. `renderTzcZoneChart()` aplica `tzcApplyLocVis` sobre `tzcTeamAllShots` al recomputar las zone cards.
+  - Los badges 2PT/3PT del header de equipo también reflejan solo los tiros de la condición seleccionada.
 - **Recolección de tiros on-demand**: en lugar de un `SHOTS_BY_TEAM` separado, `onTzcTeamChange()` itera `SHOTS_MAP` y filtra `s['Equipo'] === teamName`. Esto evita modificar la función `loadShots()` ya existente.
 - **Ventana temporal para Últ. 5 / Últ. 10**: usa `team._gamelog.map(g => g.gameId)` (array ya ordenado cronológicamente por `buildRAW_T`) como `tzcTeamGameIds`, igual que `player._gameIds` en `j-tiro`. Se pasa a `szcFilterByPeriod(shots, period, tzcTeamGameIds)`.
 - **SVG overlay**: reutiliza `szcUpdateSvg(pStats, leagueStats, 'tzcSvg')` — el tercer argumento opcional `svgId` fue agregado a esa función para soportar ambas variantes sin duplicar código.
 - **Panel lateral de zonas**: `tzcRenderZoneCards(statsAll, statsL10, statsL5, LEAGUE_ZONE_STATS)` — espejo de `szcRenderZoneCards` pero con ID `#tzcZoneCards` y estado `tzcPeriod`.
 - **Canvas / SVG CSS**: `#tzcCanvas` y `#tzcSvg` tienen las mismas reglas que `#szcCanvas` / `#szcSvg`. En particular `#tzcSvg` necesita `position:absolute;top:0;left:0;width:100%;height:100%` para superponerse sobre el canvas como overlay.
-- **Estado global**: `tzcPeriod`, `tzcCurrentTeam`, `tzcTeamAllShots[]`, `tzcTeamGameIds`.
-- **Funciones JS**: `tzcInit()`, `onTzcTeamChange()`, `setTzcPeriod(period)`, `renderTzcZoneChart(canvas, teamShots)`, `tzcRenderZoneCards(statsAll, statsL10, statsL5, lStats)`.
+- **Estado global**: `tzcPeriod`, `tzcLocVis`, `tzcCurrentTeam`, `tzcTeamAllShots[]`, `tzcTeamGameIds`.
+- **Funciones JS**: `tzcInit()`, `onTzcTeamChange()`, `setTzcPeriod(period)`, `tzcApplyLocVis(shots)`, `setTzcLocVis(v)`, `renderTzcZoneChart(canvas, teamShots)`, `tzcRenderZoneCards(statsAll, statsL10, statsL5, lStats)`.
 - **Nota de portabilidad**: al portar a otra liga, copiar el HTML `sec-t-tiro`, agregar `'t-tiro':'equipos'` a `_SUB_GROUP`, actualizar `_SUB_IDX` (ajustar el índice de `t-conexiones` si corresponde), y agregar `if(id==='t-tiro') { tzcInit(); }` en `switchSection`.
 - **Integridad de datos (dos fuentes)**: el gráfico usa `liga_*_shots.csv` (SHOTS_MAP) para contar tiros; las tablas usan `liga_*.csv` (box score). Para validar que cruzan: `t2i + t3i` de SHOTS_MAP debe coincidir con `team.T2I + team.T3I` del box score. Para filtros de período, comparar contra `sum(g.myS.t2i + g.myS.t3i)` de los gamelog entries filtrados por `tzcTeamGameIds.slice(-n)`. En la práctica puede haber un gap si el scraper de tiros no cubrió todos los partidos.
 
