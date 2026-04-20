@@ -13,34 +13,35 @@ import unittest
 from pathlib import Path
 
 DOCS = Path(__file__).parent.parent / "docs"
+SHARED = DOCS / "shared"
 
 LIGAS = [
     {
         "name": "liga_argentina",
-        "html": DOCS / "index.html",
-        "js": DOCS / "liga_argentina.js",
-        "css_ref": "common.css",
+        "html": DOCS / "liga_argentina" / "index.html",
+        "js": DOCS / "liga_argentina" / "liga_argentina.js",
+        "css_ref": "../shared/common.css",
         "js_ref": "liga_argentina.js",
     },
     {
         "name": "liga_nacional",
         "html": DOCS / "liga_nacional" / "index.html",
         "js": DOCS / "liga_nacional" / "liga_nacional.js",
-        "css_ref": "../common.css",
+        "css_ref": "../shared/common.css",
         "js_ref": "liga_nacional.js",
     },
     {
         "name": "liga_proximo",
         "html": DOCS / "liga_proximo" / "index.html",
         "js": DOCS / "liga_proximo" / "liga_proximo.js",
-        "css_ref": "../common.css",
+        "css_ref": "../shared/common.css",
         "js_ref": "liga_proximo.js",
     },
     {
         "name": "liga_femenina",
         "html": DOCS / "liga_femenina" / "index.html",
         "js": DOCS / "liga_femenina" / "liga_femenina.js",
-        "css_ref": "../common.css",
+        "css_ref": "../shared/common.css",
         "js_ref": "liga_femenina.js",
     },
 ]
@@ -52,10 +53,10 @@ MIN_CSS_LINES = 500    # common.css should be substantial
 
 class TestExternalFilesExist(unittest.TestCase):
     def test_common_css_exists(self):
-        self.assertTrue((DOCS / "common.css").exists(), "common.css missing")
+        self.assertTrue((SHARED / "common.css").exists(), "shared/common.css missing")
 
     def test_common_css_size(self):
-        lines = (DOCS / "common.css").read_text().splitlines()
+        lines = (SHARED / "common.css").read_text().splitlines()
         self.assertGreater(len(lines), MIN_CSS_LINES,
                            f"common.css has only {len(lines)} lines, expected >{MIN_CSS_LINES}")
 
@@ -193,7 +194,7 @@ class TestHashRouting(unittest.TestCase):
 class TestWorkflowSafety(unittest.TestCase):
     """Ensure the GitHub Actions scraper workflow is untouched."""
 
-    WORKFLOW = Path(__file__).parent.parent.parent / ".github" / "workflows" / "scraper.yml"
+    WORKFLOW = Path(__file__).parent.parent / ".github" / "workflows" / "scraper.yml"
 
     def test_workflow_exists(self):
         self.assertTrue(self.WORKFLOW.exists(), "scraper.yml workflow missing")
