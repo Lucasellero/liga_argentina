@@ -1653,16 +1653,16 @@
           <h2 id="leadersTitle">Líderes <span>·</span> Post Temporada</h2>
           <p id="leadersSubtitle">Promedio por partido · mín. 1 partido jugado · porcentajes con mín. 3 intentos</p>
         </div>
-        <div style="display:flex;flex-direction:row;align-items:flex-start;gap:8px;flex-shrink:0;flex-wrap:wrap">
-          <div class="fsb-pills">
-            <button id="lPhaseReg" onclick="setLPhase('regular')">Temporada Regular</button>
-            <button class="active" id="lPhasePost" onclick="setLPhase('post')">Post Temporada</button>
-          </div>
-          <div class="fsb-pills">
-            <button class="active" id="lConfAll" onclick="setLConf('all')">Todos</button>
-            <button id="lConfNorte" onclick="setLConf('norte')">Conf. Norte</button>
-            <button id="lConfSur" onclick="setLConf('sur')">Conf. Sur</button>
-          </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap">
+          <select class="leaders-select" id="lPhaseSelect" onchange="setLPhase(this.value)">
+            <option value="regular">Temporada Regular</option>
+            <option value="post" selected>Post Temporada</option>
+          </select>
+          <select class="leaders-select" id="lConfSelect" onchange="setLConf(this.value)">
+            <option value="all" selected>Todos</option>
+            <option value="norte">Conf. Norte</option>
+            <option value="sur">Conf. Sur</option>
+          </select>
         </div>
       </div>
     </div>

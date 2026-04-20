@@ -832,17 +832,13 @@ function setTConf(v) {
 
 function setLConf(v) {
   lConf=v;
-  ['lConfAll','lConfNorte','lConfSur'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});
-  const map={all:'lConfAll',norte:'lConfNorte',sur:'lConfSur'};
-  const btn=document.getElementById(map[v]); if(btn)btn.classList.add('active');
+  const sel=document.getElementById('lConfSelect'); if(sel) sel.value=v;
   buildLeaders();
 }
 
 function setLPhase(v) {
   lPhase=v;
-  ['lPhaseReg','lPhasePost'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});
-  const map={regular:'lPhaseReg',post:'lPhasePost'};
-  const btn=document.getElementById(map[v]); if(btn)btn.classList.add('active');
+  const sel=document.getElementById('lPhaseSelect'); if(sel) sel.value=v;
   const titleEl=document.getElementById('leadersTitle');
   const subEl=document.getElementById('leadersSubtitle');
   if(titleEl) titleEl.innerHTML = v==='post' ? 'Líderes <span>·</span> Post Temporada' : 'Líderes <span>·</span> Temporada Regular';

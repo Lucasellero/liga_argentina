@@ -1186,3 +1186,24 @@ canvas{display:block;width:100%;cursor:crosshair;}
   .radar-cards-row{grid-template-columns:repeat(3,1fr);gap:6px;}
   .radar-axis-grid{grid-template-columns:repeat(2,1fr);}
 }
+
+/* ── Leaders filters ─────────────────────────────────────────────────────── */
+.leaders-select {
+  appearance: none;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 5px 28px 5px 11px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23a78bfa' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  transition: border-color .15s, background-color .15s;
+}
+.leaders-select:hover { border-color: rgba(139,92,246,.5); background-color: var(--surface3); }
+.leaders-select option { background: var(--surface2); color: var(--text); }
