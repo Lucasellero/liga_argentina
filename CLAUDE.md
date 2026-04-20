@@ -610,6 +610,27 @@ El script es servido automáticamente por Vercel cuando Analytics está habilita
 - No modificar el sistema de coordenadas del shot map
 - No alterar la paleta de colores del proyecto (variables CSS `--bg`, `--purple`, `--teal`, etc.; la paleta de zonas de tiro sí puede cambiar)
 
+## Routing — bug conocido y regla de rutas relativas
+
+**Regla crítica**: nunca usar rutas relativas simples (ej. `'liga_nacional/'`) en redirects JS dentro de subcarpetas de `docs/`. Siempre usar rutas absolutas (`'/liga_nacional/'`) o relativas con nivel explícito (`'../liga_nacional/'`).
+
+**Bug documentado (corregido en abril 2026):** `docs/liga_argentina/index.html` tenía este bloque al inicio del `<head>`:
+
+```js
+const _ref = document.referrer;
+const _sameOrigin = _ref && new URL(_ref).host === window.location.host;
+if (!_sameOrigin) window.location.replace('liga_nacional/');
+```
+
+Cuando alguien accedía a `/liga_argentina/` desde un link externo (WhatsApp, nueva pestaña, refrescar), `document.referrer` estaba vacío → `_sameOrigin` era falsy → se ejecutaba `replace('liga_nacional/')`. Esa ruta relativa desde `/liga_argentina/` resolvía a `/liga_argentina/liga_nacional/` (no existe) → **Vercel devolvía 404: NOT_FOUND**.
+
+El bloque fue eliminado. No agregar redirects condicionales por referrer en páginas de liga; si hace falta redirigir tráfico externo, hacerlo desde `docs/index.html` (la raíz) con rutas absolutas.
+
+**Por qué el resto del routing es correcto y no necesita cambios:**
+- Vercel no necesita SPA rewrites porque cada liga tiene su propio `index.html` estático en `docs/<liga>/`
+- El hash routing (`history.replaceState('#equipos/t-tabla')`) nunca llega al servidor — Vercel solo ve `/liga_argentina/`
+- Refrescar o compartir un link con hash (`/liga_argentina/#jugadores/j-radar`) funciona correctamente
+
 **Sección "Quintetos" (`quintetos`):**
 - Selector de equipo (poblado desde `TEAMS` al abrir el tab) + filtro de minutos mínimos
 - Carga lazy del PBP al seleccionar equipo; `computeLineups()` se ejecuta una sola vez y queda en `LINEUP_DATA`
