@@ -30,7 +30,7 @@ BASE_URL = "https://www.laliganacional.com.ar"
 LEAGUE_PATH = "/laligaargentina"
 FIXTURE_START_DATE = "30/10/2025"  # Fixed season start
 
-OUTPUT_DIR = Path(__file__).parent.parent / "docs"
+OUTPUT_DIR = Path(__file__).parent.parent / "docs" / "liga_argentina"
 DEBUG_DIR = Path(__file__).parent / "debug_html"
 
 REQUEST_DELAY = 0.8   # seconds between requests

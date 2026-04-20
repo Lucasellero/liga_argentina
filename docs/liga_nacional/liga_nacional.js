@@ -65,7 +65,7 @@ function authLogout() {
 // DATA — loaded dynamically from CSV
 // ============================================================
 const CSV_PATH = 'liga_nacional.csv';
-const DOB_PATH = '../players_dob.csv';
+const DOB_PATH = '../shared/players_dob.csv';
 let DOB_MAP = {};
 function calcAge(dob) {
   if (!dob) return null;

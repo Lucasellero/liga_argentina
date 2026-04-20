@@ -30,7 +30,7 @@ from bs4 import BeautifulSoup
 BASE_URL = "https://www.laliganacional.com.ar"
 LEAGUE   = "/laligaargentina"
 
-DOCS_DIR   = Path(__file__).parent.parent / "docs"
+DOCS_DIR   = Path(__file__).parent.parent / "docs" / "liga_argentina"
 INPUT_CSV  = DOCS_DIR / "liga_argentina.csv"
 OUTPUT_CSV = DOCS_DIR / "liga_argentina_pbp.csv"
 

@@ -58,7 +58,7 @@ LEAGUES = [
     },
 ]
 
-OUTPUT_PATH = Path(__file__).parent.parent / "docs" / "players_dob.csv"
+OUTPUT_PATH = Path(__file__).parent.parent / "docs" / "shared" / "players_dob.csv"
 
 REQUEST_DELAY = 0.5   # segundos entre requests
 REQUEST_TIMEOUT = 30

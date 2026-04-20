@@ -13,10 +13,6 @@ jobs:
     permissions:
       contents: write
 
-    defaults:
-      run:
-        working-directory: liga_argentina   # todos los comandos corren desde aquí
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -27,27 +23,27 @@ jobs:
           python-version: '3.11'
 
       - name: Instalar dependencias
-        run: pip install -r Scraper/requirements.txt
+        run: pip install -r scraper/requirements.txt
 
       # ── Liga Argentina ──────────────────────────────────────────────────────
       - name: Stats – Liga Argentina
-        run: python Scraper/data_scraper.py
+        run: python scraper/data_scraper.py
 
       - name: Tiros – Liga Argentina
-        run: python Scraper/shot_map_scraper.py
+        run: python scraper/shot_map_scraper.py
 
       - name: Jugada a jugada – Liga Argentina
-        run: python Scraper/pbp_scraper.py
+        run: python scraper/pbp_scraper.py
 
       # ── Liga Nacional ───────────────────────────────────────────────────────
       - name: Stats – Liga Nacional
-        run: python Scraper/data_scraper_nacional.py
+        run: python scraper/data_scraper_nacional.py
 
       - name: Tiros – Liga Nacional
-        run: python Scraper/shot_map_scraper_nacional.py
+        run: python scraper/shot_map_scraper_nacional.py
 
       - name: Jugada a jugada – Liga Nacional
-        run: python Scraper/pbp_scraper_nacional.py
+        run: python scraper/pbp_scraper_nacional.py
 
       # ── Modelo Liga Nacional ────────────────────────────────────────────────
       - name: Reentrenar modelo de probabilidad – Liga Nacional
@@ -55,23 +51,23 @@ jobs:
 
       # ── Liga Femenina ───────────────────────────────────────────────────────
       - name: Stats – Liga Femenina
-        run: python Scraper/data_scraper_femenina.py
+        run: python scraper/data_scraper_femenina.py
 
       - name: Tiros – Liga Femenina
-        run: python Scraper/shot_map_scraper_femenina.py
+        run: python scraper/shot_map_scraper_femenina.py
 
       - name: Jugada a jugada – Liga Femenina
-        run: python Scraper/pbp_scraper_femenina.py
+        run: python scraper/pbp_scraper_femenina.py
 
       # ── Liga de Desarrollo ──────────────────────────────────────────────────
       - name: Stats – Liga de Desarrollo
-        run: python Scraper/data_scraper_proximo.py
+        run: python scraper/data_scraper_proximo.py
 
       - name: Tiros – Liga de Desarrollo
-        run: python Scraper/shot_map_scraper_proximo.py
+        run: python scraper/shot_map_scraper_proximo.py
 
       - name: Jugada a jugada – Liga de Desarrollo
-        run: python Scraper/pbp_scraper_proximo.py
+        run: python scraper/pbp_scraper_proximo.py
 
       # ── Commit + push (dispara deploy en Vercel) ────────────────────────────
       - name: Commitear CSVs actualizados
@@ -79,9 +75,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add \
-            docs/liga_argentina.csv \
-            docs/liga_argentina_shots.csv \
-            docs/liga_argentina_pbp.csv \
+            docs/liga_argentina/liga_argentina.csv \
+            docs/liga_argentina/liga_argentina_shots.csv \
+            docs/liga_argentina/liga_argentina_pbp.csv \
             docs/liga_nacional/liga_nacional.csv \
             docs/liga_nacional/liga_nacional_shots.csv \
             docs/liga_nacional/liga_nacional_pbp.csv \

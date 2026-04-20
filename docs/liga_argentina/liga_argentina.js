@@ -1,7 +1,7 @@
 // ── Auth guard ────────────────────────────────────────────────────────────────
 (function() {
-  const LOGIN_URL    = 'login.html';
-  const REGISTER_URL = 'register.html';
+  const LOGIN_URL    = '../login.html';
+  const REGISTER_URL = '../register.html';
   const token = localStorage.getItem('auth_token');
   let isAuthed = false;
   if (token) {
@@ -57,7 +57,7 @@
 function authLogout() {
   localStorage.removeItem('auth_token');
   localStorage.removeItem('auth_user');
-  window.location.replace('login.html');
+  window.location.replace('../login.html');
 }
 
 // ============================================================
@@ -65,7 +65,7 @@ function authLogout() {
 // DATA — loaded dynamically from CSV
 // ============================================================
 const CSV_PATH = 'liga_argentina.csv';
-const DOB_PATH = 'players_dob.csv';
+const DOB_PATH = '../shared/players_dob.csv';
 let DOB_MAP = {};
 function calcAge(dob) {
   if (!dob) return null;
