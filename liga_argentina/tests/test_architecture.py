@@ -4,6 +4,7 @@ Tests to validate the refactored static architecture:
 - JS is extracted to external files (no large inline scripts)
 - External files exist and have reasonable size
 - <style> blocks in HTML are empty
+- Hash-based routing is implemented (switchSection updates hash, initApp reads it)
 """
 
 import os
@@ -134,6 +135,59 @@ class TestHTMLSize(unittest.TestCase):
                 lines = liga["html"].read_text().splitlines()
                 self.assertLess(len(lines), MAX_HTML_LINES,
                                 f'{liga["name"]} HTML has {len(lines)} lines, expected <{MAX_HTML_LINES}')
+
+
+class TestHashRouting(unittest.TestCase):
+    def test_switch_section_updates_hash(self):
+        for liga in LIGAS:
+            with self.subTest(liga=liga["name"]):
+                content = liga["js"].read_text()
+                self.assertIn("history.replaceState",
+                              content,
+                              f"{liga['name']}.js: switchSection must call history.replaceState")
+
+    def test_hash_uses_group_prefix(self):
+        """Sub-sections should produce group/section format (e.g. jugadores/j-radar)."""
+        for liga in LIGAS:
+            with self.subTest(liga=liga["name"]):
+                content = liga["js"].read_text()
+                self.assertIn("_grpName + '/' + id",
+                              content,
+                              f"{liga['name']}.js: hash must use group/section format")
+
+    def test_initapp_reads_hash_on_load(self):
+        for liga in LIGAS:
+            with self.subTest(liga=liga["name"]):
+                content = liga["js"].read_text()
+                self.assertIn("window.location.hash.slice(1)",
+                              content,
+                              f"{liga['name']}.js: initApp().then() must read the hash on load")
+
+    def test_hash_reader_parses_nested(self):
+        """Hash reader must handle both 'section' and 'group/section' formats."""
+        for liga in LIGAS:
+            with self.subTest(liga=liga["name"]):
+                content = liga["js"].read_text()
+                self.assertIn("_h.includes('/')",
+                              content,
+                              f"{liga['name']}.js: hash reader must handle group/section format")
+
+    def test_initapp_chains_then(self):
+        for liga in LIGAS:
+            with self.subTest(liga=liga["name"]):
+                content = liga["js"].read_text()
+                self.assertIn("initApp().then(",
+                              content,
+                              f"{liga['name']}.js: initApp must be called with .then() for hash handling")
+
+    def test_programmatic_button_activation(self):
+        """switchSection should find the active tab button via DOM, not only via event."""
+        for liga in LIGAS:
+            with self.subTest(liga=liga["name"]):
+                content = liga["js"].read_text()
+                self.assertIn("getAttribute('onclick')",
+                              content,
+                              f"{liga['name']}.js: programmatic button activation missing")
 
 
 class TestWorkflowSafety(unittest.TestCase):

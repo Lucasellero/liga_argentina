@@ -308,8 +308,12 @@ function switchSection(id) {
   } else {
     document.getElementById('subEquipos').style.display = 'none';
     document.getElementById('subJugadores').style.display = 'none';
-    if (event && event.currentTarget) event.currentTarget.classList.add('active');
+    const _btn = Array.from(document.querySelectorAll('.main-tab')).find(b => b.getAttribute('onclick') === "switchSection('"+id+"')");
+    if (_btn) _btn.classList.add('active');
+    else if (event && event.currentTarget) event.currentTarget.classList.add('active');
   }
+  const _grpName = _SUB_GROUP[id];
+  history.replaceState(null, '', '#' + (_grpName ? _grpName + '/' + id : id));
   // t-tcmp: show cmpPanel full-width, hide sidebar; t-tabla: hide cmpPanel, show sidebar
   if (domId === 't-tabla') {
     document.getElementById('cmpPanel').style.display = isTcmp ? 'block' : 'none';
@@ -2509,7 +2513,13 @@ async function initApp() {
   document.getElementById('loadingOverlay').style.display = 'none';
 }
 
-initApp();
+initApp().then(() => {
+  const _h = window.location.hash.slice(1);
+  if (_h) {
+    const _sid = _h.includes('/') ? _h.split('/')[1] : _h;
+    if (document.getElementById('sec-' + (_sid === 't-tcmp' ? 't-tabla' : _sid))) switchSection(_sid);
+  }
+});
 
 // ============================================================
 // SHOT ZONE CHART
