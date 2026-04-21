@@ -1,5 +1,8 @@
 {
   "outputDirectory": "docs",
+  "redirects": [
+    { "source": "/", "destination": "/liga_nacional/", "permanent": false }
+  ],
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/index" }
   ]
