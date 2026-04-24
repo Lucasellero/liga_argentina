@@ -205,6 +205,30 @@ python3.12 liga_argentina/Scraper/update_nacional.py
 
 **Regla importante:** los scrapers individuales (`data_scraper_nacional.py`, etc.) siguen funcionando de forma independiente sin ningún cambio. `update_nacional.py` y el workflow los encadenan sin modificarlos.
 
+## Partidos a excluir (torneos fuera de temporada regular)
+
+Ciertos partidos son scrapeados automáticamente pero **no pertenecen a la temporada regular** y deben eliminarse del CSV después de cada scrape.
+
+### Liga Nacional — Copa Liga Malvinas (abril 2026)
+Torneo de 4 equipos (2 semis + final) jugado entre fecha 36 y los playoffs. IDs a eliminar:
+
+| Fecha | Partido | IdPartido |
+|---|---|---|
+| 01/04/2026 | INDEPENDIENTE (O) vs OBRAS | `CVziX9hLM2fiIX5QRDxVvw==` |
+| 01/04/2026 | LA UNION FSA. vs FERRO | `J1PrR-tkUftYS_wjRvAJ_w==` |
+| 02/04/2026 | FERRO vs OBRAS | `StLSs290jBa1eY7d9qyvjw==` |
+
+**Después de correr `data_scraper_nacional.py`**, ejecutar:
+```bash
+python3 -c "
+import pandas as pd
+IDS = {'CVziX9hLM2fiIX5QRDxVvw==', 'J1PrR-tkUftYS_wjRvAJ_w==', 'StLSs290jBa1eY7d9qyvjw=='}
+for f in ['docs/liga_nacional/liga_nacional.csv', 'docs/liga_nacional/liga_nacional_shots.csv', 'docs/liga_nacional/liga_nacional_pbp.csv']:
+    df = pd.read_csv(f); df = df[~df['IdPartido'].isin(IDS)]; df.to_csv(f, index=False)
+    print(f'Limpiado: {f}')
+"
+```
+
 ## Fuente de datos
 - Liga Argentina URL base: `https://www.laliganacional.com.ar/laligaargentina`
 - Liga Nacional URL base: `https://www.laliganacional.com.ar/laliga`
