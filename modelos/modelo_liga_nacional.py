@@ -874,7 +874,11 @@ def predict_upcoming_games(
         print(f"  predict_upcoming: no se encontró {fixture_path}")
         return None
 
-    fixture = pd.read_csv(fixture_path)
+    try:
+        fixture = pd.read_csv(fixture_path)
+    except pd.errors.EmptyDataError:
+        print("  predict_upcoming: fixture vacío, saltando.")
+        return None
     fixture.columns = [c.lstrip("\ufeff") for c in fixture.columns]
     if fixture.empty:
         print("  predict_upcoming: fixture vacío, saltando.")
