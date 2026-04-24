@@ -45,6 +45,18 @@ jobs:
       - name: Jugada a jugada – Liga Nacional
         run: python scraper/pbp_scraper_nacional.py
 
+      # ── Limpiar partidos Copa Liga Malvinas (fuera de temporada regular) ──────
+      - name: Eliminar partidos Copa Liga Malvinas – Liga Nacional
+        run: |
+          python -c "
+          import pandas as pd
+          IDS = {'CVziX9hLM2fiIX5QRDxVvw==', 'J1PrR-tkUftYS_wjRvAJ_w==', 'StLSs290jBa1eY7d9qyvjw=='}
+          for f in ['docs/liga_nacional/liga_nacional.csv', 'docs/liga_nacional/liga_nacional_shots.csv', 'docs/liga_nacional/liga_nacional_pbp.csv']:
+              df = pd.read_csv(f); before = len(df)
+              df = df[~df['IdPartido'].isin(IDS)]; df.to_csv(f, index=False)
+              print(f'{f}: {before - len(df)} filas eliminadas')
+          "
+
       # ── Modelo Liga Nacional ────────────────────────────────────────────────
       - name: Reentrenar modelo de probabilidad – Liga Nacional
         run: python modelos/modelo_liga_nacional.py
