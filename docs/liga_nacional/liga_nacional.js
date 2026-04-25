@@ -1320,7 +1320,7 @@ function buildLeaders() {
 // POSICIONES
 // ============================================================
 
-const PLAYOFF_DATE = new Date(2026, 3, 1); // 1 de abril de 2026
+const PLAYOFF_DATE = new Date(2026, 3, 23); // 23 de abril de 2026
 function isPostSeason(fechaStr) {
   if (!fechaStr) return false;
   const [d,m,y] = fechaStr.split('/');
