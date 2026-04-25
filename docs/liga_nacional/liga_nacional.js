@@ -248,9 +248,12 @@ const LBL_T={ORtg:'ORtg',DRtg:'DRtg',NetRtg:'NetRtg','W%':'W%',PTSPG:'PTS/p',POS
 let jFiltered=[], tFiltered=[];
 let jSort='PPG', jDir='desc';
 let jPeriod='all';
+let jPhase='all'; // 'all' | 'regular' | 'post'
 let jLocVis='all';
 let tPeriod='all';
+let tPhase='all'; // 'all' | 'regular' | 'post'
 let tLocVis='all';
+let lPhase='post';
 let szcPeriod='all';
 let szcLocVis='all';
 let szcCurrentIdx=-1;
@@ -392,6 +395,8 @@ function getJFiltered() {
     if(team&&p.Equipo!==team)return false;
     if(p.PJ<minG)return false;
     if(s&&!p.name.toLowerCase().includes(s)&&!p.Equipo.toLowerCase().includes(s))return false;
+    if(jPhase==='regular'&&!p._regular)return false;
+    if(jPhase==='post'&&!p._post)return false;
     if(ak&&!isNaN(av)&&!chk(p[ak],op,av))return false;
     if(ak2&&!isNaN(av2)&&!chk(p[ak2],op2,av2))return false;
     if(ak3&&!isNaN(av3)&&!chk(p[ak3],op3,av3))return false;
@@ -466,6 +471,16 @@ function computeStatsFromGames(games, tm) {
 }
 
 function getPlayerData(p) {
+  if(jPhase==='regular'){
+    if(jLocVis==='local') return p._regularLocal||p._regular||p;
+    if(jLocVis==='visit') return p._regularVisit||p._regular||p;
+    return p._regular||p;
+  }
+  if(jPhase==='post'){
+    if(jLocVis==='local') return p._postLocal||p._post||p;
+    if(jLocVis==='visit') return p._postVisit||p._post||p;
+    return p._post||p;
+  }
   if(jLocVis==='local'){
     if(jPeriod==='last5'&&p._last5Local)return p._last5Local;
     if(jPeriod==='last10'&&p._last10Local)return p._last10Local;
@@ -487,6 +502,14 @@ function setJPeriod(period) {
   const map={all:'jPeriodAll',last5:'jPeriodL5',last10:'jPeriodL10'};
   document.getElementById(map[period]).classList.add('active');
   renderJTable();
+}
+
+function setJPhase(v) {
+  jPhase=v;
+  ['jPhaseAll','jPhaseReg','jPhasePost'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});
+  const map={all:'jPhaseAll',regular:'jPhaseReg',post:'jPhasePost'};
+  const btn=document.getElementById(map[v]); if(btn)btn.classList.add('active');
+  onJFilter();
 }
 
 function setJLocVis(v) {
@@ -641,6 +664,8 @@ function getTFiltered() {
   const av4=parseFloat(document.getElementById('tAttrVal4').value);
   function chk(v,op,av){if(op==='gte'&&v<av)return false;if(op==='lte'&&v>av)return false;if(op==='eq'&&Math.abs(v-av)>0.01)return false;return true;}
   return TEAMS.filter(t=>{
+    if(tPhase==='regular'&&!t._regular)return false;
+    if(tPhase==='post'&&!t._post)return false;
     if(ak&&!isNaN(av)&&!chk(t[ak],op,av))return false;
     if(ak2&&!isNaN(av2)&&!chk(t[ak2],op2,av2))return false;
     if(ak3&&!isNaN(av3)&&!chk(t[ak3],op3,av3))return false;
@@ -733,6 +758,16 @@ function computeTeamStatsFromGames(gamelog) {
 }
 
 function getTeamData(t) {
+  if(tPhase==='regular'){
+    if(tLocVis==='local') return t._regularLocal||t._regular||t;
+    if(tLocVis==='visit') return t._regularVisit||t._regular||t;
+    return t._regular||t;
+  }
+  if(tPhase==='post'){
+    if(tLocVis==='local') return t._postLocal||t._post||t;
+    if(tLocVis==='visit') return t._postVisit||t._post||t;
+    return t._post||t;
+  }
   if(tLocVis==='local'){
     if(tPeriod==='last5'&&t._last5Local)return t._last5Local;
     if(tPeriod==='last10'&&t._last10Local)return t._last10Local;
@@ -754,6 +789,27 @@ function setTPeriod(period) {
   const map={all:'tPeriodAll',last5:'tPeriodL5',last10:'tPeriodL10'};
   document.getElementById(map[period]).classList.add('active');
   renderTTable();
+}
+
+function setTPhase(v) {
+  tPhase=v;
+  ['tPhaseAll','tPhaseReg','tPhasePost'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});
+  const map={all:'tPhaseAll',regular:'tPhaseReg',post:'tPhasePost'};
+  const btn=document.getElementById(map[v]); if(btn)btn.classList.add('active');
+  onTFilter();
+}
+
+function setLPhase(v) {
+  lPhase=v;
+  const sel=document.getElementById('lPhaseSelect'); if(sel) sel.value=v;
+  const titleEl=document.getElementById('leadersTitle');
+  const subEl=document.getElementById('leadersSubtitle');
+  if(titleEl) titleEl.innerHTML = v==='post' ? 'Líderes <span>·</span> Post Temporada' : 'Líderes <span>·</span> Últimos 5 Partidos';
+  if(subEl) subEl.textContent = v==='post'
+    ? 'Promedio por partido · mín. 1 partido jugado · porcentajes con mín. 3 intentos'
+    : 'Promedio por partido · mín. 1 partido jugado · porcentajes con mín. 3 intentos';
+  LEADERS_DATA = v==='post' ? LEADERS_DATA_POST : LEADERS_DATA_REGULAR;
+  buildLeaders();
 }
 
 function setTLocVis(v) {
@@ -1221,6 +1277,8 @@ setupScrollSync('tTableWrap','tScrollOuter','tScrollInner');
 // LEADERS
 // ============================================================
 let LEADERS_DATA = {};
+let LEADERS_DATA_REGULAR = {};
+let LEADERS_DATA_POST = {};
 
 const LEADER_ICONS = {};
 const LEADER_COLORS = ['r1','r2','r3','',''];
@@ -1269,6 +1327,9 @@ function isPostSeason(fechaStr) {
   return new Date(+y,+m-1,+d) >= PLAYOFF_DATE;
 }
 
+const CONF_NORTE = new Set(['ARGENTINO (J)','ATENAS (C)','GIMNASIA (CR)','INDEPENDIENTE (O)','INSTITUTO','LA UNION FSA.','OBERÁ','QUIMSA','REGATAS (C)','SAN MARTÍN (C)']);
+const CONF_SUR   = new Set(['BOCA','FERRO','OLÍMPICO (LB)','OBRAS','PEÑAROL (MDP)','PLATENSE','RACING (CH)','SAN LORENZO','UNION (SF)']);
+
 const LOGOS = {
   // Conferencia Norte
   'ARGENTINO (J)':  'logos/argentino_j.jpeg',
@@ -1301,10 +1362,25 @@ function teamLogoHtml(teamName, size) {
 }
 
 function renderStandings() {
-  const rows = [...TEAMS].sort((a,b) => {
-    if (b['W%'] !== a['W%']) return b['W%'] - a['W%'];
-    if (b.PJ !== a.PJ) return b.PJ - a.PJ;
-    return (b.PTSPG||0) - (a.PTSPG||0);
+  const statsMap = {};
+  TEAMS.forEach(t => {
+    let PJ=0,G=0,P=0,ptsFor=0,ptsAgainst=0,localG=0,localP=0,visitG=0,visitP=0;
+    const results=[];
+    (t._gamelog||[]).forEach(g => {
+      const [fd,fm,fy]=g.fecha.split('/');
+      if (new Date(+fy,+fm-1,+fd) >= PLAYOFF_DATE) return;
+      PJ++; ptsFor+=g.ptsFor||0; ptsAgainst+=g.ptsAgainst||0;
+      if (g.ganado) { G++; if(g.condicion==='LOCAL') localG++; else visitG++; }
+      else          { P++; if(g.condicion==='LOCAL') localP++; else visitP++; }
+      results.push(g.ganado);
+    });
+    statsMap[t.Equipo]={Equipo:t.Equipo,PJ,G,P,ptsFor,ptsAgainst,localG,localP,visitG,visitP,last5:results.slice(-5)};
+  });
+  const rows = Object.values(statsMap).sort((a,b) => {
+    const wa=a.PJ?a.G/a.PJ:0, wb=b.PJ?b.G/b.PJ:0;
+    if(wb!==wa) return wb-wa;
+    if(b.PJ!==a.PJ) return b.PJ-a.PJ;
+    return (b.PJ?b.ptsFor/b.PJ:0)-(a.PJ?a.ptsFor/a.PJ:0);
   });
   const tbody = document.getElementById('posAllTbody');
   if (!tbody) return;
@@ -1312,10 +1388,12 @@ function renderStandings() {
   const cutoff = Math.ceil(rows.length / 2);
   rows.forEach((t, i) => {
     const pos = i + 1;
-    const wc = t['W%'] >= 60 ? 'win-rate-high' : t['W%'] >= 40 ? 'win-rate-mid' : 'win-rate-low';
-    const dif = Math.round(((t.PTSPG||0) - (t.PTSOPP_PG||0)) * 10) / 10;
+    const wpct = t.PJ ? t.G/t.PJ*100 : 0;
+    const ptspg = t.PJ ? t.ptsFor/t.PJ : 0;
+    const ptsapg = t.PJ ? t.ptsAgainst/t.PJ : 0;
+    const dif = ptspg - ptsapg;
+    const wc = wpct >= 60 ? 'win-rate-high' : wpct >= 40 ? 'win-rate-mid' : 'win-rate-low';
     const difClass = dif >= 0 ? 'pos-diff-pos' : 'pos-diff-neg';
-    const difStr = (dif >= 0 ? '+' : '') + dif.toFixed(1);
     const topClass = pos <= cutoff ? ' pos-top8' : '';
     const logoSrc = LOGOS[t.Equipo];
     const logoHtml = logoSrc
@@ -1325,21 +1403,126 @@ function renderStandings() {
       <td>${pos}</td>
       <td>${logoHtml}${t.Equipo}</td>
       <td>${t.PJ}</td>
-      <td style="color:var(--green);font-weight:700">${t.Ganados}</td>
-      <td style="color:var(--red)">${t.Perdidos}</td>
-      <td class="${wc}">${t['W%'].toFixed(1)}%</td>
-      <td class="pos-pts-f">${(t.PTSPG||0).toFixed(1)}</td>
-      <td class="pos-pts-a">${(t.PTSOPP_PG||0).toFixed(1)}</td>
-      <td class="${difClass}">${difStr}</td>
-      <td style="color:var(--muted);font-size:.78rem">${t.LocalG}-${t.LocalP}</td>
-      <td style="color:var(--muted);font-size:.78rem">${t.VisitG}-${t.VisitP}</td>
-      <td style="text-align:center">${(t.last5||[]).map(g=>g
+      <td style="color:var(--green);font-weight:700">${t.G}</td>
+      <td style="color:var(--red)">${t.P}</td>
+      <td class="${wc}">${wpct.toFixed(1)}%</td>
+      <td class="pos-pts-f">${ptspg.toFixed(1)}</td>
+      <td class="pos-pts-a">${ptsapg.toFixed(1)}</td>
+      <td class="${difClass}">${(dif>=0?'+':'')+dif.toFixed(1)}</td>
+      <td style="color:var(--muted);font-size:.78rem">${t.localG}-${t.localP}</td>
+      <td style="color:var(--muted);font-size:.78rem">${t.visitG}-${t.visitP}</td>
+      <td style="text-align:center">${t.last5.map(g=>g
         ? `<span style="color:var(--green);font-weight:700;font-size:.72rem">V</span>`
         : `<span style="color:var(--red);font-weight:700;font-size:.72rem">D</span>`
       ).join('<span style="color:var(--muted);opacity:.3;margin:0 1px">·</span>')}</td>
       <td class="pos-row-chevron">›</td>
     </tr>`;
   });
+}
+
+function switchPosTab(tab) {
+  const isReg = tab === 'regular';
+  document.getElementById('posTabReg').classList.toggle('active', isReg);
+  document.getElementById('posTabPost').classList.toggle('active', !isReg);
+  document.getElementById('posRegPanel').style.display = isReg ? '' : 'none';
+  document.getElementById('posPostPanel').style.display = isReg ? 'none' : '';
+  if (!isReg && !document.getElementById('playoffContent').innerHTML.trim()) {
+    renderPostSeason();
+  }
+}
+
+function renderPostSeason() {
+  const postGames = GAMES_ALL.filter(g => {
+    const [d,m,y]=g.fecha.split('/');
+    return new Date(+y,+m-1,+d) >= PLAYOFF_DATE;
+  }).sort((a,b)=>{
+    const [ad,am,ay]=a.fecha.split('/'); const [bd,bm,by]=b.fecha.split('/');
+    return new Date(+ay,+am-1,+ad)-new Date(+by,+bm-1,+bd);
+  });
+
+  if (!postGames.length) {
+    document.getElementById('playoffContent').innerHTML =
+      '<div style="text-align:center;color:var(--muted);padding:40px 20px">No hay partidos de post temporada disponibles aún.</div>';
+    return;
+  }
+
+  const seriesMap = new Map();
+  postGames.forEach(g => {
+    const key = [g.local, g.visit].sort().join('|');
+    if (!seriesMap.has(key)) seriesMap.set(key, { teamA: g.local, teamB: g.visit, games: [] });
+    seriesMap.get(key).games.push(g);
+  });
+
+  seriesMap.forEach(s => {
+    s.winsA = 0; s.winsB = 0;
+    s.games.forEach(g => {
+      if (g.upcoming || g.ganLocal === null) return;
+      const aIsLocal = g.local === s.teamA;
+      if ((aIsLocal && g.ganLocal) || (!aIsLocal && !g.ganLocal)) s.winsA++;
+      else s.winsB++;
+    });
+  });
+
+  function seriesCard(s) {
+    const logoA = LOGOS[s.teamA]?`<img src="${LOGOS[s.teamA]}" style="width:38px;height:38px;object-fit:contain">`:'<span style="width:38px;height:38px;display:block"></span>';
+    const logoB = LOGOS[s.teamB]?`<img src="${LOGOS[s.teamB]}" style="width:38px;height:38px;object-fit:contain">`:'<span style="width:38px;height:38px;display:block"></span>';
+    const aLeads = s.winsA > s.winsB, bLeads = s.winsB > s.winsA;
+    const gamesPlayed = s.games.filter(g => !g.upcoming).length;
+    const scoreHtml = gamesPlayed === 0
+      ? `<div class="series-score-vs">VS</div>`
+      : `<div class="series-score">${s.winsA}<span style="color:var(--muted2);font-weight:400;font-size:1.2rem;margin:0 4px">–</span>${s.winsB}</div>`;
+    let statusHtml = '';
+    if (gamesPlayed === 0) {
+      statusHtml = `<div class="series-status">Serie al mejor de 3</div>`;
+    } else if (aLeads) {
+      statusHtml = `<div class="series-status">Gana <span class="lead-name">${s.teamA}</span></div>`;
+    } else if (bLeads) {
+      statusHtml = `<div class="series-status">Gana <span class="lead-name">${s.teamB}</span></div>`;
+    } else {
+      statusHtml = `<div class="series-status">Serie igualada</div>`;
+    }
+    const gamesHtml = s.games.map((g, idx) => {
+      if (g.upcoming) {
+        return `<div class="series-game sg-next">
+          <span class="sg-label">J${idx+1}</span>
+          <span class="sg-hora">${g.hora} hs</span>
+          <span class="sg-date">${g.fecha}</span>
+          <span class="sg-next-pill">Próximo</span>
+        </div>`;
+      }
+      const aIsLocal = g.local === s.teamA;
+      const aScore = aIsLocal ? g.ptsLocal : g.ptsVisit;
+      const bScore = aIsLocal ? g.ptsVisit : g.ptsLocal;
+      const aWin = (aIsLocal && g.ganLocal) || (!aIsLocal && !g.ganLocal);
+      const safeId = (g.gameId||'').replace(/'/g, "\\'");
+      return `<div class="series-game sg-played">
+        <span class="sg-label">J${idx+1}</span>
+        <div class="sg-scores">
+          <span class="sg-pts${aWin?' w':''}">${aScore}</span>
+          <span class="sg-sep">–</span>
+          <span class="sg-pts${aWin?'':' w'}">${bScore}</span>
+        </div>
+        <span class="sg-date">${g.fecha}</span>
+        <button class="sg-stats-btn" onclick="openPartidoModal(GAMES_ALL.find(x=>x.gameId==='${safeId}'))">Stats</button>
+      </div>`;
+    }).join('');
+    return `<div class="series-card">
+      <div class="series-card-top">
+        <div class="series-header">
+          <div class="series-team">${logoA}<div class="series-team-name${aLeads?' lead':''}">${s.teamA}</div></div>
+          <div class="series-score-wrap">${scoreHtml}</div>
+          <div class="series-team">${logoB}<div class="series-team-name${bLeads?' lead':''}">${s.teamB}</div></div>
+        </div>
+        ${statusHtml}
+      </div>
+      <div class="series-games">${gamesHtml}</div>
+    </div>`;
+  }
+
+  let html = '<div class="playoff-phase-block"><div class="playoff-phase-title">Playoffs</div><div class="playoff-grid">';
+  seriesMap.forEach(s => { html += seriesCard(s); });
+  html += '</div></div>';
+  document.getElementById('playoffContent').innerHTML = html;
 }
 
 function fcsToggle(id){
@@ -2034,7 +2217,8 @@ function renderPartidoList(games, ascending=false) {
         </div>
       </div>`;
     }).join('');
-    html += `<div class="pday-group"><div class="pday-label">${label}</div><div class="pday-games">${cards}</div></div>`;
+    const postBadge = isPostSeason(label) ? '<span class="pday-post-badge">Post Temporada</span>' : '';
+    html += `<div class="pday-group"><div class="pday-label">${label}${postBadge}</div><div class="pday-games">${cards}</div></div>`;
   });
   el.innerHTML = html;
 
@@ -2316,6 +2500,10 @@ async function initApp() {
       const gamesPost=games.filter(r=>isPostSeason(r['Fecha']));
       player._regular=mkLocVisPeriod(gamesReg,0);
       player._post=mkLocVisPeriod(gamesPost,0);
+      player._regularLocal=mkLocVisPeriod(gamesReg.filter(r=>r['Condicion equipos']==='LOCAL'),0);
+      player._regularVisit=mkLocVisPeriod(gamesReg.filter(r=>r['Condicion equipos']==='VISITANTE'),0);
+      player._postLocal=mkLocVisPeriod(gamesPost.filter(r=>r['Condicion equipos']==='LOCAL'),0);
+      player._postVisit=mkLocVisPeriod(gamesPost.filter(r=>r['Condicion equipos']==='VISITANTE'),0);
     });
 
     // Team per-game
@@ -2374,6 +2562,15 @@ async function initApp() {
       team._last10Local=mkTLocVisPeriod(glLocal,10);
       team._last5Visit=mkTLocVisPeriod(glVisit,5);
       team._last10Visit=mkTLocVisPeriod(glVisit,10);
+      // Phase (regular season vs post season)
+      const glReg=gl.filter(g=>!isPostSeason(g.fecha));
+      const glPost=gl.filter(g=>isPostSeason(g.fecha));
+      team._regular=mkTLocVisPeriod(glReg,0);
+      team._post=mkTLocVisPeriod(glPost,0);
+      team._regularLocal=mkTLocVisPeriod(glReg.filter(g=>g.condicion==='LOCAL'),0);
+      team._regularVisit=mkTLocVisPeriod(glReg.filter(g=>g.condicion==='VISITANTE'),0);
+      team._postLocal=mkTLocVisPeriod(glPost.filter(g=>g.condicion==='LOCAL'),0);
+      team._postVisit=mkTLocVisPeriod(glPost.filter(g=>g.condicion==='VISITANTE'),0);
     });
 
     // Colors
@@ -2422,7 +2619,11 @@ async function initApp() {
       };
     }
     const L5 = PLAYERS.map(p => p._last5).filter(d => d && d.PJ >= 1);
-    LEADERS_DATA = buildLeadersDataset(L5);
+    const Lreg = PLAYERS.map(p => p._regular).filter(d => d && d.PJ >= 5);
+    const Lpost = PLAYERS.map(p => p._post).filter(d => d && d.PJ >= 1);
+    LEADERS_DATA_REGULAR = buildLeadersDataset(Lreg);
+    LEADERS_DATA_POST = buildLeadersDataset(Lpost);
+    LEADERS_DATA = Lpost.length ? LEADERS_DATA_POST : buildLeadersDataset(L5);
 
     // Last update: max Fecha from rows
     const maxFecha = rows.reduce((max, r) => {
@@ -2985,15 +3186,16 @@ function renderTzcZoneChart(canvas, teamShots) {
     LEAGUE_ZONE_STATS = szcComputeStats(all);
   }
 
+  const isLiga = tzcCurrentTeam === '__LIGA__';
   const pStats = szcComputeStats(teamShots);
-  szcDrawZoneColors(ctx, W, H, m, pStats, LEAGUE_ZONE_STATS);
-  szcUpdateSvg(pStats, LEAGUE_ZONE_STATS, 'tzcSvg');
+  szcDrawZoneColors(ctx, W, H, m, pStats, isLiga ? null : LEAGUE_ZONE_STATS);
+  szcUpdateSvg(pStats, isLiga ? null : LEAGUE_ZONE_STATS, 'tzcSvg');
   const _tlvShots = tzcApplyLocVis(tzcTeamAllShots);
   const _tlvGIds = tzcLocVis === 'all' ? tzcTeamGameIds : null;
   const statsAll = szcComputeStats(szcFilterByPeriod(_tlvShots, 'all', _tlvGIds));
   const statsL10 = szcComputeStats(szcFilterByPeriod(_tlvShots, 'last10', _tlvGIds));
   const statsL5  = szcComputeStats(szcFilterByPeriod(_tlvShots, 'last5', _tlvGIds));
-  tzcRenderZoneCards(statsAll, statsL10, statsL5, LEAGUE_ZONE_STATS);
+  tzcRenderZoneCards(statsAll, statsL10, statsL5, isLiga ? null : LEAGUE_ZONE_STATS);
 }
 
 function setTzcPeriod(period) {
@@ -3021,6 +3223,10 @@ function setTzcLocVis(v) {
 function tzcInit() {
   const sel = document.getElementById('tzcTeam');
   if (!sel || sel.options.length > 1) return;
+  const ligaOpt = document.createElement('option');
+  ligaOpt.value = '__LIGA__';
+  ligaOpt.textContent = '— Liga —';
+  sel.appendChild(ligaOpt);
   [...TEAMS].sort((a,b) => a.Equipo.localeCompare(b.Equipo)).forEach(t => {
     const opt = document.createElement('option');
     opt.value = t.Equipo;
@@ -3048,11 +3254,11 @@ function onTzcTeamChange() {
   const doRender = () => {
     // Collect all shots for this team
     const allShots = [];
+    const isLiga = teamName === '__LIGA__';
     SHOTS_MAP.forEach(shots => {
-      shots.forEach(s => { if (s['Equipo'] === teamName) allShots.push(s); });
+      shots.forEach(s => { if (isLiga || s['Equipo'] === teamName) allShots.push(s); });
     });
-    // Game IDs from gamelog (chronological order)
-    const team = TEAM_MAP[teamName];
+    const team = isLiga ? null : TEAM_MAP[teamName];
     tzcTeamGameIds = team ? team._gamelog.map(g => g.gameId) : null;
     const gidSet = tzcTeamGameIds ? new Set(tzcTeamGameIds) : null;
     const filteredShots = gidSet ? allShots.filter(s => gidSet.has(s['IdPartido'])) : allShots;
@@ -3065,7 +3271,7 @@ function onTzcTeamChange() {
     const t2a = shots.filter(s => s['Tipo'] === 'TIRO2' && s['Resultado'] === 'CONVERTIDO').length;
     const t3i = shots.filter(s => s['Tipo'] === 'TIRO3').length;
     const t3a = shots.filter(s => s['Tipo'] === 'TIRO3' && s['Resultado'] === 'CONVERTIDO').length;
-    document.getElementById('tzcTeamName').textContent = teamName;
+    document.getElementById('tzcTeamName').textContent = isLiga ? 'Liga Nacional' : teamName;
     const shotsEl = document.getElementById('tzcTeamShots');
     if (shotsEl) {
       shotsEl.innerHTML = [
@@ -3073,7 +3279,7 @@ function onTzcTeamChange() {
         t3i ? `<span class="szc-pstat">3PT <b>${t3a}/${t3i}</b> ${(t3a/t3i*100).toFixed(0)}%</span>` : '',
       ].join('');
     }
-document.getElementById('tzcLoading').style.display = 'none';
+    document.getElementById('tzcLoading').style.display = 'none';
     document.getElementById('tzcMain').style.display = 'block';
     requestAnimationFrame(() => renderTzcZoneChart(document.getElementById('tzcCanvas'), shots));
   };
