@@ -465,7 +465,8 @@ function computeStatsFromGames(games, tm) {
   const tmMinTotal=(tm?tm.PJ||1:1)*200;
   d['USG%']=(tmPossUsed>0&&playerMinTotal>0)?Math.round(pos*tmMinTotal/(5*playerMinTotal*tmPossUsed)*1000)/10:null;
   const tmRO=tm?tm.RO||0:0;
-  d['ORB%']=(tmRO>0&&playerMinTotal>0)?Math.round((acc.RO||0)*(tmMinTotal/5)/(playerMinTotal*tmRO)*1000)/10:null;
+  const tmOppDReb=tm?tm.OPP_DReb||0:0;
+  d['ORB%']=((tmRO+tmOppDReb)>0&&playerMinTotal>0)?Math.round((acc.RO||0)*(tmMinTotal/5)/(playerMinTotal*(tmRO+tmOppDReb))*1000)/10:null;
   const tmRD=tm?tm.RD||0:0;
   const tmOppRO=tm?tm.OPP_RO||0:0;
   d['DRB%']=(playerMinTotal>0&&(tmRD+tmOppRO)>0)?Math.round((acc.RD||0)*(tmMinTotal/5)/(playerMinTotal*(tmRD+tmOppRO))*1000)/10:null;
@@ -2573,7 +2574,8 @@ async function initApp() {
       const tmMinTotal = (tm.PJ||1)*200;
       d['USG%'] = (tmPossUsed>0 && playerMinTotal>0) ? Math.round(pos*tmMinTotal/(5*playerMinTotal*tmPossUsed)*1000)/10 : null;
       const tmRO = tm.RO||0;
-      d['ORB%'] = (tmRO>0 && playerMinTotal>0) ? Math.round((p.RO||0)*(tmMinTotal/5)/(playerMinTotal*tmRO)*1000)/10 : null;
+      const tmOppDReb = tm.OPP_DReb||0;
+      d['ORB%'] = ((tmRO+tmOppDReb)>0 && playerMinTotal>0) ? Math.round((p.RO||0)*(tmMinTotal/5)/(playerMinTotal*(tmRO+tmOppDReb))*1000)/10 : null;
       const tmRD = tm.RD||0;
       const tmOppRO = tm.OPP_RO||0;
       d['DRB%'] = (playerMinTotal>0 && (tmRD+tmOppRO)>0) ? Math.round((p.RD||0)*(tmMinTotal/5)/(playerMinTotal*(tmRD+tmOppRO))*1000)/10 : null;
@@ -3323,15 +3325,16 @@ function renderTzcZoneChart(canvas, teamShots) {
     LEAGUE_ZONE_STATS = szcComputeStats(all);
   }
 
+  const isLiga = tzcCurrentTeam === '__LIGA__';
   const pStats = szcComputeStats(teamShots);
-  szcDrawZoneColors(ctx, W, H, m, pStats, LEAGUE_ZONE_STATS);
-  szcUpdateSvg(pStats, LEAGUE_ZONE_STATS, 'tzcSvg');
+  szcDrawZoneColors(ctx, W, H, m, pStats, isLiga ? null : LEAGUE_ZONE_STATS);
+  szcUpdateSvg(pStats, isLiga ? null : LEAGUE_ZONE_STATS, 'tzcSvg');
   const _tlvShots = tzcApplyLocVis(tzcTeamAllShots);
   const _tlvGIds = tzcLocVis === 'all' ? tzcTeamGameIds : null;
   const statsAll = szcComputeStats(szcFilterByPeriod(_tlvShots, 'all', _tlvGIds));
   const statsL10 = szcComputeStats(szcFilterByPeriod(_tlvShots, 'last10', _tlvGIds));
   const statsL5  = szcComputeStats(szcFilterByPeriod(_tlvShots, 'last5', _tlvGIds));
-  tzcRenderZoneCards(statsAll, statsL10, statsL5, LEAGUE_ZONE_STATS);
+  tzcRenderZoneCards(statsAll, statsL10, statsL5, isLiga ? null : LEAGUE_ZONE_STATS);
 }
 
 function setTzcPeriod(period) {
@@ -3359,6 +3362,10 @@ function setTzcLocVis(v) {
 function tzcInit() {
   const sel = document.getElementById('tzcTeam');
   if (!sel || sel.options.length > 1) return;
+  const ligaOpt = document.createElement('option');
+  ligaOpt.value = '__LIGA__';
+  ligaOpt.textContent = '— Liga —';
+  sel.appendChild(ligaOpt);
   [...TEAMS].sort((a,b) => a.Equipo.localeCompare(b.Equipo)).forEach(t => {
     const opt = document.createElement('option');
     opt.value = t.Equipo;
@@ -3384,11 +3391,12 @@ function onTzcTeamChange() {
   document.getElementById('tzcLoading').style.display = 'block';
 
   const doRender = () => {
+    const isLiga = teamName === '__LIGA__';
     const allShots = [];
     SHOTS_MAP.forEach(shots => {
-      shots.forEach(s => { if (s['Equipo'] === teamName) allShots.push(s); });
+      shots.forEach(s => { if (isLiga || s['Equipo'] === teamName) allShots.push(s); });
     });
-    const team = TEAM_MAP[teamName];
+    const team = isLiga ? null : TEAM_MAP[teamName];
     tzcTeamGameIds = team ? team._gamelog.map(g => g.gameId) : null;
     const gidSet = tzcTeamGameIds ? new Set(tzcTeamGameIds) : null;
     const filteredShots = gidSet ? allShots.filter(s => gidSet.has(s['IdPartido'])) : allShots;
@@ -3400,7 +3408,7 @@ function onTzcTeamChange() {
     const t2a = shots.filter(s => s['Tipo'] === 'TIRO2' && s['Resultado'] === 'CONVERTIDO').length;
     const t3i = shots.filter(s => s['Tipo'] === 'TIRO3').length;
     const t3a = shots.filter(s => s['Tipo'] === 'TIRO3' && s['Resultado'] === 'CONVERTIDO').length;
-    document.getElementById('tzcTeamName').textContent = teamName;
+    document.getElementById('tzcTeamName').textContent = isLiga ? 'Liga Argentina' : teamName;
     const shotsEl = document.getElementById('tzcTeamShots');
     if (shotsEl) {
       shotsEl.innerHTML = [
@@ -3408,7 +3416,7 @@ function onTzcTeamChange() {
         t3i ? `<span class="szc-pstat">3PT <b>${t3a}/${t3i}</b> ${(t3a/t3i*100).toFixed(0)}%</span>` : '',
       ].join('');
     }
-document.getElementById('tzcLoading').style.display = 'none';
+    document.getElementById('tzcLoading').style.display = 'none';
     document.getElementById('tzcMain').style.display = 'block';
     requestAnimationFrame(() => renderTzcZoneChart(document.getElementById('tzcCanvas'), shots));
   };

@@ -417,7 +417,8 @@ La tabla `j-tabla` tiene un toggle adicional: **Todos / Local / Visitante**.
 
 **Sección "Tiro Equipos" (`t-tiro`):**
 Versión consolidada de `j-tiro` para un equipo completo. Misma lógica de zonas, coloreado y SVG overlay, pero con un `<select>` de equipos en lugar de autocomplete de jugadores.
-- **Selector de equipo**: `#tzcTeam` (`<select>`). Poblado en `tzcInit()` la primera vez que se abre la sección (guard `options.length > 1`). Orden alfabético. Al cambiar: `onTzcTeamChange()`.
+- **Selector de equipo**: `#tzcTeam` (`<select>`). Poblado en `tzcInit()` la primera vez que se abre la sección (guard `options.length > 1`). Primera opción: `'— Liga —'` (valor `'__LIGA__'`) que muestra los tiros de toda la liga; luego los equipos en orden alfabético. Al cambiar: `onTzcTeamChange()`.
+- **Opción "Liga"** (`value='__LIGA__'`): cuando se selecciona, `onTzcTeamChange()` recolecta todos los tiros de `SHOTS_MAP` sin filtrar por equipo (`isLiga = true`). `tzcTeamGameIds` es `null` (no hay gamelog de liga). El header muestra "Liga Argentina" / "Liga Nacional" según la liga. `renderTzcZoneChart()` pasa `null` como `lStats` a `tzcRenderZoneCards` y `szcUpdateSvg`, de modo que las zone cards no muestran el badge comparativo "Liga X.X%" (sería comparar la liga consigo misma) y el coloreado del court usa la paleta sin diferencial.
 - **Filtro de período**: toggle **Temporada / Últ. 5 / Últ. 10**. Estado: `tzcPeriod` (`'all'|'last5'|'last10'`). Función: `setTzcPeriod(period)`.
 - **Filtro Local/Visitante**: toggle **Todos / Local / Visitante** en el `.szc-header` (junto al filtro de período). Por defecto "Todos".
   - Estado: `tzcLocVis` (`'all'|'local'|'visit'`).
@@ -513,7 +514,7 @@ Promise.all([
 | `USG%` | `posesiones_jugador * min_equipo / (5 * min_jugador * posesiones_equipo)` |
 | `ORtg` | `PTS / posesiones * 100` |
 | `DRtg` | Tomado de `TEAM_MAP[equipo].DRtg` |
-| `ORB%` | `DReb_jugador × (MinEq/5) / (Min_jugador × DRebEq)` — % de rebotes ofensivos disponibles capturados. Calculado en `computeStatsFromGames()` usando `tm.RO`. |
+| `ORB%` | `OReb_jugador × (MinEq/5) / (Min_jugador × (ORebEq + OPP_DReb))` — % de rebotes ofensivos disponibles capturados. Calculado en `computeStatsFromGames()` y en `initApp()` usando `tm.RO` y `tm.OPP_DReb`. |
 | `DRB%` | `DReb_jugador × (MinEq/5) / (Min_jugador × (DRebEq + ORebRival))` — % de rebotes defensivos disponibles capturados. Calculado en `computeStatsFromGames()` usando `tm.RD` y `tm.OPP_RO`. `OPP_RO` se acumula en `buildRAW_T` como rebotes ofensivos del rival por partido. Verde ≥ 75%, rojo < 60%. |
 | `FTr` | `T1I / (T2I+T3I)` — Free Throw Rate (tiros libres intentados / tiros de campo intentados). Calculado en `initApp()`, `computeStatsFromGames()` y `computeTeamStatsFromGames()`. Aparece en la tabla avanzada de jugadores (verde ≥ 0.35) y equipos (verde ≥ 0.28, rojo < 0.18). Usa `fVal()` (2 decimales, sin %). |
 | `PACE` | Posesiones por partido del equipo |

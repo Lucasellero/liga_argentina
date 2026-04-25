@@ -439,7 +439,8 @@ function computeStatsFromGames(games, tm) {
   const tmMinTotal=(tm?tm.PJ||1:1)*200;
   d['USG%']=(tmPossUsed>0&&playerMinTotal>0)?Math.round(pos*tmMinTotal/(5*playerMinTotal*tmPossUsed)*1000)/10:null;
   const tmRO=tm?tm.RO||0:0;
-  d['ORB%']=(tmRO>0&&playerMinTotal>0)?Math.round((acc.RO||0)*(tmMinTotal/5)/(playerMinTotal*tmRO)*1000)/10:null;
+  const tmOppDReb=tm?tm.OPP_DReb||0:0;
+  d['ORB%']=((tmRO+tmOppDReb)>0&&playerMinTotal>0)?Math.round((acc.RO||0)*(tmMinTotal/5)/(playerMinTotal*(tmRO+tmOppDReb))*1000)/10:null;
   const tmRD=tm?tm.RD||0:0;
   const tmOppRO=tm?tm.OPP_RO||0:0;
   d['DRB%']=(playerMinTotal>0&&(tmRD+tmOppRO)>0)?Math.round((acc.RD||0)*(tmMinTotal/5)/(playerMinTotal*(tmRD+tmOppRO))*1000)/10:null;
@@ -2253,7 +2254,8 @@ async function initApp() {
       const tmMinTotal = (tm.PJ||1)*200;
       d['USG%'] = (tmPossUsed>0 && playerMinTotal>0) ? Math.round(pos*tmMinTotal/(5*playerMinTotal*tmPossUsed)*1000)/10 : null;
       const tmRO = tm.RO||0;
-      d['ORB%'] = (tmRO>0 && playerMinTotal>0) ? Math.round((p.RO||0)*(tmMinTotal/5)/(playerMinTotal*tmRO)*1000)/10 : null;
+      const tmOppDReb = tm.OPP_DReb||0;
+      d['ORB%'] = ((tmRO+tmOppDReb)>0 && playerMinTotal>0) ? Math.round((p.RO||0)*(tmMinTotal/5)/(playerMinTotal*(tmRO+tmOppDReb))*1000)/10 : null;
       const tmRD = tm.RD||0;
       const tmOppRO = tm.OPP_RO||0;
       d['DRB%'] = (playerMinTotal>0 && (tmRD+tmOppRO)>0) ? Math.round((p.RD||0)*(tmMinTotal/5)/(playerMinTotal*(tmRD+tmOppRO))*1000)/10 : null;
