@@ -268,7 +268,7 @@ let tzcPeriod='all';
 let tzcCurrentTeam=null;
 let tzcTeamAllShots=[];
 let tzcTeamGameIds=null;
-let _smState = { gameId: null, local: '', visit: '', filter: { team: 'all', tipo: 'all', result: 'all' } };
+let _smState = { gameId: null, local: '', visit: '', focusTeam: null, filter: { team: 'all', tipo: 'all', result: 'all' } };
 
 const f2=v=>v==null||isNaN(v)?'—':v.toFixed(2);
 const f1=v=>v==null||isNaN(v)?'—':v.toFixed(1);
@@ -1586,10 +1586,11 @@ function drawShots(ctx, W, H, shots, local, visit) {
 function openPartidoModal(game) {
   _partidoMode = true;
   // Set shot map state
-  _smState.gameId = game.gameId;
-  _smState.local  = game.local;
-  _smState.visit  = game.visit;
-  _smState.filter = { team: 'all', tipo: 'all', result: 'all' };
+  _smState.gameId    = game.gameId;
+  _smState.local     = game.local;
+  _smState.visit     = game.visit;
+  _smState.focusTeam = game.local;
+  _smState.filter    = { team: 'all', tipo: 'all', result: 'all' };
   document.getElementById('smBtnLocal').textContent = game.local;
   document.getElementById('smBtnVisit').textContent = game.visit;
   document.querySelectorAll('#smControls .sm-toggle button').forEach(b => {
@@ -1597,7 +1598,6 @@ function openPartidoModal(game) {
   });
   // Reset tabs to stats
   switchGameTab('stats');
-  document.getElementById('tgmTabStats').classList.add('active');
   // Load shots in background
   if (SHOTS_MAP === null) loadShots();
   // Header
@@ -1766,18 +1766,23 @@ function computeScoreDelta(gameId) {
 
 function renderScoreDelta(gameId, localTeam, visitTeam) {
   const panel = document.getElementById('tgmEvolPanel');
+  const focusTeam = _smState.focusTeam || localTeam;
+  const invert    = focusTeam === visitTeam;
+  const teamA     = focusTeam;
+  const teamB     = invert ? localTeam : visitTeam;
   const doRender = () => {
-    const data = computeScoreDelta(gameId);
+    let data = computeScoreDelta(gameId);
     if (!data || !data.length) {
       panel.innerHTML = `<div class="evol-empty">No hay datos de evolución para este partido.</div>`;
       return;
     }
+    if (invert) data = data.map(d => ({ ...d, delta: -d.delta }));
     panel.innerHTML = `<div class="evol-wrap">
       <div class="evol-title">Evolución del marcador · minuto a minuto</div>
       <div class="evol-svg-wrap">${_buildEvolSvg(data)}</div>
       <div class="evol-legend">
-        <div class="evol-leg-item"><div class="evol-leg-dot" style="background:#a78bfa"></div>${localTeam} arriba</div>
-        <div class="evol-leg-item"><div class="evol-leg-dot" style="background:#5eead4"></div>${visitTeam} arriba</div>
+        <div class="evol-leg-item"><div class="evol-leg-dot" style="background:#a78bfa"></div>${teamA} arriba</div>
+        <div class="evol-leg-item"><div class="evol-leg-dot" style="background:#5eead4"></div>${teamB} arriba</div>
       </div>
     </div>`;
     const tip = document.getElementById('evolTip');
@@ -1785,7 +1790,7 @@ function renderScoreDelta(gameId, localTeam, visitTeam) {
       bar.addEventListener('mouseenter', e => {
         const min   = bar.dataset.min;
         const delta = parseInt(bar.dataset.delta, 10);
-        const leader = delta > 0 ? localTeam : delta < 0 ? visitTeam : 'Empate';
+        const leader = delta > 0 ? teamA : delta < 0 ? teamB : 'Empate';
         const sign   = delta > 0 ? '+' : '';
         tip.innerHTML = `<span style="color:var(--muted);font-size:.62rem">MIN ${min}</span><br>
           <span style="font-weight:700;font-size:.82rem;color:${delta > 0 ? '#a78bfa' : delta < 0 ? '#5eead4' : 'var(--muted)'}">${sign}${delta}</span>
@@ -2062,10 +2067,11 @@ function showTeamGames(teamName) {
 function showGameDetail(g, teamName) {
   // Store state for shot map
   const isLocal = g.condicion === 'LOCAL';
-  _smState.gameId = g.gameId || null;
-  _smState.local  = isLocal ? teamName : g.rival;
-  _smState.visit  = isLocal ? g.rival  : teamName;
-  _smState.filter = { team: 'all', tipo: 'all', result: 'all' };
+  _smState.gameId    = g.gameId || null;
+  _smState.local     = isLocal ? teamName : g.rival;
+  _smState.visit     = isLocal ? g.rival  : teamName;
+  _smState.focusTeam = teamName;
+  _smState.filter    = { team: 'all', tipo: 'all', result: 'all' };
 
   // Update local/visit button labels
   document.getElementById('smBtnLocal').textContent = _smState.local;
@@ -2077,12 +2083,7 @@ function showGameDetail(g, teamName) {
   });
 
   // Reset to stats tab
-  document.getElementById('tgmTabStats').classList.add('active');
-  document.getElementById('tgmTabMap').classList.remove('active');
-  document.getElementById('tgmTabBox').classList.remove('active');
-  document.getElementById('tgmDetailBody').style.display = '';
-  document.getElementById('tgmMapPanel').style.display = 'none';
-  document.getElementById('tgmBoxPanel').style.display = 'none';
+  switchGameTab('stats');
 
   // Load shots in background
   if (SHOTS_MAP === null) loadShots();
