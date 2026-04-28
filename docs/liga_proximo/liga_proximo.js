@@ -1759,7 +1759,7 @@ function computeScoreDelta(gameId) {
         prevSVis = readings[i].sVis;
       }
     }
-    result.push({ minute: m, delta: prevSLoc - prevSVis });
+    result.push({ minute: m, delta: prevSLoc - prevSVis, sLoc: prevSLoc, sVis: prevSVis });
   }
   return result;
 }
@@ -1770,6 +1770,7 @@ function renderScoreDelta(gameId, localTeam, visitTeam) {
   const invert    = focusTeam === visitTeam;
   const teamA     = focusTeam;
   const teamB     = invert ? localTeam : visitTeam;
+
   const doRender = () => {
     let data = computeScoreDelta(gameId);
     if (!data || !data.length) {
@@ -1785,16 +1786,21 @@ function renderScoreDelta(gameId, localTeam, visitTeam) {
         <div class="evol-leg-item"><div class="evol-leg-dot" style="background:#5eead4"></div>${teamB} arriba</div>
       </div>
     </div>`;
+
+    // Tooltip logic
     const tip = document.getElementById('evolTip');
     panel.querySelectorAll('.evol-bar').forEach(bar => {
       bar.addEventListener('mouseenter', e => {
         const min   = bar.dataset.min;
         const delta = parseInt(bar.dataset.delta, 10);
-        const leader = delta > 0 ? teamA : delta < 0 ? teamB : 'Empate';
+        const sLoc  = bar.dataset.sloc;
+        const sVis  = bar.dataset.svis;
+        const leader = delta > 0 ? teamA : delta < 0 ? teamB : null;
         const sign   = delta > 0 ? '+' : '';
+        const clr    = delta > 0 ? '#a78bfa' : delta < 0 ? '#5eead4' : 'var(--muted)';
         tip.innerHTML = `<span style="color:var(--muted);font-size:.62rem">MIN ${min}</span><br>
-          <span style="font-weight:700;font-size:.82rem;color:${delta > 0 ? '#a78bfa' : delta < 0 ? '#5eead4' : 'var(--muted)'}">${sign}${delta}</span>
-          ${delta !== 0 ? `<span style="color:var(--muted);font-size:.65rem"> · ${leader}</span>` : '<span style="color:var(--muted);font-size:.65rem"> · Empate</span>'}`;
+          <span style="font-weight:800;font-size:.92rem;color:#fff">${sLoc} – ${sVis}</span><br>
+          <span style="font-size:.66rem;color:${clr}">${leader ? sign+delta+' · '+leader : 'Empate'}</span>`;
         tip.style.display = 'block';
         _evolMoveTip(e);
       });
@@ -1802,6 +1808,7 @@ function renderScoreDelta(gameId, localTeam, visitTeam) {
       bar.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
     });
   };
+
   if (PBP_MAP === null) {
     panel.innerHTML = `<div class="evol-empty" style="color:var(--muted2)">Cargando datos…</div>`;
     loadPbp().then(doRender);
@@ -1821,10 +1828,11 @@ function _evolMoveTip(e) {
 }
 
 function _buildEvolSvg(data) {
-  const W = 600, H = 220;
-  const padL = 36, padR = 10, padT = 22, padB = 36;
+  const W = 600, H = 230;
+  const padL = 36, padR = 10, padT = 28, padB = 46;
   const chartW = W - padL - padR;
   const chartH = H - padT - padB;
+
   const n      = data.length;
   const deltas = data.map(d => d.delta);
   const rawMax = Math.max(Math.abs(Math.min(...deltas)), Math.abs(Math.max(...deltas)), 1);
@@ -1832,53 +1840,94 @@ function _buildEvolSvg(data) {
   const step   = yMax <= 10 ? 5 : yMax <= 25 ? 10 : 15;
   const yScale = (chartH / 2) / yMax;
   const zeroY  = padT + chartH / 2;
-  const barSlot = chartW / n;
-  const barW    = Math.max(1.5, barSlot * 0.72);
-  const POS_CLR  = '#a78bfa';
-  const NEG_CLR  = '#5eead4';
-  const MUTED    = '#475569';
-  const GRID     = 'rgba(255,255,255,.045)';
-  const ZERO_LN  = 'rgba(255,255,255,.22)';
+  const slot   = chartW / n;
+
+  const POS_CLR = '#a78bfa';
+  const NEG_CLR = '#5eead4';
+  const MUTED   = '#475569';
+  const MUTED2  = '#334155';
+  const ZERO_LN = 'rgba(255,255,255,.2)';
+  const GRID    = 'rgba(255,255,255,.04)';
+
+  // Build points (center of each minute slot)
+  const pts = data.map((d, i) => ({
+    x: padL + i * slot + slot / 2,
+    y: zeroY - d.delta * yScale
+  }));
+
+  const firstX = pts[0].x.toFixed(1);
+  const lastX  = pts[pts.length - 1].x.toFixed(1);
+  const polyPts = pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+  const areaPts = `${firstX},${zeroY} ${polyPts} ${lastX},${zeroY}`;
+
   let s = '';
+
+  // Clip paths: upper half (positive/local) and lower half (negative/visit)
+  s += `<defs>
+    <clipPath id="cpPos"><rect x="${padL-1}" y="${padT}" width="${chartW+2}" height="${(chartH/2+1).toFixed(1)}"/></clipPath>
+    <clipPath id="cpNeg"><rect x="${padL-1}" y="${(zeroY-.5).toFixed(1)}" width="${chartW+2}" height="${(chartH/2+1).toFixed(1)}"/></clipPath>
+  </defs>`;
+
+  // Grid lines + Y labels
   for (let v = -yMax; v <= yMax; v += step) {
     const y = (zeroY - v * yScale).toFixed(1);
-    s += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="${v === 0 ? ZERO_LN : GRID}" stroke-width="${v === 0 ? '1' : '.5'}"/>`;
-    if (v !== 0) s += `<text x="${padL - 4}" y="${parseFloat(y) + 3.5}" text-anchor="end" fill="${MUTED}" font-size="8.5" font-family="Inter,sans-serif">${v > 0 ? '+' : ''}${v}</text>`;
+    s += `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="${v===0 ? ZERO_LN : GRID}" stroke-width="${v===0 ? '1' : '.5'}"/>`;
+    s += `<text x="${padL-4}" y="${parseFloat(y)+3.5}" text-anchor="end" fill="${MUTED}" font-size="8.5" font-family="Inter,sans-serif">${v>0?'+':''}${v===0?'0':v}</text>`;
   }
-  s += `<text x="${padL - 4}" y="${zeroY + 3.5}" text-anchor="end" fill="${MUTED}" font-size="8.5" font-family="Inter,sans-serif">0</text>`;
+
+  // Filled areas
+  s += `<polygon points="${areaPts}" fill="${POS_CLR}" opacity=".18" clip-path="url(#cpPos)"/>`;
+  s += `<polygon points="${areaPts}" fill="${NEG_CLR}" opacity=".18" clip-path="url(#cpNeg)"/>`;
+
+  // Lines colored by side (clipped)
+  s += `<polyline points="${polyPts}" fill="none" stroke="${POS_CLR}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" clip-path="url(#cpPos)"/>`;
+  s += `<polyline points="${polyPts}" fill="none" stroke="${NEG_CLR}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" clip-path="url(#cpNeg)"/>`;
+
+  // Period separators
   const qMins = [10, 20, 30, 40];
   const otMins = [];
   for (let ot = 45; ot <= n; ot += 5) otMins.push(ot);
-  [...qMins, ...otMins].forEach((p) => {
+
+  [...qMins, ...otMins].forEach(p => {
     if (p >= n) return;
-    const x = (padL + p * barSlot).toFixed(1);
-    s += `<line x1="${x}" y1="${padT}" x2="${x}" y2="${H - padB}" stroke="rgba(255,255,255,.09)" stroke-width=".8" stroke-dasharray="3,3"/>`;
+    const x = (padL + p * slot).toFixed(1);
+    s += `<line x1="${x}" y1="${padT}" x2="${x}" y2="${H-padB}" stroke="rgba(255,255,255,.08)" stroke-width=".8" stroke-dasharray="3,3"/>`;
+    // Score badge at quarter end
+    const d = data[p - 1];
+    if (d && d.sLoc !== undefined) {
+      const bw = 40, bh = 13, bx = parseFloat(x) - bw/2, by = H - padB + 18;
+      s += `<rect x="${bx.toFixed(1)}" y="${by}" width="${bw}" height="${bh}" rx="3" fill="rgba(255,255,255,.06)" stroke="${MUTED2}" stroke-width=".5"/>`;
+      s += `<text x="${parseFloat(x).toFixed(1)}" y="${by+9}" text-anchor="middle" fill="#94a3b8" font-size="7.5" font-family="Inter,sans-serif" font-weight="600">${d.sLoc}–${d.sVis}</text>`;
+    }
   });
+
+  // Quarter labels above chart
   const qLabels = ['Q1','Q2','Q3','Q4'];
-  [0, 10, 20, 30].forEach((start, qi) => {
+  [0,10,20,30].forEach((start, qi) => {
     if (start >= n) return;
-    const end   = Math.min(start + 10, n);
-    const midX  = padL + (start + end) / 2 * barSlot;
-    s += `<text x="${midX.toFixed(1)}" y="${padT - 6}" text-anchor="middle" fill="${MUTED}" font-size="7.5" font-family="Inter,sans-serif" letter-spacing=".5">${qLabels[qi]}</text>`;
+    const end  = Math.min(start + 10, n);
+    const midX = padL + (start + end) / 2 * slot;
+    s += `<text x="${midX.toFixed(1)}" y="${padT-10}" text-anchor="middle" fill="${MUTED}" font-size="7.5" font-family="Inter,sans-serif" letter-spacing=".5">${qLabels[qi]}</text>`;
   });
   otMins.forEach((start, i) => {
     const end  = Math.min(start + 5, n);
-    const midX = padL + (start - 5 + (end - start + 5) / 2) * barSlot;
-    s += `<text x="${midX.toFixed(1)}" y="${padT - 6}" text-anchor="middle" fill="${MUTED}" font-size="7.5" font-family="Inter,sans-serif">OT${i + 1}</text>`;
+    const midX = padL + (start - 5 + (end - start + 5) / 2) * slot;
+    s += `<text x="${midX.toFixed(1)}" y="${padT-10}" text-anchor="middle" fill="${MUTED}" font-size="7.5" font-family="Inter,sans-serif">OT${i+1}</text>`;
   });
-  data.forEach((d, i) => {
-    const x  = padL + i * barSlot + (barSlot - barW) / 2;
-    const bh = Math.max(Math.abs(d.delta) * yScale, d.delta !== 0 ? 1 : 0);
-    const y  = d.delta >= 0 ? zeroY - bh : zeroY;
-    const clr = d.delta >= 0 ? POS_CLR : NEG_CLR;
-    const op  = d.delta === 0 ? 0 : 0.82;
-    s += `<rect class="evol-bar" data-min="${d.minute}" data-delta="${d.delta}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barW.toFixed(2)}" height="${bh.toFixed(2)}" fill="${clr}" opacity="${op}" rx="1.5" style="cursor:default"/>`;
-  });
+
+  // X-axis labels every 5 min
   data.forEach((d, i) => {
     if (d.minute % 5 !== 0) return;
-    const x = padL + i * barSlot + barSlot / 2;
-    s += `<text x="${x.toFixed(1)}" y="${H - padB + 13}" text-anchor="middle" fill="${MUTED}" font-size="8.5" font-family="Inter,sans-serif">${d.minute}</text>`;
+    const x = padL + i * slot + slot / 2;
+    s += `<text x="${x.toFixed(1)}" y="${H-padB+12}" text-anchor="middle" fill="${MUTED}" font-size="8.5" font-family="Inter,sans-serif">${d.minute}'</text>`;
   });
+
+  // Invisible hover rects (full chart height) for tooltip
+  data.forEach((d, i) => {
+    const x = (padL + i * slot).toFixed(2);
+    s += `<rect class="evol-bar" data-min="${d.minute}" data-delta="${d.delta}" data-sloc="${d.sLoc}" data-svis="${d.sVis}" x="${x}" y="${padT}" width="${slot.toFixed(2)}" height="${chartH}" fill="transparent" style="cursor:default"/>`;
+  });
+
   return `<svg class="evol-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
 }
 
