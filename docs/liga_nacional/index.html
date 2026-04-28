@@ -224,6 +224,14 @@
       </div>
       <div class="fsb-sep"></div>
       <div class="fsb-group">
+        <span class="fsb-lbl">Etapa</span>
+        <div class="fsb-pills">
+          <button class="active" id="jPhaseAll" onclick="setJPhase('all')">Todos</button>
+          <button id="jPhaseReg" onclick="setJPhase('regular')">Temporada Regular</button>
+          <button id="jPhasePost" onclick="setJPhase('post')">Post Temporada</button>
+        </div>
+      </div>
+      <div class="fsb-group">
         <span class="fsb-lbl">Período</span>
         <div class="fsb-pills">
           <button class="active" id="jPeriodAll" onclick="setJPeriod('all')">Temporada completa</button>
@@ -779,6 +787,14 @@
       </div>
       <div class="fsb-sep"></div>
       <div class="fsb-group">
+        <span class="fsb-lbl">Etapa</span>
+        <div class="fsb-pills">
+          <button class="active" id="tPhaseAll" onclick="setTPhase('all')">Todos</button>
+          <button id="tPhaseReg" onclick="setTPhase('regular')">Temporada Regular</button>
+          <button id="tPhasePost" onclick="setTPhase('post')">Post Temporada</button>
+        </div>
+      </div>
+      <div class="fsb-group">
         <span class="fsb-lbl">Período</span>
         <div class="fsb-pills">
           <button class="active" id="tPeriodAll" onclick="setTPeriod('all')">Temporada completa</button>
@@ -1316,21 +1332,30 @@
 
 <!-- ============================= POSICIONES ============================= -->
 <div class="section active" id="sec-posiciones">
-  <div class="pos-outer">
-    <div class="pos-conf-block">
-      <div class="pos-conf-title">Liga Nacional · Temporada Regular</div>
-      <div class="pos-table-scroll">
-        <table class="pos-table">
-          <thead><tr>
-            <th data-tip="Posición en la tabla">#</th><th data-tip="Nombre del equipo">Equipo</th>
-            <th data-tip="Partidos jugados">PJ</th><th data-tip="Partidos ganados">G</th><th data-tip="Partidos perdidos">P</th>
-            <th data-tip="% de victorias · G / PJ">W%</th><th data-tip="Puntos anotados por partido">PTS/P</th><th data-tip="Puntos recibidos por partido">PTS REC/P</th><th data-tip="Diferencial de puntos/partido · PTS/P − PTS REC/P">DIF/P</th>
-            <th data-tip="Récord como local (G-P)">LOCAL</th><th data-tip="Récord como visitante (G-P)">VISITA</th><th data-tip="Récord en los últimos 5 partidos (G-P)">ÚLTIMOS 5</th><th></th>
-          </tr></thead>
-          <tbody id="posAllTbody"></tbody>
-        </table>
+  <div class="pos-tab-bar">
+    <button class="pos-tab active" id="posTabReg" onclick="switchPosTab('regular')">Temporada Regular</button>
+    <button class="pos-tab" id="posTabPost" onclick="switchPosTab('post')">Post Temporada</button>
+  </div>
+  <div id="posRegPanel">
+    <div class="pos-outer">
+      <div class="pos-conf-block">
+        <div class="pos-conf-title">Liga Nacional · Temporada Regular</div>
+        <div class="pos-table-scroll">
+          <table class="pos-table">
+            <thead><tr>
+              <th data-tip="Posición en la tabla">#</th><th data-tip="Nombre del equipo">Equipo</th>
+              <th data-tip="Partidos jugados">PJ</th><th data-tip="Partidos ganados">G</th><th data-tip="Partidos perdidos">P</th>
+              <th data-tip="% de victorias · G / PJ">W%</th><th data-tip="Puntos anotados por partido">PTS/P</th><th data-tip="Puntos recibidos por partido">PTS REC/P</th><th data-tip="Diferencial de puntos/partido · PTS/P − PTS REC/P">DIF/P</th>
+              <th data-tip="Récord como local (G-P)">LOCAL</th><th data-tip="Récord como visitante (G-P)">VISITA</th><th data-tip="Récord en los últimos 5 partidos (G-P)">ÚLTIMOS 5</th><th></th>
+            </tr></thead>
+            <tbody id="posAllTbody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
+  </div>
+  <div id="posPostPanel" style="display:none">
+    <div id="playoffContent"></div>
   </div>
 </div>
 
@@ -1565,8 +1590,18 @@
 <div class="section" id="sec-lideres">
   <div class="leaders-outer">
     <div class="leaders-header">
-      <h2>Líderes <span>·</span> Últimos 5 Partidos</h2>
-      <p>Promedio por partido · mín. 1 partido jugado · porcentajes con mín. 3 intentos</p>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <h2 id="leadersTitle">Líderes <span>·</span> Post Temporada</h2>
+          <p id="leadersSubtitle">Promedio por partido · mín. 1 partido jugado · porcentajes con mín. 3 intentos</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap">
+          <select class="leaders-select" id="lPhaseSelect" onchange="setLPhase(this.value)">
+            <option value="regular">Últimos 5 Partidos</option>
+            <option value="post" selected>Post Temporada</option>
+          </select>
+        </div>
+      </div>
     </div>
     <div class="leaders-grid" id="leadersGrid"></div>
   </div>
