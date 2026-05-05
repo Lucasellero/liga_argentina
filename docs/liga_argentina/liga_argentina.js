@@ -1353,7 +1353,8 @@ function buildLeaders() {
 // POSICIONES POR CONFERENCIA
 // ============================================================
 const PLAYOFF_DATE = new Date(2026, 3, 1);  // 1 de abril de 2026
-const PLAYOFF2_DATE = new Date(2026, 3, 15); // 15 de abril de 2026 — inicio Playoffs
+const PLAYOFF2_DATE = new Date(2026, 3, 15); // 15 de abril de 2026 — inicio Octavos
+const CUARTOS_DATE  = new Date(2026, 3, 30); // 30 de abril de 2026 — inicio Cuartos
 function isPostSeason(fechaStr) {
   if (!fechaStr) return false;
   const [d,m,y] = fechaStr.split('/');
@@ -1551,7 +1552,7 @@ function renderPostSeason() {
     // Status line
     let statusHtml = '';
     if (gamesPlayed === 0) {
-      statusHtml = `<div class="series-status">Serie al mejor de ${phase==='playoff'?'5':'3'}</div>`;
+      statusHtml = `<div class="series-status">Serie al mejor de ${phase==='cuartos'?'5':'3'}</div>`;
     } else if (aLeads) {
       statusHtml = `<div class="series-status">Gana <span class="lead-name">${s.teamA}</span></div>`;
     } else if (bLeads) {
@@ -1599,13 +1600,17 @@ function renderPostSeason() {
     </div>`;
   }
 
-  // Split series into Play-in vs Playoffs by date of first game
+  // Split series into three phases by date of first game
   function seriesPhase(s) {
     const [d,m,y] = s.games[0].fecha.split('/');
-    return new Date(+y,+m-1,+d) >= PLAYOFF2_DATE ? 'playoff' : 'playin';
+    const d0 = new Date(+y,+m-1,+d);
+    if (d0 >= CUARTOS_DATE) return 'cuartos';
+    if (d0 >= PLAYOFF2_DATE) return 'octavos';
+    return 'playin';
   }
 
-  function renderPhase(phase, phaseTitle) {
+  // Renders a phase with Norte/Sur split
+  function renderPhaseSplit(phase, phaseTitle) {
     const north = northSeries.filter(s => seriesPhase(s) === phase);
     const south = southSeries.filter(s => seriesPhase(s) === phase);
     if (!north.length && !south.length) return '';
@@ -1625,9 +1630,22 @@ function renderPostSeason() {
     return h;
   }
 
+  // Renders a phase without Norte/Sur split (unified grid)
+  function renderPhaseUnified(phase, phaseTitle) {
+    const all = [...northSeries, ...southSeries].filter(s => seriesPhase(s) === phase);
+    if (!all.length) return '';
+    let h = `<div class="playoff-phase-block">`;
+    h += `<div class="playoff-phase-title">${phaseTitle}</div>`;
+    h += `<div class="playoff-grid">`;
+    all.forEach(s => { h += seriesCard(s, phase); });
+    h += `</div></div>`;
+    return h;
+  }
+
   let html = '';
-  html += renderPhase('playoff', 'Playoffs');
-  html += renderPhase('playin', 'Play-in');
+  html += renderPhaseUnified('cuartos', 'Cuartos de Final');
+  html += renderPhaseSplit('octavos', 'Octavos de Final');
+  html += renderPhaseSplit('playin', 'Play-in');
   document.getElementById('playoffContent').innerHTML = html;
 }
 
