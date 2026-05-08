@@ -13,6 +13,7 @@ Aplica solo a los scripts de predicción; el dashboard y los scrapers tienen sus
 | Liga Nacional | `liga_argentina/modelos/similitud_liga_nacional/` | Cosine Similarity | ✅ Funcional |
 | Liga Argentina | `liga_argentina/modelos/similitud_liga_argentina/` | Cosine Similarity | ✅ Funcional |
 | Liga Femenina | — | — | No implementado |
+| Liga Nacional + Argentina | `liga_argentina/travel_km.py` | Análisis de viajes (Haversine + Giras) | ✅ Funcional |
 
 **Fuentes de datos usadas por el modelo actual:**
 - `liga_nacional.csv` — stats por jugador/partido (agrega a nivel equipo)
@@ -593,3 +594,90 @@ reload_model()
 ```
 
 El modelo se cachea en memoria después del primer `fit()`. Llamar `reload_model()` al actualizar el CSV.
+
+---
+
+## Análisis de Kilómetros Viajados
+
+### Descripción
+
+Script determinístico que calcula los kilómetros recorridos por cada equipo durante la temporada regular, con optimización de "Giras" (road trips).
+
+**Archivo:** `liga_argentina/travel_km.py`  
+**Datos geográficos:** `docs/ciudades_equipos.csv`
+
+### Concepto de Gira
+
+Una **Gira** es una secuencia de 2 o más partidos de visitante consecutivos (sin partido de local en el medio) donde el tiempo entre partidos consecutivos es **menor a 7 días**.
+
+Para una gira, el equipo no regresa a su ciudad entre partidos:
+
+- **Partido suelto:** `home → city → home` (ida y vuelta simple)
+- **Gira de 2:** `home → cityA → cityB → home`
+- **Gira de N:** `home → city1 → city2 → ... → cityN → home`
+
+El umbral configurable está en la constante `GIRA_MAX_DAYS = 7` al inicio del script.
+
+### Fuente de datos
+
+| Archivo | Descripción |
+|---|---|
+| `docs/ciudades_equipos.csv` | Base geográfica: equipo, ciudad, provincia, lat, lng |
+| `docs/liga_nacional/liga_nacional.csv` | Stats Liga Nacional (se filtran filas `TOTALES`) |
+| `docs/liga_argentina/liga_argentina.csv` | Stats Liga Argentina (se filtran filas `TOTALES`) |
+
+`ciudades_equipos.csv` tiene una fila por equipo con columnas: `liga, equipo, ciudad, provincia, lat, lng`. Cubre 19 equipos de Liga Nacional y 34 de Liga Argentina. El nombre en `equipo` debe coincidir exactamente con el campo `Equipo` y `Rival` del CSV de stats (incluye tildes).
+
+### Algoritmo
+
+1. Para cada equipo, ordenar su cronograma por fecha.
+2. Recorrer los partidos secuencialmente:
+   - **Local** → no genera km, avanzar al siguiente.
+   - **Visitante** → intentar extender a gira: mientras el siguiente partido también sea visitante, el `Rival` esté en `ciudades_equipos.csv`, y haya < `GIRA_MAX_DAYS` días de diferencia, agregar al segmento.
+3. Calcular km del segmento con Haversine y la ruta óptima (sin volver a casa hasta el final de la gira).
+
+### Funciones clave
+
+- `haversine_km(lat1, lon1, lat2, lon2)` — distancia geodésica entre dos puntos (R = 6371 km).
+- `segment_km(home_lat, home_lon, city_coords)` — ruta completa de un viaje: `home → c1 → c2 → ... → home`.
+
+### Configuración
+
+```python
+GIRA_MAX_DAYS = 7   # días máximos entre dos partidos para ser parte de la misma gira
+
+LIGAS = {
+    "Liga Nacional": { "cutoff": "2026-04-24" },  # solo temporada regular (excluye playoffs desde 24/04)
+    "Liga Argentina": { "cutoff": "2026-03-30" },  # solo temporada regular (excluye playoffs desde 30/03)
+}
+```
+
+### Columnas del resultado
+
+| Columna | Descripción |
+|---|---|
+| `Equipo` | Nombre del equipo |
+| `Ciudad` | Ciudad base del equipo |
+| `PJ` | Partidos jugados |
+| `Local` | Partidos de local |
+| `Visitante` | Partidos de visitante |
+| `Giras` | Número de road trips (secuencias de 2+ partidos fuera) |
+| `KM total` | Total de kilómetros viajados en la temporada |
+| `KM/part. visit.` | Kilómetros promedio por partido de visitante |
+
+### Ejecución
+
+```bash
+# Desde la carpeta liga_argentina/
+python travel_km.py
+```
+
+Imprime una tabla por liga ordenada por KM total descendente, con resumen de totales y giras detectadas.
+
+### Supuestos documentados
+
+1. **Ciudad base, no estadio** — la referencia geográfica es la ciudad del equipo, no el estadio específico. Equipos de la misma ciudad (ej. BOCA, OBRAS, SAN LORENZO, FERRO en Buenos Aires) comparten coordenadas; partidos entre ellos contribuyen 0 km al visitante.
+2. **Gira sin tope de partidos** — no hay límite máximo de partidos por gira; la agrupación continúa mientras se cumplan las condiciones.
+3. **Rival desconocido corta la gira** — si el rival de un partido visitante no está en `ciudades_equipos.csv`, ese partido se omite del cálculo de km y no puede extender la gira.
+4. **Corte Liga Nacional = `2026-04-24`** — primer día de playoffs (24/04); se incluyen partidos hasta el 23/04 inclusive. La temporada regular terminó el 23/04/2026 (36 fechas, 19 equipos, 18L/18V cada uno).
+5. **Corte Liga Argentina = `2026-03-30`** — primer día de playoffs (30/03); se incluyen partidos hasta el 29/03 inclusive. La temporada regular terminó el 29/03/2026 (32 fechas, 34 equipos, 16L/16V cada uno).

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Liga Nacional — KM Viajados Temporada Regular</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #0c0d1e;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  gap: 16px;
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #e2e8f0;
+}
+canvas {
+  max-width: min(100%, 640px);
+  border-radius: 6px;
+  box-shadow: 0 12px 60px rgba(0,0,0,0.6);
+}
+.controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+button {
+  padding: 10px 26px;
+  background: #8b5cf6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+button:hover { background: #7c3aed; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1350"></canvas>
+<div class="controls">
+  <button id="dl">⬇ Descargar PNG (1080×1350)</button>
+</div>
+
+<script>
+const TEAMS = [
+  { name:'GIMNASIA (CR)',      ciudad:'Comodoro Rivadavia',  giras:7, km:28265, kmv:1570, logo:'gimnasia_cr.jpeg'      },
+  { name:'INDEPENDIENTE (O)', ciudad:'Oberá',               giras:7, km:20301, kmv:1128, logo:'independiente_o.jpeg'  },
+  { name:'OBERÁ',             ciudad:'Oberá',               giras:8, km:18989, kmv:1055, logo:'obera.jpeg'            },
+  { name:'PEÑAROL (MDP)',     ciudad:'Mar del Plata',       giras:8, km:18043, kmv:1002, logo:'peñarol_mdp.jpeg'      },
+  { name:'OLÍMPICO (LB)',     ciudad:'La Banda',            giras:8, km:17902, kmv:995,  logo:'olimpico_lb.jpeg'      },
+  { name:'QUIMSA',            ciudad:'Santiago del Estero', giras:8, km:17855, kmv:992,  logo:'quimsa.jpeg'           },
+  { name:'SAN MARTÍN (C)',    ciudad:'Corrientes',          giras:8, km:15940, kmv:886,  logo:'san_martin_c.jpeg'     },
+  { name:'LA UNION FSA.',     ciudad:'Formosa',             giras:7, km:15794, kmv:877,  logo:'la_union_fsa.jpeg'     },
+  { name:'REGATAS (C)',       ciudad:'Corrientes',          giras:7, km:15366, kmv:854,  logo:'regatas_c.jpeg'        },
+  { name:'ATENAS (C)',        ciudad:'Córdoba',             giras:7, km:15061, kmv:837,  logo:'atenas_c.jpeg'         },
+  { name:'INSTITUTO',         ciudad:'Córdoba',             giras:7, km:14572, kmv:810,  logo:'instituto.jpeg'        },
+  { name:'ARGENTINO (J)',     ciudad:'Junín',               giras:6, km:14061, kmv:781,  logo:'argentino_j.jpeg'      },
+  { name:'OBRAS',             ciudad:'Buenos Aires',        giras:5, km:13859, kmv:770,  logo:'obras.jpeg'            },
+  { name:'RACING (CH)',       ciudad:'Chivilcoy',           giras:5, km:13311, kmv:740,  logo:'racing_ch.jpeg'        },
+  { name:'UNION (SF)',        ciudad:'Santa Fe',            giras:7, km:13254, kmv:736,  logo:'union_sf.jpeg'         },
+  { name:'SAN LORENZO',      ciudad:'Buenos Aires',        giras:6, km:13072, kmv:726,  logo:'san_lorenzo.jpeg'      },
+  { name:'PLATENSE',          ciudad:'Vicente López',       giras:6, km:13058, kmv:725,  logo:'platense.jpeg'         },
+  { name:'BOCA',              ciudad:'Buenos Aires',        giras:6, km:12226, kmv:679,  logo:'boca.jpeg'             },
+  { name:'FERRO',             ciudad:'Buenos Aires',        giras:5, km:12088, kmv:672,  logo:'ferro.jpeg'            },
+];
+
+const W = 1080, H = 1350;
+const TEAL   = '#2dd4bf';
+const MAX_KM = TEAMS[0].km;  // already sorted descending
+
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+const IMG    = {};
+
+Promise.all(TEAMS.map(t => new Promise(res => {
+  const img = new Image();
+  img.onload  = () => { IMG[t.logo] = img; res(); };
+  img.onerror = () => res();
+  img.src = 'logos/' + t.logo;
+}))).then(render);
+
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function drawLogo(x, y, r, logo) {
+  const img = IMG[logo];
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = '#1e1f3a';
+  ctx.fill();
+  if (img) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.clip();
+    const s = Math.min(img.width, img.height);
+    ctx.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s,
+                  x - r, y - r, r * 2, r * 2);
+    ctx.restore();
+  }
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(139,92,246,0.5)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.restore();
+}
+
+function render() {
+  // ── Background ─────────────────────────────────────────────────────────────
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#0d0e22');
+  bg.addColorStop(1, '#10112a');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Top accent stripe (purple → teal → purple)
+  const stripe = ctx.createLinearGradient(0, 0, W, 0);
+  stripe.addColorStop(0,    'rgba(139,92,246,0.0)');
+  stripe.addColorStop(0.15, 'rgba(139,92,246,0.75)');
+  stripe.addColorStop(0.5,  'rgba(45,212,191,0.6)');
+  stripe.addColorStop(0.85, 'rgba(139,92,246,0.75)');
+  stripe.addColorStop(1,    'rgba(139,92,246,0.0)');
+  ctx.fillStyle = stripe;
+  ctx.fillRect(0, 0, W, 3);
+
+  // Subtle vignette
+  const vig = ctx.createRadialGradient(W / 2, H * 0.12, H * 0.04, W / 2, H * 0.5, H * 0.78);
+  vig.addColorStop(0, 'rgba(0,0,0,0)');
+  vig.addColorStop(1, 'rgba(0,0,0,0.28)');
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, W, H);
+
+  // ── League badge ────────────────────────────────────────────────────────────
+  const badgeW = 170, badgeH = 28;
+  const bx = W / 2 - badgeW / 2, by = 20;
+  ctx.fillStyle = 'rgba(45,212,191,0.14)';
+  roundRect(bx, by, badgeW, badgeH, 14);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(45,212,191,0.42)';
+  ctx.lineWidth = 1;
+  roundRect(bx, by, badgeW, badgeH, 14);
+  ctx.stroke();
+  ctx.font = '600 13px system-ui';
+  ctx.fillStyle = TEAL;
+  ctx.textAlign = 'center';
+  ctx.fillText('🏀  LIGA NACIONAL', W / 2, by + 19);
+
+  // ── Title ───────────────────────────────────────────────────────────────────
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255,255,255,0.97)';
+  ctx.font = '800 38px system-ui';
+  ctx.fillText('EQUIPOS QUE MÁS', W / 2, 96);
+  ctx.fillText('KILÓMETROS RECORRIERON', W / 2, 140);
+
+  ctx.font = '500 17px system-ui';
+  ctx.fillStyle = 'rgba(139,92,246,0.88)';
+  ctx.fillText('TEMPORADA REGULAR 2025/2026', W / 2, 168);
+
+  // ── Stats cards ─────────────────────────────────────────────────────────────
+  const CARDS = [
+    { val: '19',      lbl: 'EQUIPOS' },
+    { val: '36',      lbl: 'PJ POR EQUIPO' },
+    { val: '303.017', lbl: 'KM TOTALES' },
+  ];
+  const cW = 255, cH = 58, cGap = 27;
+  const cTotalW = CARDS.length * cW + (CARDS.length - 1) * cGap;
+  let cx = (W - cTotalW) / 2;
+  const cY = 182;
+
+  for (const c of CARDS) {
+    ctx.fillStyle = 'rgba(255,255,255,0.042)';
+    roundRect(cx, cY, cW, cH, 10);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.lineWidth = 1;
+    roundRect(cx, cY, cW, cH, 10);
+    ctx.stroke();
+
+    ctx.textAlign = 'center';
+    ctx.font = '700 22px system-ui';
+    ctx.fillStyle = TEAL;
+    ctx.fillText(c.val, cx + cW / 2, cY + 26);
+
+    ctx.font = '500 11px system-ui';
+    ctx.fillStyle = 'rgba(255,255,255,0.42)';
+    ctx.fillText(c.lbl, cx + cW / 2, cY + 45);
+
+    cx += cW + cGap;
+  }
+
+  // ── Divider ─────────────────────────────────────────────────────────────────
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(36, 256);
+  ctx.lineTo(W - 36, 256);
+  ctx.stroke();
+
+  // ── Column headers ──────────────────────────────────────────────────────────
+  ctx.font = '500 11px system-ui';
+  ctx.fillStyle = 'rgba(255,255,255,0.28)';
+  ctx.textAlign = 'left';
+  ctx.fillText('EQUIPO', 92, 274);
+  ctx.textAlign = 'right';
+  ctx.fillText('KM TOTALES', 876, 274);
+  ctx.fillText('KM/VISITA', 1048, 274);
+
+  // ── Table rows ──────────────────────────────────────────────────────────────
+  const ROW_START = 284;
+  const ROW_H     = 54;
+  const LOGO_R    = 22;
+  const LOGO_X    = 58;
+
+  // Bar: starts at x=346, max width 460px → rightmost bar edge at x=806
+  const BAR_X     = 346;
+  const BAR_MAX_W = 460;
+  const BAR_H     = 9;
+
+  for (let i = 0; i < TEAMS.length; i++) {
+    const t   = TEAMS[i];
+    const ry  = ROW_START + i * ROW_H;
+    const mid = ry + ROW_H / 2;
+
+    // Alternating row tint
+    if (i % 2 === 0) {
+      ctx.fillStyle = 'rgba(255,255,255,0.016)';
+      ctx.fillRect(30, ry + 2, W - 60, ROW_H - 4);
+    }
+
+    // Rank
+    ctx.textAlign = 'right';
+    ctx.font = '600 12px system-ui';
+    ctx.fillStyle = i < 3 ? 'rgba(139,92,246,0.75)' : 'rgba(255,255,255,0.22)';
+    ctx.fillText(String(i + 1).padStart(2, '0'), 38, mid + 4);
+
+    // Logo
+    drawLogo(LOGO_X, mid, LOGO_R, t.logo);
+
+    // Team name
+    ctx.textAlign = 'left';
+    ctx.font = '700 14px system-ui';
+    ctx.fillStyle = 'rgba(255,255,255,0.93)';
+    ctx.fillText(t.name, 92, mid - 5);
+
+    // Ciudad · giras
+    ctx.font = '400 11px system-ui';
+    ctx.fillStyle = 'rgba(255,255,255,0.34)';
+    ctx.fillText(t.ciudad + '  ·  ' + t.giras + ' giras', 92, mid + 11);
+
+    // Bar background track
+    const barY = mid - BAR_H / 2;
+    ctx.fillStyle = 'rgba(139,92,246,0.1)';
+    roundRect(BAR_X, barY, BAR_MAX_W, BAR_H, 4);
+    ctx.fill();
+
+    // Bar fill (gradient purple)
+    const barW = (t.km / MAX_KM) * BAR_MAX_W;
+    const barGrad = ctx.createLinearGradient(BAR_X, 0, BAR_X + barW, 0);
+    barGrad.addColorStop(0, 'rgba(109,40,217,0.88)');
+    barGrad.addColorStop(1, 'rgba(167,139,250,0.96)');
+    ctx.fillStyle = barGrad;
+    roundRect(BAR_X, barY, barW, BAR_H, 4);
+    ctx.fill();
+
+    // KM total (fixed column, right-aligned)
+    ctx.textAlign = 'right';
+    ctx.font = '600 13px system-ui';
+    ctx.fillStyle = 'rgba(255,255,255,0.88)';
+    ctx.fillText(t.km.toLocaleString('es-AR'), 876, mid + 4);
+
+    // KM/visita (teal)
+    ctx.font = '700 13px system-ui';
+    ctx.fillStyle = TEAL;
+    ctx.fillText(t.kmv.toLocaleString('es-AR'), 1048, mid + 4);
+  }
+
+  // ── Bottom divider ──────────────────────────────────────────────────────────
+  const botY = ROW_START + TEAMS.length * ROW_H + 6;
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(36, botY);
+  ctx.lineTo(W - 36, botY);
+  ctx.stroke();
+
+  // ── Watermark ───────────────────────────────────────────────────────────────
+  ctx.font = '400 12px system-ui';
+  ctx.fillStyle = 'rgba(255,255,255,0.15)';
+  ctx.textAlign = 'right';
+  ctx.fillText('scouteado.com', W - 38, H - 18);
+}
+
+document.getElementById('dl').onclick = () => {
+  const a = document.createElement('a');
+  a.download = 'liga_nacional_km_viajados.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+};
+</script>
+</body>
+</html>
