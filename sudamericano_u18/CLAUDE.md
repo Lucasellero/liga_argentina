@@ -236,31 +236,66 @@ Solo los eventos de tiro (`act=shot`), enriquecidos con nombre y dorsal del juga
 
 ## Coordenadas de tiros
 
-FIBA usa un sistema de coordenadas **en décimas de metro** sobre una cancha de 28m × 15m:
+**Sistema empíricamente determinado** a partir del dataset real (los valores del CLAUDE.md original eran incorrectos):
 
-- `x`: 0–280 (largo de la cancha)
-- `y`: 0–150 (ancho de la cancha)
-- Origen `(0,0)`: esquina del aro atacado en Q1/Q2 (convención FIBA LiveStats)
-- **Tiros libres**: `x=0, y=0` (sin coordenada real)
+- `x`: 0–280 → **ancho de la cancha** (15m). Basket centrado en x≈140.
+- `y`: 0–270 → **profundidad desde el aro atacado** (y pequeño = cerca del aro).
+- **FIBA pre-normaliza** todos los tiros para que apunten al mismo aro, independientemente del período. **No hace falta espejar Q3/Q4** — los datos de Q1 y Q3 muestran las mismas distribuciones de y.
+- **Tiros libres**: `x=0, y=0` (sin coordenada real).
 
-### Normalización para shot chart
+### Constantes empíricas del sistema
 
-FIBA **no normaliza** automáticamente la dirección de ataque: en Q1/Q2 el equipo ataca desde `x≈0` hacia `x≈280`, y en Q3/Q4 invierte. Para construir un heat map consistente hay que espejar los tiros de los períodos 3 y 4:
+Derivadas ajustando los datos reales del torneo:
 
-```python
-# Pseudocódigo de normalización
-if period in ('Q3', 'Q4', 'OT1', ...):
-    x_norm = 280 - x
-    y_norm = 150 - y
-else:
-    x_norm = x
-    y_norm = y
+| Constante | Valor | Descripción |
+|---|---|---|
+| `FIBA_BX` | 140 | Basket center x (mitad del ancho) |
+| `FIBA_BY` | 32 | Basket center y (≈1.7m desde la línea de fondo) |
+| `FIBA_R3` | 138 | Radio del arco de 3pt en unidades FIBA (≈6.6m) |
+| `FIBA_PW2` | 46 | Semiancho de la pintura (±2.45m → 280/15×2.45) |
+| `FIBA_PD` | 109 | Profundidad de la pintura / línea de tiro libre |
+| `FIBA_FTR` | 34 | Radio del círculo de tiro libre |
+| `FIBA_RAR` | 23 | Radio del área restringida |
+| `FIBA_CX` | 17 | X del corner (0.9m desde la línea lateral) |
+
+Valores de referencia verificados en el dataset:
+- Bandeja bajo el aro: x≈140, y≈32 (mediana de 2pt convertidos)
+- Triple frontal (centro): x≈140, y≈170
+- Triple corner izquierdo: x≈5–17, y≈40–95
+- Tiros del half-court y muy lejanos pueden tener y hasta 254
+
+### Canvas para shot chart
+
+El dashboard usa una **media cancha en landscape** con estas proporciones:
+
+```
+H = W × (FIBA_H / FIBA_W) = W × (175 / 280) ≈ W × 0.625
+Scale S = W / 280  (pixels por unidad FIBA, igual en x e y)
+canvas_x = fx × S
+canvas_y = fy × S
 ```
 
-Valores de referencia observados:
-- Bandeja bajo el aro (equipos atacando hacia x alto): `x≈150–160, y≈30–40` o `y≈110–120`
-- Triple esquinero: `x≈10–30, y≈10–30` (o simétricamente `y≈120–140`)
-- Triple frontal: `x≈15–20, y≈70–80`
+`FIBA_H = 175` cubre todos los tiros de 3pt (el tiro frontal más lejano llega a y≈170).
+
+### Clasificación de zonas (7 zonas)
+
+Mismas 7 zonas del dashboard principal, adaptadas al sistema FIBA:
+
+```javascript
+dx = fx - FIBA_BX   // negativo = izquierda, positivo = derecha
+dy = fy - FIBA_BY   // positivo = alejándose del aro (hacia el centro)
+
+// 3pt:
+CORNER_TOP  (corner izquierdo):  dx < 0 && dy < -dx
+CORNER_BOT  (corner derecho):    dx > 0 && dy <  dx
+ABOVE_BREAK (arco central):      resto
+
+// 2pt:
+PAINT:       (fy <= FIBA_PD && |dx| <= FIBA_PW2) || dist <= FIBA_RAR
+MID_TOP:     dx < -FIBA_PW2   (lateral izquierdo)
+MID_BOT:     dx >  FIBA_PW2   (lateral derecho)
+MID_CENTER:  resto             (top of key)
+```
 
 ---
 
@@ -332,3 +367,51 @@ for gid, ta, tb in games:
 - El campo `date` suele quedar vacío porque FIBA lo expone como `"$D2025-12-10T..."` (prefijo React) que el regex actual no captura para el nivel de partido individual. Las fechas exactas pueden inferirse del `gameName` (ej. `29454-A-1` es el partido A-1 de la competición 29454)
 - `act=unknwown` es un typo del sistema FIBA LiveStats; no corregir para evitar romper el matching contra futuros datos crudos
 - Los IDs de partido (`gameId`) son **numéricos enteros**, no strings Base64 como en la Liga Nacional Argentina
+
+---
+
+## Dashboard — `docs/argentina_formativas/`
+
+El dashboard vive en `docs/argentina_formativas/` y replica la funcionalidad de Liga Nacional.
+
+### Archivos generados por `transform_to_liga_format.py`
+
+| Archivo | Descripción |
+|---|---|
+| `argentina_formativas.csv` | Box score en formato Liga Nacional (515 filas player + 40 TOTALES) |
+| `argentina_formativas_shots.csv` | Tiros con coordenadas FIBA nativas `x`/`y` (3518 filas) |
+| `argentina_formativas_pbp.csv` | Jugada a jugada en formato Liga Nacional (11351 filas) |
+
+**Diferencia clave con las otras ligas**: el shots CSV usa columnas `x`/`y` (unidades FIBA) en lugar de `Left_pct`/`Top_pct`. Todo el código de renderizado en `argentina_formativas.js` fue adaptado para leer estas columnas directamente.
+
+### Configuración específica del JS
+
+```javascript
+PLAYOFF_DATE  = new Date(2025, 11, 13)  // 13 dic = inicio fase de medallas
+CONF_NORTE    = Set(['ARG','URU','COL','ECU'])  // Grupo A
+CONF_SUR      = Set(['BRA','CHI','PAR','VEN'])  // Grupo B
+RADAR_MIN_SEG = 600   // 10 min mínimo (torneo corto, vs 12000 en ligas regulares)
+```
+
+### Acceso restringido
+
+Página oculta (no aparece en la navegación entre ligas). Acceso controlado por lista de IDs en el auth guard de `argentina_formativas.js`:
+
+```javascript
+const ALLOWED = new Set([
+  '996a7324-08c2-47de-bc55-4219c7d144fd', // ramiellero@gmail.com
+  'cea8e4c5-959e-497f-b991-ee431c4c585b', // silveirajalejandro@gmail.com
+  'dac0503f-0e85-4d28-ac58-66fce78afcbd', // lucasellero05@gmail.com
+]);
+```
+
+Para dar acceso a un usuario nuevo: agregar su UUID de Supabase a `ALLOWED` y pushear.
+
+### Para regenerar los CSVs del dashboard
+
+```bash
+cd liga_argentina   # o la raíz del repo
+python sudamericano_u18/transform_to_liga_format.py
+```
+
+Sobreescribe los 3 CSVs en `docs/argentina_formativas/`.
