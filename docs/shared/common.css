@@ -378,6 +378,17 @@ tbody td:nth-child(2){text-align:left;color:var(--muted);font-size:.76rem;}
 .pos-pts-a{color:var(--muted);}
 .pos-diff-pos{color:var(--green);font-weight:700;}
 .pos-diff-neg{color:var(--red);font-weight:700;}
+/* ── All games list (argentina_formativas home) ── */
+.ag-etapa-block{margin-bottom:22px;}
+.ag-etapa-title{font-size:.68rem;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--purple-l);padding:8px 0 6px;border-bottom:1px solid rgba(139,92,246,.25);margin-bottom:6px;}
+.ag-games-list{display:flex;flex-direction:column;gap:2px;}
+.ag-game-row{display:grid;grid-template-columns:80px 1fr auto 1fr;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .15s;font-size:.84rem;}
+.ag-game-row:hover{background:rgba(139,92,246,.08);}
+.ag-fecha{font-size:.72rem;color:var(--muted2);white-space:nowrap;}
+.ag-team{display:flex;align-items:center;gap:6px;font-weight:600;}
+.ag-team-local{justify-content:flex-end;text-align:right;}
+.ag-team-visit{justify-content:flex-start;}
+.ag-score{font-size:.92rem;font-weight:700;color:var(--text-bright);text-align:center;white-space:nowrap;background:var(--surface2);padding:3px 10px;border-radius:6px;}
 .ortg-hi{color:var(--purple-l);font-weight:700;}
 .drtg-lo{color:var(--teal-l);font-weight:700;}
 .netrtg-pos{color:var(--green);font-weight:700;}
