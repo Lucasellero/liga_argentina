@@ -119,6 +119,14 @@
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="10" r="2"/><circle cx="19" cy="10" r="2"/><circle cx="8" cy="18" r="2"/><circle cx="16" cy="18" r="2"/></svg>
     Quintetos
   </button>
+  <button class="sub-tab" onclick="switchSection('trios')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="12" cy="16" r="2"/></svg>
+    Tríos
+  </button>
+  <button class="sub-tab" onclick="switchSection('duplas')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="7" cy="8" r="2.5"/><circle cx="17" cy="8" r="2.5"/><path d="M3 18c0-3 2-4 4-4h6c2 0 4 1 4 4"/></svg>
+    Duplas
+  </button>
   <button class="sub-tab" onclick="switchSection('t-tiro')">
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg>
     Tiros
@@ -1633,6 +1641,68 @@
         <table class="qnt-table" id="qntTable">
           <thead id="qntThead"></thead>
           <tbody id="qntTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= TRÍOS ============================= -->
+<div class="section" id="sec-trios">
+  <div class="qnt-outer">
+    <div class="qnt-header">
+      <span class="qnt-title">Mejores Tríos</span>
+      <div class="qnt-filters">
+        <select id="trioTeam" onchange="onTrioTeamChange()">
+          <option value="">Toda la liga</option>
+        </select>
+        <select id="trioMinMin" onchange="renderTrios()">
+          <option value="2">2+ min</option>
+          <option value="5" selected>5+ min</option>
+          <option value="10">10+ min</option>
+          <option value="20">20+ min</option>
+        </select>
+      </div>
+      <span class="qnt-count" id="trioCount"></span>
+    </div>
+    <div id="trioEmpty" class="qnt-empty">Seleccioná un equipo para ver sus tríos</div>
+    <div id="trioLoading" class="qnt-loading" style="display:none">Cargando datos de jugada a jugada...</div>
+    <div id="trioContent" style="display:none">
+      <div class="qnt-table-wrap">
+        <table class="qnt-table" id="trioTable">
+          <thead id="trioThead"></thead>
+          <tbody id="trioTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= DUPLAS ============================= -->
+<div class="section" id="sec-duplas">
+  <div class="qnt-outer">
+    <div class="qnt-header">
+      <span class="qnt-title">Mejores Duplas</span>
+      <div class="qnt-filters">
+        <select id="dupTeam" onchange="onDupTeamChange()">
+          <option value="">Toda la liga</option>
+        </select>
+        <select id="dupMinMin" onchange="renderDuplas()">
+          <option value="2">2+ min</option>
+          <option value="5" selected>5+ min</option>
+          <option value="10">10+ min</option>
+          <option value="20">20+ min</option>
+        </select>
+      </div>
+      <span class="qnt-count" id="dupCount"></span>
+    </div>
+    <div id="dupEmpty" class="qnt-empty">Seleccioná un equipo para ver sus duplas</div>
+    <div id="dupLoading" class="qnt-loading" style="display:none">Cargando datos de jugada a jugada...</div>
+    <div id="dupContent" style="display:none">
+      <div class="qnt-table-wrap">
+        <table class="qnt-table" id="dupTable">
+          <thead id="dupThead"></thead>
+          <tbody id="dupTbody"></tbody>
         </table>
       </div>
     </div>
