@@ -406,11 +406,16 @@ Los 3 CSVs son generados por `sudamericano_u18/transform_to_liga_format.py`.
 
 Nav principal con solo **3 secciones** (vs 5 en ligas regulares):
 
-| Main tab | Sub-secciones |
+| Main tab | Sub-secciones (en orden) |
 |---|---|
 | Home | — (`sec-posiciones`) |
-| Equipos | Tabla · Comparar · Scatter · Quintetos · Tiro · Conexiones |
+| Equipos | Tabla · Tiros · Quintetos · Tríos · Duplas · Conexiones · Comparar T-T · Gráfico |
 | Jugadores | Tabla · Tiro · Comparar · Conexiones · Radar |
+
+**`_SUB_IDX` de Equipos** (debe coincidir con el orden DOM de `#subEquipos`):
+```
+'t-tabla':0, 't-tiro':1, 'quintetos':2, 'trios':3, 'duplas':4, 't-conexiones':5, 't-tcmp':6, 't-chart':7
+```
 
 **Secciones eliminadas** (no aplican a torneo):
 - **Destacados** (`sec-lideres`): torneo de 20 partidos, sin acumulación suficiente para líderes.
