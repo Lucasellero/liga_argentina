@@ -469,6 +469,19 @@ const ALLOWED = new Set([
 
 Para dar acceso a un usuario nuevo: agregar su UUID a `ALLOWED` y pushear, **o** setear `formativas_access: true` en su metadata de Supabase.
 
+### Particularidades del PBP transformado (`argentina_formativas_pbp.csv`)
+
+El PBP se convierte del formato FIBA al formato Liga Nacional mediante `transform_to_liga_format.py`. Algunas diferencias importantes respecto al PBP de las ligas regulares:
+
+**`CANASTA-1P` = canasta con foul ("and-one")**: en el PBP transformado, `CANASTA-1P` no representa un tiro libre convertido sino una canasta de campo hecha mientras el jugador era fouled. La secuencia típica es:
+```
+FALTA-COMETIDA
+FALTA-RECIBIDA
+CANASTA-1P   ← la canasta de campo del and-one
+ASISTENCIA   ← la asistencia a esa canasta
+```
+El código de `computeConnections` y `computeTeamConnections` en `argentina_formativas.js` busca `CANASTA-1P | CANASTA-2P | CANASTA-3P` al retroceder desde cada `ASISTENCIA`. **No omitir `CANASTA-1P`**: de los 634 eventos `ASISTENCIA` del torneo, 71 (11%) corresponden a and-ones y se perderían. Las ligas regulares no tienen este caso porque las canastas con foul se registran como `CANASTA-2P` seguidas del tiro libre separado.
+
 ### Integridad de datos (verificada 22/05/2026)
 
 | Cruce | Resultado |
