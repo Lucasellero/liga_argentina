@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="../liga_argentina/logos/scouteados_favicon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sudamericano U17 FIBA 2025 · Scouteado</title>
+<meta property="og:title" content="Sudamericano U17 FIBA 2025 · Scouteado" />
+<meta property="og:description" content="Estadísticas y scouting del Campeonato Sudamericano FIBA U17 2025 — análisis avanzado para el básquet formativo argentino." />
+<meta property="og:image" content="https://scouteado.com/logos/scouteados_favicon.png" />
+<meta property="og:url" content="https://scouteado.com/argentina_formativas/" />
+<meta property="og:type" content="website" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="../shared/common.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          brand: { DEFAULT: '#8b5cf6', dark: '#6d28d9', light: '#a78bfa' },
+          teal:  { DEFAULT: '#2dd4bf', light: '#5eead4' },
+        },
+        fontFamily: { sans: ['Inter', 'sans-serif'] },
+      }
+    }
+  }
+</script>
+<style>
+</style>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+<!-- Access denied overlay (shown by JS when user lacks formativas_access) -->
+<div id="accessDenied" style="display:none;position:fixed;inset:0;z-index:9999;
+  background:rgba(11,11,22,.98);align-items:center;justify-content:center;flex-direction:column;gap:20px;text-align:center;padding:24px;">
+  <svg width="48" height="48" fill="none" stroke="rgba(139,92,246,.7)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+  <div style="color:#e2e8f0;font-size:1.1rem;font-weight:700;font-family:'Inter',sans-serif;">Acceso Restringido</div>
+  <div style="color:#94a3b8;font-size:.88rem;max-width:340px;font-family:'Inter',sans-serif;">Esta sección es exclusiva para cuentas con acceso a Argentina Formativas. Contactá a scoutea2@gmail.com para solicitar acceso.</div>
+  <a href="../login.html" style="display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;padding:8px 20px;border-radius:20px;border:1px solid rgba(139,92,246,.4);background:rgba(139,92,246,.15);color:#a78bfa;text-decoration:none;">Iniciar sesión con otra cuenta</a>
+</div>
+
+<div id="loadingOverlay" style="display:flex;position:fixed;inset:0;z-index:9999;
+  background:rgba(11,11,22,.97);align-items:center;justify-content:center;flex-direction:column;gap:16px">
+  <div style="width:48px;height:48px;border:4px solid rgba(139,92,246,.2);border-top-color:#8b5cf6;
+    border-radius:50%;animation:spin .8s linear infinite"></div>
+  <div style="color:#94a3b8;font-size:.9rem;letter-spacing:.04em;font-family:'Inter',sans-serif">Cargando datos...</div>
+</div>
+
+<div id="mainApp">
+<div class="header">
+  <div class="header-left">
+    <img src="../logos/scouteados_favicon.png" style="width:60px;height:60px;object-fit:contain;position:relative;z-index:1;" alt="Scouteado">
+    <div>
+      <div class="title">SCOUTEADO</div>
+      <div class="subtitle">Sudamericano U17 FIBA 2025 · Paraguay</div>
+      <div id="lastUpdate" style="font-size:0.65rem;color:var(--text-muted,#9ca3af);margin-top:2px;"></div>
+      <span style="display:inline-flex;align-items:center;justify-content:center;gap:5px;margin-top:5px;font-size:0.68rem;font-weight:700;color:var(--teal-l,#5eead4);padding:3px 10px;border-radius:20px;border:1.5px solid rgba(45,212,191,.7);background:rgba(45,212,191,.22);min-width:120px;cursor:default;">
+        Sudamericano U17
+        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+      </span>
+    </div>
+  </div>
+  <div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;gap:8px;">
+    <div id="headerUser" style="display:none;align-items:center;gap:10px;">
+      <span id="headerUserName" style="font-size:.78rem;color:var(--purple-l);font-weight:600;"></span>
+      <button onclick="authLogout()" style="font-size:.72rem;font-weight:600;padding:5px 12px;border-radius:20px;border:1px solid rgba(139,92,246,.32);background:rgba(139,92,246,.1);color:var(--purple-l);cursor:pointer;font-family:inherit;transition:background .15s;" onmouseover="this.style.background='rgba(139,92,246,.22)'" onmouseout="this.style.background='rgba(139,92,246,.1)'"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+    </div>
+    <a id="headerLogin" href="../login.html?returnTo=argentina_formativas/" style="display:inline-flex;align-items:center;gap:6px;font-size:.75rem;font-weight:600;padding:6px 14px;border-radius:20px;border:1px solid rgba(139,92,246,.4);background:rgba(139,92,246,.12);color:var(--purple-l,#a78bfa);text-decoration:none;transition:background .15s;" onmouseover="this.style.background='rgba(139,92,246,.24)'" onmouseout="this.style.background='rgba(139,92,246,.12)'"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Iniciar sesión</a>
+    <div class="header-badges">
+      <span class="badge badge-p" id="badgePlayers">— Jugadores</span>
+      <span class="badge badge-t">8 Selecciones</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN TABS -->
+<div class="main-tabs">
+  <button class="main-tab active" onclick="switchSection('posiciones')">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Home
+  </button>
+  <button class="main-tab" onclick="switchSection('lideres')">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    Destacados
+  </button>
+  <button class="main-tab" onclick="switchSection('partidos')">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    Fixture
+  </button>
+  <button class="main-tab" id="grpEquipos" onclick="openGroup('equipos','t-tabla')">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Equipos
+  </button>
+  <button class="main-tab" id="grpJugadores" onclick="openGroup('jugadores','j-tabla')">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Jugadores
+  </button>
+</div>
+
+<!-- SUB TABS: Equipos -->
+<div class="sub-tabs" id="subEquipos" style="display:none">
+  <button class="sub-tab" onclick="switchSection('t-tabla')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
+    Tabla
+  </button>
+  <button class="sub-tab" onclick="switchSection('t-tcmp')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Comparar T-T
+  </button>
+  <button class="sub-tab" onclick="switchSection('t-chart')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="5" cy="18" r="2"/><circle cx="12" cy="10" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="8" cy="14" r="2"/><circle cx="16" cy="16" r="2"/></svg>
+    Gráfico
+  </button>
+  <button class="sub-tab" onclick="switchSection('quintetos')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="10" r="2"/><circle cx="19" cy="10" r="2"/><circle cx="8" cy="18" r="2"/><circle cx="16" cy="18" r="2"/></svg>
+    Quintetos
+  </button>
+  <button class="sub-tab" onclick="switchSection('t-tiro')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg>
+    Tiros
+  </button>
+  <button class="sub-tab" onclick="switchSection('t-conexiones')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="12" r="3"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><path d="M12 12l5-4M12 12l5 4"/></svg>
+    Conexiones
+  </button>
+  <div class="sub-tabs-spacer"></div>
+</div>
+
+<!-- SUB TABS: Jugadores -->
+<div class="sub-tabs" id="subJugadores" style="display:none">
+  <button class="sub-tab" onclick="switchSection('j-tabla')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
+    Tabla
+  </button>
+  <button class="sub-tab" onclick="switchSection('j-tiro')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg>
+    Tiros
+  </button>
+  <button class="sub-tab" onclick="switchSection('j-chart')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="5" cy="18" r="2"/><circle cx="12" cy="10" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="8" cy="14" r="2"/><circle cx="16" cy="16" r="2"/></svg>
+    Gráfico
+  </button>
+  <button class="sub-tab" onclick="switchSection('j-conexiones')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="12" r="3"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><path d="M12 12l5-4M12 12l5 4"/></svg>
+    Conexiones
+  </button>
+  <button class="sub-tab" onclick="switchSection('j-radar')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="8.5" x2="22" y2="8.5"/><line x1="2" y1="15.5" x2="22" y2="15.5"/></svg>
+    Radar
+  </button>
+  <div class="sub-tabs-spacer"></div>
+</div>
+
+<!-- ============================= JUGADORES TABLA ============================= -->
+<div class="section" id="sec-j-tabla">
+  <!-- Mobile toggle -->
+  <div class="ctrl-collapse-toggle" id="jCtrlToggle" onclick="toggleCtrl('j')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2V12.46L22 3z"/></svg>
+    Filtros
+    <svg class="cct-chevron" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <div class="sidebar-layout">
+    <!-- LEFT SIDEBAR -->
+    <div class="ctrl-sidebar" id="jCtrlBody">
+      <div class="fsb-group">
+        <span class="fsb-lbl">Estadísticas</span>
+        <div class="fsb-pills">
+          <button class="active" id="jToggleBasic" onclick="toggleJTable('basic')">Básica</button>
+          <button id="jToggleAdv" onclick="toggleJTable('adv')">Avanzada</button>
+        </div>
+      </div>
+      <div class="fsb-sep"></div>
+      <div class="fsb-group">
+        <span class="fsb-lbl">Buscar jugador</span>
+        <div class="search-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="jSearch" placeholder="Nombre..." oninput="onJFilter()"/>
+        </div>
+      </div>
+      <div class="fsb-group">
+        <span class="fsb-lbl">Equipo</span>
+        <select id="jTeam" onchange="onJFilter()" style="display:none"><option value="">Todos los equipos</option></select>
+        <div class="fsb-custom-select" id="jTeamCustom" data-select="jTeam">
+  <div class="fcs-trigger" onclick="fcsToggle('jTeamCustom')">
+    <div class="fcs-selected">
+      <span class="fcs-name">Todos los equipos</span>
+      <span class="fcs-sub"></span>
+    </div>
+    <svg class="fcs-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="fcs-dropdown" id="jTeamDropdown">
+    <div class="fcs-option selected" data-value="" onclick="fcsSelect('jTeamCustom','','Todos los equipos','')"><span class="fcs-name">Todos los equipos</span><span class="fcs-sub"></span></div>
+  </div>
+</div>
+      </div>
+      <div class="fsb-group">
+        <span class="fsb-lbl">Mínimo PJ</span>
+        <select id="jMinG" onchange="onJFilter()" style="display:none">
+          <option value="0">Todos los PJ</option>
+          <option value="1" selected>1+ PJ</option>
+          <option value="3">3+ PJ</option>
+          <option value="10">10+ PJ</option>
+          <option value="15">15+ PJ</option>
+          <option value="20">20+ PJ</option>
+          <option value="23">23+ PJ</option>
+        </select>
+        <div class="fsb-custom-select" id="jMinGCustom" data-select="jMinG">
+  <div class="fcs-trigger" onclick="fcsToggle('jMinGCustom')">
+    <div class="fcs-selected">
+      <span class="fcs-name">20+ PJ</span>
+      <span class="fcs-sub">Mínimo 20 partidos jugados</span>
+    </div>
+    <svg class="fcs-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="fcs-dropdown">
+    <div class="fcs-option" data-value="0" onclick="fcsSelect('jMinGCustom','0','Todos los PJ','Sin mínimo de partidos')"><span class="fcs-name">Todos los PJ</span><span class="fcs-sub">Sin mínimo de partidos</span></div>
+    <div class="fcs-option selected" data-value="1" onclick="fcsSelect('jMinGCustom','1','1+ PJ','Mínimo 1 partido jugado')"><span class="fcs-name">1+ PJ</span><span class="fcs-sub">Mínimo 1 partido jugado</span></div>
+    <div class="fcs-option" data-value="3" onclick="fcsSelect('jMinGCustom','3','3+ PJ','Mínimo 3 partidos jugados')"><span class="fcs-name">3+ PJ</span><span class="fcs-sub">Mínimo 3 partidos jugados</span></div>
+    <div class="fcs-option" data-value="10" onclick="fcsSelect('jMinGCustom','10','10+ PJ','Mínimo 10 partidos jugados')"><span class="fcs-name">10+ PJ</span><span class="fcs-sub">Mínimo 10 partidos jugados</span></div>
+    <div class="fcs-option" data-value="15" onclick="fcsSelect('jMinGCustom','15','15+ PJ','Mínimo 15 partidos jugados')"><span class="fcs-name">15+ PJ</span><span class="fcs-sub">Mínimo 15 partidos jugados</span></div>
+    <div class="fcs-option" data-value="20" onclick="fcsSelect('jMinGCustom','20','20+ PJ','Mínimo 20 partidos jugados')"><span class="fcs-name">20+ PJ</span><span class="fcs-sub">Mínimo 20 partidos jugados</span></div>
+    <div class="fcs-option" data-value="23" onclick="fcsSelect('jMinGCustom','23','23+ PJ','Mínimo 23 partidos jugados')"><span class="fcs-name">23+ PJ</span><span class="fcs-sub">Mínimo 23 partidos jugados</span></div>
+  </div>
+</div>
+      </div>
+      <div class="fsb-sep"></div>
+      <div class="fsb-group">
+        <span class="fsb-lbl">Etapa</span>
+        <div class="fsb-pills">
+          <button class="active" id="jPhaseAll" onclick="setJPhase('all')">Todos</button>
+          <button id="jPhaseReg" onclick="setJPhase('regular')">Temporada Regular</button>
+          <button id="jPhasePost" onclick="setJPhase('post')">Post Temporada</button>
+        </div>
+      </div>
+      <div class="fsb-group">
+        <span class="fsb-lbl">Período</span>
+        <div class="fsb-pills">
+          <button class="active" id="jPeriodAll" onclick="setJPeriod('all')">Temporada completa</button>
+          <button id="jPeriodL5" onclick="setJPeriod('last5')">Últimos 5 partidos</button>
+          <button id="jPeriodL10" onclick="setJPeriod('last10')">Últimos 10 partidos</button>
+        </div>
+      </div>
+      <div class="fsb-group">
+        <span class="fsb-lbl">Condición</span>
+        <div class="fsb-pills">
+          <button class="active" id="jLocVisAll" onclick="setJLocVis('all')">Todos los partidos</button>
+          <button id="jLocVisLocal" onclick="setJLocVis('local')">Solo local</button>
+          <button id="jLocVisVisit" onclick="setJLocVis('visit')">Solo visitante</button>
+        </div>
+      </div>
+      <div class="fsb-sep"></div>
+      <div class="fsb-group">
+        <span class="fsb-lbl">Filtros por estadística</span>
+        <div class="filter-row">
+          <span class="ctrl-filter-badge">1</span>
+          <select id="jAttr" onchange="onJFilter()" style="display:none"><option value="">— Atributo —</option>
+            <option value="PPG">Pts/partido</option><option value="MPG">Min/partido</option>
+            <option value="VPG">Val/partido</option><option value="APG">Ast/partido</option>
+            <option value="RPG">Reb Tot/partido</option><option value="RDPG">Reb Def/partido</option>
+            <option value="ROPG">Reb Of/partido</option><option value="SPG">Rec/partido</option>
+            <option value="BPG">Tap/partido</option><option value="TPG">Pér/partido</option>
+            <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
+            <option value="ORtg">ORtg</option><option value="USG%">USG%</option>
+            <option value="ORB%">ORB%</option><option value="EFG%">EFG%</option>
+            <option value="TS%">TS%</option><option value="POS">Posesiones/p</option>
+            <option value="PJ">PJ</option>
+            <option value="Edad">Edad</option></select>
+<div class="fsb-custom-select" id="jAttrCustom" data-select="jAttr">
+  <div class="fcs-trigger" onclick="fcsToggle('jAttrCustom')">
+    <div class="fcs-selected">
+      <span class="fcs-name">— Atributo —</span>
+      <span class="fcs-sub"></span>
+    </div>
+    <svg class="fcs-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="fcs-dropdown">
+    <div class="fcs-option selected" data-value="" onclick="fcsSelect('jAttrCustom','','— Atributo —','')"><span class="fcs-name">— Atributo —</span><span class="fcs-sub"></span></div>
+    <div class="fcs-option" data-value="PPG" onclick="fcsSelect('jAttrCustom','PPG','Pts/partido','Puntos por partido')"><span class="fcs-name">Pts/partido</span><span class="fcs-sub">Puntos por partido</span></div>
+    <div class="fcs-option" data-value="MPG" onclick="fcsSelect('jAttrCustom','MPG','Min/partido','Minutos por partido')"><span class="fcs-name">Min/partido</span><span class="fcs-sub">Minutos por partido</span></div>
+    <div class="fcs-option" data-value="VPG" onclick="fcsSelect('jAttrCustom','VPG','Val/partido','Valoración por partido')"><span class="fcs-name">Val/partido</span><span class="fcs-sub">Valoración por partido</span></div>
+    <div class="fcs-option" data-value="APG" onclick="fcsSelect('jAttrCustom','APG','Ast/partido','Asistencias por partido')"><span class="fcs-name">Ast/partido</span><span class="fcs-sub">Asistencias por partido</span></div>
+    <div class="fcs-option" data-value="RPG" onclick="fcsSelect('jAttrCustom','RPG','Reb Tot/partido','Rebotes totales por partido')"><span class="fcs-name">Reb Tot/partido</span><span class="fcs-sub">Rebotes totales por partido</span></div>
+    <div class="fcs-option" data-value="RDPG" onclick="fcsSelect('jAttrCustom','RDPG','Reb Def/partido','Rebotes defensivos/partido')"><span class="fcs-name">Reb Def/partido</span><span class="fcs-sub">Rebotes defensivos/partido</span></div>
+    <div class="fcs-option" data-value="ROPG" onclick="fcsSelect('jAttrCustom','ROPG','Reb Of/partido','Rebotes ofensivos/partido')"><span class="fcs-name">Reb Of/partido</span><span class="fcs-sub">Rebotes ofensivos/partido</span></div>
+    <div class="fcs-option" data-value="SPG" onclick="fcsSelect('jAttrCustom','SPG','Rec/partido','Recuperaciones por partido')"><span class="fcs-name">Rec/partido</span><span class="fcs-sub">Recuperaciones por partido</span></div>
+    <div class="fcs-option" data-value="BPG" onclick="fcsSelect('jAttrCustom','BPG','Tap/partido','Tapones por partido')"><span class="fcs-name">Tap/partido</span><span class="fcs-sub">Tapones por partido</span></div>
+    <div class="fcs-option" data-value="TPG" onclick="fcsSelect('jAttrCustom','TPG','Pér/partido','Pérdidas por partido')"><span class="fcs-name">Pér/partido</span><span class="fcs-sub">Pérdidas por partido</span></div>
+    <div class="fcs-option" data-value="T2%" onclick="fcsSelect('jAttrCustom','T2%','% T2','% acierto tiros de 2')"><span class="fcs-name">% T2</span><span class="fcs-sub">% acierto tiros de 2</span></div>
+    <div class="fcs-option" data-value="T3%" onclick="fcsSelect('jAttrCustom','T3%','% T3','% acierto tiros de 3')"><span class="fcs-name">% T3</span><span class="fcs-sub">% acierto tiros de 3</span></div>
+    <div class="fcs-option" data-value="T1%" onclick="fcsSelect('jAttrCustom','T1%','% T1','% acierto tiros libres')"><span class="fcs-name">% T1</span><span class="fcs-sub">% acierto tiros libres</span></div>
+    <div class="fcs-option" data-value="ORtg" onclick="fcsSelect('jAttrCustom','ORtg','ORtg','Pts producidos c/100 pos')"><span class="fcs-name">ORtg</span><span class="fcs-sub">Pts producidos c/100 pos</span></div>
+    <div class="fcs-option" data-value="USG%" onclick="fcsSelect('jAttrCustom','USG%','USG%','% posesiones usadas')"><span class="fcs-name">USG%</span><span class="fcs-sub">% posesiones usadas</span></div>
+    <div class="fcs-option" data-value="ORB%" onclick="fcsSelect('jAttrCustom','ORB%','ORB%','% reb ofensivos capturados')"><span class="fcs-name">ORB%</span><span class="fcs-sub">% reb ofensivos capturados</span></div>
+    <div class="fcs-option" data-value="EFG%" onclick="fcsSelect('jAttrCustom','EFG%','EFG%','TC ajustado por triples')"><span class="fcs-name">EFG%</span><span class="fcs-sub">TC ajustado por triples</span></div>
+    <div class="fcs-option" data-value="TS%" onclick="fcsSelect('jAttrCustom','TS%','TS%','Incluye tiros libres')"><span class="fcs-name">TS%</span><span class="fcs-sub">Incluye tiros libres</span></div>
+    <div class="fcs-option" data-value="POS" onclick="fcsSelect('jAttrCustom','POS','Posesiones/p','Posesiones por partido')"><span class="fcs-name">Posesiones/p</span><span class="fcs-sub">Posesiones por partido</span></div>
+    <div class="fcs-option" data-value="PJ" onclick="fcsSelect('jAttrCustom','PJ','PJ','Partidos jugados')"><span class="fcs-name">PJ</span><span class="fcs-sub">Partidos jugados</span></div>
+    <div class="fcs-option" data-value="Edad" onclick="fcsSelect('jAttrCustom','Edad','Edad','Edad del jugador')"><span class="fcs-name">Edad</span><span class="fcs-sub">Edad del jugador</span></div>
+  </div>
+</div>
+          <div class="fsb-op-row">
+            <select id="jOp" class="op-select" onchange="onJFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+            <input type="number" id="jAttrVal" placeholder="valor" step="0.1" oninput="onJFilter()"/>
+          </div>
+        </div>
+        <div class="filter-row" id="jFilterRow2" style="display:none">
+          <span class="ctrl-filter-badge">2</span>
+          <select id="jAttr2" onchange="onJFilter()" style="display:none"><option value="">— Atributo —</option>
+            <option value="PPG">Pts/partido</option><option value="MPG">Min/partido</option>
+            <option value="VPG">Val/partido</option><option value="APG">Ast/partido</option>
+            <option value="RPG">Reb Tot/partido</option><option value="RDPG">Reb Def/partido</option>
+            <option value="ROPG">Reb Of/partido</option><option value="SPG">Rec/partido</option>
+            <option value="BPG">Tap/partido</option><option value="TPG">Pér/partido</option>
+            <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
+            <option value="ORtg">ORtg</option><option value="USG%">USG%</option>
+            <option value="ORB%">ORB%</option><option value="EFG%">EFG%</option>
+            <option value="TS%">TS%</option><option value="POS">Posesiones/p</option>
+            <option value="PJ">PJ</option>
+            <option value="Edad">Edad</option></select>
+<div class="fsb-custom-select" id="jAttr2Custom" data-select="jAttr2">
+  <div class="fcs-trigger" onclick="fcsToggle('jAttr2Custom')">
+    <div class="fcs-selected">
+      <span class="fcs-name">— Atributo —</span>
+      <span class="fcs-sub"></span>
+    </div>
+    <svg class="fcs-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="fcs-dropdown">
+    <div class="fcs-option selected" data-value="" onclick="fcsSelect('jAttr2Custom','','— Atributo —','')"><span class="fcs-name">— Atributo —</span><span class="fcs-sub"></span></div>
+    <div class="fcs-option" data-value="PPG" onclick="fcsSelect('jAttr2Custom','PPG','Pts/partido','Puntos por partido')"><span class="fcs-name">Pts/partido</span><span class="fcs-sub">Puntos por partido</span></div>
+    <div class="fcs-option" data-value="MPG" onclick="fcsSelect('jAttr2Custom','MPG','Min/partido','Minutos por partido')"><span class="fcs-name">Min/partido</span><span class="fcs-sub">Minutos por partido</span></div>
+    <div class="fcs-option" data-value="VPG" onclick="fcsSelect('jAttr2Custom','VPG','Val/partido','Valoración por partido')"><span class="fcs-name">Val/partido</span><span class="fcs-sub">Valoración por partido</span></div>
+    <div class="fcs-option" data-value="APG" onclick="fcsSelect('jAttr2Custom','APG','Ast/partido','Asistencias por partido')"><span class="fcs-name">Ast/partido</span><span class="fcs-sub">Asistencias por partido</span></div>
+    <div class="fcs-option" data-value="RPG" onclick="fcsSelect('jAttr2Custom','RPG','Reb Tot/partido','Rebotes totales por partido')"><span class="fcs-name">Reb Tot/partido</span><span class="fcs-sub">Rebotes totales por partido</span></div>
+    <div class="fcs-option" data-value="RDPG" onclick="fcsSelect('jAttr2Custom','RDPG','Reb Def/partido','Rebotes defensivos/partido')"><span class="fcs-name">Reb Def/partido</span><span class="fcs-sub">Rebotes defensivos/partido</span></div>
+    <div class="fcs-option" data-value="ROPG" onclick="fcsSelect('jAttr2Custom','ROPG','Reb Of/partido','Rebotes ofensivos/partido')"><span class="fcs-name">Reb Of/partido</span><span class="fcs-sub">Rebotes ofensivos/partido</span></div>
+    <div class="fcs-option" data-value="SPG" onclick="fcsSelect('jAttr2Custom','SPG','Rec/partido','Recuperaciones por partido')"><span class="fcs-name">Rec/partido</span><span class="fcs-sub">Recuperaciones por partido</span></div>
+    <div class="fcs-option" data-value="BPG" onclick="fcsSelect('jAttr2Custom','BPG','Tap/partido','Tapones por partido')"><span class="fcs-name">Tap/partido</span><span class="fcs-sub">Tapones por partido</span></div>
+    <div class="fcs-option" data-value="TPG" onclick="fcsSelect('jAttr2Custom','TPG','Pér/partido','Pérdidas por partido')"><span class="fcs-name">Pér/partido</span><span class="fcs-sub">Pérdidas por partido</span></div>
+    <div class="fcs-option" data-value="T2%" onclick="fcsSelect('jAttr2Custom','T2%','% T2','% acierto tiros de 2')"><span class="fcs-name">% T2</span><span class="fcs-sub">% acierto tiros de 2</span></div>
+    <div class="fcs-option" data-value="T3%" onclick="fcsSelect('jAttr2Custom','T3%','% T3','% acierto tiros de 3')"><span class="fcs-name">% T3</span><span class="fcs-sub">% acierto tiros de 3</span></div>
+    <div class="fcs-option" data-value="T1%" onclick="fcsSelect('jAttr2Custom','T1%','% T1','% acierto tiros libres')"><span class="fcs-name">% T1</span><span class="fcs-sub">% acierto tiros libres</span></div>
+    <div class="fcs-option" data-value="ORtg" onclick="fcsSelect('jAttr2Custom','ORtg','ORtg','Pts producidos c/100 pos')"><span class="fcs-name">ORtg</span><span class="fcs-sub">Pts producidos c/100 pos</span></div>
+    <div class="fcs-option" data-value="USG%" onclick="fcsSelect('jAttr2Custom','USG%','USG%','% posesiones usadas')"><span class="fcs-name">USG%</span><span class="fcs-sub">% posesiones usadas</span></div>
+    <div class="fcs-option" data-value="ORB%" onclick="fcsSelect('jAttr2Custom','ORB%','ORB%','% reb ofensivos capturados')"><span class="fcs-name">ORB%</span><span class="fcs-sub">% reb ofensivos capturados</span></div>
+    <div class="fcs-option" data-value="EFG%" onclick="fcsSelect('jAttr2Custom','EFG%','EFG%','TC ajustado por triples')"><span class="fcs-name">EFG%</span><span class="fcs-sub">TC ajustado por triples</span></div>
+    <div class="fcs-option" data-value="TS%" onclick="fcsSelect('jAttr2Custom','TS%','TS%','Incluye tiros libres')"><span class="fcs-name">TS%</span><span class="fcs-sub">Incluye tiros libres</span></div>
+    <div class="fcs-option" data-value="POS" onclick="fcsSelect('jAttr2Custom','POS','Posesiones/p','Posesiones por partido')"><span class="fcs-name">Posesiones/p</span><span class="fcs-sub">Posesiones por partido</span></div>
+    <div class="fcs-option" data-value="PJ" onclick="fcsSelect('jAttr2Custom','PJ','PJ','Partidos jugados')"><span class="fcs-name">PJ</span><span class="fcs-sub">Partidos jugados</span></div>
+    <div class="fcs-option" data-value="Edad" onclick="fcsSelect('jAttr2Custom','Edad','Edad','Edad del jugador')"><span class="fcs-name">Edad</span><span class="fcs-sub">Edad del jugador</span></div>
+  </div>
+</div>
+          <div class="fsb-op-row">
+            <select id="jOp2" class="op-select" onchange="onJFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+            <input type="number" id="jAttrVal2" placeholder="valor" step="0.1" oninput="onJFilter()"/>
+          </div>
+        </div>
+        <div class="filter-row" id="jFilterRow3" style="display:none">
+          <span class="ctrl-filter-badge">3</span>
+          <select id="jAttr3" onchange="onJFilter()" style="display:none"><option value="">— Atributo —</option>
+            <option value="PPG">Pts/partido</option><option value="MPG">Min/partido</option>
+            <option value="VPG">Val/partido</option><option value="APG">Ast/partido</option>
+            <option value="RPG">Reb Tot/partido</option><option value="RDPG">Reb Def/partido</option>
+            <option value="ROPG">Reb Of/partido</option><option value="SPG">Rec/partido</option>
+            <option value="BPG">Tap/partido</option><option value="TPG">Pér/partido</option>
+            <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
+            <option value="ORtg">ORtg</option><option value="USG%">USG%</option>
+            <option value="ORB%">ORB%</option><option value="EFG%">EFG%</option>
+            <option value="TS%">TS%</option><option value="POS">Posesiones/p</option>
+            <option value="PJ">PJ</option>
+            <option value="Edad">Edad</option></select>
+<div class="fsb-custom-select" id="jAttr3Custom" data-select="jAttr3">
+  <div class="fcs-trigger" onclick="fcsToggle('jAttr3Custom')">
+    <div class="fcs-selected">
+      <span class="fcs-name">— Atributo —</span>
+      <span class="fcs-sub"></span>
+    </div>
+    <svg class="fcs-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="fcs-dropdown">
+    <div class="fcs-option selected" data-value="" onclick="fcsSelect('jAttr3Custom','','— Atributo —','')"><span class="fcs-name">— Atributo —</span><span class="fcs-sub"></span></div>
+    <div class="fcs-option" data-value="PPG" onclick="fcsSelect('jAttr3Custom','PPG','Pts/partido','Puntos por partido')"><span class="fcs-name">Pts/partido</span><span class="fcs-sub">Puntos por partido</span></div>
+    <div class="fcs-option" data-value="MPG" onclick="fcsSelect('jAttr3Custom','MPG','Min/partido','Minutos por partido')"><span class="fcs-name">Min/partido</span><span class="fcs-sub">Minutos por partido</span></div>
+    <div class="fcs-option" data-value="VPG" onclick="fcsSelect('jAttr3Custom','VPG','Val/partido','Valoración por partido')"><span class="fcs-name">Val/partido</span><span class="fcs-sub">Valoración por partido</span></div>
+    <div class="fcs-option" data-value="APG" onclick="fcsSelect('jAttr3Custom','APG','Ast/partido','Asistencias por partido')"><span class="fcs-name">Ast/partido</span><span class="fcs-sub">Asistencias por partido</span></div>
+    <div class="fcs-option" data-value="RPG" onclick="fcsSelect('jAttr3Custom','RPG','Reb Tot/partido','Rebotes totales por partido')"><span class="fcs-name">Reb Tot/partido</span><span class="fcs-sub">Rebotes totales por partido</span></div>
+    <div class="fcs-option" data-value="RDPG" onclick="fcsSelect('jAttr3Custom','RDPG','Reb Def/partido','Rebotes defensivos/partido')"><span class="fcs-name">Reb Def/partido</span><span class="fcs-sub">Rebotes defensivos/partido</span></div>
+    <div class="fcs-option" data-value="ROPG" onclick="fcsSelect('jAttr3Custom','ROPG','Reb Of/partido','Rebotes ofensivos/partido')"><span class="fcs-name">Reb Of/partido</span><span class="fcs-sub">Rebotes ofensivos/partido</span></div>
+    <div class="fcs-option" data-value="SPG" onclick="fcsSelect('jAttr3Custom','SPG','Rec/partido','Recuperaciones por partido')"><span class="fcs-name">Rec/partido</span><span class="fcs-sub">Recuperaciones por partido</span></div>
+    <div class="fcs-option" data-value="BPG" onclick="fcsSelect('jAttr3Custom','BPG','Tap/partido','Tapones por partido')"><span class="fcs-name">Tap/partido</span><span class="fcs-sub">Tapones por partido</span></div>
+    <div class="fcs-option" data-value="TPG" onclick="fcsSelect('jAttr3Custom','TPG','Pér/partido','Pérdidas por partido')"><span class="fcs-name">Pér/partido</span><span class="fcs-sub">Pérdidas por partido</span></div>
+    <div class="fcs-option" data-value="T2%" onclick="fcsSelect('jAttr3Custom','T2%','% T2','% acierto tiros de 2')"><span class="fcs-name">% T2</span><span class="fcs-sub">% acierto tiros de 2</span></div>
+    <div class="fcs-option" data-value="T3%" onclick="fcsSelect('jAttr3Custom','T3%','% T3','% acierto tiros de 3')"><span class="fcs-name">% T3</span><span class="fcs-sub">% acierto tiros de 3</span></div>
+    <div class="fcs-option" data-value="T1%" onclick="fcsSelect('jAttr3Custom','T1%','% T1','% acierto tiros libres')"><span class="fcs-name">% T1</span><span class="fcs-sub">% acierto tiros libres</span></div>
+    <div class="fcs-option" data-value="ORtg" onclick="fcsSelect('jAttr3Custom','ORtg','ORtg','Pts producidos c/100 pos')"><span class="fcs-name">ORtg</span><span class="fcs-sub">Pts producidos c/100 pos</span></div>
+    <div class="fcs-option" data-value="USG%" onclick="fcsSelect('jAttr3Custom','USG%','USG%','% posesiones usadas')"><span class="fcs-name">USG%</span><span class="fcs-sub">% posesiones usadas</span></div>
+    <div class="fcs-option" data-value="ORB%" onclick="fcsSelect('jAttr3Custom','ORB%','ORB%','% reb ofensivos capturados')"><span class="fcs-name">ORB%</span><span class="fcs-sub">% reb ofensivos capturados</span></div>
+    <div class="fcs-option" data-value="EFG%" onclick="fcsSelect('jAttr3Custom','EFG%','EFG%','TC ajustado por triples')"><span class="fcs-name">EFG%</span><span class="fcs-sub">TC ajustado por triples</span></div>
+    <div class="fcs-option" data-value="TS%" onclick="fcsSelect('jAttr3Custom','TS%','TS%','Incluye tiros libres')"><span class="fcs-name">TS%</span><span class="fcs-sub">Incluye tiros libres</span></div>
+    <div class="fcs-option" data-value="POS" onclick="fcsSelect('jAttr3Custom','POS','Posesiones/p','Posesiones por partido')"><span class="fcs-name">Posesiones/p</span><span class="fcs-sub">Posesiones por partido</span></div>
+    <div class="fcs-option" data-value="PJ" onclick="fcsSelect('jAttr3Custom','PJ','PJ','Partidos jugados')"><span class="fcs-name">PJ</span><span class="fcs-sub">Partidos jugados</span></div>
+    <div class="fcs-option" data-value="Edad" onclick="fcsSelect('jAttr3Custom','Edad','Edad','Edad del jugador')"><span class="fcs-name">Edad</span><span class="fcs-sub">Edad del jugador</span></div>
+  </div>
+</div>
+          <div class="fsb-op-row">
+            <select id="jOp3" class="op-select" onchange="onJFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+            <input type="number" id="jAttrVal3" placeholder="valor" step="0.1" oninput="onJFilter()"/>
+          </div>
+        </div>
+        <div class="filter-row" id="jFilterRow4" style="display:none">
+          <span class="ctrl-filter-badge">4</span>
+          <select id="jAttr4" onchange="onJFilter()" style="display:none"><option value="">— Atributo —</option>
+            <option value="PPG">Pts/partido</option><option value="MPG">Min/partido</option>
+            <option value="VPG">Val/partido</option><option value="APG">Ast/partido</option>
+            <option value="RPG">Reb Tot/partido</option><option value="RDPG">Reb Def/partido</option>
+            <option value="ROPG">Reb Of/partido</option><option value="SPG">Rec/partido</option>
+            <option value="BPG">Tap/partido</option><option value="TPG">Pér/partido</option>
+            <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
+            <option value="ORtg">ORtg</option><option value="USG%">USG%</option>
+            <option value="ORB%">ORB%</option><option value="EFG%">EFG%</option>
+            <option value="TS%">TS%</option><option value="POS">Posesiones/p</option>
+            <option value="PJ">PJ</option>
+            <option value="Edad">Edad</option></select>
+<div class="fsb-custom-select" id="jAttr4Custom" data-select="jAttr4">
+  <div class="fcs-trigger" onclick="fcsToggle('jAttr4Custom')">
+    <div class="fcs-selected">
+      <span class="fcs-name">— Atributo —</span>
+      <span class="fcs-sub"></span>
+    </div>
+    <svg class="fcs-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="fcs-dropdown">
+    <div class="fcs-option selected" data-value="" onclick="fcsSelect('jAttr4Custom','','— Atributo —','')"><span class="fcs-name">— Atributo —</span><span class="fcs-sub"></span></div>
+    <div class="fcs-option" data-value="PPG" onclick="fcsSelect('jAttr4Custom','PPG','Pts/partido','Puntos por partido')"><span class="fcs-name">Pts/partido</span><span class="fcs-sub">Puntos por partido</span></div>
+    <div class="fcs-option" data-value="MPG" onclick="fcsSelect('jAttr4Custom','MPG','Min/partido','Minutos por partido')"><span class="fcs-name">Min/partido</span><span class="fcs-sub">Minutos por partido</span></div>
+    <div class="fcs-option" data-value="VPG" onclick="fcsSelect('jAttr4Custom','VPG','Val/partido','Valoración por partido')"><span class="fcs-name">Val/partido</span><span class="fcs-sub">Valoración por partido</span></div>
+    <div class="fcs-option" data-value="APG" onclick="fcsSelect('jAttr4Custom','APG','Ast/partido','Asistencias por partido')"><span class="fcs-name">Ast/partido</span><span class="fcs-sub">Asistencias por partido</span></div>
+    <div class="fcs-option" data-value="RPG" onclick="fcsSelect('jAttr4Custom','RPG','Reb Tot/partido','Rebotes totales por partido')"><span class="fcs-name">Reb Tot/partido</span><span class="fcs-sub">Rebotes totales por partido</span></div>
+    <div class="fcs-option" data-value="RDPG" onclick="fcsSelect('jAttr4Custom','RDPG','Reb Def/partido','Rebotes defensivos/partido')"><span class="fcs-name">Reb Def/partido</span><span class="fcs-sub">Rebotes defensivos/partido</span></div>
+    <div class="fcs-option" data-value="ROPG" onclick="fcsSelect('jAttr4Custom','ROPG','Reb Of/partido','Rebotes ofensivos/partido')"><span class="fcs-name">Reb Of/partido</span><span class="fcs-sub">Rebotes ofensivos/partido</span></div>
+    <div class="fcs-option" data-value="SPG" onclick="fcsSelect('jAttr4Custom','SPG','Rec/partido','Recuperaciones por partido')"><span class="fcs-name">Rec/partido</span><span class="fcs-sub">Recuperaciones por partido</span></div>
+    <div class="fcs-option" data-value="BPG" onclick="fcsSelect('jAttr4Custom','BPG','Tap/partido','Tapones por partido')"><span class="fcs-name">Tap/partido</span><span class="fcs-sub">Tapones por partido</span></div>
+    <div class="fcs-option" data-value="TPG" onclick="fcsSelect('jAttr4Custom','TPG','Pér/partido','Pérdidas por partido')"><span class="fcs-name">Pér/partido</span><span class="fcs-sub">Pérdidas por partido</span></div>
+    <div class="fcs-option" data-value="T2%" onclick="fcsSelect('jAttr4Custom','T2%','% T2','% acierto tiros de 2')"><span class="fcs-name">% T2</span><span class="fcs-sub">% acierto tiros de 2</span></div>
+    <div class="fcs-option" data-value="T3%" onclick="fcsSelect('jAttr4Custom','T3%','% T3','% acierto tiros de 3')"><span class="fcs-name">% T3</span><span class="fcs-sub">% acierto tiros de 3</span></div>
+    <div class="fcs-option" data-value="T1%" onclick="fcsSelect('jAttr4Custom','T1%','% T1','% acierto tiros libres')"><span class="fcs-name">% T1</span><span class="fcs-sub">% acierto tiros libres</span></div>
+    <div class="fcs-option" data-value="ORtg" onclick="fcsSelect('jAttr4Custom','ORtg','ORtg','Pts producidos c/100 pos')"><span class="fcs-name">ORtg</span><span class="fcs-sub">Pts producidos c/100 pos</span></div>
+    <div class="fcs-option" data-value="USG%" onclick="fcsSelect('jAttr4Custom','USG%','USG%','% posesiones usadas')"><span class="fcs-name">USG%</span><span class="fcs-sub">% posesiones usadas</span></div>
+    <div class="fcs-option" data-value="ORB%" onclick="fcsSelect('jAttr4Custom','ORB%','ORB%','% reb ofensivos capturados')"><span class="fcs-name">ORB%</span><span class="fcs-sub">% reb ofensivos capturados</span></div>
+    <div class="fcs-option" data-value="EFG%" onclick="fcsSelect('jAttr4Custom','EFG%','EFG%','TC ajustado por triples')"><span class="fcs-name">EFG%</span><span class="fcs-sub">TC ajustado por triples</span></div>
+    <div class="fcs-option" data-value="TS%" onclick="fcsSelect('jAttr4Custom','TS%','TS%','Incluye tiros libres')"><span class="fcs-name">TS%</span><span class="fcs-sub">Incluye tiros libres</span></div>
+    <div class="fcs-option" data-value="POS" onclick="fcsSelect('jAttr4Custom','POS','Posesiones/p','Posesiones por partido')"><span class="fcs-name">Posesiones/p</span><span class="fcs-sub">Posesiones por partido</span></div>
+    <div class="fcs-option" data-value="PJ" onclick="fcsSelect('jAttr4Custom','PJ','PJ','Partidos jugados')"><span class="fcs-name">PJ</span><span class="fcs-sub">Partidos jugados</span></div>
+    <div class="fcs-option" data-value="Edad" onclick="fcsSelect('jAttr4Custom','Edad','Edad','Edad del jugador')"><span class="fcs-name">Edad</span><span class="fcs-sub">Edad del jugador</span></div>
+  </div>
+</div>
+          <div class="fsb-op-row">
+            <select id="jOp4" class="op-select" onchange="onJFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+            <input type="number" id="jAttrVal4" placeholder="valor" step="0.1" oninput="onJFilter()"/>
+          </div>
+        </div>
+      </div>
+      <div class="fsb-footer">
+        <div class="stat-count">Mostrando <span id="jCount">—</span> jugadores</div>
+        <button class="clear-btn" onclick="clearJFilter()">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          Limpiar filtros
+        </button>
+      </div>
+    </div>
+    <!-- RIGHT: table -->
+    <div class="sidebar-main">
+      <div class="scroll-bar-outer" id="jScrollOuter"><div class="scroll-bar-inner" id="jScrollInner"></div></div>
+      <div class="table-wrap" id="jTableWrap">
+    <div class="table-card" id="jCardBasic">
+      <table>
+        <thead><tr>
+          <th class="rank-th">#</th>
+          <th data-c="name" data-d="asc" data-tip="Nombre del jugador">Jugador</th>
+          <th data-c="Equipo" data-d="asc" data-tip="Equipo del jugador">Equipo</th>
+          <th data-c="Edad" data-d="asc" data-tip="Edad del jugador">Edad</th>
+          <th data-c="PJ" data-d="desc" data-tip="Partidos jugados">PJ</th>
+          <th data-c="MPG" data-d="desc" data-tip="Minutos por partido">MIN</th>
+          <th data-c="VPG" data-d="desc" data-tip="Valoración por partido">VAL</th>
+          <th data-c="PPG" data-d="desc" data-tip="Puntos por partido">PTS</th>
+          <th data-c="TCAPG" data-d="desc" class="tc-group" data-tip="Tiros de campo intentados/partido (2P + 3P)">TCC</th>
+          <th data-c="TCIPG" data-d="desc" class="tc-group" data-tip="Tiros de campo convertidos/partido (2P + 3P)">TCI</th>
+          <th data-c="TC%" data-d="desc" class="tc-group" data-tip="% tiros de campo · (T2I + T3I) / (T2A + T3A)">TC%</th>
+          <th data-c="T2APG" data-d="desc" data-tip="Tiros de 2 pts intentados/partido">T2C</th>
+          <th data-c="T2IPG" data-d="desc" data-tip="Tiros de 2 pts convertidos/partido">T2I</th>
+          <th data-c="T2%" data-d="desc" data-tip="% de tiros de 2 pts · T2I / T2A">T2%</th>
+          <th data-c="T3APG" data-d="desc" data-tip="Tiros de 3 pts intentados/partido">T3C</th>
+          <th data-c="T3IPG" data-d="desc" data-tip="Tiros de 3 pts convertidos/partido">T3I</th>
+          <th data-c="T3%" data-d="desc" data-tip="% de tiros de 3 pts · T3I / T3A">T3%</th>
+          <th data-c="T1APG" data-d="desc" data-tip="Tiros libres intentados/partido">T1C</th>
+          <th data-c="T1IPG" data-d="desc" data-tip="Tiros libres convertidos/partido">T1I</th>
+          <th data-c="T1%" data-d="desc" data-tip="% de tiros libres · T1I / T1A">T1%</th>
+          <th data-c="RDPG" data-d="desc" data-tip="Rebotes defensivos/partido">RD</th>
+          <th data-c="ROPG" data-d="desc" data-tip="Rebotes ofensivos/partido">RO</th>
+          <th data-c="RPG" data-d="desc" data-tip="Rebotes totales/partido (RD + RO)">RT</th>
+          <th data-c="APG" data-d="desc" data-tip="Asistencias/partido">AST</th>
+          <th data-c="SPG" data-d="desc" data-tip="Recuperos/partido (robos de balón)">REC</th>
+          <th data-c="TPG" data-d="desc" data-tip="Pérdidas/partido">PÉR</th>
+          <th data-c="BPG" data-d="desc" data-tip="Tapones/partido">TAP</th>
+        </tr></thead>
+        <tbody id="jTbody"></tbody>
+      </table>
+    </div>
+    <div class="table-card" id="jCardAdv" style="display:none">
+      <table>
+        <thead><tr>
+          <th class="rank-th">#</th>
+          <th data-ca="name" data-da="asc" data-tip="Nombre del jugador">Jugador</th>
+          <th data-ca="Equipo" data-da="asc" data-tip="Equipo del jugador">Equipo</th>
+          <th data-ca="Edad" data-da="asc" data-tip="Edad del jugador">Edad</th>
+          <th data-ca="PJ" data-da="desc" data-tip="Partidos jugados">PJ</th>
+          <th data-ca="MPG" data-da="desc" data-tip="Minutos por partido">MIN</th>
+          <th data-ca="POS" data-da="desc" data-tip="Posesiones individuales estimadas/partido">POS</th>
+          <th data-ca="PTS/POS" data-da="desc" data-tip="Puntos anotados por posesión individual">PTS/POS</th>
+          <th data-ca="EFG%" data-da="desc" data-tip="% campo efectivo, pesa los triples por su mayor valor · (T2I + 1.5×T3I) / (T2A + T3A)">EFG%</th>
+          <th data-ca="TS%" data-da="desc" data-tip="True Shooting: eficiencia real incluyendo libres · PTS / (2×(TCA + 0.44×T1A))">TS%</th>
+          <th data-ca="TO%" data-da="asc" data-tip="% de posesiones individuales terminadas en pérdida (menor = mejor)">TO%</th>
+          <th data-ca="AST/TO" data-da="desc" data-tip="Ratio asistencias / pérdidas">AST/TO</th>
+          <th data-ca="3PI/TI" data-da="desc" data-tip="% de tiros convertidos que son triples · T3I / (T2I + T3I)">3PI/TI</th>
+          <th data-ca="ORtg" data-da="desc" data-tip="Puntos producidos por 100 posesiones individuales">ORtg</th>
+          <th data-ca="USG%" data-da="desc" data-tip="% de posesiones del equipo usadas por el jugador mientras está en cancha">USG%</th>
+          <th data-ca="ORB%" data-da="desc" data-tip="% de rebotes ofensivos disponibles capturados por el jugador">ORB%</th>
+          <th data-ca="DRB%" data-da="desc" data-tip="% de rebotes defensivos disponibles capturados por el jugador · DReb × (MinEq/5) / (Min × (DRebEq + ORebRival))">DRB%</th>
+          <th data-ca="FTr" data-da="desc" data-tip="Free Throw Rate: tiros libres intentados por tiro de campo intentado · T1I / (T2I + T3I)">FTr</th>
+        </tr></thead>
+        <tbody id="jTbodyAdv"></tbody>
+      </table>
+    </div>
+  </div>
+    </div><!-- /sidebar-main -->
+  </div><!-- /sidebar-layout -->
+</div>
+<div class="section" id="sec-j-chart">
+  <div class="chart-outer">
+    <div class="chart-controls">
+      <div class="axis-group">
+        <label class="ax-y">↑ Eje Y</label>
+        <select id="jY" onchange="drawJChart()" style="display:none">
+          <option value="PPG" selected>Puntos/partido</option>
+          <option value="VPG">Valoración/partido</option>
+          <option value="RPG">Rebotes/partido</option>
+          <option value="APG">Asistencias/partido</option>
+          <option value="SPG">Recuperos/partido</option>
+          <option value="BPG">Tapones/partido</option>
+          <option value="TPG">Pérdidas/partido</option>
+          <option value="T2APG">T2 Conv./partido</option>
+          <option value="T3APG">T3 Conv./partido</option>
+          <option value="T1APG">T1 Conv./partido</option>
+          <option value="T2%">% T2</option>
+          <option value="T3%">% T3</option>
+          <option value="T1%">% T1</option>
+          <option value="RDPG">Reb. Def./partido</option>
+          <option value="ROPG">Reb. Of./partido</option>
+          <option value="MPG">Minutos/partido</option>
+          <option value="ORtg">ORtg (indiv.)</option>
+          <option value="USG%">USG%</option>
+          <option value="ORB%">ORB%</option>
+          <option value="EFG%">EFG%</option>
+          <option value="TS%">TS%</option>
+          <option value="PJ">PJ</option>
+        </select>
+        <div class="fsb-custom-select" id="jYCustom" data-select="jY">
+  <div class="fcs-trigger" onclick="fcsToggle('jYCustom')">
+    <div class="fcs-selected">
+      <span class="fcs-name">Puntos/partido</span>
+      <span class="fcs-sub">Puntos anotados por partido</span>
+    </div>
+    <svg class="fcs-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="fcs-dropdown">
+    <div class="fcs-option selected" data-value="PPG" onclick="fcsSelect('jYCustom','PPG','Puntos/partido','Puntos anotados por partido')"><span class="fcs-name">Puntos/partido</span><span class="fcs-sub">Puntos anotados por partido</span></div>
+    <div class="fcs-option" data-value="VPG" onclick="fcsSelect('jYCustom','VPG','Valoración/partido','Valoración por partido')"><span class="fcs-name">Valoración/partido</span><span class="fcs-sub">Valoración por partido</span></div>
+    <div class="fcs-option" data-value="RPG" onclick="fcsSelect('jYCustom','RPG','Rebotes/partido','Rebotes totales por partido')"><span class="fcs-name">Rebotes/partido</span><span class="fcs-sub">Rebotes totales por partido</span></div>
+    <div class="fcs-option" data-value="APG" onclick="fcsSelect('jYCustom','APG','Asistencias/partido','Asistencias por partido')"><span class="fcs-name">Asistencias/partido</span><span class="fcs-sub">Asistencias por partido</span></div>
+    <div class="fcs-option" data-value="SPG" onclick="fcsSelect('jYCustom','SPG','Recuperos/partido','Recuperaciones por partido')"><span class="fcs-name">Recuperos/partido</span><span class="fcs-sub">Recuperaciones por partido</span></div>
+    <div class="fcs-option" data-value="BPG" onclick="fcsSelect('jYCustom','BPG','Tapones/partido','Tapones por partido')"><span class="fcs-name">Tapones/partido</span><span class="fcs-sub">Tapones por partido</span></div>
+    <div class="fcs-option" data-value="TPG" onclick="fcsSelect('jYCustom','TPG','Pérdidas/partido','Pérdidas por partido')"><span class="fcs-name">Pérdidas/partido</span><span class="fcs-sub">Pérdidas por partido</span></div>
+    <div class="fcs-option" data-value="T2APG" onclick="fcsSelect('jYCustom','T2APG','T2 Conv./partido','Tiros de 2 convertidos/partido')"><span class="fcs-name">T2 Conv./partido</span><span class="fcs-sub">Tiros de 2 convertidos/partido</span></div>
+    <div class="fcs-option" data-value="T3APG" onclick="fcsSelect('jYCustom','T3APG','T3 Conv./partido','Tiros de 3 convertidos/partido')"><span class="fcs-name">T3 Conv./partido</span><span class="fcs-sub">Tiros de 3 convertidos/partido</span></div>
+    <div class="fcs-option" data-value="T1APG" onclick="fcsSelect('jYCustom','T1APG','T1 Conv./partido','Tiros libres convertidos/partido')"><span class="fcs-name">T1 Conv./partido</span><span class="fcs-sub">Tiros libres convertidos/partido</span></div>
+    <div class="fcs-option" data-value="T2%" onclick="fcsSelect('jYCustom','T2%','% T2','% acierto tiros de 2')"><span class="fcs-name">% T2</span><span class="fcs-sub">% acierto tiros de 2</span></div>
+    <div class="fcs-option" data-value="T3%" onclick="fcsSelect('jYCustom','T3%','% T3','% acierto tiros de 3')"><span class="fcs-name">% T3</span><span class="fcs-sub">% acierto tiros de 3</span></div>
+    <div class="fcs-option" data-value="T1%" onclick="fcsSelect('jYCustom','T1%','% T1','% acierto tiros libres')"><span class="fcs-name">% T1</span><span class="fcs-sub">% acierto tiros libres</span></div>
+    <div class="fcs-option" data-value="RDPG" onclick="fcsSelect('jYCustom','RDPG','Reb. Def./partido','Rebotes defensivos/partido')"><span class="fcs-name">Reb. Def./partido</span><span class="fcs-sub">Rebotes defensivos/partido</span></div>
+    <div class="fcs-option" data-value="ROPG" onclick="fcsSelect('jYCustom','ROPG','Reb. Of./partido','Rebotes ofensivos/partido')"><span class="fcs-name">Reb. Of./partido</span><span class="fcs-sub">Rebotes ofensivos/partido</span></div>
+    <div class="fcs-option" data-value="MPG" onclick="fcsSelect('jYCustom','MPG','Minutos/partido','Minutos jugados por partido')"><span class="fcs-name">Minutos/partido</span><span class="fcs-sub">Minutos jugados por partido</span></div>
+    <div class="fcs-option" data-value="ORtg" onclick="fcsSelect('jYCustom','ORtg','ORtg (indiv.)','Pts producidos c/100 pos')"><span class="fcs-name">ORtg (indiv.)</span><span class="fcs-sub">Pts producidos c/100 pos</span></div>
+    <div class="fcs-option" data-value="USG%" onclick="fcsSelect('jYCustom','USG%','USG%','% posesiones usadas')"><span class="fcs-name">USG%</span><span class="fcs-sub">% posesiones usadas</span></div>
+    <div class="fcs-option" data-value="ORB%" onclick="fcsSelect('jYCustom','ORB%','ORB%','% reb ofensivos capturados')"><span class="fcs-name">ORB%</span><span class="fcs-sub">% reb ofensivos capturados</span></div>
+    <div class="fcs-option" data-value="EFG%" onclick="fcsSelect('jYCustom','EFG%','EFG%','TC ajustado por triples')"><span class="fcs-name">EFG%</span><span class="fcs-sub">TC ajustado por triples</span></div>
+    <div class="fcs-option" data-value="TS%" onclick="fcsSelect('jYCustom','TS%','TS%','Incluye tiros libres')"><span class="fcs-name">TS%</span><span class="fcs-sub">Incluye tiros libres</span></div>
+    <div class="fcs-option" data-value="PJ" onclick="fcsSelect('jYCustom','PJ','PJ','Partidos jugados')"><span class="fcs-name">PJ</span><span class="fcs-sub">Partidos jugados</span></div>
+  </div>
+</div>
+      </div>
+      <div class="axis-group">
+        <label class="ax-x">→ Eje X</label>
+        <select id="jX" onchange="drawJChart()" style="display:none">
+          <option value="MPG" selected>Minutos/partido</option>
+          <option value="PPG">Puntos/partido</option>
+          <option value="VPG">Valoración/partido</option>
+          <option value="RPG">Rebotes/partido</option>
+          <option value="APG">Asistencias/partido</option>
+          <option value="SPG">Recuperos/partido</option>
+          <option value="BPG">Tapones/partido</option>
+          <option value="TPG">Pérdidas/partido</option>
+          <option value="T2APG">T2 Conv./partido</option>
+          <option value="T3APG">T3 Conv./partido</option>
+          <option value="T1APG">T1 Conv./partido</option>
+          <option value="T2%">% T2</option>
+          <option value="T3%">% T3</option>
+          <option value="T1%">% T1</option>
+          <option value="RDPG">Reb. Def./partido</option>
+          <option value="ROPG">Reb. Of./partido</option>
+          <option value="ORtg">ORtg (indiv.)</option>
+          <option value="USG%">USG%</option>
+          <option value="ORB%">ORB%</option>
+          <option value="EFG%">EFG%</option>
+          <option value="TS%">TS%</option>
+          <option value="PJ">PJ</option>
+        </select>
+        <div class="fsb-custom-select" id="jXCustom" data-select="jX">
+  <div class="fcs-trigger" onclick="fcsToggle('jXCustom')">
+    <div class="fcs-selected">
+      <span class="fcs-name">Minutos/partido</span>
+      <span class="fcs-sub">Minutos jugados por partido</span>
+    </div>
+    <svg class="fcs-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="fcs-dropdown">
+    <div class="fcs-option" data-value="PPG" onclick="fcsSelect('jXCustom','PPG','Puntos/partido','Puntos anotados por partido')"><span class="fcs-name">Puntos/partido</span><span class="fcs-sub">Puntos anotados por partido</span></div>
+    <div class="fcs-option" data-value="VPG" onclick="fcsSelect('jXCustom','VPG','Valoración/partido','Valoración por partido')"><span class="fcs-name">Valoración/partido</span><span class="fcs-sub">Valoración por partido</span></div>
+    <div class="fcs-option" data-value="RPG" onclick="fcsSelect('jXCustom','RPG','Rebotes/partido','Rebotes totales por partido')"><span class="fcs-name">Rebotes/partido</span><span class="fcs-sub">Rebotes totales por partido</span></div>
+    <div class="fcs-option" data-value="APG" onclick="fcsSelect('jXCustom','APG','Asistencias/partido','Asistencias por partido')"><span class="fcs-name">Asistencias/partido</span><span class="fcs-sub">Asistencias por partido</span></div>
+    <div class="fcs-option" data-value="SPG" onclick="fcsSelect('jXCustom','SPG','Recuperos/partido','Recuperaciones por partido')"><span class="fcs-name">Recuperos/partido</span><span class="fcs-sub">Recuperaciones por partido</span></div>
+    <div class="fcs-option" data-value="BPG" onclick="fcsSelect('jXCustom','BPG','Tapones/partido','Tapones por partido')"><span class="fcs-name">Tapones/partido</span><span class="fcs-sub">Tapones por partido</span></div>
+    <div class="fcs-option" data-value="TPG" onclick="fcsSelect('jXCustom','TPG','Pérdidas/partido','Pérdidas por partido')"><span class="fcs-name">Pérdidas/partido</span><span class="fcs-sub">Pérdidas por partido</span></div>
+    <div class="fcs-option" data-value="T2APG" onclick="fcsSelect('jXCustom','T2APG','T2 Conv./partido','Tiros de 2 convertidos/partido')"><span class="fcs-name">T2 Conv./partido</span><span class="fcs-sub">Tiros de 2 convertidos/partido</span></div>
+    <div class="fcs-option" data-value="T3APG" onclick="fcsSelect('jXCustom','T3APG','T3 Conv./partido','Tiros de 3 convertidos/partido')"><span class="fcs-name">T3 Conv./partido</span><span class="fcs-sub">Tiros de 3 convertidos/partido</span></div>
+    <div class="fcs-option" data-value="T1APG" onclick="fcsSelect('jXCustom','T1APG','T1 Conv./partido','Tiros libres convertidos/partido')"><span class="fcs-name">T1 Conv./partido</span><span class="fcs-sub">Tiros libres convertidos/partido</span></div>
+    <div class="fcs-option" data-value="T2%" onclick="fcsSelect('jXCustom','T2%','% T2','% acierto tiros de 2')"><span class="fcs-name">% T2</span><span class="fcs-sub">% acierto tiros de 2</span></div>
+    <div class="fcs-option" data-value="T3%" onclick="fcsSelect('jXCustom','T3%','% T3','% acierto tiros de 3')"><span class="fcs-name">% T3</span><span class="fcs-sub">% acierto tiros de 3</span></div>
+    <div class="fcs-option" data-value="T1%" onclick="fcsSelect('jXCustom','T1%','% T1','% acierto tiros libres')"><span class="fcs-name">% T1</span><span class="fcs-sub">% acierto tiros libres</span></div>
+    <div class="fcs-option" data-value="RDPG" onclick="fcsSelect('jXCustom','RDPG','Reb. Def./partido','Rebotes defensivos/partido')"><span class="fcs-name">Reb. Def./partido</span><span class="fcs-sub">Rebotes defensivos/partido</span></div>
+    <div class="fcs-option" data-value="ROPG" onclick="fcsSelect('jXCustom','ROPG','Reb. Of./partido','Rebotes ofensivos/partido')"><span class="fcs-name">Reb. Of./partido</span><span class="fcs-sub">Rebotes ofensivos/partido</span></div>
+    <div class="fcs-option selected" data-value="MPG" onclick="fcsSelect('jXCustom','MPG','Minutos/partido','Minutos jugados por partido')"><span class="fcs-name">Minutos/partido</span><span class="fcs-sub">Minutos jugados por partido</span></div>
+    <div class="fcs-option" data-value="ORtg" onclick="fcsSelect('jXCustom','ORtg','ORtg (indiv.)','Pts producidos c/100 pos')"><span class="fcs-name">ORtg (indiv.)</span><span class="fcs-sub">Pts producidos c/100 pos</span></div>
+    <div class="fcs-option" data-value="USG%" onclick="fcsSelect('jXCustom','USG%','USG%','% posesiones usadas')"><span class="fcs-name">USG%</span><span class="fcs-sub">% posesiones usadas</span></div>
+    <div class="fcs-option" data-value="ORB%" onclick="fcsSelect('jXCustom','ORB%','ORB%','% reb ofensivos capturados')"><span class="fcs-name">ORB%</span><span class="fcs-sub">% reb ofensivos capturados</span></div>
+    <div class="fcs-option" data-value="EFG%" onclick="fcsSelect('jXCustom','EFG%','EFG%','TC ajustado por triples')"><span class="fcs-name">EFG%</span><span class="fcs-sub">TC ajustado por triples</span></div>
+    <div class="fcs-option" data-value="TS%" onclick="fcsSelect('jXCustom','TS%','TS%','Incluye tiros libres')"><span class="fcs-name">TS%</span><span class="fcs-sub">Incluye tiros libres</span></div>
+    <div class="fcs-option" data-value="PJ" onclick="fcsSelect('jXCustom','PJ','PJ','Partidos jugados')"><span class="fcs-name">PJ</span><span class="fcs-sub">Partidos jugados</span></div>
+  </div>
+</div>
+      </div>
+      <div class="axis-group" style="min-width:130px">
+        <label>Tamaño burbuja</label>
+        <select id="jSize" onchange="drawJChart()" style="display:none">
+          <option value="none">Uniforme</option>
+          <option value="PPG">Puntos/partido</option>
+          <option value="MPG">Minutos/partido</option>
+          <option value="VPG">Valoración/partido</option>
+          <option value="RPG">Rebotes/partido</option>
+          <option value="APG">Asistencias/partido</option>
+        </select>
+        <div class="fsb-custom-select" id="jSizeCustom" data-select="jSize">
+  <div class="fcs-trigger" onclick="fcsToggle('jSizeCustom')">
+    <div class="fcs-selected">
+      <span class="fcs-name">Uniforme</span>
+      <span class="fcs-sub">Todas las burbujas iguales</span>
+    </div>
+    <svg class="fcs-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="fcs-dropdown">
+    <div class="fcs-option selected" data-value="none" onclick="fcsSelect('jSizeCustom','none','Uniforme','Todas las burbujas iguales')"><span class="fcs-name">Uniforme</span><span class="fcs-sub">Todas las burbujas iguales</span></div>
+    <div class="fcs-option" data-value="PPG" onclick="fcsSelect('jSizeCustom','PPG','Puntos/partido','Puntos anotados por partido')"><span class="fcs-name">Puntos/partido</span><span class="fcs-sub">Puntos anotados por partido</span></div>
+    <div class="fcs-option" data-value="MPG" onclick="fcsSelect('jSizeCustom','MPG','Minutos/partido','Minutos por partido')"><span class="fcs-name">Minutos/partido</span><span class="fcs-sub">Minutos por partido</span></div>
+    <div class="fcs-option" data-value="VPG" onclick="fcsSelect('jSizeCustom','VPG','Valoración/partido','Valoración por partido')"><span class="fcs-name">Valoración/partido</span><span class="fcs-sub">Valoración por partido</span></div>
+    <div class="fcs-option" data-value="RPG" onclick="fcsSelect('jSizeCustom','RPG','Rebotes/partido','Rebotes totales')"><span class="fcs-name">Rebotes/partido</span><span class="fcs-sub">Rebotes totales</span></div>
+    <div class="fcs-option" data-value="APG" onclick="fcsSelect('jSizeCustom','APG','Asistencias/partido','Asistencias por partido')"><span class="fcs-name">Asistencias/partido</span><span class="fcs-sub">Asistencias por partido</span></div>
+  </div>
+</div>
+      </div>
+      <div class="axis-group" style="min-width:120px">
+        <label>Color</label>
+        <select id="jColor" onchange="drawJChart()" style="display:none">
+          <option value="team">Por equipo</option>
+          <option value="none">Uniforme</option>
+        </select>
+        <div class="fsb-custom-select" id="jColorCustom" data-select="jColor">
+  <div class="fcs-trigger" onclick="fcsToggle('jColorCustom')">
+    <div class="fcs-selected">
+      <span class="fcs-name">Por equipo</span>
+      <span class="fcs-sub">Colores por equipo del jugador</span>
+    </div>
+    <svg class="fcs-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="fcs-dropdown">
+    <div class="fcs-option selected" data-value="team" onclick="fcsSelect('jColorCustom','team','Por equipo','Colores por equipo del jugador')"><span class="fcs-name">Por equipo</span><span class="fcs-sub">Colores por equipo del jugador</span></div>
+    <div class="fcs-option" data-value="none" onclick="fcsSelect('jColorCustom','none','Uniforme','Todas las burbujas iguales')"><span class="fcs-name">Uniforme</span><span class="fcs-sub">Todas las burbujas iguales</span></div>
+  </div>
+</div>
+      </div>
+      <div style="margin-left:auto;font-size:.73rem;color:var(--muted);max-width:190px;line-height:1.6;">
+        Cursor para ver detalle.<br>Clic para fijar jugador.
+      </div>
+    </div>
+    <div class="chart-card"><canvas id="jCanvas"></canvas></div>
+    <div class="chart-legend" id="jLegend"></div>
+  </div>
+</div>
+
+<!-- ============================= EQUIPOS TABLA ============================= -->
+<div class="section" id="sec-t-tabla">
+  <!-- Mobile toggle -->
+  <div class="ctrl-collapse-toggle" id="tCtrlToggle" onclick="toggleCtrl('t')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2V12.46L22 3z"/></svg>
+    Filtros
+    <svg class="cct-chevron" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+  <!-- TEAM COMPARISON PANEL -->
+  <div id="cmpPanel" class="cmp-panel" style="display:none">
+    <div class="cmp-panel-title">Comparador de Equipos <span style="font-size:.72rem;font-weight:500;color:var(--muted);margin-left:4px">— hacé clic en filas de la tabla para seleccionar hasta 4 equipos</span></div>
+    <div id="cmpChips" class="cmp-chips-row">
+      <span class="cmp-chips-empty">Ningún equipo seleccionado — hacé clic en las filas de la tabla ↓</span>
+    </div>
+    <div id="cmpResult"><p class="cmp-empty-msg">Seleccioná al menos 2 equipos para ver la comparación.</p></div>
+  </div>
+  <div class="sidebar-layout">
+    <!-- LEFT SIDEBAR -->
+    <div class="ctrl-sidebar" id="tCtrlBody">
+      <div class="fsb-group">
+        <span class="fsb-lbl">Estadísticas</span>
+        <div class="fsb-pills">
+          <button class="active" id="tToggleBasic" onclick="toggleTTable('basic')">Básica</button>
+          <button id="tToggleAdv" onclick="toggleTTable('adv')">Avanzada</button>
+        </div>
+      </div>
+      <div class="fsb-sep"></div>
+      <div class="fsb-group">
+        <span class="fsb-lbl">Ordenar por</span>
+        <select id="tSort" onchange="onTFilter()" style="display:none">
+          <option value="W%" selected>W% (Victorias)</option>
+          <option value="NetRtg">Net Rating</option>
+          <option value="ORtg">ORtg (Ofensivo)</option>
+          <option value="DRtg-asc">DRtg (Defensivo)</option>
+          <option value="EFG%">EFG%</option>
+          <option value="TS%">TS%</option>
+          <option value="TOV%-asc">TOV%</option>
+          <option value="ORB%">ORB%</option>
+          <option value="PACE">PACE</option>
+          <option value="Ganados">Victorias (total)</option>
+          <option value="PTSPG">PTS/partido</option>
+          <option value="RTPG">REB/partido</option>
+          <option value="ASTPG">AST/partido</option>
+          <option value="POSPG">Posesiones/partido</option>
+        </select>
+        <div class="fsb-custom-select" id="tSortCustom" data-select="tSort">
+          <div class="fcs-trigger" onclick="fcsToggle('tSortCustom')">
+            <div class="fcs-selected">
+              <span class="fcs-name">W% (Victorias)</span>
+              <span class="fcs-sub">% de partidos ganados</span>
+            </div>
+            <svg class="fcs-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="fcs-dropdown">
+            <div class="fcs-option selected" data-value="W%" onclick="fcsSelect('tSortCustom','W%','W% (Victorias)','% de partidos ganados')"><span class="fcs-name">W% (Victorias)</span><span class="fcs-sub">% de partidos ganados</span></div>
+            <div class="fcs-option" data-value="NetRtg" onclick="fcsSelect('tSortCustom','NetRtg','Net Rating','ORtg − DRtg')"><span class="fcs-name">Net Rating</span><span class="fcs-sub">ORtg − DRtg</span></div>
+            <div class="fcs-option" data-value="ORtg" onclick="fcsSelect('tSortCustom','ORtg','ORtg (Ofensivo)','Pts anotados c/100 posesiones')"><span class="fcs-name">ORtg (Ofensivo)</span><span class="fcs-sub">Pts anotados c/100 posesiones</span></div>
+            <div class="fcs-option" data-value="DRtg-asc" onclick="fcsSelect('tSortCustom','DRtg-asc','DRtg (Defensivo)','Pts recibidos c/100 pos · ↓ mejor')"><span class="fcs-name">DRtg (Defensivo)</span><span class="fcs-sub">Pts recibidos c/100 pos · ↓ mejor</span></div>
+            <div class="fcs-option" data-value="EFG%" onclick="fcsSelect('tSortCustom','EFG%','EFG%','TC ajustado · triples valen × 1.5')"><span class="fcs-name">EFG%</span><span class="fcs-sub">TC ajustado · triples valen × 1.5</span></div>
+            <div class="fcs-option" data-value="TS%" onclick="fcsSelect('tSortCustom','TS%','TS%','Incluye tiros libres y dobles')"><span class="fcs-name">TS%</span><span class="fcs-sub">Incluye tiros libres y dobles</span></div>
+            <div class="fcs-option" data-value="TOV%-asc" onclick="fcsSelect('tSortCustom','TOV%-asc','TOV%','% pos perdidas · ↓ mejor')"><span class="fcs-name">TOV%</span><span class="fcs-sub">% pos perdidas · ↓ mejor</span></div>
+            <div class="fcs-option" data-value="ORB%" onclick="fcsSelect('tSortCustom','ORB%','ORB%','% reb ofensivos capturados')"><span class="fcs-name">ORB%</span><span class="fcs-sub">% reb ofensivos capturados</span></div>
+            <div class="fcs-option" data-value="PACE" onclick="fcsSelect('tSortCustom','PACE','PACE','Posesiones totales por partido')"><span class="fcs-name">PACE</span><span class="fcs-sub">Posesiones totales por partido</span></div>
+            <div class="fcs-option" data-value="Ganados" onclick="fcsSelect('tSortCustom','Ganados','Victorias (total)','Victorias acumuladas')"><span class="fcs-name">Victorias (total)</span><span class="fcs-sub">Victorias acumuladas</span></div>
+            <div class="fcs-option" data-value="PTSPG" onclick="fcsSelect('tSortCustom','PTSPG','PTS/partido','Puntos anotados por partido')"><span class="fcs-name">PTS/partido</span><span class="fcs-sub">Puntos anotados por partido</span></div>
+            <div class="fcs-option" data-value="RTPG" onclick="fcsSelect('tSortCustom','RTPG','REB/partido','Rebotes totales por partido')"><span class="fcs-name">REB/partido</span><span class="fcs-sub">Rebotes totales por partido</span></div>
+            <div class="fcs-option" data-value="ASTPG" onclick="fcsSelect('tSortCustom','ASTPG','AST/partido','Asistencias por partido')"><span class="fcs-name">AST/partido</span><span class="fcs-sub">Asistencias por partido</span></div>
+            <div class="fcs-option" data-value="POSPG" onclick="fcsSelect('tSortCustom','POSPG','Posesiones/partido','Posesiones promedio por partido')"><span class="fcs-name">Posesiones/partido</span><span class="fcs-sub">Posesiones promedio por partido</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="fsb-sep"></div>
+      <div class="fsb-group">
+        <span class="fsb-lbl">Etapa</span>
+        <div class="fsb-pills">
+          <button class="active" id="tPhaseAll" onclick="setTPhase('all')">Todos</button>
+          <button id="tPhaseReg" onclick="setTPhase('regular')">Temporada Regular</button>
+          <button id="tPhasePost" onclick="setTPhase('post')">Post Temporada</button>
+        </div>
+      </div>
+      <div class="fsb-group">
+        <span class="fsb-lbl">Período</span>
+        <div class="fsb-pills">
+          <button class="active" id="tPeriodAll" onclick="setTPeriod('all')">Temporada completa</button>
+          <button id="tPeriodL5" onclick="setTPeriod('last5')">Últimos 5 partidos</button>
+          <button id="tPeriodL10" onclick="setTPeriod('last10')">Últimos 10 partidos</button>
+        </div>
+      </div>
+      <div class="fsb-group">
+        <span class="fsb-lbl">Condición</span>
+        <div class="fsb-pills">
+          <button class="active" id="tLocVisAll" onclick="setTLocVis('all')">Todos los partidos</button>
+          <button id="tLocVisLocal" onclick="setTLocVis('local')">Solo local</button>
+          <button id="tLocVisVisit" onclick="setTLocVis('visit')">Solo visitante</button>
+        </div>
+      </div>
+      <div class="fsb-sep"></div>
+      <div class="fsb-group">
+        <span class="fsb-lbl">Filtros por estadística</span>
+        <div class="filter-row">
+          <span class="ctrl-filter-badge">1</span>
+          <select id="tAttr" onchange="onTFilter()" style="display:none"><option value="">— Atributo —</option>
+          <option value="ORtg">ORtg</option><option value="DRtg">DRtg</option><option value="NetRtg">Net Rating</option>
+          <option value="EFG%">EFG%</option><option value="TS%">TS%</option><option value="TOV%">TOV%</option><option value="ORB%">ORB%</option><option value="PACE">PACE</option>
+          <option value="W%">W%</option><option value="Ganados">Victorias</option><option value="POSPG">Posesiones/p</option>
+          <option value="PTSPG">PTS/p</option><option value="RTPG">REB/p</option>
+          <option value="RDPG">Reb Def/p</option><option value="ROPG">Reb Of/p</option>
+          <option value="ASTPG">AST/p</option><option value="RECPG">REC/p</option>
+          <option value="PERPG">PÉR/p</option><option value="T2%">% T2</option>
+          <option value="T3%">% T3</option><option value="T1%">% T1</option>
+          <option value="PJ">PJ</option></select>
+<div class="fsb-custom-select" id="tAttrCustom" data-select="tAttr">
+  <div class="fcs-trigger" onclick="fcsToggle('tAttrCustom')">
+    <div class="fcs-selected">
+      <span class="fcs-name">— Atributo —</span>
+      <span class="fcs-sub"></span>
+    </div>
+    <svg class="fcs-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="fcs-dropdown">
+    <div class="fcs-option selected" data-value="" onclick="fcsSelect('tAttrCustom','','— Atributo —','')"><span class="fcs-name">— Atributo —</span><span class="fcs-sub"></span></div>
+    <div class="fcs-option" data-value="ORtg" onclick="fcsSelect('tAttrCustom','ORtg','ORtg','Pts anotados c/100 pos')"><span class="fcs-name">ORtg</span><span class="fcs-sub">Pts anotados c/100 pos</span></div>
+    <div class="fcs-option" data-value="DRtg" onclick="fcsSelect('tAttrCustom','DRtg','DRtg','Pts recibidos c/100 pos')"><span class="fcs-name">DRtg</span><span class="fcs-sub">Pts recibidos c/100 pos</span></div>
+    <div class="fcs-option" data-value="NetRtg" onclick="fcsSelect('tAttrCustom','NetRtg','Net Rating','ORtg − DRtg')"><span class="fcs-name">Net Rating</span><span class="fcs-sub">ORtg − DRtg</span></div>
+    <div class="fcs-option" data-value="EFG%" onclick="fcsSelect('tAttrCustom','EFG%','EFG%','TC ajustado por triples')"><span class="fcs-name">EFG%</span><span class="fcs-sub">TC ajustado por triples</span></div>
+    <div class="fcs-option" data-value="TS%" onclick="fcsSelect('tAttrCustom','TS%','TS%','Incluye tiros libres')"><span class="fcs-name">TS%</span><span class="fcs-sub">Incluye tiros libres</span></div>
+    <div class="fcs-option" data-value="TOV%" onclick="fcsSelect('tAttrCustom','TOV%','TOV%','% pos perdidas')"><span class="fcs-name">TOV%</span><span class="fcs-sub">% pos perdidas</span></div>
+    <div class="fcs-option" data-value="ORB%" onclick="fcsSelect('tAttrCustom','ORB%','ORB%','% reb ofensivos')"><span class="fcs-name">ORB%</span><span class="fcs-sub">% reb ofensivos</span></div>
+    <div class="fcs-option" data-value="PACE" onclick="fcsSelect('tAttrCustom','PACE','PACE','Posesiones por partido')"><span class="fcs-name">PACE</span><span class="fcs-sub">Posesiones por partido</span></div>
+    <div class="fcs-option" data-value="W%" onclick="fcsSelect('tAttrCustom','W%','W%','% de victorias')"><span class="fcs-name">W%</span><span class="fcs-sub">% de victorias</span></div>
+    <div class="fcs-option" data-value="Ganados" onclick="fcsSelect('tAttrCustom','Ganados','Victorias','Victorias totales')"><span class="fcs-name">Victorias</span><span class="fcs-sub">Victorias totales</span></div>
+    <div class="fcs-option" data-value="POSPG" onclick="fcsSelect('tAttrCustom','POSPG','Posesiones/p','Posesiones por partido')"><span class="fcs-name">Posesiones/p</span><span class="fcs-sub">Posesiones por partido</span></div>
+    <div class="fcs-option" data-value="PTSPG" onclick="fcsSelect('tAttrCustom','PTSPG','PTS/p','Puntos por partido')"><span class="fcs-name">PTS/p</span><span class="fcs-sub">Puntos por partido</span></div>
+    <div class="fcs-option" data-value="RTPG" onclick="fcsSelect('tAttrCustom','RTPG','REB/p','Rebotes totales')"><span class="fcs-name">REB/p</span><span class="fcs-sub">Rebotes totales</span></div>
+    <div class="fcs-option" data-value="RDPG" onclick="fcsSelect('tAttrCustom','RDPG','Reb Def/p','Rebotes defensivos')"><span class="fcs-name">Reb Def/p</span><span class="fcs-sub">Rebotes defensivos</span></div>
+    <div class="fcs-option" data-value="ROPG" onclick="fcsSelect('tAttrCustom','ROPG','Reb Of/p','Rebotes ofensivos')"><span class="fcs-name">Reb Of/p</span><span class="fcs-sub">Rebotes ofensivos</span></div>
+    <div class="fcs-option" data-value="ASTPG" onclick="fcsSelect('tAttrCustom','ASTPG','AST/p','Asistencias por partido')"><span class="fcs-name">AST/p</span><span class="fcs-sub">Asistencias por partido</span></div>
+    <div class="fcs-option" data-value="RECPG" onclick="fcsSelect('tAttrCustom','RECPG','REC/p','Recuperaciones por partido')"><span class="fcs-name">REC/p</span><span class="fcs-sub">Recuperaciones por partido</span></div>
+    <div class="fcs-option" data-value="PERPG" onclick="fcsSelect('tAttrCustom','PERPG','PÉR/p','Pérdidas por partido')"><span class="fcs-name">PÉR/p</span><span class="fcs-sub">Pérdidas por partido</span></div>
+    <div class="fcs-option" data-value="T2%" onclick="fcsSelect('tAttrCustom','T2%','% T2','% acierto tiros de 2')"><span class="fcs-name">% T2</span><span class="fcs-sub">% acierto tiros de 2</span></div>
+    <div class="fcs-option" data-value="T3%" onclick="fcsSelect('tAttrCustom','T3%','% T3','% acierto tiros de 3')"><span class="fcs-name">% T3</span><span class="fcs-sub">% acierto tiros de 3</span></div>
+    <div class="fcs-option" data-value="T1%" onclick="fcsSelect('tAttrCustom','T1%','% T1','% acierto tiros libres')"><span class="fcs-name">% T1</span><span class="fcs-sub">% acierto tiros libres</span></div>
+    <div class="fcs-option" data-value="PJ" onclick="fcsSelect('tAttrCustom','PJ','PJ','Partidos jugados')"><span class="fcs-name">PJ</span><span class="fcs-sub">Partidos jugados</span></div>
+  </div>
+</div>
+          <div class="fsb-op-row">
+            <select id="tOp" class="op-select" onchange="onTFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+            <input type="number" id="tAttrVal" placeholder="valor" step="0.1" oninput="onTFilter()"/>
+          </div>
+        </div>
+        <div class="filter-row" id="tFilterRow2" style="display:none">
+          <span class="ctrl-filter-badge">2</span>
+          <select id="tAttr2" onchange="onTFilter()" style="display:none"><option value="">— Atributo —</option>
+          <option value="ORtg">ORtg</option><option value="DRtg">DRtg</option><option value="NetRtg">Net Rating</option>
+          <option value="EFG%">EFG%</option><option value="TS%">TS%</option><option value="TOV%">TOV%</option><option value="ORB%">ORB%</option><option value="PACE">PACE</option>
+          <option value="W%">W%</option><option value="Ganados">Victorias</option><option value="POSPG">Posesiones/p</option>
+          <option value="PTSPG">PTS/p</option><option value="RTPG">REB/p</option>
+          <option value="RDPG">Reb Def/p</option><option value="ROPG">Reb Of/p</option>
+          <option value="ASTPG">AST/p</option><option value="RECPG">REC/p</option>
+          <option value="PERPG">PÉR/p</option><option value="T2%">% T2</option>
+          <option value="T3%">% T3</option><option value="T1%">% T1</option>
+          <option value="PJ">PJ</option></select>
+<div class="fsb-custom-select" id="tAttr2Custom" data-select="tAttr2">
+  <div class="fcs-trigger" onclick="fcsToggle('tAttr2Custom')">
+    <div class="fcs-selected">
+      <span class="fcs-name">— Atributo —</span>
+      <span class="fcs-sub"></span>
+    </div>
+    <svg class="fcs-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="fcs-dropdown">
+    <div class="fcs-option selected" data-value="" onclick="fcsSelect('tAttr2Custom','','— Atributo —','')"><span class="fcs-name">— Atributo —</span><span class="fcs-sub"></span></div>
+    <div class="fcs-option" data-value="ORtg" onclick="fcsSelect('tAttr2Custom','ORtg','ORtg','Pts anotados c/100 pos')"><span class="fcs-name">ORtg</span><span class="fcs-sub">Pts anotados c/100 pos</span></div>
+    <div class="fcs-option" data-value="DRtg" onclick="fcsSelect('tAttr2Custom','DRtg','DRtg','Pts recibidos c/100 pos')"><span class="fcs-name">DRtg</span><span class="fcs-sub">Pts recibidos c/100 pos</span></div>
+    <div class="fcs-option" data-value="NetRtg" onclick="fcsSelect('tAttr2Custom','NetRtg','Net Rating','ORtg − DRtg')"><span class="fcs-name">Net Rating</span><span class="fcs-sub">ORtg − DRtg</span></div>
+    <div class="fcs-option" data-value="EFG%" onclick="fcsSelect('tAttr2Custom','EFG%','EFG%','TC ajustado por triples')"><span class="fcs-name">EFG%</span><span class="fcs-sub">TC ajustado por triples</span></div>
+    <div class="fcs-option" data-value="TS%" onclick="fcsSelect('tAttr2Custom','TS%','TS%','Incluye tiros libres')"><span class="fcs-name">TS%</span><span class="fcs-sub">Incluye tiros libres</span></div>
+    <div class="fcs-option" data-value="TOV%" onclick="fcsSelect('tAttr2Custom','TOV%','TOV%','% pos perdidas')"><span class="fcs-name">TOV%</span><span class="fcs-sub">% pos perdidas</span></div>
+    <div class="fcs-option" data-value="ORB%" onclick="fcsSelect('tAttr2Custom','ORB%','ORB%','% reb ofensivos')"><span class="fcs-name">ORB%</span><span class="fcs-sub">% reb ofensivos</span></div>
+    <div class="fcs-option" data-value="PACE" onclick="fcsSelect('tAttr2Custom','PACE','PACE','Posesiones por partido')"><span class="fcs-name">PACE</span><span class="fcs-sub">Posesiones por partido</span></div>
+    <div class="fcs-option" data-value="W%" onclick="fcsSelect('tAttr2Custom','W%','W%','% de victorias')"><span class="fcs-name">W%</span><span class="fcs-sub">% de victorias</span></div>
+    <div class="fcs-option" data-value="Ganados" onclick="fcsSelect('tAttr2Custom','Ganados','Victorias','Victorias totales')"><span class="fcs-name">Victorias</span><span class="fcs-sub">Victorias totales</span></div>
+    <div class="fcs-option" data-value="POSPG" onclick="fcsSelect('tAttr2Custom','POSPG','Posesiones/p','Posesiones por partido')"><span class="fcs-name">Posesiones/p</span><span class="fcs-sub">Posesiones por partido</span></div>
+    <div class="fcs-option" data-value="PTSPG" onclick="fcsSelect('tAttr2Custom','PTSPG','PTS/p','Puntos por partido')"><span class="fcs-name">PTS/p</span><span class="fcs-sub">Puntos por partido</span></div>
+    <div class="fcs-option" data-value="RTPG" onclick="fcsSelect('tAttr2Custom','RTPG','REB/p','Rebotes totales')"><span class="fcs-name">REB/p</span><span class="fcs-sub">Rebotes totales</span></div>
+    <div class="fcs-option" data-value="RDPG" onclick="fcsSelect('tAttr2Custom','RDPG','Reb Def/p','Rebotes defensivos')"><span class="fcs-name">Reb Def/p</span><span class="fcs-sub">Rebotes defensivos</span></div>
+    <div class="fcs-option" data-value="ROPG" onclick="fcsSelect('tAttr2Custom','ROPG','Reb Of/p','Rebotes ofensivos')"><span class="fcs-name">Reb Of/p</span><span class="fcs-sub">Rebotes ofensivos</span></div>
+    <div class="fcs-option" data-value="ASTPG" onclick="fcsSelect('tAttr2Custom','ASTPG','AST/p','Asistencias por partido')"><span class="fcs-name">AST/p</span><span class="fcs-sub">Asistencias por partido</span></div>
+    <div class="fcs-option" data-value="RECPG" onclick="fcsSelect('tAttr2Custom','RECPG','REC/p','Recuperaciones por partido')"><span class="fcs-name">REC/p</span><span class="fcs-sub">Recuperaciones por partido</span></div>
+    <div class="fcs-option" data-value="PERPG" onclick="fcsSelect('tAttr2Custom','PERPG','PÉR/p','Pérdidas por partido')"><span class="fcs-name">PÉR/p</span><span class="fcs-sub">Pérdidas por partido</span></div>
+    <div class="fcs-option" data-value="T2%" onclick="fcsSelect('tAttr2Custom','T2%','% T2','% acierto tiros de 2')"><span class="fcs-name">% T2</span><span class="fcs-sub">% acierto tiros de 2</span></div>
+    <div class="fcs-option" data-value="T3%" onclick="fcsSelect('tAttr2Custom','T3%','% T3','% acierto tiros de 3')"><span class="fcs-name">% T3</span><span class="fcs-sub">% acierto tiros de 3</span></div>
+    <div class="fcs-option" data-value="T1%" onclick="fcsSelect('tAttr2Custom','T1%','% T1','% acierto tiros libres')"><span class="fcs-name">% T1</span><span class="fcs-sub">% acierto tiros libres</span></div>
+    <div class="fcs-option" data-value="PJ" onclick="fcsSelect('tAttr2Custom','PJ','PJ','Partidos jugados')"><span class="fcs-name">PJ</span><span class="fcs-sub">Partidos jugados</span></div>
+  </div>
+</div>
+          <div class="fsb-op-row">
+            <select id="tOp2" class="op-select" onchange="onTFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+            <input type="number" id="tAttrVal2" placeholder="valor" step="0.1" oninput="onTFilter()"/>
+          </div>
+        </div>
+        <div class="filter-row" id="tFilterRow3" style="display:none">
+          <span class="ctrl-filter-badge">3</span>
+          <select id="tAttr3" onchange="onTFilter()" style="display:none"><option value="">— Atributo —</option>
+          <option value="ORtg">ORtg</option><option value="DRtg">DRtg</option><option value="NetRtg">Net Rating</option>
+          <option value="EFG%">EFG%</option><option value="TS%">TS%</option><option value="TOV%">TOV%</option><option value="ORB%">ORB%</option><option value="PACE">PACE</option>
+          <option value="W%">W%</option><option value="Ganados">Victorias</option>
+          <option value="PTSPG">PTS/p</option><option value="RTPG">REB/p</option>
+          <option value="ASTPG">AST/p</option><option value="PERPG">PÉR/p</option>
+          <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
+          <option value="PJ">PJ</option></select>
+<div class="fsb-custom-select" id="tAttr3Custom" data-select="tAttr3">
+  <div class="fcs-trigger" onclick="fcsToggle('tAttr3Custom')">
+    <div class="fcs-selected">
+      <span class="fcs-name">— Atributo —</span>
+      <span class="fcs-sub"></span>
+    </div>
+    <svg class="fcs-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="fcs-dropdown">
+    <div class="fcs-option selected" data-value="" onclick="fcsSelect('tAttr3Custom','','— Atributo —','')"><span class="fcs-name">— Atributo —</span><span class="fcs-sub"></span></div>
+    <div class="fcs-option" data-value="ORtg" onclick="fcsSelect('tAttr3Custom','ORtg','ORtg','Pts anotados c/100 pos')"><span class="fcs-name">ORtg</span><span class="fcs-sub">Pts anotados c/100 pos</span></div>
+    <div class="fcs-option" data-value="DRtg" onclick="fcsSelect('tAttr3Custom','DRtg','DRtg','Pts recibidos c/100 pos')"><span class="fcs-name">DRtg</span><span class="fcs-sub">Pts recibidos c/100 pos</span></div>
+    <div class="fcs-option" data-value="NetRtg" onclick="fcsSelect('tAttr3Custom','NetRtg','Net Rating','ORtg − DRtg')"><span class="fcs-name">Net Rating</span><span class="fcs-sub">ORtg − DRtg</span></div>
+    <div class="fcs-option" data-value="EFG%" onclick="fcsSelect('tAttr3Custom','EFG%','EFG%','TC ajustado por triples')"><span class="fcs-name">EFG%</span><span class="fcs-sub">TC ajustado por triples</span></div>
+    <div class="fcs-option" data-value="TS%" onclick="fcsSelect('tAttr3Custom','TS%','TS%','Incluye tiros libres')"><span class="fcs-name">TS%</span><span class="fcs-sub">Incluye tiros libres</span></div>
+    <div class="fcs-option" data-value="TOV%" onclick="fcsSelect('tAttr3Custom','TOV%','TOV%','% pos perdidas')"><span class="fcs-name">TOV%</span><span class="fcs-sub">% pos perdidas</span></div>
+    <div class="fcs-option" data-value="ORB%" onclick="fcsSelect('tAttr3Custom','ORB%','ORB%','% reb ofensivos')"><span class="fcs-name">ORB%</span><span class="fcs-sub">% reb ofensivos</span></div>
+    <div class="fcs-option" data-value="PACE" onclick="fcsSelect('tAttr3Custom','PACE','PACE','Posesiones por partido')"><span class="fcs-name">PACE</span><span class="fcs-sub">Posesiones por partido</span></div>
+    <div class="fcs-option" data-value="W%" onclick="fcsSelect('tAttr3Custom','W%','W%','% de victorias')"><span class="fcs-name">W%</span><span class="fcs-sub">% de victorias</span></div>
+    <div class="fcs-option" data-value="Ganados" onclick="fcsSelect('tAttr3Custom','Ganados','Victorias','Victorias totales')"><span class="fcs-name">Victorias</span><span class="fcs-sub">Victorias totales</span></div>
+    <div class="fcs-option" data-value="POSPG" onclick="fcsSelect('tAttr3Custom','POSPG','Posesiones/p','Posesiones por partido')"><span class="fcs-name">Posesiones/p</span><span class="fcs-sub">Posesiones por partido</span></div>
+    <div class="fcs-option" data-value="PTSPG" onclick="fcsSelect('tAttr3Custom','PTSPG','PTS/p','Puntos por partido')"><span class="fcs-name">PTS/p</span><span class="fcs-sub">Puntos por partido</span></div>
+    <div class="fcs-option" data-value="RTPG" onclick="fcsSelect('tAttr3Custom','RTPG','REB/p','Rebotes totales')"><span class="fcs-name">REB/p</span><span class="fcs-sub">Rebotes totales</span></div>
+    <div class="fcs-option" data-value="RDPG" onclick="fcsSelect('tAttr3Custom','RDPG','Reb Def/p','Rebotes defensivos')"><span class="fcs-name">Reb Def/p</span><span class="fcs-sub">Rebotes defensivos</span></div>
+    <div class="fcs-option" data-value="ROPG" onclick="fcsSelect('tAttr3Custom','ROPG','Reb Of/p','Rebotes ofensivos')"><span class="fcs-name">Reb Of/p</span><span class="fcs-sub">Rebotes ofensivos</span></div>
+    <div class="fcs-option" data-value="ASTPG" onclick="fcsSelect('tAttr3Custom','ASTPG','AST/p','Asistencias por partido')"><span class="fcs-name">AST/p</span><span class="fcs-sub">Asistencias por partido</span></div>
+    <div class="fcs-option" data-value="RECPG" onclick="fcsSelect('tAttr3Custom','RECPG','REC/p','Recuperaciones por partido')"><span class="fcs-name">REC/p</span><span class="fcs-sub">Recuperaciones por partido</span></div>
+    <div class="fcs-option" data-value="PERPG" onclick="fcsSelect('tAttr3Custom','PERPG','PÉR/p','Pérdidas por partido')"><span class="fcs-name">PÉR/p</span><span class="fcs-sub">Pérdidas por partido</span></div>
+    <div class="fcs-option" data-value="T2%" onclick="fcsSelect('tAttr3Custom','T2%','% T2','% acierto tiros de 2')"><span class="fcs-name">% T2</span><span class="fcs-sub">% acierto tiros de 2</span></div>
+    <div class="fcs-option" data-value="T3%" onclick="fcsSelect('tAttr3Custom','T3%','% T3','% acierto tiros de 3')"><span class="fcs-name">% T3</span><span class="fcs-sub">% acierto tiros de 3</span></div>
+    <div class="fcs-option" data-value="T1%" onclick="fcsSelect('tAttr3Custom','T1%','% T1','% acierto tiros libres')"><span class="fcs-name">% T1</span><span class="fcs-sub">% acierto tiros libres</span></div>
+    <div class="fcs-option" data-value="PJ" onclick="fcsSelect('tAttr3Custom','PJ','PJ','Partidos jugados')"><span class="fcs-name">PJ</span><span class="fcs-sub">Partidos jugados</span></div>
+  </div>
+</div>
+          <div class="fsb-op-row">
+            <select id="tOp3" class="op-select" onchange="onTFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+            <input type="number" id="tAttrVal3" placeholder="valor" step="0.1" oninput="onTFilter()"/>
+          </div>
+        </div>
+        <div class="filter-row" id="tFilterRow4" style="display:none">
+          <span class="ctrl-filter-badge">4</span>
+          <select id="tAttr4" onchange="onTFilter()" style="display:none"><option value="">— Atributo —</option>
+          <option value="ORtg">ORtg</option><option value="DRtg">DRtg</option><option value="NetRtg">Net Rating</option>
+          <option value="EFG%">EFG%</option><option value="TS%">TS%</option><option value="TOV%">TOV%</option><option value="ORB%">ORB%</option><option value="PACE">PACE</option>
+          <option value="W%">W%</option><option value="Ganados">Victorias</option>
+          <option value="PTSPG">PTS/p</option><option value="RTPG">REB/p</option>
+          <option value="ASTPG">AST/p</option><option value="PERPG">PÉR/p</option>
+          <option value="T2%">% T2</option><option value="T3%">% T3</option><option value="T1%">% T1</option>
+          <option value="PJ">PJ</option></select>
+<div class="fsb-custom-select" id="tAttr4Custom" data-select="tAttr4">
+  <div class="fcs-trigger" onclick="fcsToggle('tAttr4Custom')">
+    <div class="fcs-selected">
+      <span class="fcs-name">— Atributo —</span>
+      <span class="fcs-sub"></span>
+    </div>
+    <svg class="fcs-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="fcs-dropdown">
+    <div class="fcs-option selected" data-value="" onclick="fcsSelect('tAttr4Custom','','— Atributo —','')"><span class="fcs-name">— Atributo —</span><span class="fcs-sub"></span></div>
+    <div class="fcs-option" data-value="ORtg" onclick="fcsSelect('tAttr4Custom','ORtg','ORtg','Pts anotados c/100 pos')"><span class="fcs-name">ORtg</span><span class="fcs-sub">Pts anotados c/100 pos</span></div>
+    <div class="fcs-option" data-value="DRtg" onclick="fcsSelect('tAttr4Custom','DRtg','DRtg','Pts recibidos c/100 pos')"><span class="fcs-name">DRtg</span><span class="fcs-sub">Pts recibidos c/100 pos</span></div>
+    <div class="fcs-option" data-value="NetRtg" onclick="fcsSelect('tAttr4Custom','NetRtg','Net Rating','ORtg − DRtg')"><span class="fcs-name">Net Rating</span><span class="fcs-sub">ORtg − DRtg</span></div>
+    <div class="fcs-option" data-value="EFG%" onclick="fcsSelect('tAttr4Custom','EFG%','EFG%','TC ajustado por triples')"><span class="fcs-name">EFG%</span><span class="fcs-sub">TC ajustado por triples</span></div>
+    <div class="fcs-option" data-value="TS%" onclick="fcsSelect('tAttr4Custom','TS%','TS%','Incluye tiros libres')"><span class="fcs-name">TS%</span><span class="fcs-sub">Incluye tiros libres</span></div>
+    <div class="fcs-option" data-value="TOV%" onclick="fcsSelect('tAttr4Custom','TOV%','TOV%','% pos perdidas')"><span class="fcs-name">TOV%</span><span class="fcs-sub">% pos perdidas</span></div>
+    <div class="fcs-option" data-value="ORB%" onclick="fcsSelect('tAttr4Custom','ORB%','ORB%','% reb ofensivos')"><span class="fcs-name">ORB%</span><span class="fcs-sub">% reb ofensivos</span></div>
+    <div class="fcs-option" data-value="PACE" onclick="fcsSelect('tAttr4Custom','PACE','PACE','Posesiones por partido')"><span class="fcs-name">PACE</span><span class="fcs-sub">Posesiones por partido</span></div>
+    <div class="fcs-option" data-value="W%" onclick="fcsSelect('tAttr4Custom','W%','W%','% de victorias')"><span class="fcs-name">W%</span><span class="fcs-sub">% de victorias</span></div>
+    <div class="fcs-option" data-value="Ganados" onclick="fcsSelect('tAttr4Custom','Ganados','Victorias','Victorias totales')"><span class="fcs-name">Victorias</span><span class="fcs-sub">Victorias totales</span></div>
+    <div class="fcs-option" data-value="POSPG" onclick="fcsSelect('tAttr4Custom','POSPG','Posesiones/p','Posesiones por partido')"><span class="fcs-name">Posesiones/p</span><span class="fcs-sub">Posesiones por partido</span></div>
+    <div class="fcs-option" data-value="PTSPG" onclick="fcsSelect('tAttr4Custom','PTSPG','PTS/p','Puntos por partido')"><span class="fcs-name">PTS/p</span><span class="fcs-sub">Puntos por partido</span></div>
+    <div class="fcs-option" data-value="RTPG" onclick="fcsSelect('tAttr4Custom','RTPG','REB/p','Rebotes totales')"><span class="fcs-name">REB/p</span><span class="fcs-sub">Rebotes totales</span></div>
+    <div class="fcs-option" data-value="RDPG" onclick="fcsSelect('tAttr4Custom','RDPG','Reb Def/p','Rebotes defensivos')"><span class="fcs-name">Reb Def/p</span><span class="fcs-sub">Rebotes defensivos</span></div>
+    <div class="fcs-option" data-value="ROPG" onclick="fcsSelect('tAttr4Custom','ROPG','Reb Of/p','Rebotes ofensivos')"><span class="fcs-name">Reb Of/p</span><span class="fcs-sub">Rebotes ofensivos</span></div>
+    <div class="fcs-option" data-value="ASTPG" onclick="fcsSelect('tAttr4Custom','ASTPG','AST/p','Asistencias por partido')"><span class="fcs-name">AST/p</span><span class="fcs-sub">Asistencias por partido</span></div>
+    <div class="fcs-option" data-value="RECPG" onclick="fcsSelect('tAttr4Custom','RECPG','REC/p','Recuperaciones por partido')"><span class="fcs-name">REC/p</span><span class="fcs-sub">Recuperaciones por partido</span></div>
+    <div class="fcs-option" data-value="PERPG" onclick="fcsSelect('tAttr4Custom','PERPG','PÉR/p','Pérdidas por partido')"><span class="fcs-name">PÉR/p</span><span class="fcs-sub">Pérdidas por partido</span></div>
+    <div class="fcs-option" data-value="T2%" onclick="fcsSelect('tAttr4Custom','T2%','% T2','% acierto tiros de 2')"><span class="fcs-name">% T2</span><span class="fcs-sub">% acierto tiros de 2</span></div>
+    <div class="fcs-option" data-value="T3%" onclick="fcsSelect('tAttr4Custom','T3%','% T3','% acierto tiros de 3')"><span class="fcs-name">% T3</span><span class="fcs-sub">% acierto tiros de 3</span></div>
+    <div class="fcs-option" data-value="T1%" onclick="fcsSelect('tAttr4Custom','T1%','% T1','% acierto tiros libres')"><span class="fcs-name">% T1</span><span class="fcs-sub">% acierto tiros libres</span></div>
+    <div class="fcs-option" data-value="PJ" onclick="fcsSelect('tAttr4Custom','PJ','PJ','Partidos jugados')"><span class="fcs-name">PJ</span><span class="fcs-sub">Partidos jugados</span></div>
+  </div>
+</div>
+          <div class="fsb-op-row">
+            <select id="tOp4" class="op-select" onchange="onTFilter()"><option value="gte">≥</option><option value="lte">≤</option><option value="eq">=</option></select>
+            <input type="number" id="tAttrVal4" placeholder="valor" step="0.1" oninput="onTFilter()"/>
+          </div>
+        </div>
+      </div>
+      <div class="fsb-footer">
+        <div class="stat-count">Mostrando <span id="tCount">—</span> equipos</div>
+        <button class="clear-btn" onclick="clearTFilter()">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          Limpiar filtros
+        </button>
+      </div>
+    </div>
+    <!-- RIGHT: table -->
+    <div class="sidebar-main">
+      <div class="scroll-bar-outer" id="tScrollOuter"><div class="scroll-bar-inner" id="tScrollInner"></div></div>
+      <div class="table-wrap" id="tTableWrap">
+    <div class="table-card" id="tCardBasic">
+      <table>
+        <thead><tr>
+          <th class="rank-th">#</th>
+          <th data-c="Equipo" data-d="asc" data-tip="Nombre del equipo">Equipo</th>
+          <th data-c="PJ" data-d="desc" data-tip="Partidos jugados">PJ</th>
+          <th data-c="Ganados" data-d="desc" data-tip="Partidos ganados">G</th>
+          <th data-c="Perdidos" data-d="asc" data-tip="Partidos perdidos">P</th>
+          <th data-c="W%" data-d="desc" data-tip="% de victorias · G / PJ">W%</th>
+          <th data-c="PTSPG" data-d="desc" data-tip="Puntos por partido">PTS</th>
+          <th data-c="T2APG" data-d="desc" data-tip="Tiros de 2 pts intentados/partido">T2C</th>
+          <th data-c="T2IPG" data-d="desc" data-tip="Tiros de 2 pts convertidos/partido">T2I</th>
+          <th data-c="T2%" data-d="desc" data-tip="% de tiros de 2 pts · T2I / T2A">T2%</th>
+          <th data-c="T3APG" data-d="desc" data-tip="Tiros de 3 pts intentados/partido">T3C</th>
+          <th data-c="T3IPG" data-d="desc" data-tip="Tiros de 3 pts convertidos/partido">T3I</th>
+          <th data-c="T3%" data-d="desc" data-tip="% de tiros de 3 pts · T3I / T3A">T3%</th>
+          <th data-c="T1APG" data-d="desc" data-tip="Tiros libres intentados/partido">T1C</th>
+          <th data-c="T1IPG" data-d="desc" data-tip="Tiros libres convertidos/partido">T1I</th>
+          <th data-c="T1%" data-d="desc" data-tip="% de tiros libres · T1I / T1A">T1%</th>
+          <th data-c="RDPG" data-d="desc" data-tip="Rebotes defensivos/partido">RD</th>
+          <th data-c="ROPG" data-d="desc" data-tip="Rebotes ofensivos/partido">RO</th>
+          <th data-c="RTPG" data-d="desc" data-tip="Rebotes totales/partido (RD + RO)">RT</th>
+          <th data-c="ASTPG" data-d="desc" data-tip="Asistencias/partido">AST</th>
+          <th data-c="RECPG" data-d="desc" data-tip="Recuperos/partido (robos de balón)">REC</th>
+          <th data-c="PERPG" data-d="desc" data-tip="Pérdidas/partido">PÉR</th>
+          <th data-c="TAPPG" data-d="desc" data-tip="Tapones/partido">TAP</th>
+          <th data-c="VALPG" data-d="desc" data-tip="Valoración/partido">VAL</th>
+        </tr></thead>
+        <tbody id="tTbody"></tbody>
+      </table>
+    </div>
+    <div class="table-card" id="tCardAdv" style="display:none">
+      <table>
+        <thead><tr>
+          <th class="rank-th">#</th>
+          <th data-ca="Equipo" data-da="asc" data-tip="Nombre del equipo">Equipo</th>
+          <th data-ca="PJ" data-da="desc" data-tip="Partidos jugados">PJ</th>
+          <th data-ca="Ganados" data-da="desc" data-tip="Partidos ganados">G</th>
+          <th data-ca="W%" data-da="desc" data-tip="% de victorias · G / PJ">W%</th>
+          <th data-ca="PACE" data-da="desc" data-tip="Posesiones por partido (ritmo de juego)">PACE</th>
+          <th data-ca="ORtg" data-da="desc" data-tip="Eficiencia ofensiva: puntos anotados por 100 posesiones">ORtg</th>
+          <th data-ca="DRtg" data-da="asc" data-tip="Eficiencia defensiva: puntos rivales por 100 posesiones (menor = mejor)">DRtg</th>
+          <th data-ca="NetRtg" data-da="desc" data-tip="Net Rating: ORtg − DRtg">NetRtg</th>
+          <th data-ca="EFG%" data-da="desc" data-tip="% campo efectivo, pesa los triples por su mayor valor · (T2I + 1.5×T3I) / (T2A + T3A)">EFG%</th>
+          <th data-ca="TS%" data-da="desc" data-tip="True Shooting: eficiencia real incluyendo libres · PTS / (2×(TCA + 0.44×T1A))">TS%</th>
+          <th data-ca="TOV%" data-da="asc" data-tip="Pérdidas por cada 100 posesiones (menor = mejor)">TOV%</th>
+          <th data-ca="ORB%" data-da="desc" data-tip="% de rebotes ofensivos disponibles capturados">ORB%</th>
+          <th data-ca="FTr" data-da="desc" data-tip="Free Throw Rate: tiros libres intentados por tiro de campo intentado · T1I / (T2I + T3I)">FTr</th>
+        </tr></thead>
+        <tbody id="tTbodyAdv"></tbody>
+      </table>
+    </div>
+  </div>
+    </div><!-- /sidebar-main -->
+  </div><!-- /sidebar-layout -->
+</div>
+<div class="section" id="sec-t-chart">
+  <div class="chart-outer">
+    <div class="chart-controls">
+      <div class="axis-group">
+        <label class="ax-y">↑ Eje Y</label>
+        <select id="tY" onchange="drawTChart()" style="display:none">
+          <option value="ORtg"  selected>ORtg (Ef. Ofensiva)</option>
+          <option value="DRtg">DRtg (Ef. Defensiva)</option>
+          <option value="NetRtg">Net Rating</option>
+          <option value="EFG%">EFG%</option>
+          <option value="TS%">TS%</option>
+          <option value="TOV%">TOV%</option>
+          <option value="ORB%">ORB%</option>
+          <option value="PACE">PACE</option>
+          <option value="W%">W% (% Victorias)</option>
+          <option value="PTSPG">Puntos/partido</option>
+          <option value="POSPG">Posesiones/partido</option>
+          <option value="RTPG">Rebotes/partido</option>
+          <option value="ASTPG">Asistencias/partido</option>
+          <option value="RECPG">Recuperos/partido</option>
+          <option value="PERPG">Pérdidas/partido</option>
+          <option value="T2%">% T2</option>
+          <option value="T3%">% T3</option>
+          <option value="T1%">% T1</option>
+          <option value="T3IPG">T3 Int./partido</option>
+          <option value="TAPPG">Tapones/partido</option>
+          <option value="VALPG">Val/partido</option>
+          <option value="PJ">Partidos Jugados</option>
+        </select>
+        <div class="fsb-custom-select" id="tYCustom" data-select="tY">
+  <div class="fcs-trigger" onclick="fcsToggle('tYCustom')">
+    <div class="fcs-selected">
+      <span class="fcs-name">ORtg (Ef. Ofensiva)</span>
+      <span class="fcs-sub">Pts anotados c/100 pos</span>
+    </div>
+    <svg class="fcs-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="fcs-dropdown">
+    <div class="fcs-option selected" data-value="ORtg" onclick="fcsSelect('tYCustom','ORtg','ORtg (Ef. Ofensiva)','Pts anotados c/100 pos')"><span class="fcs-name">ORtg (Ef. Ofensiva)</span><span class="fcs-sub">Pts anotados c/100 pos</span></div>
+    <div class="fcs-option" data-value="DRtg" onclick="fcsSelect('tYCustom','DRtg','DRtg (Ef. Defensiva)','Pts recibidos c/100 pos')"><span class="fcs-name">DRtg (Ef. Defensiva)</span><span class="fcs-sub">Pts recibidos c/100 pos</span></div>
+    <div class="fcs-option" data-value="NetRtg" onclick="fcsSelect('tYCustom','NetRtg','Net Rating','ORtg − DRtg')"><span class="fcs-name">Net Rating</span><span class="fcs-sub">ORtg − DRtg</span></div>
+    <div class="fcs-option" data-value="EFG%" onclick="fcsSelect('tYCustom','EFG%','EFG%','TC ajustado por triples')"><span class="fcs-name">EFG%</span><span class="fcs-sub">TC ajustado por triples</span></div>
+    <div class="fcs-option" data-value="TS%" onclick="fcsSelect('tYCustom','TS%','TS%','Incluye tiros libres')"><span class="fcs-name">TS%</span><span class="fcs-sub">Incluye tiros libres</span></div>
+    <div class="fcs-option" data-value="TOV%" onclick="fcsSelect('tYCustom','TOV%','TOV%','% pos perdidas')"><span class="fcs-name">TOV%</span><span class="fcs-sub">% pos perdidas</span></div>
+    <div class="fcs-option" data-value="ORB%" onclick="fcsSelect('tYCustom','ORB%','ORB%','% reb ofensivos')"><span class="fcs-name">ORB%</span><span class="fcs-sub">% reb ofensivos</span></div>
+    <div class="fcs-option" data-value="PACE" onclick="fcsSelect('tYCustom','PACE','PACE','Posesiones por partido')"><span class="fcs-name">PACE</span><span class="fcs-sub">Posesiones por partido</span></div>
+    <div class="fcs-option" data-value="W%" onclick="fcsSelect('tYCustom','W%','W% (% Victorias)','% de victorias')"><span class="fcs-name">W% (% Victorias)</span><span class="fcs-sub">% de victorias</span></div>
+    <div class="fcs-option" data-value="PTSPG" onclick="fcsSelect('tYCustom','PTSPG','Puntos/partido','Puntos anotados por partido')"><span class="fcs-name">Puntos/partido</span><span class="fcs-sub">Puntos anotados por partido</span></div>
+    <div class="fcs-option" data-value="POSPG" onclick="fcsSelect('tYCustom','POSPG','Posesiones/partido','Posesiones promedio')"><span class="fcs-name">Posesiones/partido</span><span class="fcs-sub">Posesiones promedio</span></div>
+    <div class="fcs-option" data-value="RTPG" onclick="fcsSelect('tYCustom','RTPG','Rebotes/partido','Rebotes totales')"><span class="fcs-name">Rebotes/partido</span><span class="fcs-sub">Rebotes totales</span></div>
+    <div class="fcs-option" data-value="ASTPG" onclick="fcsSelect('tYCustom','ASTPG','Asistencias/partido','Asistencias por partido')"><span class="fcs-name">Asistencias/partido</span><span class="fcs-sub">Asistencias por partido</span></div>
+    <div class="fcs-option" data-value="RECPG" onclick="fcsSelect('tYCustom','RECPG','Recuperos/partido','Recuperaciones por partido')"><span class="fcs-name">Recuperos/partido</span><span class="fcs-sub">Recuperaciones por partido</span></div>
+    <div class="fcs-option" data-value="PERPG" onclick="fcsSelect('tYCustom','PERPG','Pérdidas/partido','Pérdidas por partido')"><span class="fcs-name">Pérdidas/partido</span><span class="fcs-sub">Pérdidas por partido</span></div>
+    <div class="fcs-option" data-value="T2%" onclick="fcsSelect('tYCustom','T2%','% T2','% acierto tiros de 2')"><span class="fcs-name">% T2</span><span class="fcs-sub">% acierto tiros de 2</span></div>
+    <div class="fcs-option" data-value="T3%" onclick="fcsSelect('tYCustom','T3%','% T3','% acierto tiros de 3')"><span class="fcs-name">% T3</span><span class="fcs-sub">% acierto tiros de 3</span></div>
+    <div class="fcs-option" data-value="T1%" onclick="fcsSelect('tYCustom','T1%','% T1','% acierto tiros libres')"><span class="fcs-name">% T1</span><span class="fcs-sub">% acierto tiros libres</span></div>
+    <div class="fcs-option" data-value="T3IPG" onclick="fcsSelect('tYCustom','T3IPG','T3 Int./partido','Intentos de 3 por partido')"><span class="fcs-name">T3 Int./partido</span><span class="fcs-sub">Intentos de 3 por partido</span></div>
+    <div class="fcs-option" data-value="TAPPG" onclick="fcsSelect('tYCustom','TAPPG','Tapones/partido','Tapones por partido')"><span class="fcs-name">Tapones/partido</span><span class="fcs-sub">Tapones por partido</span></div>
+    <div class="fcs-option" data-value="VALPG" onclick="fcsSelect('tYCustom','VALPG','Val/partido','Valoración por partido')"><span class="fcs-name">Val/partido</span><span class="fcs-sub">Valoración por partido</span></div>
+    <div class="fcs-option" data-value="PJ" onclick="fcsSelect('tYCustom','PJ','Partidos Jugados','Partidos jugados')"><span class="fcs-name">Partidos Jugados</span><span class="fcs-sub">Partidos jugados</span></div>
+  </div>
+</div>
+      </div>
+      <div class="axis-group">
+        <label class="ax-x">→ Eje X</label>
+        <select id="tX" onchange="drawTChart()" style="display:none">
+          <option value="ORtg">ORtg (Ef. Ofensiva)</option>
+          <option value="DRtg"  selected>DRtg (Ef. Defensiva)</option>
+          <option value="NetRtg">Net Rating</option>
+          <option value="EFG%">EFG%</option>
+          <option value="TS%">TS%</option>
+          <option value="TOV%">TOV%</option>
+          <option value="ORB%">ORB%</option>
+          <option value="PACE">PACE</option>
+          <option value="W%">W% (% Victorias)</option>
+          <option value="PTSPG">Puntos/partido</option>
+          <option value="POSPG">Posesiones/partido</option>
+          <option value="RTPG">Rebotes/partido</option>
+          <option value="ASTPG">Asistencias/partido</option>
+          <option value="RECPG">Recuperos/partido</option>
+          <option value="PERPG">Pérdidas/partido</option>
+          <option value="T2%">% T2</option>
+          <option value="T3%">% T3</option>
+          <option value="T1%">% T1</option>
+          <option value="T3IPG">T3 Int./partido</option>
+          <option value="TAPPG">Tapones/partido</option>
+          <option value="VALPG">Val/partido</option>
+          <option value="PJ">Partidos Jugados</option>
+        </select>
+        <div class="fsb-custom-select" id="tXCustom" data-select="tX">
+  <div class="fcs-trigger" onclick="fcsToggle('tXCustom')">
+    <div class="fcs-selected">
+      <span class="fcs-name">DRtg (Ef. Defensiva)</span>
+      <span class="fcs-sub">Pts recibidos c/100 pos</span>
+    </div>
+    <svg class="fcs-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="fcs-dropdown">
+    <div class="fcs-option" data-value="ORtg" onclick="fcsSelect('tXCustom','ORtg','ORtg (Ef. Ofensiva)','Pts anotados c/100 pos')"><span class="fcs-name">ORtg (Ef. Ofensiva)</span><span class="fcs-sub">Pts anotados c/100 pos</span></div>
+    <div class="fcs-option selected" data-value="DRtg" onclick="fcsSelect('tXCustom','DRtg','DRtg (Ef. Defensiva)','Pts recibidos c/100 pos')"><span class="fcs-name">DRtg (Ef. Defensiva)</span><span class="fcs-sub">Pts recibidos c/100 pos</span></div>
+    <div class="fcs-option" data-value="NetRtg" onclick="fcsSelect('tXCustom','NetRtg','Net Rating','ORtg − DRtg')"><span class="fcs-name">Net Rating</span><span class="fcs-sub">ORtg − DRtg</span></div>
+    <div class="fcs-option" data-value="EFG%" onclick="fcsSelect('tXCustom','EFG%','EFG%','TC ajustado por triples')"><span class="fcs-name">EFG%</span><span class="fcs-sub">TC ajustado por triples</span></div>
+    <div class="fcs-option" data-value="TS%" onclick="fcsSelect('tXCustom','TS%','TS%','Incluye tiros libres')"><span class="fcs-name">TS%</span><span class="fcs-sub">Incluye tiros libres</span></div>
+    <div class="fcs-option" data-value="TOV%" onclick="fcsSelect('tXCustom','TOV%','TOV%','% pos perdidas')"><span class="fcs-name">TOV%</span><span class="fcs-sub">% pos perdidas</span></div>
+    <div class="fcs-option" data-value="ORB%" onclick="fcsSelect('tXCustom','ORB%','ORB%','% reb ofensivos')"><span class="fcs-name">ORB%</span><span class="fcs-sub">% reb ofensivos</span></div>
+    <div class="fcs-option" data-value="PACE" onclick="fcsSelect('tXCustom','PACE','PACE','Posesiones por partido')"><span class="fcs-name">PACE</span><span class="fcs-sub">Posesiones por partido</span></div>
+    <div class="fcs-option" data-value="W%" onclick="fcsSelect('tXCustom','W%','W% (% Victorias)','% de victorias')"><span class="fcs-name">W% (% Victorias)</span><span class="fcs-sub">% de victorias</span></div>
+    <div class="fcs-option" data-value="PTSPG" onclick="fcsSelect('tXCustom','PTSPG','Puntos/partido','Puntos anotados por partido')"><span class="fcs-name">Puntos/partido</span><span class="fcs-sub">Puntos anotados por partido</span></div>
+    <div class="fcs-option" data-value="POSPG" onclick="fcsSelect('tXCustom','POSPG','Posesiones/partido','Posesiones promedio')"><span class="fcs-name">Posesiones/partido</span><span class="fcs-sub">Posesiones promedio</span></div>
+    <div class="fcs-option" data-value="RTPG" onclick="fcsSelect('tXCustom','RTPG','Rebotes/partido','Rebotes totales')"><span class="fcs-name">Rebotes/partido</span><span class="fcs-sub">Rebotes totales</span></div>
+    <div class="fcs-option" data-value="ASTPG" onclick="fcsSelect('tXCustom','ASTPG','Asistencias/partido','Asistencias por partido')"><span class="fcs-name">Asistencias/partido</span><span class="fcs-sub">Asistencias por partido</span></div>
+    <div class="fcs-option" data-value="RECPG" onclick="fcsSelect('tXCustom','RECPG','Recuperos/partido','Recuperaciones por partido')"><span class="fcs-name">Recuperos/partido</span><span class="fcs-sub">Recuperaciones por partido</span></div>
+    <div class="fcs-option" data-value="PERPG" onclick="fcsSelect('tXCustom','PERPG','Pérdidas/partido','Pérdidas por partido')"><span class="fcs-name">Pérdidas/partido</span><span class="fcs-sub">Pérdidas por partido</span></div>
+    <div class="fcs-option" data-value="T2%" onclick="fcsSelect('tXCustom','T2%','% T2','% acierto tiros de 2')"><span class="fcs-name">% T2</span><span class="fcs-sub">% acierto tiros de 2</span></div>
+    <div class="fcs-option" data-value="T3%" onclick="fcsSelect('tXCustom','T3%','% T3','% acierto tiros de 3')"><span class="fcs-name">% T3</span><span class="fcs-sub">% acierto tiros de 3</span></div>
+    <div class="fcs-option" data-value="T1%" onclick="fcsSelect('tXCustom','T1%','% T1','% acierto tiros libres')"><span class="fcs-name">% T1</span><span class="fcs-sub">% acierto tiros libres</span></div>
+    <div class="fcs-option" data-value="T3IPG" onclick="fcsSelect('tXCustom','T3IPG','T3 Int./partido','Intentos de 3 por partido')"><span class="fcs-name">T3 Int./partido</span><span class="fcs-sub">Intentos de 3 por partido</span></div>
+    <div class="fcs-option" data-value="TAPPG" onclick="fcsSelect('tXCustom','TAPPG','Tapones/partido','Tapones por partido')"><span class="fcs-name">Tapones/partido</span><span class="fcs-sub">Tapones por partido</span></div>
+    <div class="fcs-option" data-value="VALPG" onclick="fcsSelect('tXCustom','VALPG','Val/partido','Valoración por partido')"><span class="fcs-name">Val/partido</span><span class="fcs-sub">Valoración por partido</span></div>
+    <div class="fcs-option" data-value="PJ" onclick="fcsSelect('tXCustom','PJ','Partidos Jugados','Partidos jugados')"><span class="fcs-name">Partidos Jugados</span><span class="fcs-sub">Partidos jugados</span></div>
+  </div>
+</div>
+      </div>
+      <div class="axis-group" style="min-width:130px">
+        <label>Tamaño burbuja</label>
+        <select id="tSize" onchange="drawTChart()" style="display:none">
+          <option value="none"  selected>Uniforme</option>
+          <option value="W%">W%</option>
+          <option value="NetRtg">Net Rating</option>
+          <option value="PTSPG">Puntos/partido</option>
+          <option value="POSPG">Posesiones/partido</option>
+          <option value="Ganados">Victorias</option>
+        </select>
+        <div class="fsb-custom-select" id="tSizeCustom" data-select="tSize">
+  <div class="fcs-trigger" onclick="fcsToggle('tSizeCustom')">
+    <div class="fcs-selected">
+      <span class="fcs-name">Uniforme</span>
+      <span class="fcs-sub">Todas las burbujas iguales</span>
+    </div>
+    <svg class="fcs-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </div>
+  <div class="fcs-dropdown">
+    <div class="fcs-option selected" data-value="none" onclick="fcsSelect('tSizeCustom','none','Uniforme','Todas las burbujas iguales')"><span class="fcs-name">Uniforme</span><span class="fcs-sub">Todas las burbujas iguales</span></div>
+    <div class="fcs-option" data-value="W%" onclick="fcsSelect('tSizeCustom','W%','W%','% de victorias')"><span class="fcs-name">W%</span><span class="fcs-sub">% de victorias</span></div>
+    <div class="fcs-option" data-value="NetRtg" onclick="fcsSelect('tSizeCustom','NetRtg','Net Rating','ORtg − DRtg')"><span class="fcs-name">Net Rating</span><span class="fcs-sub">ORtg − DRtg</span></div>
+    <div class="fcs-option" data-value="PTSPG" onclick="fcsSelect('tSizeCustom','PTSPG','Puntos/partido','Puntos anotados por partido')"><span class="fcs-name">Puntos/partido</span><span class="fcs-sub">Puntos anotados por partido</span></div>
+    <div class="fcs-option" data-value="POSPG" onclick="fcsSelect('tSizeCustom','POSPG','Posesiones/partido','Posesiones promedio')"><span class="fcs-name">Posesiones/partido</span><span class="fcs-sub">Posesiones promedio</span></div>
+    <div class="fcs-option" data-value="Ganados" onclick="fcsSelect('tSizeCustom','Ganados','Victorias','Victorias totales')"><span class="fcs-name">Victorias</span><span class="fcs-sub">Victorias totales</span></div>
+  </div>
+</div>
+      </div>
+      <div style="margin-left:auto;font-size:.73rem;color:var(--muted);max-width:200px;line-height:1.6;">
+        Ejes por defecto: ORtg vs DRtg<br>
+        <span style="color:var(--green)">↗ Esquina superior izquierda</span> = élite
+      </div>
+    </div>
+    <div class="chart-card"><canvas id="tCanvas"></canvas></div>
+    <div class="chart-legend" id="tLegend"></div>
+  </div>
+</div>
+
+<div class="tt" id="tooltip"></div>
+
+<!-- TEAM GAMES MODAL -->
+<div id="teamGamesBackdrop" onclick="closeTeamGames(event)">
+  <div id="teamGamesModal">
+    <div class="tgm-header">
+      <img id="tgmLogo" class="tgm-logo" alt="" onerror="this.style.display='none'">
+      <div class="tgm-title" id="tgmTitle"></div>
+      <span class="tgm-record" id="tgmRecord"></span>
+      <button class="tgm-close" onclick="closeTeamGames()">✕</button>
+    </div>
+    <div class="tgm-body" id="tgmBody">
+      <table>
+        <thead><tr>
+          <th>Fecha</th><th>Cond.</th><th>Rival</th>
+          <th>Score</th><th>Res.</th><th></th>
+        </tr></thead>
+        <tbody id="tgmTbody"></tbody>
+      </table>
+    </div>
+    <div id="tgmDetail">
+      <button class="tgm-back" onclick="onTgmBack()">‹ Volver</button>
+      <div class="tgm-scoreboard" id="tgmScoreboard"></div>
+      <div class="tgm-detail-tabs">
+        <button class="tgm-tab active" id="tgmTabStats" onclick="switchGameTab('stats')">Estadísticas</button>
+        <button class="tgm-tab" id="tgmTabMap" onclick="switchGameTab('map')">Mapa de tiro</button>
+        <button class="tgm-tab" id="tgmTabBox" onclick="switchGameTab('box')">Box Score</button>
+        <button class="tgm-tab" id="tgmTabEvol" onclick="switchGameTab('evol')">Evolución</button>
+      </div>
+      <div class="tgm-detail-body" id="tgmDetailBody"></div>
+      <div class="tgm-map-panel" id="tgmMapPanel" style="display:none">
+        <div class="sm-controls" id="smControls">
+          <div class="sm-toggle" id="smTeamToggle">
+            <button class="active" data-filter="team" data-val="all">Ambos</button>
+            <button id="smBtnLocal" data-filter="team" data-val="local">Local</button>
+            <button id="smBtnVisit" data-filter="team" data-val="visit">Visitante</button>
+          </div>
+          <div class="sm-toggle">
+            <button class="active" data-filter="tipo" data-val="all">Todos</button>
+            <button data-filter="tipo" data-val="TIRO2">Dobles</button>
+            <button data-filter="tipo" data-val="TIRO3">Triples</button>
+          </div>
+          <div class="sm-toggle">
+            <button class="active" data-filter="result" data-val="all">Conv. y Fall.</button>
+            <button data-filter="result" data-val="CONVERTIDO">Convertidos</button>
+            <button data-filter="result" data-val="FALLADO">Fallados</button>
+          </div>
+        </div>
+        <div class="sm-court-wrap">
+          <canvas id="shotMapCanvas"></canvas>
+        </div>
+        <div class="sm-legend" id="smLegend"></div>
+        <div id="smNoData" style="display:none;padding:24px;text-align:center;color:var(--muted);font-size:.82rem">
+          No hay datos de mapa de tiro para este partido.
+        </div>
+      </div>
+      <div class="tgm-box-panel" id="tgmBoxPanel" style="display:none"></div>
+      <div class="tgm-evol-panel" id="tgmEvolPanel" style="display:none"></div>
+    </div>
+  </div>
+</div>
+<div id="evolTip"></div>
+
+<!-- ============================= PARTIDOS ============================= -->
+<div class="section" id="sec-partidos">
+  <div class="tbl-toggle-wrap">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <label style="font-size:.72rem;font-weight:600;color:var(--muted)">Desde</label>
+      <input type="date" id="pDateFrom" onchange="onPartidoFilter()" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px 10px;font-size:.78rem;color:var(--text);font-family:inherit;">
+      <label style="font-size:.72rem;font-weight:600;color:var(--muted)">Hasta</label>
+      <input type="date" id="pDateTo" onchange="onPartidoFilter()" style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px 10px;font-size:.78rem;color:var(--text);font-family:inherit;">
+      <select id="pTeam" onchange="onPartidoFilter()"><option value="">Todos los equipos</option></select>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="stat-count">Mostrando <span id="pCount">—</span> partidos</div>
+      <button class="clear-btn" onclick="clearPartidoFilter()">
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        Limpiar
+      </button>
+    </div>
+  </div>
+  <div id="pGameList">
+    <div style="text-align:center;color:var(--muted);padding:48px 0;font-size:.88rem">Cargando partidos...</div>
+  </div>
+</div>
+
+<!-- ============================= POSICIONES ============================= -->
+<div class="section active" id="sec-posiciones">
+  <div class="pos-tab-bar">
+    <button class="pos-tab active" id="posTabReg" onclick="switchPosTab('regular')">Temporada Regular</button>
+    <button class="pos-tab" id="posTabPost" onclick="switchPosTab('post')">Post Temporada</button>
+  </div>
+  <div id="posRegPanel">
+    <div class="pos-outer">
+      <div class="pos-conf-block">
+        <div class="pos-conf-title">Liga Nacional · Temporada Regular</div>
+        <div class="pos-table-scroll">
+          <table class="pos-table">
+            <thead><tr>
+              <th data-tip="Posición en la tabla">#</th><th data-tip="Nombre del equipo">Equipo</th>
+              <th data-tip="Partidos jugados">PJ</th><th data-tip="Partidos ganados">G</th><th data-tip="Partidos perdidos">P</th>
+              <th data-tip="% de victorias · G / PJ">W%</th><th data-tip="Puntos anotados por partido">PTS/P</th><th data-tip="Puntos recibidos por partido">PTS REC/P</th><th data-tip="Diferencial de puntos/partido · PTS/P − PTS REC/P">DIF/P</th>
+              <th data-tip="Récord como local (G-P)">LOCAL</th><th data-tip="Récord como visitante (G-P)">VISITA</th><th data-tip="Récord en los últimos 5 partidos (G-P)">ÚLTIMOS 5</th><th></th>
+            </tr></thead>
+            <tbody id="posAllTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="posPostPanel" style="display:none">
+    <div id="playoffContent"></div>
+  </div>
+</div>
+
+<!-- ============================= TIRO POR ZONAS ============================= -->
+<div class="section" id="sec-j-tiro">
+  <div class="szc-outer">
+    <div class="szc-header">
+      <div class="szc-search-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="szcInput" placeholder="Buscar jugador..." oninput="onSzcInput()" autocomplete="off">
+        <div class="szc-autocomplete" id="szcAC" style="display:none"></div>
+      </div>
+      <div class="tbl-toggle">
+        <button class="active" id="szcPeriodAll" onclick="setSzcPeriod('all')">Temporada</button>
+        <button id="szcPeriodL5" onclick="setSzcPeriod('last5')">Últ. 5</button>
+        <button id="szcPeriodL10" onclick="setSzcPeriod('last10')">Últ. 10</button>
+      </div>
+      <div class="tbl-toggle">
+        <button class="active" id="szcLocVisAll" onclick="setSzcLocVis('all')">Todos</button>
+        <button id="szcLocVisLocal" onclick="setSzcLocVis('local')">Local</button>
+        <button id="szcLocVisVisit" onclick="setSzcLocVis('visit')">Visitante</button>
+      </div>
+    </div>
+    <div id="szcEmpty" class="szc-empty">Buscá un jugador para ver su mapa de tiro por zonas</div>
+    <div id="szcLoading" class="szc-loading" style="display:none">Cargando datos de tiro...</div>
+    <div id="szcMain" style="display:none">
+      <div class="szc-player-header">
+        <div>
+          <div class="szc-player-name" id="szcPlayerName"></div>
+          <div class="szc-player-team" id="szcPlayerTeam"></div>
+        </div>
+        <div class="szc-player-shots" id="szcPlayerShots"></div>
+      </div>
+      <div class="szc-body">
+        <div class="szc-canvas-wrap">
+          <canvas id="szcCanvas"></canvas>
+          <svg id="szcSvg" viewBox="0 0 14 15" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
+        <div class="szc-right-panel">
+          <div class="szc-zone-cards">
+            <div class="szc-zone-cards-title">Zonas</div>
+            <div id="szcZoneCards"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= CONEXIONES ============================= -->
+<div class="section" id="sec-j-conexiones">
+  <div class="cnx-outer">
+    <div class="cnx-header">
+      <span class="cnx-title">Red de Asistencias</span>
+      <div class="cnx-controls">
+        <select id="cnxTeam" onchange="onCnxTeamChange()">
+          <option value="">Seleccioná un equipo</option>
+        </select>
+        <select id="cnxPlayer" onchange="onCnxPlayerChange()" disabled>
+          <option value="">Seleccioná un jugador</option>
+        </select>
+      </div>
+    </div>
+    <div id="cnxEmpty" class="cnx-empty">Seleccioná un equipo y un jugador para ver su red de asistencias</div>
+    <div id="cnxLoading" class="cnx-loading" style="display:none">Cargando datos de jugada a jugada...</div>
+    <div id="cnxContent" style="display:none">
+      <div class="cnx-legend">
+        <div class="cnx-legend-item cnx-legend-btn" id="cnxLegGiven" onclick="cnxSetFilter('given')" style="cursor:pointer;user-select:none;border-radius:6px;padding:2px 6px;transition:background .15s">
+          <svg width="36" height="16" style="vertical-align:middle;overflow:visible"><defs><marker id="lgArP" markerWidth="12" markerHeight="16" refX="11" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0.5 L11,8 L0,15.5 L3,8 z" fill="#8b5cf6"/></marker></defs><line x1="2" y1="8" x2="22" y2="8" stroke="#8b5cf6" stroke-width="2.5" marker-end="url(#lgArP)"/></svg>
+          <span>Asistencias dadas</span>
+        </div>
+        <div class="cnx-legend-item cnx-legend-btn" id="cnxLegReceived" onclick="cnxSetFilter('received')" style="cursor:pointer;user-select:none;border-radius:6px;padding:2px 6px;transition:background .15s">
+          <svg width="36" height="16" style="vertical-align:middle;overflow:visible"><defs><marker id="lgArT" markerWidth="12" markerHeight="16" refX="11" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0.5 L11,8 L0,15.5 L3,8 z" fill="#2dd4bf"/></marker></defs><line x1="2" y1="8" x2="22" y2="8" stroke="#2dd4bf" stroke-width="2.5" marker-end="url(#lgArT)"/></svg>
+          <span>Asistencias recibidas</span>
+        </div>
+        <div class="cnx-legend-item">
+          <div class="cnx-legend-line thin"></div>
+          <span>Pocas asistencias</span>
+        </div>
+        <div class="cnx-legend-item">
+          <div class="cnx-legend-line thick"></div>
+          <span>Muchas asistencias</span>
+        </div>
+      </div>
+      <div class="cnx-canvas-wrap">
+        <svg id="cnxSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div id="cnxTooltip" class="cnx-tooltip" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= RADAR JUGADOR ============================= -->
+<div class="section" id="sec-j-radar">
+  <div class="radar-outer">
+    <div class="radar-controls">
+      <div class="radar-search-group">
+        <label style="color:var(--purple-l)">Jugador A</label>
+        <div class="radar-search-wrap">
+          <input class="radar-search-input" id="radarInputA" type="text" placeholder="Buscar jugador..." autocomplete="off" oninput="radarAcInput('A')" onkeydown="radarAcKey(event,'A')" onfocus="radarAcOpen('A')" onblur="setTimeout(()=>radarAcClose('A'),180)">
+          <div class="radar-autocomplete" id="radarAcA"></div>
+        </div>
+      </div>
+      <label class="radar-cmp-toggle">
+        <input type="checkbox" id="radarCmpCheck" onchange="radarToggleCmp()">
+        Comparar con otro jugador
+      </label>
+      <div class="radar-search-group" id="radarSearchB" style="display:none">
+        <label style="color:var(--teal-l)">Jugador B</label>
+        <div class="radar-search-wrap">
+          <input class="radar-search-input" id="radarInputB" type="text" placeholder="Buscar jugador..." autocomplete="off" oninput="radarAcInput('B')" onkeydown="radarAcKey(event,'B')" onfocus="radarAcOpen('B')" onblur="setTimeout(()=>radarAcClose('B'),180)">
+          <div class="radar-autocomplete" id="radarAcB"></div>
+        </div>
+      </div>
+    </div>
+    <div id="radarEmpty" class="radar-empty">Seleccioná un jugador para ver su perfil estadístico</div>
+    <div id="radarContent" style="display:none">
+      <div class="radar-main-row">
+        <div class="radar-chart-col">
+          <div class="radar-svg-wrap" id="radarSvgWrap"></div>
+          <div class="radar-cards-row" id="radarCards"></div>
+        </div>
+        <div class="radar-similar-col" id="radarSimilar"></div>
+      </div>
+      <div class="radar-axis-defs" id="radarAxisDefs"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= TIRO EQUIPOS ============================= -->
+<div class="section" id="sec-t-tiro">
+  <div class="szc-outer">
+    <div class="szc-header">
+      <div class="szc-search-wrap" style="display:flex;align-items:center;gap:0;">
+        <select id="tzcTeam" onchange="onTzcTeamChange()" style="width:100%;padding:7px 12px;background:var(--surface2);color:var(--text);border:1px solid var(--border2);border-radius:8px;font-size:.84rem;cursor:pointer;">
+          <option value="">Seleccioná un equipo...</option>
+        </select>
+      </div>
+      <div class="tbl-toggle">
+        <button class="active" id="tzcPeriodAll" onclick="setTzcPeriod('all')">Temporada</button>
+        <button id="tzcPeriodL5" onclick="setTzcPeriod('last5')">Últ. 5</button>
+        <button id="tzcPeriodL10" onclick="setTzcPeriod('last10')">Últ. 10</button>
+      </div>
+      <div class="tbl-toggle">
+        <button class="active" id="tzcLocVisAll" onclick="setTzcLocVis('all')">Todos</button>
+        <button id="tzcLocVisLocal" onclick="setTzcLocVis('local')">Local</button>
+        <button id="tzcLocVisVisit" onclick="setTzcLocVis('visit')">Visitante</button>
+      </div>
+    </div>
+    <div id="tzcEmpty" class="szc-empty">Seleccioná un equipo para ver su mapa de tiro por zonas</div>
+    <div id="tzcLoading" class="szc-loading" style="display:none">Cargando datos de tiro...</div>
+    <div id="tzcMain" style="display:none">
+      <div class="szc-player-header">
+        <div>
+          <div class="szc-player-name" id="tzcTeamName"></div>
+        </div>
+        <div class="szc-player-shots" id="tzcTeamShots"></div>
+      </div>
+<div class="szc-body">
+        <div class="szc-canvas-wrap">
+          <canvas id="tzcCanvas"></canvas>
+          <svg id="tzcSvg" viewBox="0 0 14 15" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
+        <div class="szc-right-panel">
+          <div class="szc-zone-cards">
+            <div class="szc-zone-cards-title">Zonas</div>
+            <div id="tzcZoneCards"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= CONEXIONES EQUIPO ============================= -->
+<div class="section" id="sec-t-conexiones">
+  <div class="qnt-outer">
+    <div class="qnt-header">
+      <span class="qnt-title">Conexiones entre Jugadores</span>
+      <div class="qnt-filters">
+        <select id="tCnxTeam" onchange="onTCnxTeamChange()">
+          <option value="">Seleccioná un equipo</option>
+        </select>
+      </div>
+    </div>
+    <div id="tCnxEmpty" class="qnt-empty">Seleccioná un equipo para ver las principales conexiones entre jugadores</div>
+    <div id="tCnxLoading" class="qnt-loading" style="display:none">Cargando datos de jugada a jugada...</div>
+    <div id="tCnxContent" style="display:none">
+      <div id="tCnxCheck" style="font-size:.78rem;color:var(--muted);padding:6px 0 10px;display:flex;align-items:center;gap:8px"></div>
+      <div class="qnt-table-wrap">
+        <table class="qnt-table" id="tCnxTable">
+          <thead id="tCnxThead"></thead>
+          <tbody id="tCnxTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= QUINTETOS ============================= -->
+<div class="section" id="sec-quintetos">
+  <div class="qnt-outer">
+    <div class="qnt-header">
+      <span class="qnt-title">Mejores Quintetos</span>
+      <div class="qnt-filters">
+        <select id="qntTeam" onchange="onQTeamChange()">
+          <option value="">Toda la liga</option>
+        </select>
+        <select id="qntMinMin" onchange="renderQuintetos()">
+          <option value="2">2+ min</option>
+          <option value="5" selected>5+ min</option>
+          <option value="10">10+ min</option>
+          <option value="20">20+ min</option>
+        </select>
+      </div>
+      <span class="qnt-count" id="qntCount"></span>
+    </div>
+    <div id="qntEmpty" class="qnt-empty">Seleccioná un equipo para ver sus quintetos</div>
+    <div id="qntLoading" class="qnt-loading" style="display:none">Cargando datos de jugada a jugada...</div>
+    <div id="qntContent" style="display:none">
+      <div class="qnt-table-wrap">
+        <table class="qnt-table" id="qntTable">
+          <thead id="qntThead"></thead>
+          <tbody id="qntTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= LÍDERES ============================= -->
+<div class="section" id="sec-lideres">
+  <div class="leaders-outer">
+    <div class="leaders-header">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <h2 id="leadersTitle">Líderes <span>·</span> Post Temporada</h2>
+          <p id="leadersSubtitle">Promedio por partido · mín. 1 partido jugado · porcentajes con mín. 3 intentos</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap">
+          <select class="leaders-select" id="lPhaseSelect" onchange="setLPhase(this.value)">
+            <option value="regular" selected>Fase de Grupos</option>
+            <option value="post">Playoffs / Medallero</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="leaders-grid" id="leadersGrid"></div>
+  </div>
+</div>
+
+<div id="thTip"></div>
+
+<script src="argentina_formativas.js"></script>
+<footer style="text-align:center;padding:18px 40px;margin-top:12px;border-top:1px solid var(--border);color:var(--muted);font-size:.78rem;display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;">
+  <a href="mailto:scoutea2@gmail.com" style="color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:color .2s;" onmouseover="this.style.color='var(--purple-l)'" onmouseout="this.style.color='var(--muted)'">✉ scoutea2@gmail.com</a>
+  <a href="https://instagram.com/scouteado" target="_blank" rel="noopener noreferrer" style="color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:color .2s;" onmouseover="this.style.color='var(--teal-l)'" onmouseout="this.style.color='var(--muted)'"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg> @scouteado</a>
+</footer>
+</div><!-- #mainApp -->
+</body>
+</html>
