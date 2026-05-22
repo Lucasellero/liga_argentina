@@ -487,6 +487,16 @@ ASISTENCIA   ← la asistencia a esa canasta
 ```
 El código de `computeConnections` y `computeTeamConnections` en `argentina_formativas.js` busca `CANASTA-1P | CANASTA-2P | CANASTA-3P` al retroceder desde cada `ASISTENCIA`. **No omitir `CANASTA-1P`**: de los 634 eventos `ASISTENCIA` del torneo, 71 (11%) corresponden a and-ones y se perderían. Las ligas regulares no tienen este caso porque las canastas con foul se registran como `CANASTA-2P` seguidas del tiro libre separado.
 
+### Bug documentado: etiquetas SVG ausentes en Equipos>Tiros (corregido 22/05/2026)
+
+`renderTzcZoneChart` pasaba `isLiga ? null : LEAGUE_ZONE_STATS` como segundo argumento a `szcUpdateSvg`. Cuando `isLiga=true` (opción "— Liga —"), `leagueStats=null` hacía que los gradientes de color en las `<defs>` del SVG tuvieran opacidades muy bajas, ocultando visualmente las etiquetas. La función del jugador (`renderZoneChart`) siempre pasa `LEAGUE_ZONE_STATS` directamente, nunca `null`.
+
+**Regla**: en `renderTzcZoneChart`, la llamada a `szcUpdateSvg` siempre debe ser:
+```js
+szcUpdateSvg(pStats, LEAGUE_ZONE_STATS, 'tzcSvg');
+```
+Igual que en `renderZoneChart` — nunca usar el condicional `isLiga ? null : ...` para el argumento de `leagueStats`.
+
 ### Integridad de datos (verificada 22/05/2026)
 
 | Cruce | Resultado |
