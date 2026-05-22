@@ -29,8 +29,10 @@
         }
       }
     } catch(e) {}
+    const loginEl = document.getElementById('headerLogin');
+    if (loginEl) loginEl.style.display = 'none';
   } else {
-    const delay = 420000; // 7 min
+    const delay = 300000; // 5 min
     const SK = 'scouteado_session_start';
     if (!sessionStorage.getItem(SK)) sessionStorage.setItem(SK, Date.now());
     const elapsed = Date.now() - parseInt(sessionStorage.getItem(SK));

@@ -46,11 +46,13 @@ El `login.html` y `register.html` viven en `docs/` (raíz) y son compartidos por
 
 **Flujo de login:**
 1. Cada `docs/<liga>/index.html` tiene un auth guard al inicio del script.
-2. Si el token es válido, muestra el nombre del usuario en el header y deja navegar libremente.
-3. Si no hay token (o está expirado), el usuario puede navegar libremente. Después de **7 minutos exactos** (`setTimeout` de 420000ms) aparece un modal bloqueante sin botón de cerrar que obliga al login o registro.
+2. Si el token es válido, muestra el nombre del usuario en el header y oculta el botón `#headerLogin`.
+3. Si no hay token (o está expirado), se muestra el botón **"Iniciar sesión"** (`#headerLogin`) en el header en todo momento. Después de **5 minutos exactos** (`setTimeout` de 300000ms) aparece un modal bloqueante sin botón de cerrar que obliga al login o registro.
 4. El modal tiene dos botones: "Iniciar sesión" → `login.html` y "Registrarme gratis" → `register.html`.
 5. `login.html` lee el parámetro `returnTo` después del login exitoso y redirige a esa ruta. Si no hay `returnTo`, vuelve a `index.html` (liga_argentina).
 6. El logout (`authLogout()`) redirige a `../login.html?returnTo=<liga>/`.
+
+**Botón `#headerLogin`:** `<a>` con `id="headerLogin"` ubicado en el header (esquina superior derecha), junto a `#headerUser`. Visible por defecto en el HTML (`display:inline-flex`). El auth guard lo oculta (`display:none`) si el usuario está autenticado. Lleva a `../login.html?returnTo=<liga>/`. Al agregar una nueva liga, copiar el elemento con el `returnTo` correcto.
 
 **Nota:** el tiempo transcurrido se persiste en `sessionStorage` con la clave `scouteado_session_start`. Si el usuario recarga la página, el timer continúa desde donde quedó. Al cerrar la pestaña, `sessionStorage` se limpia y el timer vuelve a 0. Si navega entre ligas dentro de la misma pestaña, la clave persiste y el tiempo sigue corriendo.
 
