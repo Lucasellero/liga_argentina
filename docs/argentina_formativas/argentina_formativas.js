@@ -190,6 +190,7 @@ function buildRAW_T(rows) {
             ptsAgainst: parseFloat(opp['Puntos']) || 0,
             ganado: my['Ganado'] === 'True' || my['Ganado'] === '1' || my['Ganado'] === 1,
             estadio: my['Estadio'] || '',
+            etapa: my['Etapa'] || '',
             myS: extractS(my), oppS: extractS(opp),
           });
         }
@@ -288,7 +289,7 @@ const _SUB_GROUP = {
   'j-tabla':'jugadores','j-tiro':'jugadores','j-chart':'jugadores','j-conexiones':'jugadores','j-radar':'jugadores'
 };
 const _SUB_IDX = {
-  't-tabla':0,'t-tcmp':1,'t-chart':2,'quintetos':3,'trios':4,'duplas':5,'t-tiro':6,'t-conexiones':7,
+  't-tabla':0,'t-tiro':1,'quintetos':2,'trios':3,'duplas':4,'t-conexiones':5,'t-tcmp':6,'t-chart':7,
   'j-tabla':0,'j-tiro':1,'j-chart':2,'j-conexiones':3,'j-radar':4
 };
 
@@ -1344,6 +1345,50 @@ function renderStandings() {
       <td class="pos-row-chevron">›</td>
     </tr>`;
   });
+}
+
+function renderAllGames() {
+  const container = document.getElementById('allGamesContainer');
+  if (!container) return;
+
+  const ETAPA_ORDER = ['Grupo A','Grupo B','5°-8° puesto','Semifinal','7° Puesto','5° Puesto','Bronce','Final'];
+  const played = GAMES_ALL.filter(g => !g.upcoming && g.ptsLocal !== null);
+
+  const byEtapa = new Map();
+  played.forEach(g => {
+    const e = g.etapa || 'Otros';
+    if (!byEtapa.has(e)) byEtapa.set(e, []);
+    byEtapa.get(e).push(g);
+  });
+
+  const etapas = [...byEtapa.keys()].sort((a, b) => {
+    const ia = ETAPA_ORDER.indexOf(a), ib = ETAPA_ORDER.indexOf(b);
+    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+  });
+
+  let html = '';
+  etapas.forEach(etapa => {
+    const games = byEtapa.get(etapa);
+    html += `<div class="ag-etapa-block">
+      <div class="ag-etapa-title">${etapa}</div>
+      <div class="ag-games-list">`;
+    games.forEach(g => {
+      const localLogo = LOGOS[g.local] ? `<img src="${LOGOS[g.local]}" style="width:22px;height:22px;object-fit:contain">` : '';
+      const visitLogo = LOGOS[g.visit] ? `<img src="${LOGOS[g.visit]}" style="width:22px;height:22px;object-fit:contain">` : '';
+      const localStyle = g.ganLocal === true ? 'color:var(--text-bright);font-weight:700' : 'color:var(--muted)';
+      const visitStyle = g.ganLocal === false ? 'color:var(--text-bright);font-weight:700' : 'color:var(--muted)';
+      const safeId = g.gameId.replace(/'/g, "\\'");
+      html += `<div class="ag-game-row" onclick="openPartidoModal(GAMES_ALL.find(x=>x.gameId==='${safeId}'))">
+        <span class="ag-fecha">${g.fecha}</span>
+        <span class="ag-team ag-team-local" style="${localStyle}">${localLogo}${g.local}</span>
+        <span class="ag-score">${g.ptsLocal} – ${g.ptsVisit}</span>
+        <span class="ag-team ag-team-visit" style="${visitStyle}">${visitLogo}${g.visit}</span>
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+
+  container.innerHTML = html;
 }
 
 function switchPosTab(tab) {
@@ -2467,6 +2512,7 @@ async function initApp() {
             ptsVisit: isLocal ? g.ptsAgainst : g.ptsFor,
             ganLocal: isLocal ? g.ganado : !g.ganado,
             estadio:  g.estadio || '',
+            etapa:    g.etapa || '',
             sLocal:   isLocal ? g.myS : g.oppS,
             sVisit:   isLocal ? g.oppS : g.myS,
           });
@@ -2527,6 +2573,7 @@ async function initApp() {
     onJFilter();
     onTFilter();
     renderStandings();
+    renderAllGames();
     document.getElementById('badgePlayers').textContent = PLAYERS.length + ' Jugadores';
 
   } catch(err) {
