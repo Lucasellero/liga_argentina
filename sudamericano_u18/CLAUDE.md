@@ -269,13 +269,17 @@ Valores de referencia verificados en el dataset:
 El dashboard usa una **media cancha en landscape** con estas proporciones:
 
 ```
-H = W × (FIBA_H / FIBA_W) = W × (175 / 280) ≈ W × 0.625
+H = W × (FIBA_H / FIBA_W) = W × (261 / 280) ≈ W × 0.932
 Scale S = W / 280  (pixels por unidad FIBA, igual en x e y)
 canvas_x = fx × S
 canvas_y = fy × S
 ```
 
-`FIBA_H = 175` cubre todos los tiros de 3pt (el tiro frontal más lejano llega a y≈170).
+`FIBA_H = 261` corresponde a la profundidad real de la media cancha FIBA (14m = 522/2 unidades). Usar 175 era incorrecto: el arco de 3pt llega a y≈170, dejando la zona ABOVE_BREAK como un sliver de 5px y recortando los tiros lejanos (y hasta 254).
+
+**Arco de 3pt en el canvas** (`drawCourt`): se dibuja con `anticlockwise=true` (counterclockwise). El arco va desde la unión izquierda (17, ~94.6) bajando hasta el punto más lejano (140, 170) y subiendo hasta la unión derecha (263, ~94.6). `anticlockwise=false` lo haría ir por arriba del aro (fuera de pantalla).
+
+**Arco de 3pt en el SVG overlay** (`szcUpdateSvg`): se dibuja con `sweep=0` (counterclockwise en SVG). Mismo razonamiento: `sweep=1` traza el arco que bordea la línea de fondo en lugar del arco exterior.
 
 ### Clasificación de zonas (7 zonas)
 
@@ -372,31 +376,88 @@ for gid, ta, tb in games:
 
 ## Dashboard — `docs/argentina_formativas/`
 
-El dashboard vive en `docs/argentina_formativas/` y replica la funcionalidad de Liga Nacional.
+El dashboard vive en `docs/argentina_formativas/` y está basado en el de Liga Nacional con las siguientes diferencias intencionales para adaptarse al formato torneo.
 
-### Archivos generados por `transform_to_liga_format.py`
+### Archivos del dashboard
 
-| Archivo | Descripción |
+```
+docs/argentina_formativas/
+  index.html                      # SPA del dashboard
+  argentina_formativas.js         # lógica JS (~4200 líneas)
+  argentina_formativas.csv        # box score transformado (515 filas player + 40 TOTALES)
+  argentina_formativas_shots.csv  # tiros con coordenadas FIBA nativas x/y (3518 filas)
+  argentina_formativas_pbp.csv    # jugada a jugada en formato Liga Nacional (11351 filas)
+  logos/                          # logos de las 8 selecciones (arg.png, bra.png, etc.)
+```
+
+Los 3 CSVs son generados por `sudamericano_u18/transform_to_liga_format.py`.
+
+**Diferencia clave en shots CSV**: usa columnas `x`/`y` (unidades FIBA, rango 0–280 × 0–270) en lugar de `Left_pct`/`Top_pct`. Todo el código de renderizado en `argentina_formativas.js` fue adaptado para leer estas columnas directamente.
+
+### Header
+
+- Logo: `../liga_argentina/logos/scouteado_logo.png` (90×90px, mismo que Liga Argentina)
+- Favicon: `../liga_argentina/logos/scouteados_favicon.png`
+- Badge `#badgePlayers`: se actualiza en `initApp()` con `PLAYERS.length + ' Jugadores'`
+- Badge fijo: `'8 Selecciones'`
+- Sin botones de navegación cruzada entre ligas (página oculta)
+
+### Navegación
+
+Nav principal con solo **3 secciones** (vs 5 en ligas regulares):
+
+| Main tab | Sub-secciones |
 |---|---|
-| `argentina_formativas.csv` | Box score en formato Liga Nacional (515 filas player + 40 TOTALES) |
-| `argentina_formativas_shots.csv` | Tiros con coordenadas FIBA nativas `x`/`y` (3518 filas) |
-| `argentina_formativas_pbp.csv` | Jugada a jugada en formato Liga Nacional (11351 filas) |
+| Home | — (`sec-posiciones`) |
+| Equipos | Tabla · Comparar · Scatter · Quintetos · Tiro · Conexiones |
+| Jugadores | Tabla · Tiro · Comparar · Conexiones · Radar |
 
-**Diferencia clave con las otras ligas**: el shots CSV usa columnas `x`/`y` (unidades FIBA) en lugar de `Left_pct`/`Top_pct`. Todo el código de renderizado en `argentina_formativas.js` fue adaptado para leer estas columnas directamente.
+**Secciones eliminadas** (no aplican a torneo):
+- **Destacados** (`sec-lideres`): torneo de 20 partidos, sin acumulación suficiente para líderes.
+- **Fixture** (`sec-partidos`): el torneo ya terminó, no hay partidos próximos.
+
+### Filtros eliminados (stubs no-op)
+
+Los siguientes filtros están **stubbed como no-ops** en `argentina_formativas.js` y sus botones no existen en el HTML:
+
+- **Período** (Últimos 5 / Últimos 10): torneo de 3–5 partidos por equipo, sin sentido estadístico.
+- **Condición** (Local / Visitante): sede neutral (Asunción), distinción arbitraria.
+
+Las variables `jPeriod`, `tPeriod`, `szcPeriod`, `tzcPeriod`, `jLocVis`, `tLocVis`, `szcLocVis`, `tzcLocVis` existen pero siempre valen `'all'`. Las funciones setter son no-ops.
 
 ### Configuración específica del JS
 
 ```javascript
-PLAYOFF_DATE  = new Date(2025, 11, 13)  // 13 dic = inicio fase de medallas
-CONF_NORTE    = Set(['ARG','URU','COL','ECU'])  // Grupo A
-CONF_SUR      = Set(['BRA','CHI','PAR','VEN'])  // Grupo B
-RADAR_MIN_SEG = 600   // 10 min mínimo (torneo corto, vs 12000 en ligas regulares)
+PLAYOFF_DATE  = new Date(2025, 11, 13)      // 13 dic = inicio fase de medallas
+CONF_NORTE    = new Set(['ARG','URU','COL','ECU'])  // Grupo A
+CONF_SUR      = new Set(['BRA','CHI','PAR','VEN'])  // Grupo B
+RADAR_MIN_SEG = 600                          // 10 min mínimo (vs 12000 en ligas regulares)
 ```
+
+### Constantes del shot chart (`argentina_formativas.js`)
+
+```javascript
+const FIBA_W   = 280;  // ancho total en unidades FIBA (15m)
+const FIBA_H   = 261;  // profundidad media cancha (14m = 522/2 unidades FIBA)
+const FIBA_BX  = 140;  // basket center x
+const FIBA_BY  = 32;   // basket center y (~1.7m desde la línea de fondo)
+const FIBA_R3  = 138;  // radio arco 3pt (≈6.6m, ajustado empíricamente)
+const FIBA_PW2 = 46;   // semiancho de la pintura (≈2.45m)
+const FIBA_PD  = 109;  // profundidad de la pintura / línea TL (≈5.8m)
+const FIBA_FTR = 34;   // radio del círculo de tiro libre (≈1.8m)
+const FIBA_RAR = 23;   // radio área restringida (≈1.25m)
+const FIBA_CX  = 17;   // x del corner (≈0.9m desde la lateral)
+```
+
+Canvas: `H = W × (FIBA_H / FIBA_W)`, escala uniforme `S = W / FIBA_W`. Centro del label ABOVE_BREAK en el SVG: `[140, 215]` (centro del rango y=170..261).
+
+FIBA pre-normaliza todos los tiros al mismo aro — no hace falta espejar Q3/Q4. Tiros libres tienen `x=0, y=0` y son ignorados en el shot chart.
 
 ### Acceso restringido
 
-Página oculta (no aparece en la navegación entre ligas). Acceso controlado por lista de IDs en el auth guard de `argentina_formativas.js`:
+Página oculta (no aparece en la navegación entre ligas). El auth guard al inicio de `argentina_formativas.js` admite dos vías:
 
+1. **UUID en `ALLOWED`** (lista hardcodeada):
 ```javascript
 const ALLOWED = new Set([
   '996a7324-08c2-47de-bc55-4219c7d144fd', // ramiellero@gmail.com
@@ -404,8 +465,19 @@ const ALLOWED = new Set([
   'dac0503f-0e85-4d28-ac58-66fce78afcbd', // lucasellero05@gmail.com
 ]);
 ```
+2. **`user_metadata.formativas_access === true`** en Supabase (para escalar sin tocar código).
 
-Para dar acceso a un usuario nuevo: agregar su UUID de Supabase a `ALLOWED` y pushear.
+Para dar acceso a un usuario nuevo: agregar su UUID a `ALLOWED` y pushear, **o** setear `formativas_access: true` en su metadata de Supabase.
+
+### Integridad de datos (verificada 22/05/2026)
+
+| Cruce | Resultado |
+|---|---|
+| Stats ↔ Shots (T2I, T3I, T1I, T2A, T3A, T1A) | Diferencia 0 en los 20 partidos |
+| Stats ↔ PBP (PTS, T2A, T3A, T1A, AST, REC) | Diferencia 0 |
+| Stats ↔ PBP (DREB, OREB) | Diferencia esperada: PBP incluye rebotes de equipo no atribuidos a jugador |
+| Stats ↔ PBP (PER) | Diferencia de −2 en todo el torneo (mínima, eventos en límite de período) |
+| Zonas shot chart | 1624 TIRO2 + 1179 TIRO3 con zona válida (0 nulos) |
 
 ### Para regenerar los CSVs del dashboard
 
