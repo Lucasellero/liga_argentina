@@ -3054,16 +3054,15 @@ function renderTzcZoneChart(canvas, teamShots) {
     LEAGUE_ZONE_STATS = szcComputeStats(all);
   }
 
-  const isLiga = tzcCurrentTeam === '__LIGA__';
   const pStats = szcComputeStats(teamShots);
-  szcDrawZoneColors(ctx, W, H, m, pStats, isLiga ? null : LEAGUE_ZONE_STATS);
-  szcUpdateSvg(pStats, isLiga ? null : LEAGUE_ZONE_STATS, 'tzcSvg');
+  szcDrawZoneColors(ctx, W, H, m, pStats, LEAGUE_ZONE_STATS);
+  szcUpdateSvg(pStats, LEAGUE_ZONE_STATS, 'tzcSvg');
   const _tlvShots = tzcApplyLocVis(tzcTeamAllShots);
   const _tlvGIds = tzcLocVis === 'all' ? tzcTeamGameIds : null;
   const statsAll = szcComputeStats(szcFilterByPeriod(_tlvShots, 'all', _tlvGIds));
   const statsL10 = szcComputeStats(szcFilterByPeriod(_tlvShots, 'last10', _tlvGIds));
   const statsL5  = szcComputeStats(szcFilterByPeriod(_tlvShots, 'last5', _tlvGIds));
-  tzcRenderZoneCards(statsAll, statsL10, statsL5, isLiga ? null : LEAGUE_ZONE_STATS);
+  tzcRenderZoneCards(statsAll, statsL10, statsL5, LEAGUE_ZONE_STATS);
 }
 
 function setTzcPeriod(period) { /* filtro desactivado en este torneo */ }
