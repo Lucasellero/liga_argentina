@@ -148,7 +148,7 @@ function buildRAW_T(rows) {
       T1A: 0, T1I: 0, RD: 0, RO: 0, RT: 0, AST: 0, REC: 0, PER: 0, TAP: 0, VAL: 0
     };
     const t = map[eq];
-    const ganado = r['Ganado'] === 'True';
+    const ganado = r['Ganado'] === 'True' || r['Ganado'] === '1' || r['Ganado'] === 1;
     const esLocal = r['Condicion equipos'] === 'LOCAL';
     t.PJ++; if (ganado) t.Ganados++; else t.Perdidos++;
     if (esLocal) { if (ganado) t.LocalG++; else t.LocalP++; }
@@ -188,7 +188,7 @@ function buildRAW_T(rows) {
             condicion: my['Condicion equipos'],
             ptsFor: parseFloat(my['Puntos']) || 0,
             ptsAgainst: parseFloat(opp['Puntos']) || 0,
-            ganado: my['Ganado'] === 'True',
+            ganado: my['Ganado'] === 'True' || my['Ganado'] === '1' || my['Ganado'] === 1,
             estadio: my['Estadio'] || '',
             myS: extractS(my), oppS: extractS(opp),
           });
@@ -330,7 +330,6 @@ function switchSection(id) {
     document.getElementById('cmpPanel').style.display = isTcmp ? 'block' : 'none';
     document.getElementById('tCtrlBody').style.display = isTcmp ? 'none' : '';
   }
-  if(id==='partidos') showUpcomingDefault();
   if(id==='j-tiro') {
     const main = document.getElementById('szcMain');
     if (main && main.style.display !== 'block') {
@@ -498,13 +497,7 @@ function getPlayerData(p) {
   return p;
 }
 
-function setJPeriod(period) {
-  jPeriod=period;
-  ['jPeriodAll','jPeriodL5','jPeriodL10'].forEach(id=>document.getElementById(id).classList.remove('active'));
-  const map={all:'jPeriodAll',last5:'jPeriodL5',last10:'jPeriodL10'};
-  document.getElementById(map[period]).classList.add('active');
-  renderJTable();
-}
+function setJPeriod(period) { /* filtro desactivado en este torneo */ }
 
 function setJPhase(v) {
   jPhase=v;
@@ -514,13 +507,7 @@ function setJPhase(v) {
   onJFilter();
 }
 
-function setJLocVis(v) {
-  jLocVis=v;
-  ['jLocVisAll','jLocVisLocal','jLocVisVisit'].forEach(id=>document.getElementById(id).classList.remove('active'));
-  const map={all:'jLocVisAll',local:'jLocVisLocal',visit:'jLocVisVisit'};
-  document.getElementById(map[v]).classList.add('active');
-  renderJTable();
-}
+function setJLocVis(v) { /* filtro desactivado en este torneo */ }
 
 function renderJTable() {
   if(document.getElementById('jCardAdv').style.display!=='none'){renderJAdvTable();}
@@ -785,13 +772,7 @@ function getTeamData(t) {
   return t;
 }
 
-function setTPeriod(period) {
-  tPeriod=period;
-  ['tPeriodAll','tPeriodL5','tPeriodL10'].forEach(id=>document.getElementById(id).classList.remove('active'));
-  const map={all:'tPeriodAll',last5:'tPeriodL5',last10:'tPeriodL10'};
-  document.getElementById(map[period]).classList.add('active');
-  renderTTable();
-}
+function setTPeriod(period) { /* filtro desactivado en este torneo */ }
 
 function setTPhase(v) {
   tPhase=v;
@@ -801,26 +782,9 @@ function setTPhase(v) {
   onTFilter();
 }
 
-function setLPhase(v) {
-  lPhase=v;
-  const sel=document.getElementById('lPhaseSelect'); if(sel) sel.value=v;
-  const titleEl=document.getElementById('leadersTitle');
-  const subEl=document.getElementById('leadersSubtitle');
-  if(titleEl) titleEl.innerHTML = v==='post' ? 'Líderes <span>·</span> Post Temporada' : 'Líderes <span>·</span> Últimos 5 Partidos';
-  if(subEl) subEl.textContent = v==='post'
-    ? 'Promedio por partido · mín. 1 partido jugado · porcentajes con mín. 3 intentos'
-    : 'Promedio por partido · mín. 1 partido jugado · porcentajes con mín. 3 intentos';
-  LEADERS_DATA = v==='post' ? LEADERS_DATA_POST : LEADERS_DATA_REGULAR;
-  buildLeaders();
-}
+function setLPhase(v) { /* sección eliminada */ }
 
-function setTLocVis(v) {
-  tLocVis=v;
-  ['tLocVisAll','tLocVisLocal','tLocVisVisit'].forEach(id=>document.getElementById(id).classList.remove('active'));
-  const map={all:'tLocVisAll',local:'tLocVisLocal',visit:'tLocVisVisit'};
-  document.getElementById(map[v]).classList.add('active');
-  renderTTable();
-}
+function setTLocVis(v) { /* filtro desactivado en este torneo */ }
 
 function renderTTable() {
   if(document.getElementById('tCardAdv')&&document.getElementById('tCardAdv').style.display!=='none'){renderTAdvTable();}
@@ -1285,38 +1249,7 @@ let LEADERS_DATA_POST = {};
 const LEADER_ICONS = {};
 const LEADER_COLORS = ['r1','r2','r3','',''];
 
-function buildLeaders() {
-  const grid = document.getElementById('leadersGrid');
-  if(!grid) return;
-  grid.innerHTML = '';
-  Object.values(LEADERS_DATA).forEach(cat => {
-    const card = document.createElement('div');
-    card.className = 'leader-card';
-    const rows = cat.entries.slice(0,5).map((e,i) => {
-      const isPct = cat.key.endsWith('PCT');
-      const displayVal = isPct ? e.val.toFixed(1)+'%' : (e.val % 1 === 0 ? e.val.toFixed(0) : e.val.toFixed(1));
-      const initials = e.name.split(',')[0].trim().slice(0,2);
-      return `<div class="leader-row ${i===0?'rank-1':''}">
-        <span class="leader-rank ${LEADER_COLORS[i]||''}">${i+1}</span>
-        <div class="leader-avatar ${i===0?'av1':''}">${initials}</div>
-        <div class="leader-info">
-          <div class="leader-name">${e.name}</div>
-          <div class="leader-team" style="display:flex;align-items:center;gap:4px">${teamLogoHtml(e.equipo,14)}${e.equipo}</div>
-        </div>
-        <div class="leader-val-wrap">
-          <div class="leader-val">${displayVal}</div>
-          <div class="leader-gp">${e.gp} PJ</div>
-        </div>
-      </div>`;
-    }).join('');
-    card.innerHTML = `<div class="leader-card-header">
-      <h3>${cat.label}</h3>
-      <div class="lc-bar"></div>
-    </div>
-    <div class="leader-card-body">${rows}</div>`;
-    grid.appendChild(card);
-  });
-}
+function buildLeaders() { /* sección eliminada */ }
 
 // ============================================================
 // POSICIONES
@@ -1700,7 +1633,7 @@ function drawCourt(ctx, W, H) {
   const angLeft  = Math.atan2(p(jY) - byp, cxLp - bxp);
   const angRight = Math.atan2(p(jY) - byp, cxRp - bxp);
   ctx.beginPath();
-  ctx.arc(bxp, byp, p(FIBA_R3), angLeft, angRight, true); // true = counterclockwise → goes through bottom (top of key)
+  ctx.arc(bxp, byp, p(FIBA_R3), angLeft, angRight, true); // true = counterclockwise → goes outward (away from endline, through y=170)
   ctx.stroke();
 }
 
@@ -2104,54 +2037,9 @@ function _partidoFechaToDate(s) {
   return new Date(+y, +m-1, +d);
 }
 
-function onPartidoFilter() {
-  const team    = document.getElementById('pTeam').value;
-  const fromStr = document.getElementById('pDateFrom').value;
-  const toStr   = document.getElementById('pDateTo').value;
-  const fromD   = fromStr ? new Date(fromStr + 'T00:00:00') : null;
-  const toD     = toStr   ? new Date(toStr   + 'T23:59:59') : null;
-  const filtered = GAMES_ALL.filter(g => {
-    if (team && g.local !== team && g.visit !== team) return false;
-    if (fromD || toD) {
-      const gd = _partidoFechaToDate(g.fecha);
-      if (fromD && gd < fromD) return false;
-      if (toD   && gd > toD)   return false;
-    }
-    return true;
-  });
-  document.getElementById('pCount').textContent = filtered.length;
-  renderPartidoList(filtered);
-}
-
-function showUpcomingDefault() {
-  document.getElementById('pTeam').value = '';
-  const toISO = s => { const [d,m,y]=s.split('/'); return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`; };
-  const now = new Date();
-  const todayISO = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-  const todayGames = GAMES_ALL.filter(g => toISO(g.fecha) === todayISO);
-  if (todayGames.length) {
-    document.getElementById('pDateFrom').value = todayISO;
-    document.getElementById('pDateTo').value   = todayISO;
-    renderPartidoList(todayGames, true);
-  } else {
-    const upcoming = GAMES_ALL.filter(g => g.upcoming);
-    if (upcoming.length) {
-      const nextISO = toISO(upcoming[0].fecha);
-      const nextGames = upcoming.filter(g => toISO(g.fecha) === nextISO);
-      document.getElementById('pDateFrom').value = nextISO;
-      document.getElementById('pDateTo').value   = nextISO;
-      renderPartidoList(nextGames, true);
-    } else {
-      document.getElementById('pDateFrom').value = '';
-      document.getElementById('pDateTo').value   = '';
-      renderPartidoList([], true);
-    }
-  }
-}
-
-function clearPartidoFilter() {
-  showUpcomingDefault();
-}
+function onPartidoFilter() { /* sección eliminada */ }
+function showUpcomingDefault() { /* sección eliminada */ }
+function clearPartidoFilter() { /* sección eliminada */ }
 
 function _formatFechaLarga(s) {
   const date = _partidoFechaToDate(s);
@@ -2161,95 +2049,7 @@ function _formatFechaLarga(s) {
 const TEAM_NAME_BREAKS = {'CENTRAL ENTRERRIANO':'CENTRAL<br>ENTRERRIANO'};
 function fmtTeamName(name){return TEAM_NAME_BREAKS[name]||name;}
 
-function renderPartidoList(games, ascending=false) {
-  const el = document.getElementById('pGameList');
-  document.getElementById('pCount').textContent = games.length;
-  if (!games.length) {
-    el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:48px 0;font-size:.88rem">No hay partidos para los filtros seleccionados.</div>';
-    return;
-  }
-  // Group by fecha
-  const byDate = {};
-  games.forEach(g => { if (!byDate[g.fecha]) byDate[g.fecha]=[]; byDate[g.fecha].push(g); });
-  const sortedDates = Object.keys(byDate).sort((a,b) => ascending
-    ? _partidoFechaToDate(a) - _partidoFechaToDate(b)
-    : _partidoFechaToDate(b) - _partidoFechaToDate(a));
-
-  let html = '';
-  sortedDates.forEach(fecha => {
-    const dayGames = byDate[fecha];
-    const label = _formatFechaLarga(fecha);
-    const cards  = dayGames.map(g => {
-      const ll = LOGOS[g.local]  ? `<img src="${LOGOS[g.local]}"  class="pcard-logo" alt="" onerror="this.style.display='none'">` : '';
-      const vl = LOGOS[g.visit]  ? `<img src="${LOGOS[g.visit]}"  class="pcard-logo" alt="" onerror="this.style.display='none'">` : '';
-      if (g.upcoming) {
-        const pred = PRED_MAP[`${g.fecha}|${g.local}|${g.visit}`];
-        const predBar = pred ? `
-          <div class="pcard-pred">
-            <span class="pcard-pred-label">prob. victoria</span>
-            <span class="pcard-pred-pct local">${Math.round(pred.prob_local*100)}%</span>
-            <div class="pcard-pred-bar"><div class="pcard-pred-fill" style="width:${Math.round(pred.prob_local*100)}%"></div></div>
-            <span class="pcard-pred-pct visit">${Math.round(pred.prob_visit*100)}%</span>
-          </div>` : '';
-        return `<div class="partido-card upcoming" data-gid="${g.gameId}">
-          <div class="pcard-side local">
-            ${ll}
-            <span class="pcard-name">${fmtTeamName(g.local)}</span>
-          </div>
-          <div class="pcard-center">
-            <div class="pcard-hora">${g.hora}</div>
-            <div class="pcard-estadio">${g.estadio}</div>
-            <div class="pcard-badges">
-              <span class="pcard-badge-l">L</span>
-              <span style="font-size:.55rem;color:var(--muted2)">vs</span>
-              <span class="pcard-badge-v">V</span>
-            </div>
-          </div>
-          <div class="pcard-side visit">
-            ${vl}
-            <span class="pcard-name">${fmtTeamName(g.visit)}</span>
-          </div>
-          ${predBar}
-        </div>`;
-      }
-      const lw = g.ganLocal;
-      return `<div class="partido-card" data-gid="${g.gameId}">
-        <div class="pcard-side local">
-          ${ll}
-          <span class="pcard-name${lw?' winner':''}">${fmtTeamName(g.local)}</span>
-        </div>
-        <div class="pcard-center">
-          <div class="pcard-scores">
-            <span class="pcard-score${lw?' winner':''}">${g.ptsLocal}</span>
-            <span class="pcard-dash">–</span>
-            <span class="pcard-score${!lw?' winner':''}">${g.ptsVisit}</span>
-          </div>
-          <div class="pcard-badges">
-            <span class="pcard-badge-l">L</span>
-            <span style="font-size:.55rem;color:var(--muted2)">vs</span>
-            <span class="pcard-badge-v">V</span>
-          </div>
-          ${g.estadio ? `<div class="pcard-estadio">${g.estadio}</div>` : ''}
-        </div>
-        <div class="pcard-side visit">
-          ${vl}
-          <span class="pcard-name${!lw?' winner':''}">${fmtTeamName(g.visit)}</span>
-        </div>
-      </div>`;
-    }).join('');
-    const postBadge = isPostSeason(label) ? '<span class="pday-post-badge">Post Temporada</span>' : '';
-    html += `<div class="pday-group"><div class="pday-label">${label}${postBadge}</div><div class="pday-games">${cards}</div></div>`;
-  });
-  el.innerHTML = html;
-
-  // Build fast lookup map and attach listeners (played games only)
-  const gmap = {};
-  games.forEach(g => { gmap[g.gameId] = g; });
-  el.querySelectorAll('.partido-card:not(.upcoming)').forEach(card => {
-    const game = gmap[card.dataset.gid];
-    if (game) card.addEventListener('click', () => openPartidoModal(game));
-  });
-}
+function renderPartidoList(games, ascending=false) { /* sección eliminada */ }
 
 let _currentTeamName = '';
 
@@ -2722,30 +2522,10 @@ async function initApp() {
       GAME_PLAYERS_MAP[id].push(r);
     });
 
-    // Populate pTeam select (all teams from played + upcoming games)
-    const pTeamSel = document.getElementById('pTeam');
-    while (pTeamSel.options.length > 1) pTeamSel.remove(1);
-    const _allTeams = new Set(GAMES_ALL.flatMap(g => [g.local, g.visit]));
-    [..._allTeams].sort().forEach(eq => {
-      const o = document.createElement('option'); o.value = eq; o.textContent = eq;
-      pTeamSel.appendChild(o);
-    });
-
-    // Set date input min/max from available data
-    if (GAMES_ALL.length) {
-      const first = GAMES_ALL[0].fecha, last = GAMES_ALL[GAMES_ALL.length-1].fecha;
-      const toISO = s => { const [d,m,y]=s.split('/'); return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`; };
-      document.getElementById('pDateFrom').min = toISO(first);
-      document.getElementById('pDateFrom').max = toISO(last);
-      document.getElementById('pDateTo').min   = toISO(first);
-      document.getElementById('pDateTo').max   = toISO(last);
-    }
-    showUpcomingDefault();
-
     onJFilter();
     onTFilter();
-    buildLeaders();
     renderStandings();
+    document.getElementById('badgePlayers').textContent = PLAYERS.length + ' Jugadores';
 
   } catch(err) {
     console.error('Error cargando CSV:', err);
@@ -2772,10 +2552,10 @@ const SZC_ZONES = ['PAINT','MID_TOP','MID_CENTER','MID_BOT','CORNER_TOP','CORNER
 
 // FIBA coordinate system (empirically determined from shot data):
 // x: 0–280 units = court width (15m), basket at center x=140
-// y: 0–175 units = court depth shown (basket at y≈32, ~1.7m from endline)
-// Canvas aspect: H = W * (FIBA_H / FIBA_W) = W * 0.625
-const FIBA_W   = 280;   // court width in FIBA units
-const FIBA_H   = 175;   // visible depth in FIBA units (covers all 3pt shots)
+// y: 0–261 units = half-court depth (14m, half of 522 full-court units)
+// Canvas aspect: H = W * (FIBA_H / FIBA_W) = W * ~0.932
+const FIBA_W   = 280;   // court width in FIBA units (15m)
+const FIBA_H   = 261;   // half-court depth in FIBA units (14m = 522/2)
 const FIBA_BX  = 140;   // basket center x
 const FIBA_BY  = 32;    // basket center y
 const FIBA_R3  = 138;   // 3pt arc radius (empirically fitted, ≈6.6m)
@@ -2793,7 +2573,7 @@ const SZC_CENTERS = {
   MID_BOT:     [210,  85],   // right elbow / right wing mid-range
   CORNER_TOP:  [  9,  58],   // left corner 3pt
   CORNER_BOT:  [271,  58],   // right corner 3pt
-  ABOVE_BREAK: [140, 158],   // above-the-break 3pt arc
+  ABOVE_BREAK: [140, 215],   // above-the-break 3pt arc (center of y=170..261)
 };
 
 function szcClassifyCoord(col, row, W, H) {
@@ -2991,8 +2771,8 @@ function szcUpdateSvg(pStats, leagueStats, svgId='szcSvg') {
     <!-- 3pt corner lines -->
     <line x1="${cx_line}" y1="0" x2="${cx_line}" y2="${f(jY)}" stroke="${lc}" stroke-width="${sw}"/>
     <line x1="${FIBA_W-cx_line}" y1="0" x2="${FIBA_W-cx_line}" y2="${f(jY)}" stroke="${lc}" stroke-width="${sw}"/>
-    <!-- 3pt arc: from left junction to right junction through top of key -->
-    <path d="M ${cx_line} ${f(jY)} A ${R3} ${R3} 0 0 1 ${FIBA_W-cx_line} ${f(jY)}" fill="none" stroke="${lc}" stroke-width="${sw}"/>
+    <!-- 3pt arc: from left junction to right junction, bowing away from endline -->
+    <path d="M ${cx_line} ${f(jY)} A ${R3} ${R3} 0 0 0 ${FIBA_W-cx_line} ${f(jY)}" fill="none" stroke="${lc}" stroke-width="${sw}"/>
     <!-- Zone separators (dashed): paint edges extended to 3pt arc -->
     <line x1="${bx-pw2}" y1="${pd}" x2="${bx-pw2}" y2="${f(midArcY)}" stroke="${sep}" stroke-width="${sw}" stroke-dasharray="5 5"/>
     <line x1="${bx+pw2}" y1="${pd}" x2="${bx+pw2}" y2="${f(midArcY)}" stroke="${sep}" stroke-width="${sw}" stroke-dasharray="5 5"/>
@@ -3117,13 +2897,7 @@ function szcFilterByPeriod(shots, period, gameIds) {
   return shots.filter(s => lastN.has(s['IdPartido']));
 }
 
-function setSzcPeriod(period) {
-  szcPeriod = period;
-  ['szcPeriodAll','szcPeriodL5','szcPeriodL10'].forEach(id => document.getElementById(id).classList.remove('active'));
-  const map = {all:'szcPeriodAll', last5:'szcPeriodL5', last10:'szcPeriodL10'};
-  document.getElementById(map[period]).classList.add('active');
-  if (szcCurrentIdx >= 0) selectSzcPlayer(szcCurrentIdx);
-}
+function setSzcPeriod(period) { /* filtro desactivado en este torneo */ }
 
 function szcApplyLocVis(shots) {
   if (szcLocVis === 'all') return shots;
@@ -3131,13 +2905,7 @@ function szcApplyLocVis(shots) {
   return shots.filter(s => s['Local'] === val);
 }
 
-function setSzcLocVis(v) {
-  szcLocVis = v;
-  ['szcLocVisAll','szcLocVisLocal','szcLocVisVisit'].forEach(id => document.getElementById(id).classList.remove('active'));
-  const map = {all:'szcLocVisAll', local:'szcLocVisLocal', visit:'szcLocVisVisit'};
-  document.getElementById(map[v]).classList.add('active');
-  if (szcCurrentIdx >= 0) selectSzcPlayer(szcCurrentIdx);
-}
+function setSzcLocVis(v) { /* filtro desactivado en este torneo */ }
 
 function selectSzcPlayer(idx) {
   szcCurrentIdx = idx;
@@ -3249,13 +3017,7 @@ function renderTzcZoneChart(canvas, teamShots) {
   tzcRenderZoneCards(statsAll, statsL10, statsL5, isLiga ? null : LEAGUE_ZONE_STATS);
 }
 
-function setTzcPeriod(period) {
-  tzcPeriod = period;
-  ['tzcPeriodAll','tzcPeriodL5','tzcPeriodL10'].forEach(id => document.getElementById(id).classList.remove('active'));
-  const map = {all:'tzcPeriodAll', last5:'tzcPeriodL5', last10:'tzcPeriodL10'};
-  document.getElementById(map[period]).classList.add('active');
-  if (tzcCurrentTeam) onTzcTeamChange();
-}
+function setTzcPeriod(period) { /* filtro desactivado en este torneo */ }
 
 function tzcApplyLocVis(shots) {
   if (tzcLocVis === 'all') return shots;
@@ -3263,13 +3025,7 @@ function tzcApplyLocVis(shots) {
   return shots.filter(s => s['Local'] === val);
 }
 
-function setTzcLocVis(v) {
-  tzcLocVis = v;
-  ['tzcLocVisAll','tzcLocVisLocal','tzcLocVisVisit'].forEach(id => document.getElementById(id).classList.remove('active'));
-  const map = {all:'tzcLocVisAll', local:'tzcLocVisLocal', visit:'tzcLocVisVisit'};
-  document.getElementById(map[v]).classList.add('active');
-  if (tzcCurrentTeam) onTzcTeamChange();
-}
+function setTzcLocVis(v) { /* filtro desactivado en este torneo */ }
 
 function tzcInit() {
   const sel = document.getElementById('tzcTeam');
