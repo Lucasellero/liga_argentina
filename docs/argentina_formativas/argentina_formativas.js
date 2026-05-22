@@ -23,7 +23,13 @@
       window.location.replace(LOGIN_URL);
       return;
     }
-    if (!payload.user_metadata?.formativas_access) {
+    const ALLOWED = new Set([
+      '996a7324-08c2-47de-bc55-4219c7d144fd', // ramiellero@gmail.com
+      'cea8e4c5-959e-497f-b991-ee431c4c585b', // silveirajalejandro@gmail.com
+      'dac0503f-0e85-4d28-ac58-66fce78afcbd', // lucasellero05@gmail.com
+    ]);
+    const uid = payload.sub || '';
+    if (!ALLOWED.has(uid) && !payload.user_metadata?.formativas_access) {
       document.addEventListener('DOMContentLoaded', showDenied);
       return;
     }
