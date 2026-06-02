@@ -59,13 +59,96 @@ function authLogout() {
   window.location.replace('../login.html?returnTo=argentina_formativas/');
 }
 
+// ── Tournament selector ──────────────────────────────────────
+const TOURNAMENTS = {
+  u17: {
+    label:       'Sudamericano U17',
+    subtitle:    'Sudamericano U17 FIBA 2025 · Paraguay',
+    csvPath:     'argentina_formativas.csv',
+    shotsPath:   'argentina_formativas_shots.csv',
+    pbpPath:     'argentina_formativas_pbp.csv',
+    playoffDate: new Date(2025, 11, 13),
+    confA:       new Set(['ARG','URU','COL','ECU']),
+    confB:       new Set(['BRA','CHI','PAR','VEN']),
+    confALabel:  'Grupo A',
+    confBLabel:  'Grupo B',
+    radarMinSeg: 600,
+    badgeTeams:  '8 Selecciones',
+    logos: {
+      'ARG':'logos/arg.png','URU':'logos/uru.png','COL':'logos/col.png','ECU':'logos/ecu.png',
+      'BRA':'logos/bra.png','CHI':'logos/chi.png','PAR':'logos/par.png','VEN':'logos/ven.png',
+    },
+  },
+  u18: {
+    label:       'FIBA Americas U18',
+    subtitle:    'FIBA Americas U18 2026 · León, México',
+    csvPath:     'fiba_u18/fiba_u18.csv',
+    shotsPath:   'fiba_u18/fiba_u18_shots.csv',
+    pbpPath:     'fiba_u18/fiba_u18_pbp.csv',
+    playoffDate: new Date(2026, 5, 5),  // 5 de junio de 2026 — fase eliminatoria
+    confA:       new Set(['USA','ARG','BRA','MEX']),
+    confB:       new Set(['DOM','PUR','VEN','CAN']),
+    confALabel:  'Grupo A',
+    confBLabel:  'Grupo B',
+    radarMinSeg: 600,
+    badgeTeams:  '8 Selecciones',
+    logos: {
+      'ARG':'logos/arg.png','BRA':'logos/bra.png','VEN':'logos/ven.png',
+      'USA':'logos/usa.png','MEX':'logos/mex.png','DOM':'logos/dom.png',
+      'PUR':'logos/pur.png','CAN':'logos/can.png',
+    },
+  },
+};
+
+// Leer torneo activo de sessionStorage (persiste en la pestaña)
+const ACTIVE_TOURN = sessionStorage.getItem('formativas_tourn') || 'u17';
+const _TCFG = TOURNAMENTS[ACTIVE_TOURN];
+
+function switchTournament(id) {
+  if (id === ACTIVE_TOURN) return;
+  sessionStorage.setItem('formativas_tourn', id);
+  // Limpiar datos lazy para que se recarguen con el nuevo torneo
+  window.location.reload();
+}
+
+// Aplicar UI de pills al cargar
+document.addEventListener('DOMContentLoaded', function() {
+  _applyTournamentUI();
+});
+
+function _applyTournamentUI() {
+  const subtitleEl = document.getElementById('headerSubtitle');
+  if (subtitleEl) subtitleEl.textContent = _TCFG.subtitle;
+
+  const pillU17 = document.getElementById('tournPillU17');
+  const pillU18 = document.getElementById('tournPillU18');
+  if (!pillU17 || !pillU18) return;
+
+  const STYLE_ACTIVE   = 'display:inline-flex;align-items:center;justify-content:center;gap:5px;font-size:0.68rem;font-weight:700;color:var(--teal-l,#5eead4);padding:3px 10px;border-radius:20px;border:1.5px solid rgba(45,212,191,.7);background:rgba(45,212,191,.22);min-width:120px;cursor:default;margin-top:0;';
+  const STYLE_INACTIVE = 'display:inline-flex;align-items:center;justify-content:center;gap:5px;font-size:0.68rem;font-weight:600;color:var(--purple-l,#a78bfa);padding:3px 10px;border-radius:20px;border:1px solid rgba(139,92,246,.3);background:rgba(139,92,246,.08);min-width:120px;cursor:pointer;transition:background .15s;margin-top:0;';
+
+  if (ACTIVE_TOURN === 'u17') {
+    pillU17.style.cssText = STYLE_ACTIVE;
+    pillU17.onmouseover = null; pillU17.onmouseout = null;
+    pillU18.style.cssText = STYLE_INACTIVE;
+    pillU18.onmouseover = function(){ this.style.background='rgba(139,92,246,.18)'; };
+    pillU18.onmouseout  = function(){ this.style.background='rgba(139,92,246,.08)'; };
+  } else {
+    pillU18.style.cssText = STYLE_ACTIVE;
+    pillU18.onmouseover = null; pillU18.onmouseout = null;
+    pillU17.style.cssText = STYLE_INACTIVE;
+    pillU17.onmouseover = function(){ this.style.background='rgba(139,92,246,.18)'; };
+    pillU17.onmouseout  = function(){ this.style.background='rgba(139,92,246,.08)'; };
+  }
+}
+
 // ============================================================
 // ============================================================
 // DATA — loaded dynamically from CSV
 // ============================================================
-const CSV_PATH   = 'argentina_formativas.csv';
-const SHOTS_PATH = 'argentina_formativas_shots.csv';
-const PBP_PATH   = 'argentina_formativas_pbp.csv';
+const CSV_PATH   = _TCFG.csvPath;
+const SHOTS_PATH = _TCFG.shotsPath;
+const PBP_PATH   = _TCFG.pbpPath;
 const DOB_PATH   = null; // No DOB data for FIBA players
 let DOB_MAP = {};
 function calcAge(dob) {
@@ -1258,28 +1341,17 @@ function buildLeaders() { /* sección eliminada */ }
 // POSICIONES
 // ============================================================
 
-const PLAYOFF_DATE = new Date(2025, 11, 13); // 13 de diciembre de 2025 — fase de medallas
+const PLAYOFF_DATE = _TCFG.playoffDate;
 function isPostSeason(fechaStr) {
   if (!fechaStr) return false;
   const [d,m,y] = fechaStr.split('/');
   return new Date(+y,+m-1,+d) >= PLAYOFF_DATE;
 }
 
-const CONF_NORTE = new Set(['ARG','URU','COL','ECU']); // Grupo A
-const CONF_SUR   = new Set(['BRA','CHI','PAR','VEN']); // Grupo B
+const CONF_NORTE = _TCFG.confA;
+const CONF_SUR   = _TCFG.confB;
 
-const LOGOS = {
-  // Grupo A
-  'ARG': 'logos/arg.png',
-  'URU': 'logos/uru.png',
-  'COL': 'logos/col.png',
-  'ECU': 'logos/ecu.png',
-  // Grupo B
-  'BRA': 'logos/bra.png',
-  'CHI': 'logos/chi.png',
-  'PAR': 'logos/par.png',
-  'VEN': 'logos/ven.png',
-};
+const LOGOS = _TCFG.logos;
 
 function teamLogoHtml(teamName, size) {
   size = size || 20;
@@ -1351,7 +1423,7 @@ function renderAllGames() {
   const container = document.getElementById('allGamesContainer');
   if (!container) return;
 
-  const ETAPA_ORDER = ['Grupo A','Grupo B','5°-8° puesto','Semifinal','7° Puesto','5° Puesto','Bronce','Final'];
+  const ETAPA_ORDER = ['Grupo A','Grupo B','Clasificación','Cuartos de Final','5°-8° puesto','5°-8° Puesto','Semifinal','7° Puesto','7° puesto','5° Puesto','5° puesto','Bronce','Final'];
   const played = GAMES_ALL.filter(g => !g.upcoming && g.ptsLocal !== null);
 
   const byEtapa = new Map();
@@ -2575,6 +2647,8 @@ async function initApp() {
     renderStandings();
     renderAllGames();
     document.getElementById('badgePlayers').textContent = PLAYERS.length + ' Jugadores';
+    const bt = document.getElementById('badgeTeams');
+    if (bt) bt.textContent = _TCFG.badgeTeams;
 
   } catch(err) {
     console.error('Error cargando CSV:', err);
@@ -4538,7 +4612,7 @@ let _radarPct = null;   // percentile arrays per feature, computed once
 let _radarIdxA = null;
 let _radarIdxB = null;
 
-const RADAR_MIN_SEG = 600; // 10 min (tournament format, fewer games)
+const RADAR_MIN_SEG = _TCFG.radarMinSeg;
 
 const RADAR_AXES = [
   { key: 'SCORING',    label: 'SCORING',    metrics: ['PTS/40', 'TCI/40'],           desc: 'Volumen anotador: puntos y tiros de campo intentados por 40 min' },

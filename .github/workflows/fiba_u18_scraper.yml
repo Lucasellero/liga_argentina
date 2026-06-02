@@ -1,0 +1,56 @@
+name: FIBA U18 AmeriCup 2026 — scraper por hora
+
+on:
+  schedule:
+    # Cada hora entre 14:00 y 01:00 ART (17:00–04:00 UTC) durante el torneo (1–7 jun 2026)
+    # Jun 1–7 = días 1-7 del mes 6. GitHub Actions no soporta rangos de días nativamente,
+    # por lo que se corre todos los días 1-7 de junio en las horas relevantes.
+    - cron: '0 17 1-7 6 *'   # 14:00 ART
+    - cron: '0 18 1-7 6 *'   # 15:00 ART
+    - cron: '0 19 1-7 6 *'   # 16:00 ART
+    - cron: '0 20 1-7 6 *'   # 17:00 ART
+    - cron: '0 21 1-7 6 *'   # 18:00 ART
+    - cron: '0 22 1-7 6 *'   # 19:00 ART
+    - cron: '0 23 1-7 6 *'   # 20:00 ART
+    - cron: '0 0 2-8 6 *'    # 21:00 ART (siguiente día UTC)
+    - cron: '0 1 2-8 6 *'    # 22:00 ART
+    - cron: '0 2 2-8 6 *'    # 23:00 ART
+    - cron: '0 3 2-8 6 *'    # 00:00 ART
+    - cron: '0 4 2-8 6 *'    # 01:00 ART
+  workflow_dispatch:         # ejecución manual siempre disponible
+
+jobs:
+  scrape-fiba-u18:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: pip install cloudscraper pandas requests
+
+      - name: Correr scraper FIBA U18 (boxscore + shots + pbp + transform)
+        run: python fiba_americas_u18/update.py
+
+      - name: Commitear CSVs actualizados
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add \
+            docs/argentina_formativas/fiba_u18/fiba_u18.csv \
+            docs/argentina_formativas/fiba_u18/fiba_u18_shots.csv \
+            docs/argentina_formativas/fiba_u18/fiba_u18_pbp.csv \
+            fiba_americas_u18/fiba_u18_boxscore.csv \
+            fiba_americas_u18/fiba_u18_shots.csv \
+            fiba_americas_u18/fiba_u18_pbp.csv
+          git diff --cached --quiet || git commit -m "data: FIBA U18 — actualizar CSVs $(date +'%d-%m-%Y %H:%M UTC')"
+          git push
