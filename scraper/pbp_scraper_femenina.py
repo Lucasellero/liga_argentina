@@ -305,7 +305,7 @@ def main():
             cached_ids = set()
             existing_df = None
 
-        new_game_ids = [gid for gid in games if gid not in cached_ids]
+    new_game_ids = [gid for gid in games if gid not in cached_ids]
     log.info(f"A scrapear: {len(new_game_ids)} partidos")
 
     if args.dry_run:
