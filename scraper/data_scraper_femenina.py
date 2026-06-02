@@ -390,7 +390,7 @@ def _parse_team_table(
     min_cols = max(COL.values()) + 1
 
     for tr in table.find_all("tr"):
-        # --- Totales row uses <th> elements ---
+        # --- Totales row: may use <th> (visitante) o <td> (local) depending on HTML variant ---
         ths = [th.get_text(strip=True) for th in tr.find_all("th")]
         if ths and ths[0].lower().startswith("total"):
             totals = _parse_totals_cells(ths)
@@ -398,8 +398,14 @@ def _parse_team_table(
                 rows.append(_build_totals_row(totals, team_name, rival, condition, won, meta))
             continue
 
-        # --- Player rows use <td> elements ---
         cells = [td.get_text(strip=True) for td in tr.find_all("td")]
+        if cells and cells[0].lower().startswith("total"):
+            totals = _parse_totals_cells(cells)
+            if totals:
+                rows.append(_build_totals_row(totals, team_name, rival, condition, won, meta))
+            continue
+
+        # --- Player rows use <td> elements ---
         if len(cells) < min_cols:
             continue
         if not re.search(r"\d{1,2}:\d{2}", cells[COL["min"]]):
