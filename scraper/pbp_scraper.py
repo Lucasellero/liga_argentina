@@ -340,8 +340,9 @@ def main():
     new_df = pd.DataFrame(new_rows, columns=CSV_COLUMNS) if new_rows else pd.DataFrame(columns=CSV_COLUMNS)
 
     if existing_df is not None and not existing_df.empty:
+        shared_dtypes = {k: v for k, v in new_df.dtypes.to_dict().items() if k in existing_df.columns}
         merged = pd.concat(
-            [existing_df.astype(new_df.dtypes.to_dict(), errors="ignore"), new_df],
+            [existing_df.astype(shared_dtypes, errors="ignore"), new_df],
             ignore_index=True,
         )
     else:
