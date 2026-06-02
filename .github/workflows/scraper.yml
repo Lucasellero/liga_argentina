@@ -25,6 +25,18 @@ jobs:
       - name: Instalar dependencias
         run: pip install -r scraper/requirements.txt
 
+      # ── Descargar PBP actuales desde Supabase (para scraping incremental) ──
+      - name: Descargar PBP desde Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        run: |
+          for LEAGUE in liga_argentina liga_nacional liga_femenina liga_proximo; do
+            FILE="docs/${LEAGUE}/${LEAGUE}_pbp.csv"
+            STATUS=$(curl -sf -o "$FILE" -w "%{http_code}" \
+              "${SUPABASE_URL}/storage/v1/object/public/pbp/${LEAGUE}_pbp.csv" 2>/dev/null || echo "000")
+            echo "$LEAGUE PBP: HTTP $STATUS"
+          done
+
       # ── Liga Argentina ──────────────────────────────────────────────────────
       - name: Stats – Liga Argentina
         run: python scraper/data_scraper.py
@@ -81,6 +93,24 @@ jobs:
       - name: Jugada a jugada – Liga de Desarrollo
         run: python scraper/pbp_scraper_proximo.py
 
+      # ── Subir PBP actualizados a Supabase Storage ───────────────────────────
+      - name: Subir PBP a Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          for LEAGUE in liga_argentina liga_nacional liga_femenina liga_proximo; do
+            FILE="docs/${LEAGUE}/${LEAGUE}_pbp.csv"
+            HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
+              -X PUT \
+              "${SUPABASE_URL}/storage/v1/object/pbp/${LEAGUE}_pbp.csv" \
+              -H "Authorization: Bearer ${SUPABASE_SERVICE_KEY}" \
+              -H "Content-Type: text/csv" \
+              -H "x-upsert: true" \
+              --data-binary @"$FILE")
+            echo "$LEAGUE PBP subido: HTTP $HTTP"
+          done
+
       # ── Commit + push (dispara deploy en Vercel) ────────────────────────────
       - name: Commitear CSVs actualizados
         run: |
@@ -89,17 +119,13 @@ jobs:
           git add \
             docs/liga_argentina/liga_argentina.csv \
             docs/liga_argentina/liga_argentina_shots.csv \
-            docs/liga_argentina/liga_argentina_pbp.csv \
             docs/liga_nacional/liga_nacional.csv \
             docs/liga_nacional/liga_nacional_shots.csv \
-            docs/liga_nacional/liga_nacional_pbp.csv \
             docs/liga_nacional/predicciones_upcoming.csv \
             docs/liga_femenina/liga_femenina.csv \
             docs/liga_femenina/liga_femenina_shots.csv \
-            docs/liga_femenina/liga_femenina_pbp.csv \
             docs/liga_proximo/liga_proximo.csv \
             docs/liga_proximo/liga_proximo_shots.csv \
-            docs/liga_proximo/liga_proximo_pbp.csv \
             modelos/modelo_liga_nacional_prod.pkl
           git diff --cached --quiet || git commit -m "data: actualizar CSVs $(date +'%d-%m-%Y')"
           git push

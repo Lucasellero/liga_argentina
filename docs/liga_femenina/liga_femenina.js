@@ -2953,7 +2953,7 @@ function updateJFilterVisibility(){
 // ============================================================
 // QUINTETOS
 // ============================================================
-const PBP_CSV = 'liga_femenina_pbp.csv';
+const PBP_CSV = 'https://repsndqhmyklxukffovf.supabase.co/storage/v1/object/public/pbp/liga_femenina_pbp.csv';
 let PBP_MAP = null;    // null=not loaded, Map<gameId, rows[]>
 let LINEUP_DATA = null; // Map<teamName, Map<lineupKey, {players,secs,pf,pa,games}>>
 let qntSort = 'min', qntDir = 'desc';
