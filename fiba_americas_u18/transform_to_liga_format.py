@@ -528,6 +528,22 @@ def transform_pbp(game_teams):
             for org in game_box[game_box["teamCode"] == team_code]["orgId"].unique():
                 org_to_team[(int(gid), int(org))] = team_code
 
+    # Starters per game/team: {(gameId, teamCode): [(jugador, dorsal), ...]}
+    starters = {}
+    for _, r in box.iterrows():
+        if int(r.isStarter) != 1:
+            continue
+        gid = int(r.gameId)
+        tc = r.teamCode
+        fn = str(r.firstName).upper()
+        ln = str(r.lastName).upper()
+        key = (gid, tc)
+        if key not in starters:
+            starters[key] = []
+        starters[key].append((f"{ln}, {fn}", str(r.uniformNumber)))
+
+    has_injected = set()  # gameIds that already had starters injected
+
     def act_tipo(row):
         ac = str(row.get("actionCode", ""))
         act = str(row.get("act", ""))
@@ -621,6 +637,29 @@ def transform_pbp(game_teams):
             "Marcador_local": r.scoreA if pd.notna(r.scoreA) else 0,
             "Marcador_visitante": r.scoreB if pd.notna(r.scoreB) else 0,
         })
+
+        # After INICIO-PERIODO of period 1, inject synthetic CAMBIO-JUGADOR-ENTRA
+        # for the 5 starters of each team so computeLineups() can track quintetos.
+        if tipo == "INICIO-PERIODO" and periodo == "1" and gid not in has_injected:
+            has_injected.add(gid)
+            for team_code, equipo_lado_s in [(local, "LOCAL"), (visit, "VISITANTE")]:
+                for jugador_s, dorsal_s in starters.get((gid, team_code), []):
+                    num_accion[gid] += 1
+                    rows.append({
+                        "IdPartido": str(gid),
+                        "Fecha": GAME_DATES.get(gid, ""),
+                        "Equipo_local": local,
+                        "Equipo_visitante": visit,
+                        "NumAccion": num_accion[gid],
+                        "Tipo": "CAMBIO-JUGADOR-ENTRA",
+                        "Equipo_lado": equipo_lado_s,
+                        "Dorsal": dorsal_s,
+                        "Jugador": jugador_s,
+                        "Periodo": "1",
+                        "Tiempo": "10:00",
+                        "Marcador_local": 0,
+                        "Marcador_visitante": 0,
+                    })
 
     out_df = pd.DataFrame(rows)
     out_df.drop_duplicates(inplace=True)

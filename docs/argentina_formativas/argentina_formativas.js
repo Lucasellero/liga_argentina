@@ -354,7 +354,7 @@ let jPts=[], tPts=[];
 let jHov=-1, jPin=new Set(), tHov=-1, tPin=-1;
 
 // ── SHOTS DATA ──────────────────────────────────────
-const SHOTS_CSV = 'argentina_formativas_shots.csv';
+const SHOTS_CSV = SHOTS_PATH;
 let SHOTS_MAP = null; // null=not loaded, Map keyed by gameId
 let PRED_MAP  = {};   // keyed by "fecha|local|visitante" → {prob_local, prob_visit}
 let SHOTS_BY_PLAYER = null; // Map keyed by "Equipo||Dorsal"
@@ -3239,7 +3239,7 @@ function updateJFilterVisibility(){
 // ============================================================
 // QUINTETOS
 // ============================================================
-const PBP_CSV = 'argentina_formativas_pbp.csv';
+const PBP_CSV = PBP_PATH;
 let PBP_MAP = null;    // null=not loaded, Map<gameId, rows[]>
 let LINEUP_DATA = null; // Map<teamName, Map<lineupKey, {players,secs,pf,pa,games}>>
 let qntSort = 'min', qntDir = 'desc';
@@ -3376,11 +3376,20 @@ function computeLineups() {
       if (tipo === 'INICIO-PERIODO') {
         // Apply buffered lineups: if >=5 players collected, replace the court with the new lineup.
         // If no ENTRA events were buffered (some games omit period-start subs), keep the old court.
+        // If 1-4 ENTRAs buffered (FIBA format: matching SALE+ENTRA pairs at break), apply them
+        // to the court — SALEs were already processed normally, ENTRAs are the missing half.
         const applyBnd = (court, seg, poss, entras) => {
           if (entras !== null && entras.length >= 5) {
             const nc = new Set(entras);
             const ns = (nc.size === 5 && seg) ? { elapsed: seg.elapsed, scoreLoc, scoreVis, key: lineupKey(nc) } : null;
             return [nc, ns, nc.size === 5 ? emptyPoss() : null];
+          }
+          if (entras !== null && entras.length > 0) {
+            entras.forEach(p => court.add(p));
+            const e = elapsed !== null ? elapsed : (seg ? seg.elapsed : null);
+            const ns = court.size === 5 ? startSeg(court, e) : null;
+            const np = court.size === 5 ? emptyPoss() : null;
+            return [court, ns, np];
           }
           return [court, seg, poss];
         };
