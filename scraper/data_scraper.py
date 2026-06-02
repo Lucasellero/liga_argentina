@@ -735,7 +735,7 @@ def main():
             cached_ids = set()
             existing_df = None
 
-        no_score = [g for g in all_fixture_games if g.get("home_score") is None]
+    no_score = [g for g in all_fixture_games if g.get("home_score") is None]
     already_cached = [g for g in all_fixture_games if g["game_id"] in cached_ids]
     new_games = [
         g for g in all_fixture_games
