@@ -722,7 +722,20 @@ def main():
 
     # Filter to only games not yet scraped
     # A game is considered "played" when it has scores in the fixture
-    no_score = [g for g in all_fixture_games if g.get("home_score") is None]
+    # Detectar cambio de formato de IDs (ej: migración del sitio a IDs "v2")
+    if cached_ids and all_fixture_games:
+        _sample_new = all_fixture_games[0]["game_id"]
+        _sample_old = next(iter(cached_ids))
+        if _sample_new[:2] != _sample_old[:2]:
+            log.warning(
+                f"Cambio de formato de IDs detectado "
+                f"('{_sample_old[:8]}...' → '{_sample_new[:8]}...'). "
+                f"Descartando caché para evitar duplicados."
+            )
+            cached_ids = set()
+            existing_df = None
+
+        no_score = [g for g in all_fixture_games if g.get("home_score") is None]
     already_cached = [g for g in all_fixture_games if g["game_id"] in cached_ids]
     new_games = [
         g for g in all_fixture_games
@@ -769,6 +782,10 @@ def main():
     else:
         merged_df = new_df
 
+    before_dd = len(merged_df)
+    merged_df = merged_df.drop_duplicates(subset=["IdPartido", "Nombre completo"], keep="last")
+    if len(merged_df) < before_dd:
+        log.warning(f"drop_duplicates: eliminadas {before_dd - len(merged_df)} filas duplicadas")
     log.info(f"Total rows: {len(merged_df)} ({len(new_rows)} new + {len(merged_df) - len(new_rows)} cached)")
 
     # 5. Save to fixed filename

@@ -292,7 +292,20 @@ def main():
         cached_ids = set(existing_df["IdPartido"].dropna().astype(str).unique())
         log.info(f"Cache: {len(cached_ids)} partidos ya scrapeados")
 
-    new_game_ids = [gid for gid in games if gid not in cached_ids]
+    # Detectar cambio de formato de IDs (ej: migración del sitio a IDs "v2")
+    if cached_ids and games:
+        _sample_new = next(iter(games))
+        _sample_old = next(iter(cached_ids))
+        if _sample_new[:2] != _sample_old[:2]:
+            log.warning(
+                f"Cambio de formato de IDs detectado "
+                f"('{_sample_old[:8]}...' → '{_sample_new[:8]}...'). "
+                f"Descartando caché para evitar duplicados."
+            )
+            cached_ids = set()
+            existing_df = None
+
+        new_game_ids = [gid for gid in games if gid not in cached_ids]
     log.info(f"A scrapear: {len(new_game_ids)} partidos")
 
     if args.dry_run:

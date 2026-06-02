@@ -93,23 +93,53 @@ jobs:
       - name: Jugada a jugada – Liga de Desarrollo
         run: python scraper/pbp_scraper_proximo.py
 
-      # ── Subir PBP actualizados a Supabase Storage ───────────────────────────
+      # ── Subir PBP a Supabase (versión filtrada para web, <50 MB) ────────────
       - name: Subir PBP a Supabase
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
-          for LEAGUE in liga_argentina liga_nacional liga_femenina liga_proximo; do
-            FILE="docs/${LEAGUE}/${LEAGUE}_pbp.csv"
-            HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
-              -X PUT \
-              "${SUPABASE_URL}/storage/v1/object/pbp/${LEAGUE}_pbp.csv" \
-              -H "Authorization: Bearer ${SUPABASE_SERVICE_KEY}" \
-              -H "Content-Type: text/csv" \
-              -H "x-upsert: true" \
-              --data-binary @"$FILE")
-            echo "$LEAGUE PBP subido: HTTP $HTTP"
-          done
+          python -c "
+          import pandas as pd, os, subprocess
+
+          KEEP = {
+              'CAMBIO-JUGADOR-ENTRA','CAMBIO-JUGADOR-SALE',
+              'CANASTA-1P','CANASTA-2P','CANASTA-3P',
+              'TIRO1-FALLADO','TIRO2-FALLADO','TIRO3-FALLADO',
+              'REBOTE-DEFENSIVO','REBOTE-OFENSIVO',
+              'ASISTENCIA','PERDIDA','RECUPERACION',
+              'INICIO-PARTIDO','FINAL-PARTIDO',
+              'INICIO-PERIODO','FINAL-PERIODO',
+          }
+
+          files = [
+              ('liga_argentina', 'docs/liga_argentina/liga_argentina_pbp.csv'),
+              ('liga_nacional',  'docs/liga_nacional/liga_nacional_pbp.csv'),
+              ('liga_femenina',  'docs/liga_femenina/liga_femenina_pbp.csv'),
+              ('liga_proximo',   'docs/liga_proximo/liga_proximo_pbp.csv'),
+          ]
+
+          url = os.environ['SUPABASE_URL']
+          key = os.environ['SUPABASE_SERVICE_KEY']
+
+          for league, path in files:
+              df = pd.read_csv(path)
+              web = df[df['Tipo'].isin(KEEP)].drop(columns=['Fecha'], errors='ignore')
+              tmp = f'/tmp/{league}_pbp_web.csv'
+              web.to_csv(tmp, index=False)
+              mb = os.path.getsize(tmp) / 1024 / 1024
+              print(f'{league}: {len(df)} → {len(web)} filas ({mb:.1f} MB)')
+              r = subprocess.run([
+                  'curl','-s','-o','/dev/null','-w','%{http_code}',
+                  '-X','PUT',
+                  f'{url}/storage/v1/object/pbp/{league}_pbp.csv',
+                  '-H',f'Authorization: Bearer {key}',
+                  '-H','Content-Type: text/csv',
+                  '-H','x-upsert: true',
+                  '--max-time','300','-T',tmp,
+              ], capture_output=True, text=True)
+              print(f'{league} upload: HTTP {r.stdout}')
+          "
 
       # ── Commit + push (dispara deploy en Vercel) ────────────────────────────
       - name: Commitear CSVs actualizados
