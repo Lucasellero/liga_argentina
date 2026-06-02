@@ -474,6 +474,28 @@ const ALLOWED = new Set([
 
 Para dar acceso a un usuario nuevo: agregar su UUID a `ALLOWED` y pushear, **o** setear `formativas_access: true` en su metadata de Supabase.
 
+### Cobertura de quintetos — inyección de titulares (fix 02/06/2026)
+
+FIBA **no emite `CAMBIO-JUGADOR-ENTRA` para los 5 titulares al inicio del partido**. Solo registra las sustituciones mid-game (SALE + ENTRA). Sin esta información, `computeLineups()` no sabe quién está en cancha en el cuarto 1 y la cobertura de tracking es baja (~76% U17 / ~92% U18 antes del fix).
+
+**Solución — dos partes:**
+
+1. **Python (`transform_to_liga_format.py`):** después del evento `INICIO-PERIODO` del cuarto 1, se inyectan 10 eventos sintéticos `CAMBIO-JUGADOR-ENTRA` (5 por equipo), usando `isStarter=1` del boxscore como fuente de verdad.
+
+   ```python
+   if tipo == "INICIO-PERIODO" and periodo == "1" and gid not in has_injected:
+       has_injected.add(gid)
+       for team_code, equipo_lado_s in [(local, "LOCAL"), (visit, "VISITANTE")]:
+           for jugador_s, dorsal_s in starters.get((gid, team_code), []):
+               rows.append({ "Tipo": "CAMBIO-JUGADOR-ENTRA", ... })
+   ```
+
+2. **JS (`argentina_formativas.js`, `applyBnd`):** los cuartos 2, 3 y 4 sí tienen SALE+ENTRA desde FIBA, pero como pares parciales (ej. 3 SALE + 3 ENTRA, no 5 ENTRA completos). `applyBnd()` tiene una tercera rama que aplica 1–4 ENTRAs buffereados al court existente (ya modificado por los SALEs) en lugar de reemplazarlo.
+
+**Resultado:** U17 76% → 100% · U18 92% → 100% (verificado con simulación Python).
+
+**Regla:** al agregar un nuevo torneo FIBA, asegurarse de que `transform_to_liga_format.py` incluya la inyección de titulares. El JS (`applyBnd`) ya cubre cualquier torneo FIBA genéricamente.
+
 ### Particularidades del PBP transformado (`argentina_formativas_pbp.csv`)
 
 El PBP se convierte del formato FIBA al formato Liga Nacional mediante `transform_to_liga_format.py`. Algunas diferencias importantes respecto al PBP de las ligas regulares:
@@ -487,6 +509,19 @@ ASISTENCIA   ← la asistencia a esa canasta
 ```
 El código de `computeConnections` y `computeTeamConnections` en `argentina_formativas.js` busca `CANASTA-1P | CANASTA-2P | CANASTA-3P` al retroceder desde cada `ASISTENCIA`. **No omitir `CANASTA-1P`**: de los 634 eventos `ASISTENCIA` del torneo, 71 (11%) corresponden a and-ones y se perderían. Las ligas regulares no tienen este caso porque las canastas con foul se registran como `CANASTA-2P` seguidas del tiro libre separado.
 
+### Bug documentado: tiros de equipos no se muestran en torneo FIBA U18 (corregido 02/06/2026)
+
+`SHOTS_CSV` estaba hardcodeado como `'argentina_formativas_shots.csv'` (línea ~357 de `argentina_formativas.js`), ignorando la variable `SHOTS_PATH` que sí lee del torneo activo (`_TCFG.shotsPath`). Al cambiar al torneo `u18`, `loadShots()` seguía cargando el CSV del `u17`, y los equipos exclusivos del U18 (USA, MEX, DOM, PUR, CAN) no tenían tiros en ese CSV → `allShots` quedaba vacío → el canvas mostraba solo el fondo oscuro sin zonas ni etiquetas.
+
+**Fix**: cambiar la constante a:
+```js
+const SHOTS_CSV = SHOTS_PATH;
+```
+
+**Regla**: toda variable que dependa del torneo activo debe leerse de `_TCFG`. Las constantes hardcodeadas para un torneo específico no sobreviven el selector `u17 ↔ u18`. Los paths afectados son `CSV_PATH`, `SHOTS_PATH` y `PBP_PATH`; todos ya usan `_TCFG`. Si se agrega un nuevo path de datos, seguir el mismo patrón.
+
+---
+
 ### Bug documentado: etiquetas SVG ausentes en Equipos>Tiros (corregido 22/05/2026)
 
 `renderTzcZoneChart` pasaba `isLiga ? null : LEAGUE_ZONE_STATS` como segundo argumento a `szcUpdateSvg`. Cuando `isLiga=true` (opción "— Liga —"), `leagueStats=null` hacía que los gradientes de color en las `<defs>` del SVG tuvieran opacidades muy bajas, ocultando visualmente las etiquetas. La función del jugador (`renderZoneChart`) siempre pasa `LEAGUE_ZONE_STATS` directamente, nunca `null`.
@@ -497,15 +532,20 @@ szcUpdateSvg(pStats, LEAGUE_ZONE_STATS, 'tzcSvg');
 ```
 Igual que en `renderZoneChart` — nunca usar el condicional `isLiga ? null : ...` para el argumento de `leagueStats`.
 
-### Integridad de datos (verificada 22/05/2026)
+### Integridad de datos
 
-| Cruce | Resultado |
-|---|---|
-| Stats ↔ Shots (T2I, T3I, T1I, T2A, T3A, T1A) | Diferencia 0 en los 20 partidos |
-| Stats ↔ PBP (PTS, T2A, T3A, T1A, AST, REC) | Diferencia 0 |
-| Stats ↔ PBP (DREB, OREB) | Diferencia esperada: PBP incluye rebotes de equipo no atribuidos a jugador |
-| Stats ↔ PBP (PER) | Diferencia de −2 en todo el torneo (mínima, eventos en límite de período) |
-| Zonas shot chart | 1624 TIRO2 + 1179 TIRO3 con zona válida (0 nulos) |
+Para verificar la integridad de cualquier torneo en Scouteado usar los scripts de **`Skill.md`** (raíz del repo, `liga_argentina/Skill.md`). Correr los 4 checks al agregar un torneo nuevo o después de un re-scrape completo.
+
+**Baseline verificado (02/06/2026):**
+
+| Cruce | Check en Skill.md | Resultado |
+|---|---|---|
+| Tiros de campo y libres: shots CSV vs box score | Check 1 | 100% — U17: 2803/2803 campo, 715/715 TL · U18: 581/581 campo, 210/210 TL |
+| Asistencias: PBP vs box score | Check 2 | 100% — U17: 634/634 · U18: 126/126 |
+| `j-tiro` suma = `t-tiro` total liga | Check 4 | 100% — 0 tiros sin dorsal en ambos torneos |
+| Stats ↔ PBP (DREB, OREB) | — | Diferencia esperada: PBP incluye rebotes de equipo no atribuidos a jugador |
+| Stats ↔ PBP (PER) | — | Diferencia de −2 en todo el torneo (mínima, eventos en límite de período) |
+| Zonas shot chart | — | 1624 TIRO2 + 1179 TIRO3 con zona válida (0 nulos) |
 
 ### Para regenerar los CSVs del dashboard
 
