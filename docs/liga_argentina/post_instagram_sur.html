@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Liga Nacional — KM Viajados Temporada Regular</title>
+<title>Liga Argentina — KM Viajados Conferencia Sur</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
@@ -47,34 +47,29 @@ button:hover { background: #7c3aed; }
 </div>
 
 <script>
-// kmBus = km en colectivo; kmAvion = km en avión (vuelos BsAs↔Comodoro)
-// Gimnasia CR: 7 giras × 3.500 km r/t = 24.500 km en avión
-// Resto: 1 visita a Comodoro × 3.500 km r/t = 3.500 km en avión
-// Ordenado por kmBus + kmAvion descendente
 const TEAMS = [
-  { name:'GIMNASIA (CR)',     ciudad:'Comodoro Rivadavia',  giras:7, kmBus:12530, kmAvion:24500, cost:91455000, logo:'gimnasia_cr.jpeg'      },
-  { name:'INDEPENDIENTE (O)', ciudad:'Oberá',               giras:7, kmBus:17161, kmAvion: 3500, cost:66863500, logo:'independiente_o.jpeg'  },
-  { name:'OBERÁ',             ciudad:'Oberá',               giras:8, kmBus:15849, kmAvion: 3500, cost:62271500, logo:'obera.jpeg'            },
-  { name:'PEÑAROL (MDP)',     ciudad:'Mar del Plata',       giras:8, kmBus:14903, kmAvion: 3500, cost:58960500, logo:'peñarol_mdp.jpeg'      },
-  { name:'OLÍMPICO (LB)',     ciudad:'La Banda',            giras:8, kmBus:14762, kmAvion: 3500, cost:58467000, logo:'olimpico_lb.jpeg'      },
-  { name:'QUIMSA',            ciudad:'Santiago del Estero', giras:8, kmBus:14715, kmAvion: 3500, cost:58302500, logo:'quimsa.jpeg'           },
-  { name:'SAN MARTÍN (C)',    ciudad:'Corrientes',          giras:8, kmBus:12800, kmAvion: 3500, cost:51600000, logo:'san_martin_c.jpeg'     },
-  { name:'LA UNION FSA.',     ciudad:'Formosa',             giras:7, kmBus:12654, kmAvion: 3500, cost:51089000, logo:'la_union_fsa.jpeg'     },
-  { name:'REGATAS (C)',       ciudad:'Corrientes',          giras:7, kmBus:12226, kmAvion: 3500, cost:49591000, logo:'regatas_c.jpeg'        },
-  { name:'ATENAS (C)',        ciudad:'Córdoba',             giras:7, kmBus:11921, kmAvion: 3500, cost:48523500, logo:'atenas_c.jpeg'         },
-  { name:'INSTITUTO',         ciudad:'Córdoba',             giras:7, kmBus:11432, kmAvion: 3500, cost:46812000, logo:'instituto.jpeg'        },
-  { name:'ARGENTINO (J)',     ciudad:'Junín',               giras:6, kmBus:10921, kmAvion: 3500, cost:45023500, logo:'argentino_j.jpeg'      },
-  { name:'OBRAS',             ciudad:'Buenos Aires',        giras:5, kmBus:10719, kmAvion: 3500, cost:44316500, logo:'obras.jpeg'            },
-  { name:'RACING (CH)',       ciudad:'Chivilcoy',           giras:5, kmBus:10171, kmAvion: 3500, cost:42398500, logo:'racing_ch.jpeg'        },
-  { name:'UNION (SF)',        ciudad:'Santa Fe',            giras:7, kmBus:10114, kmAvion: 3500, cost:42199000, logo:'union_sf.jpeg'         },
-  { name:'SAN LORENZO',      ciudad:'Buenos Aires',        giras:6, kmBus: 9932, kmAvion: 3500, cost:41562000, logo:'san_lorenzo.jpeg'      },
-  { name:'PLATENSE',          ciudad:'Vicente López',       giras:6, kmBus: 9918, kmAvion: 3500, cost:41513000, logo:'platense.jpeg'         },
-  { name:'BOCA',              ciudad:'Buenos Aires',        giras:6, kmBus: 9086, kmAvion: 3500, cost:38601000, logo:'boca.jpeg'             },
-  { name:'FERRO',             ciudad:'Buenos Aires',        giras:5, kmBus: 8948, kmAvion: 3500, cost:38118000, logo:'ferro.jpeg'            },
+  { name:'DEP. VIEDMA',        ciudad:'Viedma',                 giras:5, km:10608, cost:37128000, logo:'dep_viedma.jpeg'         },
+  { name:'PROVINCIAL (R)',      ciudad:'Rosario',                giras:4, km: 8450, cost:29575000, logo:'provincial_r.jpeg'       },
+  { name:'QUILMES (MDP)',       ciudad:'Mar del Plata',          giras:7, km: 8187, cost:28654500, logo:'quilmes_mdp.jpeg'        },
+  { name:'VILLA MITRE (BB)',    ciudad:'Bahía Blanca',           giras:5, km: 8018, cost:28063000, logo:'villa_mitre_bb.jpeg'     },
+  { name:'PICO F.C.',           ciudad:'General Pico',           giras:7, km: 8003, cost:28010500, logo:'pico_fc.jpeg'            },
+  { name:'LA UNIÓN (C)',        ciudad:'Colón',                  giras:3, km: 7950, cost:27825000, logo:'la_union_c.jpeg'         },
+  { name:'CENTENARIO (VT)',     ciudad:'Venado Tuerto',          giras:5, km: 7351, cost:25728500, logo:'centenario_vt.jpeg'      },
+  { name:'CICLISTA (J)',        ciudad:'Junín',                  giras:4, km: 6743, cost:23600500, logo:'ciclista_j.jpeg'         },
+  { name:'UNION (MDP)',         ciudad:'Mar del Plata',          giras:5, km: 6407, cost:22424500, logo:'union_mdp.jpeg'          },
+  { name:'PERGAMINO BASQUET',   ciudad:'Pergamino',              giras:4, km: 6341, cost:22193500, logo:'pergamino_basquet.jpeg'  },
+  { name:'RACING (A)',          ciudad:'Avellaneda',             giras:4, km: 6102, cost:21357000, logo:'racing_a.jpeg'           },
+  { name:'CENTRAL ENTRERRIANO', ciudad:'Gualeguaychú',           giras:4, km: 5980, cost:20930000, logo:'central_entrerriano.jpeg'},
+  { name:'GIMNASIA (LP)',       ciudad:'La Plata',               giras:6, km: 5974, cost:20909000, logo:'gimnasia_lp.jpeg'        },
+  { name:'DEP. NORTE',          ciudad:'Armstrong',              giras:4, km: 5912, cost:20692000, logo:'dep_norte.jpeg'          },
+  { name:'ROCAMORA',            ciudad:'Concepción del Uruguay', giras:4, km: 5703, cost:19960500, logo:'rocamora.jpeg'           },
+  { name:'EL TALAR',            ciudad:'El Talar',               giras:6, km: 5547, cost:19414500, logo:'el_talar.jpeg'           },
+  { name:'LANÚS',               ciudad:'Lanús',                  giras:7, km: 5475, cost:19162500, logo:'lanus.jpeg'              },
 ];
 
 const W = 1080, H = 1350;
 const TEAL   = '#2dd4bf';
+const MAX_KM = TEAMS[0].km;
 
 const canvas = document.getElementById('c');
 const ctx    = canvas.getContext('2d');
@@ -138,7 +133,7 @@ function render() {
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
-  // Top accent stripe (purple → teal → purple)
+  // Top accent stripe
   const stripe = ctx.createLinearGradient(0, 0, W, 0);
   stripe.addColorStop(0,    'rgba(139,92,246,0.0)');
   stripe.addColorStop(0.15, 'rgba(139,92,246,0.75)');
@@ -148,7 +143,7 @@ function render() {
   ctx.fillStyle = stripe;
   ctx.fillRect(0, 0, W, 3);
 
-  // Subtle vignette
+  // Vignette
   const vig = ctx.createRadialGradient(W / 2, H * 0.12, H * 0.04, W / 2, H * 0.5, H * 0.78);
   vig.addColorStop(0, 'rgba(0,0,0,0)');
   vig.addColorStop(1, 'rgba(0,0,0,0.28)');
@@ -156,7 +151,7 @@ function render() {
   ctx.fillRect(0, 0, W, H);
 
   // ── League badge ────────────────────────────────────────────────────────────
-  const badgeW = 170, badgeH = 28;
+  const badgeW = 178, badgeH = 28;
   const bx = W / 2 - badgeW / 2, by = 20;
   ctx.fillStyle = 'rgba(45,212,191,0.14)';
   roundRect(bx, by, badgeW, badgeH, 14);
@@ -168,29 +163,33 @@ function render() {
   ctx.font = '600 13px system-ui';
   ctx.fillStyle = TEAL;
   ctx.textAlign = 'center';
-  ctx.fillText('🏀  LIGA NACIONAL', W / 2, by + 19);
+  ctx.fillText('🏀  LIGA ARGENTINA', W / 2, by + 19);
 
   // ── Title ───────────────────────────────────────────────────────────────────
   ctx.textAlign = 'center';
   ctx.fillStyle = 'rgba(255,255,255,0.97)';
   ctx.font = '800 38px system-ui';
-  ctx.fillText('EQUIPOS QUE MÁS', W / 2, 96);
-  ctx.fillText('GASTARON EN VIAJES', W / 2, 140);
+  ctx.fillText('EQUIPOS QUE MÁS', W / 2, 92);
+  ctx.fillText('KILÓMETROS RECORRIERON', W / 2, 136);
 
-  ctx.font = '500 17px system-ui';
+  ctx.font = '500 16px system-ui';
   ctx.fillStyle = 'rgba(139,92,246,0.88)';
-  ctx.fillText('TEMPORADA REGULAR 2025/2026', W / 2, 168);
+  ctx.fillText('TEMPORADA REGULAR 2025/2026', W / 2, 162);
+
+  ctx.font = '600 15px system-ui';
+  ctx.fillStyle = TEAL;
+  ctx.fillText('CONFERENCIA SUR', W / 2, 183);
 
   // ── Stats cards ─────────────────────────────────────────────────────────────
   const CARDS = [
-    { val: '$977,7M', lbl: 'GASTO TOTAL EST.' },
-    { val: '230.762', lbl: 'KM EN COLECTIVO' },
-    { val: '87.500',  lbl: 'KM EN AVIÓN' },
+    { val: '17',      lbl: 'EQUIPOS' },
+    { val: '32',      lbl: 'PJ POR EQUIPO' },
+    { val: '118.751', lbl: 'KM TOTALES' },
   ];
   const cW = 255, cH = 58, cGap = 27;
   const cTotalW = CARDS.length * cW + (CARDS.length - 1) * cGap;
   let cx = (W - cTotalW) / 2;
-  const cY = 182;
+  const cY = 199;
 
   for (const c of CARDS) {
     ctx.fillStyle = 'rgba(255,255,255,0.042)';
@@ -217,33 +216,29 @@ function render() {
   ctx.strokeStyle = 'rgba(255,255,255,0.07)';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(36, 256);
-  ctx.lineTo(W - 36, 256);
+  ctx.moveTo(36, 270);
+  ctx.lineTo(W - 36, 270);
   ctx.stroke();
 
   // ── Column headers ──────────────────────────────────────────────────────────
   ctx.font = '500 11px system-ui';
   ctx.fillStyle = 'rgba(255,255,255,0.28)';
   ctx.textAlign = 'left';
-  ctx.fillText('EQUIPO', 110, 274);
+  ctx.fillText('EQUIPO', 110, 288);
   ctx.textAlign = 'right';
+  ctx.fillText('KM TOTALES', 870, 288);
   ctx.fillStyle = 'rgba(45,212,191,0.45)';
-  ctx.fillText('GASTO EST.', 772, 274);
-  ctx.fillStyle = 'rgba(255,255,255,0.28)';
-  ctx.fillText('KM TOTAL', 1052, 274);
+  ctx.fillText('GASTO EST.', 1048, 288);
 
   // ── Table rows ──────────────────────────────────────────────────────────────
-  const ROW_START = 284;
+  const ROW_START = 298;
   const ROW_H     = 54;
   const LOGO_R    = 22;
   const LOGO_X    = 76;
 
-  const BAR_X     = 336;
-  const BAR_MAX_W = 362;
-  const BAR_H     = 13;
-  const MAX_COST  = Math.max(...TEAMS.map(t => t.cost));
-  const KM_CX     = 932;  // centro del bloque de km
-
+  const BAR_X     = 346;
+  const BAR_MAX_W = 440;
+  const BAR_H     = 9;
 
   for (let i = 0; i < TEAMS.length; i++) {
     const t   = TEAMS[i];
@@ -288,37 +283,31 @@ function render() {
     ctx.fillStyle = 'rgba(255,255,255,0.34)';
     ctx.fillText(t.ciudad + '  ·  ' + t.giras + ' giras', 110, mid + 11);
 
-    // Bar (gasto)
+    // Bar background track
     const barY = mid - BAR_H / 2;
     ctx.fillStyle = 'rgba(139,92,246,0.1)';
-    roundRect(BAR_X, barY, BAR_MAX_W, BAR_H, 5);
+    roundRect(BAR_X, barY, BAR_MAX_W, BAR_H, 4);
     ctx.fill();
 
-    const barW = (t.cost / MAX_COST) * BAR_MAX_W;
+    // Bar fill
+    const barW = (t.km / MAX_KM) * BAR_MAX_W;
     const barGrad = ctx.createLinearGradient(BAR_X, 0, BAR_X + barW, 0);
     barGrad.addColorStop(0, 'rgba(109,40,217,0.88)');
     barGrad.addColorStop(1, 'rgba(167,139,250,0.96)');
     ctx.fillStyle = barGrad;
-    roundRect(BAR_X, barY, barW, BAR_H, 5);
+    roundRect(BAR_X, barY, barW, BAR_H, 4);
     ctx.fill();
 
-    // Gasto value (después de la barra)
-    ctx.textAlign = 'right';
-    ctx.font = '700 13px system-ui';
-    ctx.fillStyle = 'rgba(45,212,191,0.88)';
-    ctx.fillText(fmtCost(t.cost), 772, mid + 4);
-
     // KM total
-    const kmTotal = t.kmBus + t.kmAvion;
-    ctx.font = '600 12px system-ui';
-    ctx.fillStyle = 'rgba(255,255,255,0.88)';
-    ctx.fillText(kmTotal.toLocaleString('es-AR') + ' km', 1052, mid - 2);
-
-    // Desglose bus · aéreo
-    ctx.font = '500 11px system-ui';
     ctx.textAlign = 'right';
-    ctx.fillStyle = 'rgba(255,255,255,0.38)';
-    ctx.fillText(t.kmBus.toLocaleString('es-AR') + ' bus  ·  ' + t.kmAvion.toLocaleString('es-AR') + ' aéreo', 1052, mid + 12);
+    ctx.font = '600 13px system-ui';
+    ctx.fillStyle = 'rgba(255,255,255,0.88)';
+    ctx.fillText(t.km.toLocaleString('es-AR'), 870, mid + 4);
+
+    // Gasto estimado
+    ctx.font = '600 12px system-ui';
+    ctx.fillStyle = 'rgba(45,212,191,0.82)';
+    ctx.fillText(fmtCost(t.cost), 1048, mid + 4);
   }
 
   // ── Bottom divider ──────────────────────────────────────────────────────────
@@ -339,7 +328,7 @@ function render() {
 
 document.getElementById('dl').onclick = () => {
   const a = document.createElement('a');
-  a.download = 'liga_nacional_km_viajados.png';
+  a.download = 'liga_argentina_km_conf_sur.png';
   a.href = canvas.toDataURL('image/png');
   a.click();
 };

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Liga Argentina — Ratings OffRtg vs DefRtg</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #0c0d1e;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  gap: 16px;
+  font-family: system-ui, -apple-system, sans-serif;
+  color: #e2e8f0;
+}
+canvas {
+  max-width: min(100%, 640px);
+  border-radius: 6px;
+  box-shadow: 0 12px 60px rgba(0,0,0,0.6);
+}
+.controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+button {
+  padding: 10px 26px;
+  background: #8b5cf6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+button:hover { background: #7c3aed; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1080"></canvas>
+<div class="controls">
+  <button id="dl">⬇ Descargar PNG (1080×1080)</button>
+</div>
+
+<script>
+// ── Data  [logo_file, reg_off, reg_def, post_off, post_def] ─────────────────
+// 16 equipos que llegaron a Playoffs (Cuartos de Final en adelante)
+const TEAMS = [
+  { logo:'amancay_lr.jpeg',         ro:107.1, rd:103.0, po: 96.1, pd:107.9 },
+  { logo:'central_entrerriano.jpeg',ro:105.1, rd:101.1, po:103.6, pd:108.6 },
+  { logo:'dep_viedma.jpeg',         ro:106.4, rd:105.6, po:107.9, pd:107.0 },
+  { logo:'gimnasia_lp.jpeg',        ro:106.4, rd:104.7, po:106.8, pd:107.3 },
+  { logo:'la_union_c.jpeg',         ro:104.7, rd:102.0, po:107.2, pd:103.8 },
+  { logo:'lanus.jpeg',              ro:107.4, rd: 97.1, po:108.9, pd: 90.4 },
+  { logo:'pico_fc.jpeg',            ro:108.5, rd:100.4, po:110.7, pd:105.1 },
+  { logo:'provincial_r.jpeg',       ro:110.6, rd:101.9, po:101.9, pd:102.0 },
+  { logo:'quilmes_mdp.jpeg',        ro:104.2, rd:101.4, po:102.0, pd:102.1 },
+  { logo:'salta_basket.jpeg',       ro:107.3, rd:106.0, po: 97.4, pd:108.1 },
+  { logo:'san_isidro.jpeg',         ro:110.5, rd:103.3, po:113.8, pd: 94.9 },
+  { logo:'santa_paula_g.jpeg',      ro:110.2, rd:103.6, po:110.5, pd: 96.8 },
+  { logo:'sp_suardi.jpeg',          ro:108.9, rd:104.8, po: 97.3, pd:105.7 },
+  { logo:'villa_san_martin.jpeg',   ro:102.2, rd: 98.8, po:104.1, pd: 96.0 },
+];
+
+// ── Constants ────────────────────────────────────────────────────────────────
+const W = 1080, H = 1080;
+// margins: top leaves room for title+legend, bottom for x-axis label
+const M = { top: 162, right: 54, bottom: 108, left: 112 };
+const CW = W - M.left - M.right;   // 914
+const CH = H - M.top - M.bottom;   // 810
+
+const X_MIN = 88,  X_MAX = 112;   // DefRtg  (left = better)
+const Y_MIN = 93,  Y_MAX = 117;   // OffRtg  (top  = better)
+const AVG = 105.2;                 // league avg both axes (reg. season, 34 teams)
+
+const R_REG  = 20;   // radius: regular season circles
+const R_POST = 28;   // radius: post-season circles
+
+const toX = d => M.left + (d - X_MIN) / (X_MAX - X_MIN) * CW;
+const toY = o => M.top  + (1 - (o - Y_MIN) / (Y_MAX - Y_MIN)) * CH;
+
+// ── Image loading ────────────────────────────────────────────────────────────
+const IMG = {};
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+
+Promise.all(TEAMS.map(t => new Promise(res => {
+  const img = new Image();
+  img.onload  = () => { IMG[t.logo] = img; res(); };
+  img.onerror = () => res();
+  img.src = 'logos/' + t.logo;
+}))).then(render);
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function drawCircle(x, y, r, logo, alpha) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+
+  // Background fill
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = '#141526';
+  ctx.fill();
+
+  // Logo clipped to circle (cover-crop)
+  const img = IMG[logo];
+  if (img) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.clip();
+    const s = Math.min(img.width, img.height);
+    ctx.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s,
+                       x - r, y - r, r * 2, r * 2);
+    ctx.restore();
+  }
+
+  // Outer ring
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  if (alpha >= 0.9) {
+    ctx.strokeStyle = 'rgba(139,92,246,0.88)';
+    ctx.lineWidth   = 2.5;
+  } else {
+    ctx.strokeStyle = 'rgba(139,92,246,0.3)';
+    ctx.lineWidth   = 1.5;
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawArrow(x1, y1, x2, y2) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const d  = Math.hypot(dx, dy);
+  if (d < R_REG + R_POST + 10) return;
+
+  const ux = dx / d, uy = dy / d;
+  const sx = x1 + ux * (R_REG  + 5);
+  const sy = y1 + uy * (R_REG  + 5);
+  const ex = x2 - ux * (R_POST + 5);
+  const ey = y2 - uy * (R_POST + 5);
+
+  ctx.save();
+
+  // Dashed shaft
+  ctx.setLineDash([5, 4]);
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+  ctx.lineWidth   = 1.5;
+  ctx.lineCap     = 'round';
+  ctx.beginPath();
+  ctx.moveTo(sx, sy);
+  ctx.lineTo(ex, ey);
+  ctx.stroke();
+
+  // Arrowhead
+  ctx.setLineDash([]);
+  const a = Math.atan2(dy, dx), hl = 9;
+  ctx.strokeStyle = 'rgba(255,255,255,0.28)';
+  ctx.lineWidth   = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(ex, ey);
+  ctx.lineTo(ex - hl * Math.cos(a - 0.42), ey - hl * Math.sin(a - 0.42));
+  ctx.moveTo(ex, ey);
+  ctx.lineTo(ex - hl * Math.cos(a + 0.42), ey - hl * Math.sin(a + 0.42));
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+// ── Main render ──────────────────────────────────────────────────────────────
+function render() {
+
+  // 1. Background gradient
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#0d0e22');
+  bg.addColorStop(1, '#10112a');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Top accent stripe (purple → teal → purple)
+  const stripe = ctx.createLinearGradient(0, 0, W, 0);
+  stripe.addColorStop(0,    'rgba(139,92,246,0.0)');
+  stripe.addColorStop(0.15, 'rgba(139,92,246,0.75)');
+  stripe.addColorStop(0.5,  'rgba(45,212,191,0.6)');
+  stripe.addColorStop(0.85, 'rgba(139,92,246,0.75)');
+  stripe.addColorStop(1,    'rgba(139,92,246,0.0)');
+  ctx.fillStyle = stripe;
+  ctx.fillRect(0, 0, W, 3);
+
+  // Vignette
+  const vig = ctx.createRadialGradient(W/2, H/2, H*0.18, W/2, H/2, H*0.82);
+  vig.addColorStop(0, 'rgba(0,0,0,0)');
+  vig.addColorStop(1, 'rgba(0,0,0,0.35)');
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, W, H);
+
+  // 2. Chart area tint
+  ctx.fillStyle = 'rgba(255,255,255,0.012)';
+  ctx.fillRect(M.left, M.top, CW, CH);
+
+  // 3. Grid (every 5 units)
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,0.038)';
+  ctx.lineWidth = 1;
+  for (let v = 90; v <= 110; v += 2.5) {
+    const x = toX(v);
+    ctx.beginPath(); ctx.moveTo(x, M.top); ctx.lineTo(x, M.top + CH); ctx.stroke();
+  }
+  for (let v = 95; v <= 115; v += 2.5) {
+    const y = toY(v);
+    ctx.beginPath(); ctx.moveTo(M.left, y); ctx.lineTo(M.left + CW, y); ctx.stroke();
+  }
+  ctx.restore();
+
+  // 4. Quadrant lines at league avg (105.2 / 105.2)
+  const qx = toX(AVG), qy = toY(AVG);
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([7, 5]);
+  ctx.beginPath(); ctx.moveTo(qx, M.top);  ctx.lineTo(qx, M.top + CH); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(M.left, qy); ctx.lineTo(M.left + CW, qy); ctx.stroke();
+  ctx.restore();
+
+  // 5. Quadrant corner labels
+  ctx.save();
+  ctx.font = '700 12px system-ui';
+  const QL = [
+    { t:'ÉLITE',         x: M.left + 16,       y: M.top + 22,       a:'left'  },
+    { t:'OFENSIVOS',     x: M.left + CW - 16,  y: M.top + 22,       a:'right' },
+    { t:'DEFENSIVOS',    x: M.left + 16,        y: M.top + CH - 13,  a:'left'  },
+    { t:'EN DESARROLLO', x: M.left + CW - 16,  y: M.top + CH - 13,  a:'right' },
+  ];
+  for (const q of QL) {
+    ctx.fillStyle = 'rgba(255,255,255,0.1)';
+    ctx.textAlign = q.a;
+    ctx.fillText(q.t, q.x, q.y);
+  }
+  ctx.restore();
+
+  // 6. Arrows (drawn before circles so circles sit on top)
+  for (const t of TEAMS) drawArrow(toX(t.rd), toY(t.ro), toX(t.pd), toY(t.po));
+
+  // 7. Regular-season circles (faded)
+  for (const t of TEAMS) drawCircle(toX(t.rd), toY(t.ro), R_REG, t.logo, 0.26);
+
+  // 8. Post-season circles (bright, drawn on top)
+  for (const t of TEAMS) drawCircle(toX(t.pd), toY(t.po), R_POST, t.logo, 1.0);
+
+  // 9. Axis borders + ticks
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,0.28)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(M.left, M.top);
+  ctx.lineTo(M.left, M.top + CH);
+  ctx.lineTo(M.left + CW, M.top + CH);
+  ctx.stroke();
+
+  ctx.font = '11px system-ui';
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+
+  // X ticks
+  ctx.textAlign = 'center';
+  for (let v = 90; v <= 110; v += 5) {
+    const x = toX(v);
+    ctx.fillRect(x - 0.5, M.top + CH, 1, 5);
+    ctx.fillText(v, x, M.top + CH + 18);
+  }
+
+  // Y ticks
+  ctx.textAlign = 'right';
+  for (let v = 95; v <= 115; v += 5) {
+    const y = toY(v);
+    ctx.fillRect(M.left - 5, y - 0.5, 5, 1);
+    ctx.fillText(v, M.left - 9, y + 4);
+  }
+
+  // Axis labels
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.font = '600 12px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText('← Mejor Defensa    RATING DEFENSIVO    Peor Defensa →', M.left + CW / 2, M.top + CH + 47);
+  ctx.save();
+  ctx.translate(M.left - 70, M.top + CH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('↑ Mejor Ataque    RATING OFENSIVO    Peor Ataque ↓', 0, 0);
+  ctx.restore();
+
+  ctx.restore();
+
+  // 10. Title block (drawn last so it's always on top)
+  ctx.save();
+  ctx.textAlign = 'center';
+
+  ctx.font = '800 33px system-ui';
+  ctx.fillStyle = 'rgba(255,255,255,0.96)';
+  ctx.fillText('LIGA ARGENTINA 2025/26', W / 2, 50);
+
+  ctx.font = '500 15px system-ui';
+  ctx.fillStyle = 'rgba(139,92,246,0.88)';
+  ctx.fillText('Rating Ofensivo vs Defensivo · por 100 posesiones', W / 2, 77);
+
+  // Legend row
+  const lcy = 116;
+  const lcx = W / 2;
+
+  // faded circle
+  ctx.save();
+  ctx.globalAlpha = 0.28;
+  ctx.beginPath(); ctx.arc(lcx - 132, lcy, 10, 0, Math.PI * 2);
+  ctx.fillStyle = '#2a2a4e'; ctx.fill();
+  ctx.strokeStyle = 'rgba(139,92,246,0.5)'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.font = '400 12px system-ui';
+  ctx.fillStyle = 'rgba(255,255,255,0.48)';
+  ctx.textAlign = 'left';
+  ctx.fillText('Temporada Regular', lcx - 118, lcy + 4);
+  ctx.restore();
+
+  // dashed arrow
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,0.27)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath(); ctx.moveTo(lcx + 26, lcy); ctx.lineTo(lcx + 52, lcy); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.moveTo(lcx + 52, lcy);
+  ctx.lineTo(lcx + 44, lcy - 4);
+  ctx.moveTo(lcx + 52, lcy);
+  ctx.lineTo(lcx + 44, lcy + 4);
+  ctx.stroke();
+  ctx.restore();
+
+  // bright circle
+  ctx.save();
+  ctx.beginPath(); ctx.arc(lcx + 68, lcy, 13, 0, Math.PI * 2);
+  ctx.fillStyle = '#1a1a38'; ctx.fill();
+  ctx.strokeStyle = 'rgba(139,92,246,0.9)'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.font = '500 12px system-ui';
+  ctx.fillStyle = 'rgba(255,255,255,0.78)';
+  ctx.textAlign = 'left';
+  ctx.fillText('Post Temporada', lcx + 85, lcy + 4);
+  ctx.restore();
+
+  ctx.restore();
+
+  // 11. Watermark
+  ctx.save();
+  ctx.font = '400 11px system-ui';
+  ctx.fillStyle = 'rgba(255,255,255,0.15)';
+  ctx.textAlign = 'right';
+  ctx.fillText('scouteado.com', W - 38, H - 27);
+  ctx.fillText('Datos al 25/04/2026', W - 38, H - 13);
+  ctx.restore();
+}
+
+// Download
+document.getElementById('dl').onclick = () => {
+  const a = document.createElement('a');
+  a.download = 'liga_argentina_offrtg_defrtg.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+};
+</script>
+</body>
+</html>

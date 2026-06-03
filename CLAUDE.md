@@ -902,6 +902,21 @@ Orden de ejes en el radar (sentido horario desde arriba): SCORING → SHOOTING �
 
 **Nota de portabilidad**: esta sección existe en `docs/liga_nacional/index.html` y `docs/index.html` (Liga Argentina). Si se porta a otras ligas, copiar el bloque CSS `.radar-*`, el HTML `sec-j-radar`, las funciones `radar*` y añadir `'j-radar':'jugadores'` a `_SUB_GROUP` y `'j-radar':4` a `_SUB_IDX`.
 
+## Integridad de datos
+
+Antes de dar por bueno cualquier torneo nuevo o después de un scrape `--full`, correr los checks definidos en **`Skill.md`** (raíz del repo):
+
+| Check | Qué verifica | Cuándo correr |
+|---|---|---|
+| Check 1 | Tiros de campo y libres: shots CSV vs box score | Al agregar torneo o después de `--full` |
+| Check 2 | Asistencias: PBP vs box score (requiere PBP local) | Ídem, solo si PBP está disponible localmente |
+| Check 3 | Resumen una línea por liga (todas las ligas a la vez) | Periódicamente o al cierre de cada fase |
+| Check 4 | `j-tiro` suma = `t-tiro` total liga (tiros sin dorsal = 0) | Al agregar torneo o ante inconsistencias visuales |
+
+**Umbrales**: ✓ ≥99% · ~ 90–98% · ✗ <90%. Si hay gap, correr el scraper de shots con `--full`.
+
+Los scripts listos para copiar-pegar están en `Skill.md`. Correr siempre desde la raíz del repo (`liga_argentina/`).
+
 ## Comandos útiles
 ```bash
 # Actualizar stats de jugadores — Liga Argentina

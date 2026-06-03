@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Liga Nacional — Historial de Tiros</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080b10;color:#e2e8f0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden}
+
+#header{width:100%;max-width:900px;padding:18px 20px 8px;text-align:center}
+#title{font-size:.9rem;letter-spacing:.18em;text-transform:uppercase;color:#475569;font-weight:600}
+#score-display{font-size:3rem;font-weight:800;line-height:1.1;margin:6px 0 3px;background:linear-gradient(135deg,#FFD700 30%,#FF6B00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 20px rgba(255,215,0,.4))}
+#date-display{font-size:.82rem;color:#64748b;letter-spacing:.1em;text-transform:uppercase}
+#shot-counter{font-size:.75rem;color:#334155;margin-top:2px}
+
+#canvas-wrap{position:relative;width:100%;max-width:900px;margin:0 auto}
+#court{display:block;width:100%}
+/* Separate overlay canvas for glow + sparks */
+#overlay{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+
+#controls{width:100%;max-width:900px;padding:12px 20px 22px;display:flex;flex-direction:column;gap:9px}
+
+#timeline-row{display:flex;align-items:center;gap:10px}
+.tl-label{font-size:.65rem;color:#334155;white-space:nowrap;min-width:52px}
+.tl-label:last-child{text-align:right}
+#tl-wrap{flex:1;position:relative;height:16px;display:flex;align-items:center}
+#timeline{position:absolute;width:100%;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:transparent;outline:none;cursor:pointer;z-index:2}
+#timeline::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#FFD700;cursor:pointer;box-shadow:0 0 10px rgba(255,215,0,.8);position:relative;z-index:3}
+#timeline::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#FFD700;cursor:pointer;border:none;box-shadow:0 0 10px rgba(255,215,0,.8)}
+#tl-track{position:absolute;left:0;right:0;height:4px;background:#1e293b;border-radius:2px}
+#tl-fill{position:absolute;left:0;height:4px;background:linear-gradient(90deg,#B8860B,#FFD700);border-radius:2px;pointer-events:none;width:0%}
+
+#btn-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.ctrl-btn{background:#0f172a;border:1px solid #1e293b;color:#94a3b8;padding:5px 13px;border-radius:6px;font-size:.75rem;cursor:pointer;transition:all .15s;letter-spacing:.04em;user-select:none}
+.ctrl-btn:hover{background:#1e293b;color:#e2e8f0;border-color:#334155}
+.ctrl-btn.active{background:rgba(255,215,0,.15);color:#FFD700;border-color:rgba(255,215,0,.5);font-weight:700}
+#btn-play{min-width:82px;background:rgba(255,215,0,.1);border-color:rgba(255,215,0,.35);color:#FFD700;font-weight:600}
+#btn-play:hover{background:rgba(255,215,0,.2)}
+#speed-lbl{font-size:.7rem;color:#334155;margin-left:2px}
+
+#legend{display:flex;gap:14px;margin-left:auto;align-items:center}
+.leg{display:flex;align-items:center;gap:5px;font-size:.7rem;color:#475569}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.leg-dot.made{background:#FFD700;box-shadow:0 0 5px rgba(255,215,0,.9)}
+.leg-dot.miss{background:#7f1d1d;border:1.5px solid #991b1b}
+
+#tip{position:fixed;background:#0f172a;border:1px solid #1e293b;border-radius:6px;padding:7px 12px;font-size:.74rem;color:#cbd5e1;pointer-events:none;display:none;z-index:100;max-width:175px;line-height:1.55}
+
+@media(max-width:620px){
+  #score-display{font-size:2.2rem}
+  .tl-label{min-width:44px;font-size:.6rem}
+  #btn-row{gap:4px}
+  .ctrl-btn{padding:4px 9px;font-size:.7rem}
+  #legend{margin-left:0;margin-top:2px}
+  #speed-lbl{display:none}
+}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div id="title">Liga Nacional 2025/26 · Historial de Tiros de Campo</div>
+  <div id="score-display">0</div>
+  <div id="date-display">—</div>
+  <div id="shot-counter">Cargando…</div>
+</div>
+
+<div id="canvas-wrap">
+  <canvas id="court"></canvas>
+  <canvas id="overlay"></canvas>
+</div>
+
+<div id="controls">
+  <div id="timeline-row">
+    <span class="tl-label" id="lbl-start">—</span>
+    <div id="tl-wrap">
+      <div id="tl-track"></div>
+      <div id="tl-fill"></div>
+      <input type="range" id="timeline" min="0" max="1000" value="0" step="1">
+    </div>
+    <span class="tl-label" id="lbl-end">—</span>
+  </div>
+  <div id="btn-row">
+    <button class="ctrl-btn" id="btn-play" onclick="togglePlay()">▶ Play</button>
+    <button class="ctrl-btn" onclick="resetAnim()">↺ Reset</button>
+    <span id="speed-lbl">Velocidad:</span>
+    <button class="ctrl-btn speed-btn" data-spd="0.5" onclick="setSpeed(this)">0.5×</button>
+    <button class="ctrl-btn speed-btn active" data-spd="1" onclick="setSpeed(this)">1×</button>
+    <button class="ctrl-btn speed-btn" data-spd="2" onclick="setSpeed(this)">2×</button>
+    <button class="ctrl-btn speed-btn" data-spd="4" onclick="setSpeed(this)">4×</button>
+    <div id="legend">
+      <div class="leg"><div class="leg-dot made"></div>Convertido</div>
+      <div class="leg"><div class="leg-dot miss"></div>Fallado</div>
+    </div>
+  </div>
+</div>
+
+<div id="tip"></div>
+
+<script>
+// ─── Constants ────────────────────────────────────────────────────────────────
+const BASE_MS   = 350;   // ms per date at 1x speed
+const GRID_CELLS = 32;   // density grid resolution
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let dateGroups  = [];    // [{date:string, shots:[]}]  sorted asc
+let currentGroup = -1;
+let playing     = false;
+let speed       = 1;
+let animTimer   = null;
+let rafId       = null;
+let W = 0, H = 0;
+
+let totalMade   = 0;
+let visibleShots= 0;
+
+// Density grids (for halo glow)
+let densityMade, densityMiss;
+
+// Spark particles
+let sparks = [];
+
+// Two canvases: court (persistent dots) + overlay (glow + sparks)
+const courtCanvas   = document.getElementById('court');
+const overlayCanvas = document.getElementById('overlay');
+const cctx          = courtCanvas.getContext('2d');
+const octx          = overlayCanvas.getContext('2d');
+
+// ─── CSV parser ───────────────────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.replace(/\r/g,'').split('\n');
+  const headers = splitLine(lines[0]);
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const l = lines[i].trim();
+    if (!l) continue;
+    const v = splitLine(l);
+    const o = {};
+    headers.forEach((h,j) => o[h] = v[j] ?? '');
+    rows.push(o);
+  }
+  return rows;
+}
+function splitLine(line) {
+  const r=[]; let c='', q=false;
+  for(let i=0;i<line.length;i++){
+    if(line[i]==='"'){q=!q;continue;}
+    if(line[i]===',' && !q){r.push(c);c='';continue;}
+    c+=line[i];
+  }
+  r.push(c); return r;
+}
+
+function parseDate(s){ const[d,m,y]=s.split('/'); return new Date(+y,+m-1,+d); }
+function fmtDate(s){
+  const[d,m,y]=s.split('/');
+  const M=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+  return `${+d} ${M[+m-1]} ${y}`;
+}
+
+// ─── Canvas resize ────────────────────────────────────────────────────────────
+function resizeCanvas() {
+  const wrap = document.getElementById('canvas-wrap');
+  const nW = wrap.clientWidth;
+  const nH = Math.round(nW * 15 / 28);
+  if (nW === W && nH === H) return;
+  W = nW; H = nH;
+  courtCanvas.width  = W; courtCanvas.height  = H;
+  courtCanvas.style.width  = W+'px'; courtCanvas.style.height = H+'px';
+  overlayCanvas.width = W; overlayCanvas.height = H;
+  overlayCanvas.style.width = W+'px'; overlayCanvas.style.height= H+'px';
+
+  if (dateGroups.length && currentGroup >= 0) {
+    replayUpTo(currentGroup, false); // no sparks on resize
+  } else {
+    drawCourt();
+  }
+}
+
+// ─── Court (drawn once per resize/reset onto courtCanvas) ────────────────────
+function drawCourt() {
+  const PL = 0.0651 * W;
+  const my = H / 15;
+  const mx = (W - 2 * PL) / 28;
+  const sx = mx / my;
+  const lc = 'rgba(139,92,246,.28)';
+  const lw = Math.max(1, W / 700);
+
+  cctx.fillStyle = '#080b10';
+  cctx.fillRect(0, 0, W, H);
+  // subtle vignette
+  const vig = cctx.createRadialGradient(W/2,H/2,H*0.2, W/2,H/2,H*0.82);
+  vig.addColorStop(0,'rgba(0,0,0,0)');
+  vig.addColorStop(1,'rgba(0,0,0,.45)');
+  cctx.fillStyle=vig; cctx.fillRect(0,0,W,H);
+
+  cctx.save();
+  cctx.translate(PL, 0);
+  cctx.scale(sx, 1);
+  cctx.strokeStyle = lc;
+  cctx.lineWidth   = lw / sx;
+
+  const m  = my;
+  const CW = 28 * m;
+  const cy = H / 2;
+
+  cctx.strokeRect(0, 0.5, CW, H-1);
+  cctx.beginPath(); cctx.moveTo(CW/2,0); cctx.lineTo(CW/2,H); cctx.stroke();
+  cctx.beginPath(); cctx.arc(CW/2, cy, 1.8*m, 0, Math.PI*2); cctx.stroke();
+
+  [[0,1],[CW,-1]].forEach(([bx,dir]) => {
+    const bkX = bx + dir*1.575*m;
+    cctx.strokeRect(bx, cy-2.45*m, dir*5.8*m, 4.9*m);
+    const ftX = bx + dir*5.8*m;
+    cctx.beginPath();
+    cctx.arc(ftX, cy, 1.8*m, dir>0?Math.PI/2:-Math.PI/2, dir>0?3*Math.PI/2:Math.PI/2, dir<0);
+    cctx.stroke();
+    cctx.save(); cctx.setLineDash([4,5]);
+    cctx.beginPath();
+    cctx.arc(ftX, cy, 1.8*m, dir>0?-Math.PI/2:Math.PI/2, dir>0?Math.PI/2:3*Math.PI/2, dir<0);
+    cctx.stroke(); cctx.restore();
+    cctx.beginPath();
+    cctx.arc(bkX, cy, 1.25*m, dir>0?Math.PI/2:-Math.PI/2, dir>0?3*Math.PI/2:Math.PI/2, dir<0);
+    cctx.stroke();
+    cctx.strokeStyle='rgba(251,146,60,.55)';
+    cctx.beginPath(); cctx.arc(bkX, cy, 0.23*m, 0, Math.PI*2); cctx.stroke();
+    cctx.strokeStyle=lc;
+    const r3=6.75*m, cy1=0.9*m, cy2=H-0.9*m;
+    const dy1=cy1-cy, dx1=Math.sqrt(Math.max(0,r3*r3-dy1*dy1));
+    cctx.beginPath(); cctx.moveTo(bx,cy1); cctx.lineTo(bkX+dir*dx1,cy1); cctx.stroke();
+    cctx.beginPath(); cctx.moveTo(bx,cy2); cctx.lineTo(bkX+dir*dx1,cy2); cctx.stroke();
+    cctx.beginPath(); cctx.arc(bkX,cy,r3, Math.atan2(dy1,dir*dx1), Math.atan2(cy2-cy,dir*dx1), dir<0); cctx.stroke();
+  });
+  cctx.restore();
+}
+
+// ─── Density ──────────────────────────────────────────────────────────────────
+function initDensity() {
+  densityMade = new Float32Array(GRID_CELLS * GRID_CELLS);
+  densityMiss = new Float32Array(GRID_CELLS * GRID_CELLS);
+}
+function addDensity(x,y,made) {
+  const gx = Math.min(GRID_CELLS-1, Math.floor(x/W*GRID_CELLS));
+  const gy = Math.min(GRID_CELLS-1, Math.floor(y/H*GRID_CELLS));
+  if(made) densityMade[gy*GRID_CELLS+gx]++;
+  else     densityMiss[gy*GRID_CELLS+gx]++;
+}
+
+// Drawn onto overlayCanvas
+function drawDensityGlow() {
+  const cw = W/GRID_CELLS, ch = H/GRID_CELLS;
+  for(let gy=0;gy<GRID_CELLS;gy++){
+    for(let gx=0;gx<GRID_CELLS;gx++){
+      const i = gy*GRID_CELLS+gx;
+      const m = densityMade[i], ms = densityMiss[i];
+      if(!m && !ms) continue;
+      const cx=(gx+.5)*cw, cy2=(gy+.5)*ch;
+      const R=Math.max(cw,ch)*1.5;
+      if(m>0){
+        const a = Math.min(.28, m*.014);
+        const g = octx.createRadialGradient(cx,cy2,0,cx,cy2,R);
+        g.addColorStop(0,`rgba(255,200,0,${a})`);
+        g.addColorStop(.5,`rgba(255,120,0,${a*.4})`);
+        g.addColorStop(1,'rgba(255,80,0,0)');
+        octx.fillStyle=g; octx.fillRect(cx-R,cy2-R,R*2,R*2);
+      }
+      if(ms>0){
+        const a = Math.min(.08, ms*.005);
+        const g = octx.createRadialGradient(cx,cy2,0,cx,cy2,R*.8);
+        g.addColorStop(0,`rgba(160,0,0,${a})`);
+        g.addColorStop(1,'rgba(100,0,0,0)');
+        octx.fillStyle=g; octx.fillRect(cx-R,cy2-R,R*2,R*2);
+      }
+    }
+  }
+}
+
+// ─── Shot dot (persistent, drawn on courtCanvas) ──────────────────────────────
+function drawDot(x, y, made) {
+  const r = Math.max(3, W/140);
+  if (made) {
+    // Soft outer halo
+    cctx.beginPath(); cctx.arc(x,y,r*2.2,0,Math.PI*2);
+    cctx.fillStyle='rgba(255,160,0,.12)'; cctx.fill();
+    // Core
+    cctx.save();
+    cctx.shadowColor='rgba(255,215,0,.9)';
+    cctx.shadowBlur=r*4;
+    cctx.beginPath(); cctx.arc(x,y,r*.7,0,Math.PI*2);
+    cctx.fillStyle='#FFD700'; cctx.fill();
+    cctx.restore();
+  } else {
+    const r2=r*.75;
+    cctx.beginPath(); cctx.arc(x,y,r2,0,Math.PI*2);
+    cctx.fillStyle='rgba(90,0,0,.6)';
+    cctx.strokeStyle='rgba(160,30,30,.75)';
+    cctx.lineWidth=1; cctx.fill(); cctx.stroke();
+    const d=r2*.55;
+    cctx.beginPath();
+    cctx.moveTo(x-d,y-d);cctx.lineTo(x+d,y+d);
+    cctx.moveTo(x+d,y-d);cctx.lineTo(x-d,y+d);
+    cctx.strokeStyle='rgba(180,40,40,.65)'; cctx.lineWidth=1; cctx.stroke();
+  }
+}
+
+// ─── Sparks (on overlayCanvas) ────────────────────────────────────────────────
+function spawnSparks(shots) {
+  shots.forEach(s => {
+    const x=parseFloat(s.Left_pct)/100*W;
+    const y=parseFloat(s.Top_pct)/100*H;
+    if(isNaN(x)||isNaN(y)) return;
+    sparks.push({x,y,made:s.Resultado==='CONVERTIDO',age:0,maxAge:s.Resultado==='CONVERTIDO'?20:14});
+  });
+}
+
+function renderSparks() {
+  sparks.forEach(sp => {
+    const t=sp.age/sp.maxAge;
+    const r=Math.max(3,W/140);
+    if(sp.made){
+      const ring=r*(1+t*5);
+      octx.beginPath(); octx.arc(sp.x,sp.y,ring,0,Math.PI*2);
+      octx.strokeStyle=`rgba(255,215,0,${(1-t)*.85})`; octx.lineWidth=Math.max(1,(1-t)*2.5); octx.stroke();
+      for(let i=0;i<6;i++){
+        const a=(i/6)*Math.PI*2+t*1.8;
+        const dist=t*r*6;
+        const px=sp.x+Math.cos(a)*dist, py=sp.y+Math.sin(a)*dist;
+        octx.beginPath(); octx.arc(px,py,Math.max(.5,r*.4*(1-t)),0,Math.PI*2);
+        octx.fillStyle=`rgba(255,${180+Math.random()*60|0},0,${(1-t)*.9})`; octx.fill();
+      }
+    } else {
+      const ring=r*(1+t*2);
+      octx.beginPath(); octx.arc(sp.x,sp.y,ring,0,Math.PI*2);
+      octx.strokeStyle=`rgba(160,20,20,${(1-t)*.6})`; octx.lineWidth=1; octx.stroke();
+    }
+    sp.age++;
+  });
+  sparks = sparks.filter(sp=>sp.age<sp.maxAge);
+}
+
+// ─── Render loop ──────────────────────────────────────────────────────────────
+function renderOverlay() {
+  octx.clearRect(0,0,W,H);
+  drawDensityGlow();
+  renderSparks();
+  if(sparks.length>0){
+    rafId=requestAnimationFrame(renderOverlay);
+  } else {
+    rafId=null;
+    // Final static glow
+    octx.clearRect(0,0,W,H);
+    drawDensityGlow();
+  }
+}
+
+function kickRaf() {
+  if(rafId) return;
+  rafId=requestAnimationFrame(renderOverlay);
+}
+
+// ─── Apply a date group ───────────────────────────────────────────────────────
+function applyGroup(gi, withSparks=true) {
+  const grp=dateGroups[gi];
+  grp.shots.forEach(s=>{
+    const x=parseFloat(s.Left_pct)/100*W;
+    const y=parseFloat(s.Top_pct)/100*H;
+    if(isNaN(x)||isNaN(y)) return;
+    const made=s.Resultado==='CONVERTIDO';
+    drawDot(x,y,made);
+    addDensity(x,y,made);
+    if(made) totalMade++;
+    visibleShots++;
+  });
+  if(withSparks) spawnSparks(grp.shots);
+  kickRaf();
+  updateHUD(grp.date, gi);
+}
+
+function updateHUD(dateStr, gi) {
+  document.getElementById('score-display').textContent = totalMade.toLocaleString('es-AR');
+  document.getElementById('date-display').textContent  = fmtDate(dateStr);
+  document.getElementById('shot-counter').textContent  =
+    `${visibleShots.toLocaleString('es-AR')} tiros · ${totalMade.toLocaleString('es-AR')} convertidos · ${(visibleShots-totalMade).toLocaleString('es-AR')} fallados`;
+  const pct = dateGroups.length>1 ? gi/(dateGroups.length-1)*100 : 100;
+  document.getElementById('timeline').value = pct/100*1000;
+  document.getElementById('tl-fill').style.width = pct+'%';
+}
+
+// ─── Playback ─────────────────────────────────────────────────────────────────
+function scheduleNext() {
+  if(!playing) return;
+  animTimer=setTimeout(()=>{
+    if(!playing) return;
+    if(currentGroup>=dateGroups.length-1){
+      playing=false; document.getElementById('btn-play').textContent='▶ Play'; return;
+    }
+    currentGroup++;
+    applyGroup(currentGroup);
+    scheduleNext();
+  }, BASE_MS/speed);
+}
+
+function togglePlay() {
+  if(!dateGroups.length) return;
+  playing=!playing;
+  document.getElementById('btn-play').textContent=playing?'⏸ Pausa':'▶ Play';
+  if(playing){
+    if(currentGroup>=dateGroups.length-1) doReset();
+    scheduleNext(); kickRaf();
+  } else {
+    clearTimeout(animTimer);
+  }
+}
+
+function resetAnim() {
+  playing=false; clearTimeout(animTimer);
+  document.getElementById('btn-play').textContent='▶ Play';
+  doReset();
+}
+
+function doReset() {
+  sparks=[]; totalMade=0; visibleShots=0; currentGroup=-1;
+  initDensity();
+  drawCourt();
+  octx.clearRect(0,0,W,H);
+  if(rafId){cancelAnimationFrame(rafId);rafId=null;}
+  document.getElementById('score-display').textContent='0';
+  document.getElementById('date-display').textContent='—';
+  document.getElementById('shot-counter').textContent=
+    `${dateGroups.length} fechas · ${(()=>{let n=0;dateGroups.forEach(g=>n+=g.shots.length);return n;})().toLocaleString('es-AR')} tiros en el dataset`;
+  document.getElementById('timeline').value=0;
+  document.getElementById('tl-fill').style.width='0%';
+}
+
+function setSpeed(btn) {
+  speed=parseFloat(btn.dataset.spd);
+  document.querySelectorAll('.speed-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ─── Timeline scrub (debounced) ───────────────────────────────────────────────
+let scrubTimer=null;
+document.getElementById('timeline').addEventListener('input', function(){
+  clearTimeout(animTimer); playing=false;
+  document.getElementById('btn-play').textContent='▶ Play';
+  const pct=this.value/1000;
+  document.getElementById('tl-fill').style.width=(pct*100)+'%';
+  clearTimeout(scrubTimer);
+  scrubTimer=setTimeout(()=>{
+    const target=Math.round(pct*(dateGroups.length-1));
+    replayUpTo(target, false);
+  }, 80);
+});
+
+function replayUpTo(target, withSparks=false) {
+  sparks=[]; totalMade=0; visibleShots=0;
+  initDensity();
+  if(rafId){cancelAnimationFrame(rafId);rafId=null;}
+
+  drawCourt(); // clean slate on courtCanvas
+
+  for(let g=0; g<=target; g++){
+    dateGroups[g].shots.forEach(s=>{
+      const x=parseFloat(s.Left_pct)/100*W;
+      const y=parseFloat(s.Top_pct)/100*H;
+      if(isNaN(x)||isNaN(y)) return;
+      const made=s.Resultado==='CONVERTIDO';
+      drawDot(x,y,made);
+      addDensity(x,y,made);
+      if(made) totalMade++;
+      visibleShots++;
+    });
+  }
+
+  octx.clearRect(0,0,W,H);
+  drawDensityGlow(); // static glow on overlay
+
+  if(withSparks && dateGroups[target]) spawnSparks(dateGroups[target].shots);
+  if(sparks.length) kickRaf();
+
+  currentGroup=target;
+  if(dateGroups[target]) updateHUD(dateGroups[target].date, target);
+}
+
+// ─── Tooltip ──────────────────────────────────────────────────────────────────
+const tip=document.getElementById('tip');
+let tipTimeout=null;
+courtCanvas.addEventListener('mousemove', function(e){
+  clearTimeout(tipTimeout);
+  tipTimeout=setTimeout(()=>{
+    if(!dateGroups.length || currentGroup<0) return;
+    const rect=courtCanvas.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)/rect.width*W;
+    const my=(e.clientY-rect.top)/rect.height*H;
+    const r=Math.max(5,W/100);
+    let found=null;
+    outer: for(let g=currentGroup;g>=Math.max(0,currentGroup-20);g--){
+      for(const s of dateGroups[g].shots){
+        if(Math.hypot(parseFloat(s.Left_pct)/100*W-mx, parseFloat(s.Top_pct)/100*H-my)<r*1.6){
+          found=s; break outer;
+        }
+      }
+    }
+    if(found){
+      const tipo=found.Tipo==='TIRO3'?'Triple':'Doble';
+      const res=found.Resultado==='CONVERTIDO'?'✓ Convertido':'✗ Fallado';
+      tip.innerHTML=`<b>${found.Equipo}</b><br>${tipo} · ${res}<br>${fmtDate(found.Fecha)}<br><span style="color:#475569">Período ${found.Periodo}</span>`;
+      tip.style.display='block';
+      tip.style.left=(e.clientX+14)+'px';
+      tip.style.top=(e.clientY-10)+'px';
+    } else {
+      tip.style.display='none';
+    }
+  }, 30);
+});
+courtCanvas.addEventListener('mouseleave',()=>{tip.style.display='none';});
+
+// ─── Load ─────────────────────────────────────────────────────────────────────
+async function loadData() {
+  document.getElementById('shot-counter').textContent='Cargando datos…';
+  let text;
+  try {
+    text = await (await fetch(`liga_nacional_shots.csv?v=${Date.now()}`)).text();
+  } catch(e) {
+    document.getElementById('shot-counter').textContent='Error al cargar CSV';
+    return;
+  }
+
+  const rows = parseCSV(text).filter(r=>r.Tipo==='TIRO2'||r.Tipo==='TIRO3');
+  rows.sort((a,b)=>parseDate(a.Fecha)-parseDate(b.Fecha));
+
+  const map=new Map();
+  rows.forEach(s=>{
+    if(!map.has(s.Fecha)) map.set(s.Fecha,[]);
+    map.get(s.Fecha).push(s);
+  });
+  dateGroups=Array.from(map.entries()).map(([date,shots])=>({date,shots}));
+
+  if(dateGroups.length){
+    document.getElementById('lbl-start').textContent=fmtDate(dateGroups[0].date);
+    document.getElementById('lbl-end').textContent  =fmtDate(dateGroups[dateGroups.length-1].date);
+  }
+
+  const total=rows.length;
+  document.getElementById('shot-counter').textContent=
+    `${dateGroups.length} fechas · ${total.toLocaleString('es-AR')} tiros en el dataset`;
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+(async function(){
+  resizeCanvas();
+  initDensity();
+  drawCourt();
+  window.addEventListener('resize', resizeCanvas);
+  await loadData();
+})();
+</script>
+</body>
+</html>
