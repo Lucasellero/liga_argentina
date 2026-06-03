@@ -22,6 +22,7 @@ from fiba_u18_utils import (
 )
 
 import json
+import pandas as pd
 
 OUTPUT_CSV = os.path.join(os.path.dirname(__file__), "fiba_u18_shots.csv")
 
@@ -185,12 +186,17 @@ def main():
         except Exception as e:
             print(f"  [ERROR] {game_id}-{slug}: {e}")
 
-    with open(OUTPUT_CSV, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=FIELDNAMES, extrasaction='ignore')
-        writer.writeheader()
-        writer.writerows(all_rows)
+    df_out = pd.DataFrame(all_rows)
+    before = len(df_out)
+    # Solo eliminar tiros de campo (2PT/3PT) consecutivos idénticos
+    is_fg = df_out['shotType'].isin(['2PT', '3PT'])
+    is_consec_dup = (df_out == df_out.shift()).all(axis=1)
+    df_out = df_out[~(is_fg & is_consec_dup)]
+    if len(df_out) < before:
+        print(f"  [WARN] Eliminadas {before - len(df_out)} filas duplicadas consecutivas")
+    df_out.to_csv(OUTPUT_CSV, index=False, encoding='utf-8')
 
-    print(f"\nCSV guardado: {OUTPUT_CSV} ({len(all_rows)} filas)")
+    print(f"\nCSV guardado: {OUTPUT_CSV} ({len(df_out)} filas)")
 
 
 if __name__ == '__main__':

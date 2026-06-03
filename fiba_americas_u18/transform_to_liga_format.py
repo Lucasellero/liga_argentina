@@ -502,6 +502,13 @@ def transform_shots(game_teams):
         })
 
     out_df = pd.DataFrame(rows)
+    before = len(out_df)
+    # Solo eliminar tiros de campo (TIRO2/TIRO3) consecutivos idénticos
+    is_fg = out_df['Tipo'].isin(['TIRO2', 'TIRO3'])
+    is_consec_dup = (out_df == out_df.shift()).all(axis=1)
+    out_df = out_df[~(is_fg & is_consec_dup)]
+    if len(out_df) < before:
+        print(f"  [WARN] Eliminadas {before - len(out_df)} filas duplicadas consecutivas en shots")
     out_path = os.path.join(OUT, "fiba_u18_shots.csv")
     out_df.to_csv(out_path, index=False)
     print(f"Shots: {len(out_df)} filas → {out_path}")
