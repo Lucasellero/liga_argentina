@@ -374,6 +374,32 @@ for gid, ta, tb in games:
 
 ---
 
+## Carpeta `fiba_americas_u18/` — FIBA Americas U18 2026
+
+Segundo torneo cubierto por el dashboard `argentina_formativas`. Mismo enfoque técnico que el U17 pero con su propio módulo de scrapers.
+
+```
+fiba_americas_u18/
+  fiba_u18_utils.py              # módulo compartido: fetch, parseo RSC (fork de fiba_utils.py)
+  boxscore_scraper.py            # genera fiba_u18_boxscore.csv
+  pbp_scraper.py                 # genera fiba_u18_pbp.csv
+  shots_scraper.py               # genera fiba_u18_shots.csv
+  update.py                      # orquestador: corre los 3 scrapers + transform
+  transform_to_liga_format.py    # transforma CSVs crudos → formato Liga Nacional (con inyección de titulares)
+  fiba_u18_boxscore.csv          # stats por jugador por partido (raw, 120 filas por 5 partidos scrapeados)
+  fiba_u18_pbp.csv               # eventos PBP crudos (raw)
+  fiba_u18_shots.csv             # tiros con coordenadas (raw)
+```
+
+**Diferencias respecto al U17:**
+- **URL base**: `https://www.fiba.basketball/es/events/fiba-u18-americup-2026`
+- **Equipo local definido por `GAME_TEAMS`** en el transform (igual que U17)
+- **`GAME_DATES` y `GAME_ETAPA`**: actualizados con las fechas del torneo (León, México, jun 2026)
+- **Fase de playoffs**: el torneo sigue en curso durante junio 2026; los `gameId` de playoffs ya están mapeados en `GAME_TEAMS` con fechas estimadas. Al jugarse, el scraper los descarga y el transform genera los CSVs actualizados.
+- **Workflow automático** (`.github/workflows`): corre diariamente `fiba_americas_u18/update.py` mientras el torneo esté activo, pushea los CSVs nuevos y Vercel redeploya.
+
+---
+
 ## Dashboard — `docs/argentina_formativas/`
 
 El dashboard vive en `docs/argentina_formativas/` y está basado en el de Liga Nacional con las siguientes diferencias intencionales para adaptarse al formato torneo.
@@ -383,14 +409,19 @@ El dashboard vive en `docs/argentina_formativas/` y está basado en el de Liga N
 ```
 docs/argentina_formativas/
   index.html                      # SPA del dashboard
-  argentina_formativas.js         # lógica JS (~4200 líneas)
-  argentina_formativas.csv        # box score transformado (515 filas player + 40 TOTALES)
+  argentina_formativas.js         # lógica JS (~5000 líneas)
+  argentina_formativas.csv        # box score transformado (475 jugadores + 40 TOTALES = 515 filas)
   argentina_formativas_shots.csv  # tiros con coordenadas FIBA nativas x/y (3518 filas)
-  argentina_formativas_pbp.csv    # jugada a jugada en formato Liga Nacional (11351 filas)
+  argentina_formativas_pbp.csv    # jugada a jugada en formato Liga Nacional (11551 filas, incl. 200 titulares sintéticos)
   logos/                          # logos de las 8 selecciones (arg.png, bra.png, etc.)
+  fiba_u18/                       # sub-carpeta con los CSVs del FIBA Americas U18 2026
+    fiba_u18.csv                  # box score U18 (120 jugadores + 10 TOTALES = 130 filas, 5 partidos)
+    fiba_u18_shots.csv            # tiros U18 (937 filas)
+    fiba_u18_pbp.csv              # PBP U18 (3120 filas, incl. 50 titulares sintéticos)
 ```
 
-Los 3 CSVs son generados por `sudamericano_u18/transform_to_liga_format.py`.
+Los CSVs del U17 son generados por `sudamericano_u18/transform_to_liga_format.py`.
+Los CSVs del U18 son generados por `fiba_americas_u18/transform_to_liga_format.py`.
 
 **Diferencia clave en shots CSV**: usa columnas `x`/`y` (unidades FIBA, rango 0–280 × 0–270) en lugar de `Left_pct`/`Top_pct`. Todo el código de renderizado en `argentina_formativas.js` fue adaptado para leer estas columnas directamente.
 
@@ -547,11 +578,36 @@ Para verificar la integridad de cualquier torneo en Scouteado usar los scripts d
 | Stats ↔ PBP (PER) | — | Diferencia de −2 en todo el torneo (mínima, eventos en límite de período) |
 | Zonas shot chart | — | 1624 TIRO2 + 1179 TIRO3 con zona válida (0 nulos) |
 
+### Selector de torneo (U17 ↔ U18)
+
+El dashboard tiene un selector en el header que alterna entre dos torneos:
+
+| Torneo | `_TCFG` key | CSVs | Transform |
+|---|---|---|---|
+| U17 Sudamericano 2025 | `'u17'` | `docs/argentina_formativas/*.csv` | `sudamericano_u18/transform_to_liga_format.py` |
+| U18 FIBA Americas 2026 | `'u18'` | `docs/argentina_formativas/fiba_u18/*.csv` | `fiba_americas_u18/transform_to_liga_format.py` |
+
+`_TCFG` define los paths (`CSV_PATH`, `SHOTS_PATH`, `PBP_PATH`), el nombre del torneo en la UI y las conferencias. Todo código que dependa del torneo activo debe leer de `_TCFG`, nunca hardcodear paths. Al agregar un tercer torneo: añadir una nueva entrada en el objeto `TOURNAMENT_CONFIGS` de `argentina_formativas.js` y crear su `transform_to_liga_format.py` con inyección de titulares.
+
 ### Para regenerar los CSVs del dashboard
 
 ```bash
 cd liga_argentina   # o la raíz del repo
+
+# U17 (Sudamericano 2025)
 python sudamericano_u18/transform_to_liga_format.py
+
+# U18 (FIBA Americas 2026)
+python fiba_americas_u18/transform_to_liga_format.py
 ```
 
-Sobreescribe los 3 CSVs en `docs/argentina_formativas/`.
+Cada script sobreescribe sus 3 CSVs de destino. Ambos incluyen la inyección de titulares sintéticos para 100% de cobertura en quintetos.
+
+**Para scrapear datos nuevos (U18) antes de regenerar:**
+```bash
+PYTHONPATH=/tmp/pkgs python3 fiba_americas_u18/boxscore_scraper.py
+PYTHONPATH=/tmp/pkgs python3 fiba_americas_u18/pbp_scraper.py
+PYTHONPATH=/tmp/pkgs python3 fiba_americas_u18/shots_scraper.py
+# Luego regenerar:
+python fiba_americas_u18/transform_to_liga_format.py
+```
