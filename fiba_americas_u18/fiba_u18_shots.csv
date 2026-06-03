@@ -1290,3 +1290,187 @@ gameId,gameName,date,teamA_code,teamB_code,period,timeRemaining,scoreA,scoreB,or
 130886,30373-B-4,,PUR,VEN,Q4,0:12,76,74,125,PUR,319575,Felipe,Quinones,21,FT,1st free throw made,1,1,FT,0,0
 130886,30373-B-4,,PUR,VEN,Q4,0:12,77,74,125,PUR,319575,Felipe,Quinones,21,FT,1st of 2 free throws made,1,1,FT,0,0
 130886,30373-B-4,,PUR,VEN,Q4,0:12,78,74,125,PUR,319575,Felipe,Quinones,21,FT,2nd of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q1,9:40,0,0,154,USA,416558,Quentin,Coleman,11,P3,3pt jump shot missed,0,3,3PT,8,45
+130878,30373-A-3,,MEX,USA,Q1,9:36,0,2,154,USA,341544,Caleb,Gaskins,12,P2,"2PtsFG under the basket, layup made",1,2,2PT,139,32
+130878,30373-A-3,,MEX,USA,Q1,9:12,0,2,104,MEX,417033,Pedro,Villanueva,9,P3,3pt jump shot missed,0,3,3PT,274,49
+130878,30373-A-3,,MEX,USA,Q1,9:02,0,5,154,USA,369232,Taylen,Kinney,4,P3,3pt jump shot made,1,3,3PT,31,113
+130878,30373-A-3,,MEX,USA,Q1,8:36,0,5,104,MEX,416257,Isaiah,Barnes,25,P3,3pt jump shot missed,0,3,3PT,190,159
+130878,30373-A-3,,MEX,USA,Q1,8:27,0,5,154,USA,341544,Caleb,Gaskins,12,FT,1st of 2 free throws missed,0,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q1,8:27,0,6,154,USA,341544,Caleb,Gaskins,12,FT,2nd of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q1,8:12,1,6,104,MEX,416181,Andre,Alvarez,6,FT,1st of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q1,8:12,1,6,104,MEX,416181,Andre,Alvarez,6,FT,2nd of 2 free throws missed,0,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q1,7:57,1,9,154,USA,341544,Caleb,Gaskins,12,P3,3pt jump shot made,1,3,3PT,38,124
+130878,30373-A-3,,MEX,USA,Q1,7:37,1,9,104,MEX,417033,Pedro,Villanueva,9,P2,2pt fadeaway jump shot missed,0,2,2PT,195,90
+130878,30373-A-3,,MEX,USA,Q1,7:31,1,9,154,USA,416558,Quentin,Coleman,11,P2,"2PtsFG under the basket, alley oop lay-up missed",0,2,2PT,139,39
+130878,30373-A-3,,MEX,USA,Q1,7:26,3,9,104,MEX,369235,Adrien,Porras,12,P2,"2PtsFG under the basket, fast break, driving layup made",1,2,2PT,138,40
+130878,30373-A-3,,MEX,USA,Q1,7:26,4,9,104,MEX,369235,Adrien,Porras,12,FT,1st free throw made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q1,7:08,4,9,154,USA,410523,Colben,Landrew,7,P3,3pt jump shot missed,0,3,3PT,8,24
+130878,30373-A-3,,MEX,USA,Q1,7:05,4,9,154,USA,416460,Ethan,Taylor,15,FT,1st of 2 free throws missed,0,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q1,7:05,4,10,154,USA,416460,Ethan,Taylor,15,FT,2nd of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q1,6:43,4,10,104,MEX,417033,Pedro,Villanueva,9,P3,3pt jump shot from center missed,0,3,3PT,148,161
+130878,30373-A-3,,MEX,USA,Q1,6:26,4,10,104,MEX,416258,Cisco,Muñoz,0,P3,3pt jump shot missed,0,3,3PT,173,163
+130878,30373-A-3,,MEX,USA,Q1,6:11,4,10,104,MEX,416258,Cisco,Muñoz,0,P2,2pt driving layup missed,0,2,2PT,127,49
+130878,30373-A-3,,MEX,USA,Q1,6:07,6,10,104,MEX,416257,Isaiah,Barnes,25,P2,2pt fadeaway jump shot made,1,2,2PT,70,38
+130878,30373-A-3,,MEX,USA,Q1,5:45,6,10,154,USA,410526,Davion,Thompson,6,P3,3pt jump shot missed,0,3,3PT,21,121
+130878,30373-A-3,,MEX,USA,Q1,5:39,6,10,104,MEX,416258,Cisco,Muñoz,0,P3,3pt jump shot missed,0,3,3PT,28,105
+130878,30373-A-3,,MEX,USA,Q1,5:11,8,10,104,MEX,369235,Adrien,Porras,12,P2,"2PtsFG inside left, points after turnover, jump shot made",1,2,2PT,39,76
+130878,30373-A-3,,MEX,USA,Q1,4:52,8,12,154,USA,410530,Darius,Wabbington,13,P2,"2PtsFG inside center, jump shot made",1,2,2PT,109,123
+130878,30373-A-3,,MEX,USA,Q1,4:29,10,12,104,MEX,369235,Adrien,Porras,12,P2,"2PtsFG under the basket, layup made",1,2,2PT,132,21
+130878,30373-A-3,,MEX,USA,Q1,4:13,10,15,154,USA,416446,Adan,Diggs,10,P3,3pt jump shot made,1,3,3PT,274,35
+130878,30373-A-3,,MEX,USA,Q1,3:48,10,15,104,MEX,416258,Cisco,Muñoz,0,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,148,33
+130878,30373-A-3,,MEX,USA,Q1,3:40,10,18,154,USA,341544,Caleb,Gaskins,12,P3,3pt jump shot made,1,3,3PT,272,24
+130878,30373-A-3,,MEX,USA,Q1,3:00,10,20,154,USA,416453,Malachi,Jordan,5,P2,"2PtsFG inside paint, points from fastbreak + after turnover, dunk made",1,2,2PT,141,51
+130878,30373-A-3,,MEX,USA,Q1,2:36,10,22,154,USA,410509,Bruce,Branch III,8,P2,"2PtsFG under the basket, points after turnover, layup made",1,2,2PT,138,38
+130878,30373-A-3,,MEX,USA,Q1,2:14,10,22,104,MEX,416257,Isaiah,Barnes,25,P3,3pt jump shot missed,0,3,3PT,271,26
+130878,30373-A-3,,MEX,USA,Q1,2:05,10,22,154,USA,416446,Adan,Diggs,10,P3,3pt jump shot missed,0,3,3PT,17,104
+130878,30373-A-3,,MEX,USA,Q1,1:59,10,22,104,MEX,377234,Yair,Olano,10,FT,1st of 2 free throws missed,0,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q1,1:59,11,22,104,MEX,377234,Yair,Olano,10,FT,2nd of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q1,1:44,11,23,154,USA,410509,Bruce,Branch III,8,FT,1st of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q1,1:44,11,24,154,USA,410509,Bruce,Branch III,8,FT,2nd of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q1,1:24,13,24,104,MEX,369235,Adrien,Porras,12,P2,"2PtsFG under the basket, reverse lay-up made",1,2,2PT,141,22
+130878,30373-A-3,,MEX,USA,Q1,1:11,13,27,154,USA,416453,Malachi,Jordan,5,P3,3pt jump shot made,1,3,3PT,223,143
+130878,30373-A-3,,MEX,USA,Q1,0:54,13,27,104,MEX,416257,Isaiah,Barnes,25,P3,3pt jump shot from center missed,0,3,3PT,149,176
+130878,30373-A-3,,MEX,USA,Q1,0:41,13,27,154,USA,416519,Jasiah,Jervis,9,P2,2pt jump shot missed,0,2,2PT,144,103
+130878,30373-A-3,,MEX,USA,Q1,0:38,13,27,154,USA,416558,Quentin,Coleman,11,P2,"2PtsFG under the basket, jump shot missed",0,2,2PT,140,30
+130878,30373-A-3,,MEX,USA,Q1,0:04,13,27,154,USA,416453,Malachi,Jordan,5,P3,3pt jump shot missed,0,3,3PT,243,135
+130878,30373-A-3,,MEX,USA,Q1,0:00,13,29,154,USA,416558,Quentin,Coleman,11,P2,"2PtsFG under the basket, points from second chance + after turnover, driving layup made",1,2,2PT,143,34
+130878,30373-A-3,,MEX,USA,Q2,9:36,13,29,104,MEX,417035,Elias,Ramos,14,P3,3pt jump shot from center missed,0,3,3PT,157,166
+130878,30373-A-3,,MEX,USA,Q2,9:27,13,31,154,USA,341544,Caleb,Gaskins,12,P2,"2PtsFG under the basket, reverse lay-up made",1,2,2PT,143,31
+130878,30373-A-3,,MEX,USA,Q2,9:10,15,31,104,MEX,377234,Yair,Olano,10,P2,2pt step back jump shot made,1,2,2PT,217,39
+130878,30373-A-3,,MEX,USA,Q2,9:00,15,33,154,USA,410523,Colben,Landrew,7,P2,"2PtsFG under the basket, alley oop lay-up made",1,2,2PT,131,29
+130878,30373-A-3,,MEX,USA,Q2,8:39,15,33,104,MEX,377234,Yair,Olano,10,P2,2pt jump shot missed,0,2,2PT,167,90
+130878,30373-A-3,,MEX,USA,Q2,8:30,15,33,154,USA,416558,Quentin,Coleman,11,P3,3pt jump shot missed,0,3,3PT,58,156
+130878,30373-A-3,,MEX,USA,Q2,8:03,15,33,104,MEX,416258,Cisco,Muñoz,0,P3,3pt jump shot missed,0,3,3PT,148,177
+130878,30373-A-3,,MEX,USA,Q2,7:46,15,35,154,USA,341544,Caleb,Gaskins,12,P2,"2PtsFG inside center, jump shot made",1,2,2PT,187,112
+130878,30373-A-3,,MEX,USA,Q2,7:16,15,35,104,MEX,417035,Elias,Ramos,14,P3,3pt jump shot missed,0,3,3PT,233,158
+130878,30373-A-3,,MEX,USA,Q2,7:08,15,35,154,USA,341544,Caleb,Gaskins,12,P3,3pt jump shot from center missed,0,3,3PT,165,175
+130878,30373-A-3,,MEX,USA,Q2,6:53,15,35,104,MEX,416258,Cisco,Muñoz,0,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,132,30
+130878,30373-A-3,,MEX,USA,Q2,6:49,17,35,104,MEX,369235,Adrien,Porras,12,P2,2PtsFG under the basket made,1,2,2PT,140,31
+130878,30373-A-3,,MEX,USA,Q2,6:35,17,35,104,MEX,377234,Yair,Olano,10,FT,Free throw missed 1 of 2,0,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q2,6:35,17,35,104,MEX,377234,Yair,Olano,10,FT,Free throw missed 2 of 2,0,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q2,6:23,17,38,154,USA,416558,Quentin,Coleman,11,P3,3pt jump shot made,1,3,3PT,9,30
+130878,30373-A-3,,MEX,USA,Q2,5:59,17,38,104,MEX,377234,Yair,Olano,10,P3,3pt step back jump shot missed,0,3,3PT,69,155
+130878,30373-A-3,,MEX,USA,Q2,5:52,19,38,104,MEX,369235,Adrien,Porras,12,P2,"2PtsFG under the basket, dunk made",1,2,2PT,137,27
+130878,30373-A-3,,MEX,USA,Q2,5:36,19,40,154,USA,416447,Demarcus,Henry,14,P2,"2PtsFG under the basket, reverse lay-up made",1,2,2PT,139,31
+130878,30373-A-3,,MEX,USA,Q2,5:17,19,43,154,USA,410526,Davion,Thompson,6,P3,3pt jump shot made,1,3,3PT,36,126
+130878,30373-A-3,,MEX,USA,Q2,4:55,19,43,104,MEX,416129,Juan,Escalante,5,P3,3pt jump shot missed,0,3,3PT,274,36
+130878,30373-A-3,,MEX,USA,Q2,4:47,19,43,154,USA,410530,Darius,Wabbington,13,P2,2pt floating jump shot missed,0,2,2PT,131,66
+130878,30373-A-3,,MEX,USA,Q2,4:40,21,43,104,MEX,369235,Adrien,Porras,12,P2,"2PtsFG under the basket, fast break, dunk made",1,2,2PT,135,28
+130878,30373-A-3,,MEX,USA,Q2,4:28,21,43,154,USA,410530,Darius,Wabbington,13,P2,"2PtsFG under the basket, reverse lay-up missed",0,2,2PT,130,29
+130878,30373-A-3,,MEX,USA,Q2,4:23,22,43,104,MEX,416257,Isaiah,Barnes,25,FT,1st of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q2,4:23,23,43,104,MEX,416257,Isaiah,Barnes,25,FT,2nd of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q2,3:59,23,43,104,MEX,377234,Yair,Olano,10,P2,"2PtsFG under the basket, points after turnover, driving layup missed",0,2,2PT,139,35
+130878,30373-A-3,,MEX,USA,Q2,3:38,23,45,154,USA,416446,Adan,Diggs,10,P2,"2PtsFG under the basket, driving layup made",1,2,2PT,155,43
+130878,30373-A-3,,MEX,USA,Q2,3:16,23,45,104,MEX,369235,Adrien,Porras,12,P2,2pt fadeaway jump shot missed,0,2,2PT,175,118
+130878,30373-A-3,,MEX,USA,Q2,3:06,23,45,154,USA,416446,Adan,Diggs,10,P3,3pt jump shot missed,0,3,3PT,7,70
+130878,30373-A-3,,MEX,USA,Q2,3:00,23,47,154,USA,416446,Adan,Diggs,10,P2,2pt floating jump shot made,1,2,2PT,165,64
+130878,30373-A-3,,MEX,USA,Q2,2:33,23,47,104,MEX,377234,Yair,Olano,10,P3,3pt jump shot from center missed,0,3,3PT,94,167
+130878,30373-A-3,,MEX,USA,Q2,2:24,23,47,154,USA,416558,Quentin,Coleman,11,P3,3pt jump shot missed,0,3,3PT,229,160
+130878,30373-A-3,,MEX,USA,Q2,2:20,23,47,154,USA,416446,Adan,Diggs,10,P3,3pt jump shot missed,0,3,3PT,129,171
+130878,30373-A-3,,MEX,USA,Q2,2:01,23,47,104,MEX,416257,Isaiah,Barnes,25,P2,2pt pullup jump shot missed,0,2,2PT,137,113
+130878,30373-A-3,,MEX,USA,Q2,1:56,25,47,104,MEX,377100,Ayrton,Vallejo,24,P2,"2PtsFG under the basket, layup made",1,2,2PT,138,31
+130878,30373-A-3,,MEX,USA,Q2,1:25,25,49,154,USA,410509,Bruce,Branch III,8,P2,"2PtsFG under the basket, points from fastbreak + after turnover, layup made",1,2,2PT,131,30
+130878,30373-A-3,,MEX,USA,Q2,1:02,25,49,104,MEX,377100,Ayrton,Vallejo,24,P2,2pt hook shot missed,0,2,2PT,165,50
+130878,30373-A-3,,MEX,USA,Q2,0:54,25,51,154,USA,416446,Adan,Diggs,10,P2,"2PtsFG under the basket, fast break, driving layup made",1,2,2PT,146,37
+130878,30373-A-3,,MEX,USA,Q2,0:38,25,51,104,MEX,416257,Isaiah,Barnes,25,P2,2pt driving layup missed,0,2,2PT,164,68
+130878,30373-A-3,,MEX,USA,Q2,0:16,25,54,154,USA,410526,Davion,Thompson,6,P3,3pt jump shot made,1,3,3PT,46,147
+130878,30373-A-3,,MEX,USA,Q2,0:02,25,56,154,USA,416460,Ethan,Taylor,15,P2,"2PtsFG under the basket, points after turnover, layup made",1,2,2PT,153,36
+130878,30373-A-3,,MEX,USA,Q3,9:47,25,56,154,USA,410509,Bruce,Branch III,8,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,149,32
+130878,30373-A-3,,MEX,USA,Q3,9:43,25,58,154,USA,416460,Ethan,Taylor,15,P2,2PtsFG under the basket made,1,2,2PT,140,31
+130878,30373-A-3,,MEX,USA,Q3,9:26,25,58,104,MEX,377100,Ayrton,Vallejo,24,P3,3pt step back jump shot missed,0,3,3PT,270,36
+130878,30373-A-3,,MEX,USA,Q3,9:21,25,60,154,USA,410523,Colben,Landrew,7,P2,"2PtsFG under the basket, fast break, driving layup made",1,2,2PT,137,35
+130878,30373-A-3,,MEX,USA,Q3,8:59,25,60,104,MEX,417033,Pedro,Villanueva,9,P2,"2PtsFG inside left, jump shot missed",0,2,2PT,56,44
+130878,30373-A-3,,MEX,USA,Q3,8:47,25,63,154,USA,369232,Taylen,Kinney,4,P3,3pt jump shot made,1,3,3PT,27,120
+130878,30373-A-3,,MEX,USA,Q3,8:21,25,63,104,MEX,416258,Cisco,Muñoz,0,FT,1st of 2 free throws missed,0,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q3,8:21,25,63,104,MEX,416258,Cisco,Muñoz,0,FT,2nd of 2 free throws missed,0,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q3,8:03,25,66,154,USA,369232,Taylen,Kinney,4,P3,3pt jump shot made,1,3,3PT,19,95
+130878,30373-A-3,,MEX,USA,Q3,7:34,28,66,104,MEX,377100,Ayrton,Vallejo,24,P3,3pt jump shot made,1,3,3PT,28,115
+130878,30373-A-3,,MEX,USA,Q3,7:13,28,69,154,USA,410523,Colben,Landrew,7,P3,3pt jump shot made,1,3,3PT,5,24
+130878,30373-A-3,,MEX,USA,Q3,6:50,28,69,104,MEX,416258,Cisco,Muñoz,0,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,148,20
+130878,30373-A-3,,MEX,USA,Q3,6:43,28,69,104,MEX,369235,Adrien,Porras,12,P2,"2PtsFG under the basket, dunk missed",0,2,2PT,142,31
+130878,30373-A-3,,MEX,USA,Q3,6:35,28,69,104,MEX,417033,Pedro,Villanueva,9,P3,3pt jump shot missed,0,3,3PT,226,145
+130878,30373-A-3,,MEX,USA,Q3,6:24,28,71,154,USA,369232,Taylen,Kinney,4,P2,2pt fadeaway jump shot made,1,2,2PT,208,68
+130878,30373-A-3,,MEX,USA,Q3,6:10,28,71,104,MEX,369235,Adrien,Porras,12,P3,3pt jump shot from center missed,0,3,3PT,127,171
+130878,30373-A-3,,MEX,USA,Q3,6:00,28,73,154,USA,410523,Colben,Landrew,7,P2,2pt jump shot made,1,2,2PT,164,57
+130878,30373-A-3,,MEX,USA,Q3,5:36,28,73,104,MEX,416258,Cisco,Muñoz,0,P3,3pt jump shot from center missed,0,3,3PT,184,165
+130878,30373-A-3,,MEX,USA,Q3,5:27,28,73,154,USA,416446,Adan,Diggs,10,P2,"2PtsFG under the basket, floating jump shot missed",0,2,2PT,149,43
+130878,30373-A-3,,MEX,USA,Q3,5:23,28,73,154,USA,416446,Adan,Diggs,10,P2,2PtsFG under the basket missed,0,2,2PT,140,31
+130878,30373-A-3,,MEX,USA,Q3,5:22,28,75,154,USA,416446,Adan,Diggs,10,P2,2PtsFG under the basket made,1,2,2PT,140,31
+130878,30373-A-3,,MEX,USA,Q3,5:03,28,75,104,MEX,377234,Yair,Olano,10,P2,"2PtsFG inside left, jump shot missed",0,2,2PT,74,91
+130878,30373-A-3,,MEX,USA,Q3,4:54,28,75,154,USA,369232,Taylen,Kinney,4,P3,3pt jump shot missed,0,3,3PT,62,157
+130878,30373-A-3,,MEX,USA,Q3,4:43,28,76,154,USA,410523,Colben,Landrew,7,FT,Free throw made 1 of 2,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q3,4:43,28,77,154,USA,410523,Colben,Landrew,7,FT,Free throw made 2 of 2,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q3,4:32,28,77,104,MEX,417033,Pedro,Villanueva,9,P3,3pt jump shot missed,0,3,3PT,11,41
+130878,30373-A-3,,MEX,USA,Q3,4:22,28,77,154,USA,410526,Davion,Thompson,6,P3,3pt jump shot missed,0,3,3PT,7,44
+130878,30373-A-3,,MEX,USA,Q3,4:16,28,77,154,USA,416446,Adan,Diggs,10,P3,3pt jump shot missed,0,3,3PT,208,157
+130878,30373-A-3,,MEX,USA,Q3,3:55,28,77,104,MEX,369235,Adrien,Porras,12,P3,3pt jump shot missed,0,3,3PT,67,156
+130878,30373-A-3,,MEX,USA,Q3,3:18,28,77,104,MEX,417035,Elias,Ramos,14,P3,3pt jump shot missed,0,3,3PT,5,28
+130878,30373-A-3,,MEX,USA,Q3,3:09,30,77,104,MEX,416257,Isaiah,Barnes,25,P2,"2PtsFG under the basket, points from fastbreak + after turnover, driving layup made",1,2,2PT,153,25
+130878,30373-A-3,,MEX,USA,Q3,3:00,30,77,154,USA,416519,Jasiah,Jervis,9,P3,3pt jump shot missed,0,3,3PT,39,133
+130878,30373-A-3,,MEX,USA,Q3,2:56,30,77,154,USA,410530,Darius,Wabbington,13,P2,"2PtsFG under the basket, layup missed",0,2,2PT,160,39
+130878,30373-A-3,,MEX,USA,Q3,2:50,30,77,154,USA,416446,Adan,Diggs,10,P2,"2PtsFG under the basket, layup missed",0,2,2PT,150,30
+130878,30373-A-3,,MEX,USA,Q3,2:26,30,77,154,USA,416519,Jasiah,Jervis,9,P2,2pt driving layup missed,0,2,2PT,173,33
+130878,30373-A-3,,MEX,USA,Q3,2:16,30,77,104,MEX,369235,Adrien,Porras,12,P3,3pt jump shot missed,0,3,3PT,234,135
+130878,30373-A-3,,MEX,USA,Q3,2:00,30,77,154,USA,410526,Davion,Thompson,6,FT,Free throw missed 1 of 2,0,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q3,2:00,30,77,154,USA,410526,Davion,Thompson,6,FT,Free throw missed 2 of 2,0,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q3,1:51,30,77,154,USA,410526,Davion,Thompson,6,P3,3pt jump shot missed,0,3,3PT,265,165
+130878,30373-A-3,,MEX,USA,Q3,1:48,30,77,154,USA,416519,Jasiah,Jervis,9,FT,1st of 2 free throws missed,0,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q3,1:48,30,78,154,USA,416519,Jasiah,Jervis,9,FT,2nd of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q3,1:32,30,79,154,USA,410526,Davion,Thompson,6,FT,Free throw made 1 of 2,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q3,1:32,30,80,154,USA,410526,Davion,Thompson,6,FT,Free throw made 2 of 2,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q3,1:04,30,80,104,MEX,377100,Ayrton,Vallejo,24,P2,2pt step back jump shot missed,0,2,2PT,213,46
+130878,30373-A-3,,MEX,USA,Q3,0:51,30,80,154,USA,369232,Taylen,Kinney,4,FT,1st of 3 free throws missed,0,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q3,0:51,30,80,154,USA,369232,Taylen,Kinney,4,FT,2nd of 3 free throws missed,0,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q3,0:51,30,81,154,USA,369232,Taylen,Kinney,4,FT,3rd of 3 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q3,0:26,30,81,104,MEX,416264,Miguel,Ayala,8,P2,2pt pullup jump shot missed,0,2,2PT,207,69
+130878,30373-A-3,,MEX,USA,Q3,0:03,30,81,154,USA,416519,Jasiah,Jervis,9,P3,3pt jump shot missed,0,3,3PT,12,30
+130878,30373-A-3,,MEX,USA,Q3,0:00,30,81,104,MEX,416257,Isaiah,Barnes,25,P3,"3PtsFG back court, jump shot missed",0,3,3PT,102,211
+130878,30373-A-3,,MEX,USA,Q4,9:48,30,81,154,USA,416558,Quentin,Coleman,11,P3,3pt jump shot missed,0,3,3PT,15,116
+130878,30373-A-3,,MEX,USA,Q4,9:42,30,81,154,USA,416446,Adan,Diggs,10,FT,Free throw missed 1 of 2,0,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q4,9:42,30,82,154,USA,416446,Adan,Diggs,10,FT,Free throw made 2 of 2,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q4,9:27,32,82,104,MEX,416257,Isaiah,Barnes,25,P2,"2PtsFG under the basket, driving layup made",1,2,2PT,148,29
+130878,30373-A-3,,MEX,USA,Q4,8:59,33,82,104,MEX,416257,Isaiah,Barnes,25,FT,1st of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q4,8:59,34,82,104,MEX,416257,Isaiah,Barnes,25,FT,2nd of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q4,8:47,34,82,154,USA,410523,Colben,Landrew,7,P3,3pt jump shot missed,0,3,3PT,270,48
+130878,30373-A-3,,MEX,USA,Q4,8:43,34,84,154,USA,416558,Quentin,Coleman,11,P2,layup made,1,2,2PT,160,48
+130878,30373-A-3,,MEX,USA,Q4,8:28,34,84,104,MEX,416257,Isaiah,Barnes,25,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,125,38
+130878,30373-A-3,,MEX,USA,Q4,8:08,34,84,154,USA,369232,Taylen,Kinney,4,P2,"2PtsFG inside left, points after turnover, jump shot missed",0,2,2PT,75,48
+130878,30373-A-3,,MEX,USA,Q4,7:51,34,86,154,USA,416519,Jasiah,Jervis,9,P2,"2PtsFG under the basket, points from fastbreak + after turnover, dunk made",1,2,2PT,138,23
+130878,30373-A-3,,MEX,USA,Q4,7:28,34,86,104,MEX,417033,Pedro,Villanueva,9,P3,3pt jump shot missed,0,3,3PT,7,32
+130878,30373-A-3,,MEX,USA,Q4,7:23,36,86,104,MEX,416258,Cisco,Muñoz,0,P2,"2PtsFG under the basket, layup made",1,2,2PT,140,36
+130878,30373-A-3,,MEX,USA,Q4,7:10,36,86,154,USA,410523,Colben,Landrew,7,P3,3pt jump shot missed,0,3,3PT,239,138
+130878,30373-A-3,,MEX,USA,Q4,6:52,36,86,104,MEX,369235,Adrien,Porras,12,FT,1st of 2 free throws missed,0,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q4,6:52,37,86,104,MEX,369235,Adrien,Porras,12,FT,2nd of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q4,6:33,39,86,104,MEX,416258,Cisco,Muñoz,0,P2,"2PtsFG under the basket, points from fastbreak + after turnover, layup made",1,2,2PT,149,32
+130878,30373-A-3,,MEX,USA,Q4,6:19,39,89,154,USA,416453,Malachi,Jordan,5,P3,3pt jump shot made,1,3,3PT,51,134
+130878,30373-A-3,,MEX,USA,Q4,5:48,39,89,154,USA,410509,Bruce,Branch III,8,P3,3pt jump shot missed,0,3,3PT,43,138
+130878,30373-A-3,,MEX,USA,Q4,5:39,41,89,104,MEX,416258,Cisco,Muñoz,0,P2,"2PtsFG under the basket, driving layup made",1,2,2PT,134,33
+130878,30373-A-3,,MEX,USA,Q4,5:37,41,89,104,MEX,416258,Cisco,Muñoz,0,FT,1st free throw missed,0,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q4,5:26,41,89,154,USA,416453,Malachi,Jordan,5,P3,3pt jump shot missed,0,3,3PT,83,158
+130878,30373-A-3,,MEX,USA,Q4,4:48,41,89,104,MEX,377234,Yair,Olano,10,P2,2pt step back jump shot missed,0,2,2PT,205,51
+130878,30373-A-3,,MEX,USA,Q4,4:41,41,91,154,USA,416447,Demarcus,Henry,14,P2,"2PtsFG under the basket, fast break, driving layup made",1,2,2PT,141,31
+130878,30373-A-3,,MEX,USA,Q4,4:24,44,91,104,MEX,416258,Cisco,Muñoz,0,P3,3pt step back jump shot made,1,3,3PT,134,178
+130878,30373-A-3,,MEX,USA,Q4,4:08,44,93,154,USA,416447,Demarcus,Henry,14,P2,"2PtsFG under the basket, driving layup made",1,2,2PT,137,28
+130878,30373-A-3,,MEX,USA,Q4,3:47,44,93,104,MEX,377234,Yair,Olano,10,P3,3pt jump shot from center missed,0,3,3PT,139,182
+130878,30373-A-3,,MEX,USA,Q4,3:43,44,95,154,USA,416519,Jasiah,Jervis,9,P2,"2PtsFG under the basket, fast break, dunk made",1,2,2PT,148,31
+130878,30373-A-3,,MEX,USA,Q4,3:22,44,95,104,MEX,417033,Pedro,Villanueva,9,P3,3pt jump shot missed,0,3,3PT,274,44
+130878,30373-A-3,,MEX,USA,Q4,3:15,44,97,154,USA,410526,Davion,Thompson,6,P2,"2PtsFG under the basket, fast break, layup made",1,2,2PT,135,23
+130878,30373-A-3,,MEX,USA,Q4,2:51,46,97,104,MEX,416258,Cisco,Muñoz,0,P2,2pt fadeaway jump shot made,1,2,2PT,141,111
+130878,30373-A-3,,MEX,USA,Q4,2:39,46,97,154,USA,410526,Davion,Thompson,6,P3,3pt jump shot missed,0,3,3PT,243,147
+130878,30373-A-3,,MEX,USA,Q4,2:34,46,97,104,MEX,377100,Ayrton,Vallejo,24,P2,"2PtsFG under the basket, layup missed",0,2,2PT,141,21
+130878,30373-A-3,,MEX,USA,Q4,2:25,46,98,154,USA,410509,Bruce,Branch III,8,FT,1st of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q4,2:25,46,99,154,USA,410509,Bruce,Branch III,8,FT,2nd of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q4,2:08,46,99,104,MEX,416258,Cisco,Muñoz,0,P3,3pt step back jump shot missed,0,3,3PT,115,183
+130878,30373-A-3,,MEX,USA,Q4,2:00,46,99,104,MEX,417035,Elias,Ramos,14,P3,3pt jump shot missed,0,3,3PT,40,136
+130878,30373-A-3,,MEX,USA,Q4,1:46,46,102,154,USA,416519,Jasiah,Jervis,9,P3,3pt jump shot made,1,3,3PT,254,123
+130878,30373-A-3,,MEX,USA,Q4,1:33,47,102,104,MEX,377234,Yair,Olano,10,FT,1st of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q4,1:33,48,102,104,MEX,377234,Yair,Olano,10,FT,2nd of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q4,1:20,48,104,154,USA,410509,Bruce,Branch III,8,P2,"2PtsFG under the basket, driving layup made",1,2,2PT,141,30
+130878,30373-A-3,,MEX,USA,Q4,1:12,49,104,104,MEX,416258,Cisco,Muñoz,0,FT,1st of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q4,1:12,50,104,104,MEX,416258,Cisco,Muñoz,0,FT,2nd of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q4,0:54,50,106,154,USA,416447,Demarcus,Henry,14,P2,"2PtsFG under the basket, layup made",1,2,2PT,152,31
+130878,30373-A-3,,MEX,USA,Q4,0:36,50,106,104,MEX,416181,Andre,Alvarez,6,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,123,29
+130878,30373-A-3,,MEX,USA,Q4,0:27,50,106,154,USA,416453,Malachi,Jordan,5,P2,"2PtsFG under the basket, jump shot missed",0,2,2PT,164,25
+130878,30373-A-3,,MEX,USA,Q4,0:12,50,106,154,USA,416519,Jasiah,Jervis,9,P3,3pt jump shot missed,0,3,3PT,272,76
+130878,30373-A-3,,MEX,USA,Q4,0:07,50,107,154,USA,416447,Demarcus,Henry,14,FT,1st of 2 free throws made,1,1,FT,0,0
+130878,30373-A-3,,MEX,USA,Q4,0:07,50,107,154,USA,416447,Demarcus,Henry,14,FT,2nd of 2 free throws missed,0,1,FT,0,0
