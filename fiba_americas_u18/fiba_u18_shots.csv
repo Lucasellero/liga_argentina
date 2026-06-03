@@ -393,6 +393,103 @@ gameId,gameName,date,teamA_code,teamB_code,period,timeRemaining,scoreA,scoreB,or
 130877,30373-A-2,,BRA,MEX,Q4,0:37,103,70,104,MEX,415754,Maximo,Felix,7,FT,Free throw made 2 of 2,1,1,FT,0,0
 130877,30373-A-2,,BRA,MEX,Q4,0:22,103,70,27,BRA,375131,Lucas,Moro,8,P3,3pt jump shot missed,0,3,3PT,272,47
 130877,30373-A-2,,BRA,MEX,Q4,0:09,103,70,104,MEX,415754,Maximo,Felix,7,P3,3pt jump shot missed,0,3,3PT,243,123
+130880,30373-A-4,,ARG,BRA,Q1,9:34,0,0,14,ARG,408871,Manuel,Hernandez,4,P2,"2PtsFG inside center, points after turnover, jump shot missed",0,2,2PT,149,105
+130880,30373-A-4,,ARG,BRA,Q1,9:27,0,2,27,BRA,330047,Pedro,Souza,11,P2,"2PtsFG under the basket, fast break, driving layup made",1,2,2PT,141,35
+130880,30373-A-4,,ARG,BRA,Q1,9:11,1,2,14,ARG,362126,Benjamin,Pettovello,32,FT,1st of 2 free throws made,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q1,9:11,1,2,14,ARG,362126,Benjamin,Pettovello,32,FT,2nd of 2 free throws missed,0,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q1,8:50,1,5,27,BRA,330039,Joao,Neves,14,P3,3pt jump shot made,1,3,3PT,29,120
+130880,30373-A-4,,ARG,BRA,Q1,8:29,4,5,14,ARG,409151,Santiago,Pettinaroli,14,P3,3pt jump shot made,1,3,3PT,15,94
+130880,30373-A-4,,ARG,BRA,Q1,8:15,4,8,27,BRA,330039,Joao,Neves,14,P3,3pt jump shot from center made,1,3,3PT,165,170
+130880,30373-A-4,,ARG,BRA,Q1,7:56,4,8,14,ARG,408871,Manuel,Hernandez,4,P3,3pt jump shot from center missed,0,3,3PT,134,168
+130880,30373-A-4,,ARG,BRA,Q1,7:47,4,8,27,BRA,405101,Pietro,Melo,10,P3,3pt jump shot from center missed,0,3,3PT,171,159
+130880,30373-A-4,,ARG,BRA,Q1,7:36,4,8,14,ARG,409151,Santiago,Pettinaroli,14,P2,2pt driving layup missed,0,2,2PT,146,55
+130880,30373-A-4,,ARG,BRA,Q1,7:31,4,8,27,BRA,331414,Isaiah,Santos,7,FT,1st of 2 free throws missed,0,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q1,7:31,4,9,27,BRA,331414,Isaiah,Santos,7,FT,2nd of 2 free throws made,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q1,7:11,4,12,27,BRA,330039,Joao,Neves,14,P3,3pt jump shot made,1,3,3PT,104,165
+130880,30373-A-4,,ARG,BRA,Q1,6:57,6,12,14,ARG,398746,Roman,Moravansky,11,P2,"2PtsFG under the basket, turnaround jump shot made",1,2,2PT,153,25
+130880,30373-A-4,,ARG,BRA,Q1,6:37,6,12,27,BRA,405101,Pietro,Melo,10,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,147,38
+130880,30373-A-4,,ARG,BRA,Q1,6:32,7,12,14,ARG,409151,Santiago,Pettinaroli,14,FT,1st of 2 free throws made,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q1,6:32,8,12,14,ARG,409151,Santiago,Pettinaroli,14,FT,2nd of 2 free throws made,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q1,6:15,8,12,27,BRA,330047,Pedro,Souza,11,P2,2pt step back jump shot missed,0,2,2PT,190,108
+130880,30373-A-4,,ARG,BRA,Q1,6:07,10,12,14,ARG,409151,Santiago,Pettinaroli,14,P2,"2PtsFG under the basket, fast break, layup made",1,2,2PT,149,25
+130880,30373-A-4,,ARG,BRA,Q1,5:58,10,14,27,BRA,331414,Isaiah,Santos,7,P2,"2PtsFG under the basket, hook shot made",1,2,2PT,142,43
+130880,30373-A-4,,ARG,BRA,Q1,5:13,10,16,27,BRA,405101,Pietro,Melo,10,P2,"2PtsFG under the basket, points after turnover, driving layup made",1,2,2PT,138,30
+130880,30373-A-4,,ARG,BRA,Q1,4:50,12,16,14,ARG,409023,Joaquin,Celiz,9,P2,"2PtsFG inside center, jump shot made",1,2,2PT,172,123
+130880,30373-A-4,,ARG,BRA,Q1,4:42,12,16,27,BRA,330039,Joao,Neves,14,P2,"2PtsFG under the basket, reverse lay-up missed",0,2,2PT,126,42
+130880,30373-A-4,,ARG,BRA,Q1,4:30,12,16,14,ARG,409023,Joaquin,Celiz,9,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,136,27
+130880,30373-A-4,,ARG,BRA,Q1,4:18,12,16,14,ARG,409023,Joaquin,Celiz,9,P3,3pt jump shot missed,0,3,3PT,26,101
+130880,30373-A-4,,ARG,BRA,Q1,4:04,14,16,14,ARG,409023,Joaquin,Celiz,9,P2,"2PtsFG under the basket, points from fastbreak + after turnover, layup made",1,2,2PT,148,28
+130880,30373-A-4,,ARG,BRA,Q1,3:48,14,18,27,BRA,405101,Pietro,Melo,10,P2,2pt step back jump shot made,1,2,2PT,87,123
+130880,30373-A-4,,ARG,BRA,Q1,3:25,16,18,14,ARG,398746,Roman,Moravansky,11,P2,"2PtsFG under the basket, driving layup made",1,2,2PT,132,29
+130880,30373-A-4,,ARG,BRA,Q1,3:11,16,18,27,BRA,375131,Lucas,Moro,8,P2,"2PtsFG under the basket, reverse lay-up missed",0,2,2PT,135,36
+130880,30373-A-4,,ARG,BRA,Q1,2:54,16,18,14,ARG,408872,Bautista,Gobetti,6,P3,3pt jump shot missed,0,3,3PT,274,43
+130880,30373-A-4,,ARG,BRA,Q1,2:45,16,18,14,ARG,408871,Manuel,Hernandez,4,P3,3pt jump shot missed,0,3,3PT,4,30
+130880,30373-A-4,,ARG,BRA,Q1,2:31,16,18,27,BRA,375131,Lucas,Moro,8,P3,3pt jump shot missed,0,3,3PT,32,116
+130880,30373-A-4,,ARG,BRA,Q1,2:12,16,18,14,ARG,408870,Gonzalo,Aman,8,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,154,28
+130880,30373-A-4,,ARG,BRA,Q1,1:55,16,18,27,BRA,330047,Pedro,Souza,11,P2,2pt fadeaway jump shot missed,0,2,2PT,200,95
+130880,30373-A-4,,ARG,BRA,Q1,1:41,19,18,14,ARG,408870,Gonzalo,Aman,8,P3,3pt jump shot made,1,3,3PT,258,126
+130880,30373-A-4,,ARG,BRA,Q1,1:20,19,18,27,BRA,375131,Lucas,Moro,8,P3,3pt jump shot missed,0,3,3PT,8,25
+130880,30373-A-4,,ARG,BRA,Q1,1:15,19,18,27,BRA,383772,Bruno,Solano,12,P3,3pt jump shot missed,0,3,3PT,150,174
+130880,30373-A-4,,ARG,BRA,Q1,1:08,19,18,27,BRA,330047,Pedro,Souza,11,FT,Free throw missed 1 of 2,0,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q1,1:08,19,19,27,BRA,330047,Pedro,Souza,11,FT,Free throw made 2 of 2,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q1,0:37,19,19,27,BRA,405082,Caio,Mathias,2,P2,2pt floating jump shot missed,0,2,2PT,134,51
+130880,30373-A-4,,ARG,BRA,Q1,0:28,20,19,14,ARG,408857,Joaquin,Caumo,10,FT,1st of 2 free throws made,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q1,0:28,21,19,14,ARG,408857,Joaquin,Caumo,10,FT,2nd of 2 free throws made,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q1,0:11,21,19,27,BRA,330047,Pedro,Souza,11,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,131,34
+130880,30373-A-4,,ARG,BRA,Q1,0:01,22,19,14,ARG,408857,Joaquin,Caumo,10,FT,1st of 3 free throws made,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q1,0:01,23,19,14,ARG,408857,Joaquin,Caumo,10,FT,2nd of 3 free throws made,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q1,0:01,23,19,14,ARG,408857,Joaquin,Caumo,10,FT,3rd of 3 free throws missed,0,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q2,9:54,23,19,14,ARG,408870,Gonzalo,Aman,8,P2,2pt driving layup missed,0,2,2PT,155,53
+130880,30373-A-4,,ARG,BRA,Q2,9:47,23,19,27,BRA,405082,Caio,Mathias,2,P3,3pt jump shot missed,0,3,3PT,271,25
+130880,30373-A-4,,ARG,BRA,Q2,9:40,23,19,27,BRA,331414,Isaiah,Santos,7,P3,3pt jump shot missed,0,3,3PT,270,32
+130880,30373-A-4,,ARG,BRA,Q2,9:36,23,19,27,BRA,330039,Joao,Neves,14,P3,3pt jump shot missed,0,3,3PT,68,156
+130880,30373-A-4,,ARG,BRA,Q2,9:33,23,20,27,BRA,331414,Isaiah,Santos,7,FT,1st of 2 free throws made,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q2,9:33,23,21,27,BRA,331414,Isaiah,Santos,7,FT,2nd of 2 free throws made,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q2,9:18,23,21,14,ARG,408857,Joaquin,Caumo,10,P2,"2PtsFG inside left, jump shot missed",0,2,2PT,78,42
+130880,30373-A-4,,ARG,BRA,Q2,9:05,23,24,27,BRA,405082,Caio,Mathias,2,P3,3pt jump shot made,1,3,3PT,271,45
+130880,30373-A-4,,ARG,BRA,Q2,8:48,23,24,14,ARG,408870,Gonzalo,Aman,8,P3,3pt jump shot missed,0,3,3PT,211,169
+130880,30373-A-4,,ARG,BRA,Q2,8:33,23,24,27,BRA,383772,Bruno,Solano,12,P3,3pt jump shot missed,0,3,3PT,81,166
+130880,30373-A-4,,ARG,BRA,Q2,8:05,23,26,27,BRA,331414,Isaiah,Santos,7,P2,"2PtsFG under the basket, points after turnover, turnaround jump shot made",1,2,2PT,138,34
+130880,30373-A-4,,ARG,BRA,Q2,8:05,23,27,27,BRA,331414,Isaiah,Santos,7,FT,1st free throw made,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q2,7:52,25,27,14,ARG,409021,Elias,Torrens,7,P2,"2PtsFG under the basket, layup made",1,2,2PT,140,36
+130880,30373-A-4,,ARG,BRA,Q2,7:52,25,27,14,ARG,409021,Elias,Torrens,7,FT,1st free throw missed,0,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q2,7:41,25,27,27,BRA,405082,Caio,Mathias,2,P3,3pt jump shot missed,0,3,3PT,6,34
+130880,30373-A-4,,ARG,BRA,Q2,7:36,25,27,27,BRA,383772,Bruno,Solano,12,P3,3pt jump shot missed,0,3,3PT,253,121
+130880,30373-A-4,,ARG,BRA,Q2,7:21,25,29,27,BRA,383772,Bruno,Solano,12,P2,"2PtsFG under the basket, layup made",1,2,2PT,138,35
+130880,30373-A-4,,ARG,BRA,Q2,7:08,27,29,14,ARG,409023,Joaquin,Celiz,9,P2,"2PtsFG under the basket, driving layup made",1,2,2PT,145,22
+130880,30373-A-4,,ARG,BRA,Q2,6:58,27,29,27,BRA,405101,Pietro,Melo,10,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,134,29
+130880,30373-A-4,,ARG,BRA,Q2,6:42,27,29,14,ARG,409023,Joaquin,Celiz,9,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,139,30
+130880,30373-A-4,,ARG,BRA,Q2,6:39,29,29,14,ARG,398746,Roman,Moravansky,11,P2,2PtsFG under the basket made,1,2,2PT,140,31
+130880,30373-A-4,,ARG,BRA,Q2,6:28,29,29,27,BRA,330039,Joao,Neves,14,P3,3pt step back jump shot missed,0,3,3PT,170,171
+130880,30373-A-4,,ARG,BRA,Q2,6:11,29,29,14,ARG,409151,Santiago,Pettinaroli,14,P3,3pt jump shot missed,0,3,3PT,272,49
+130880,30373-A-4,,ARG,BRA,Q2,6:10,29,30,27,BRA,330047,Pedro,Souza,11,FT,1st of 2 free throws made,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q2,6:10,29,31,27,BRA,330047,Pedro,Souza,11,FT,2nd of 2 free throws made,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q2,5:52,29,31,14,ARG,408857,Joaquin,Caumo,10,P3,3pt jump shot from center missed,0,3,3PT,188,161
+130880,30373-A-4,,ARG,BRA,Q2,5:52,29,32,27,BRA,331414,Isaiah,Santos,7,FT,1st of 2 free throws made,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q2,5:52,29,33,27,BRA,331414,Isaiah,Santos,7,FT,2nd of 2 free throws made,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q2,5:31,29,33,14,ARG,408857,Joaquin,Caumo,10,P3,3pt jump shot missed,0,3,3PT,28,114
+130880,30373-A-4,,ARG,BRA,Q2,5:25,29,33,27,BRA,405082,Caio,Mathias,2,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,150,35
+130880,30373-A-4,,ARG,BRA,Q2,5:17,32,33,14,ARG,408857,Joaquin,Caumo,10,P3,3pt jump shot made,1,3,3PT,12,34
+130880,30373-A-4,,ARG,BRA,Q2,4:55,32,36,27,BRA,405082,Caio,Mathias,2,P3,3pt jump shot made,1,3,3PT,210,154
+130880,30373-A-4,,ARG,BRA,Q2,4:33,32,36,14,ARG,409151,Santiago,Pettinaroli,14,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,145,31
+130880,30373-A-4,,ARG,BRA,Q2,4:16,32,36,27,BRA,393060,Ruan,Moreira,9,P2,2pt jump shot missed,0,2,2PT,99,92
+130880,30373-A-4,,ARG,BRA,Q2,3:53,34,36,14,ARG,362126,Benjamin,Pettovello,32,P2,"2PtsFG under the basket, points after turnover, driving layup made",1,2,2PT,144,29
+130880,30373-A-4,,ARG,BRA,Q2,3:37,34,36,27,BRA,330047,Pedro,Souza,11,P3,3pt jump shot from center missed,0,3,3PT,168,172
+130880,30373-A-4,,ARG,BRA,Q2,3:35,34,36,27,BRA,330039,Joao,Neves,14,P3,3pt jump shot missed,0,3,3PT,36,126
+130880,30373-A-4,,ARG,BRA,Q2,3:30,34,37,27,BRA,330047,Pedro,Souza,11,FT,1st of 2 free throws made,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q2,3:30,34,38,27,BRA,330047,Pedro,Souza,11,FT,2nd of 2 free throws made,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q2,3:13,37,38,14,ARG,409023,Joaquin,Celiz,9,P3,3pt jump shot made,1,3,3PT,37,136
+130880,30373-A-4,,ARG,BRA,Q2,2:55,37,38,27,BRA,383772,Bruno,Solano,12,FT,1st of 2 free throws missed,0,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q2,2:55,37,39,27,BRA,383772,Bruno,Solano,12,FT,2nd of 2 free throws made,1,1,FT,0,0
+130880,30373-A-4,,ARG,BRA,Q2,2:43,39,39,14,ARG,409023,Joaquin,Celiz,9,P2,"2PtsFG under the basket, layup made",1,2,2PT,138,24
+130880,30373-A-4,,ARG,BRA,Q2,2:28,39,39,27,BRA,405101,Pietro,Melo,10,P3,3pt jump shot from center missed,0,3,3PT,150,178
+130880,30373-A-4,,ARG,BRA,Q2,2:08,41,39,14,ARG,408872,Bautista,Gobetti,6,P2,"2PtsFG under the basket, layup made",1,2,2PT,128,22
+130880,30373-A-4,,ARG,BRA,Q2,1:48,41,41,27,BRA,384600,Henry,Alves,16,P2,"2PtsFG under the basket, hook shot made",1,2,2PT,135,45
+130880,30373-A-4,,ARG,BRA,Q2,1:28,41,41,14,ARG,408871,Manuel,Hernandez,4,P2,2pt jump shot missed,0,2,2PT,65,40
+130880,30373-A-4,,ARG,BRA,Q2,1:15,41,41,14,ARG,362126,Benjamin,Pettovello,32,P2,"2PtsFG inside left, jump shot missed",0,2,2PT,46,73
+130880,30373-A-4,,ARG,BRA,Q2,0:44,41,41,14,ARG,408872,Bautista,Gobetti,6,P3,3pt jump shot missed,0,3,3PT,51,142
+130880,30373-A-4,,ARG,BRA,Q2,0:25,41,44,27,BRA,330039,Joao,Neves,14,P3,3pt jump shot made,1,3,3PT,272,29
+130880,30373-A-4,,ARG,BRA,Q2,0:02,41,44,14,ARG,408871,Manuel,Hernandez,4,P3,3pt jump shot missed,0,3,3PT,58,157
 130885,30373-B-1,,DOM,PUR,Q1,9:34,0,0,125,PUR,417164,Jomar,Bernard,13,P3,3pt jump shot missed,0,3,3PT,27,135
 130885,30373-B-1,,DOM,PUR,Q1,9:28,0,0,51,DOM,390926,Marlon,Martinez,10,P3,3pt jump shot missed,0,3,3PT,235,120
 130885,30373-B-1,,DOM,PUR,Q1,9:12,0,0,51,DOM,416899,Derek,Gomez,8,P2,"2PtsFG under the basket, points after turnover, driving layup missed",0,2,2PT,145,36
@@ -936,6 +1033,76 @@ gameId,gameName,date,teamA_code,teamB_code,period,timeRemaining,scoreA,scoreB,or
 130888,30373-B-3,,CAN,DOM,Q3,3:49,64,56,34,CAN,415967,Kymani,Walters,6,P2,"2PtsFG under the basket, fast break, driving layup made",1,2,2PT,146,29
 130888,30373-B-3,,CAN,DOM,Q3,3:36,64,58,51,DOM,416771,Jack,Liz,5,P2,"2PtsFG under the basket, driving layup made",1,2,2PT,151,33
 130888,30373-B-3,,CAN,DOM,Q3,3:18,64,58,34,CAN,415967,Kymani,Walters,6,P3,3pt jump shot missed,0,3,3PT,10,32
+130888,30373-B-3,,CAN,DOM,Q3,3:11,66,58,34,CAN,415968,Settimo,Yugu,5,P2,2PtsFG under the basket made,1,2,2PT,140,31
+130888,30373-B-3,,CAN,DOM,Q3,3:06,66,58,51,DOM,416769,Enmanuel,Valera,27,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,133,28
+130888,30373-B-3,,CAN,DOM,Q3,3:05,66,58,51,DOM,416805,Rayner,Montero,24,FT,1st of 2 free throws missed,0,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q3,3:05,66,59,51,DOM,416805,Rayner,Montero,24,FT,2nd of 2 free throws made,1,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q3,2:44,66,60,51,DOM,390926,Marlon,Martinez,10,FT,Free throw made 1 of 2,1,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q3,2:44,66,61,51,DOM,390926,Marlon,Martinez,10,FT,Free throw made 2 of 2,1,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q3,2:32,69,61,34,CAN,410952,Lyris,Robinson,21,P3,3pt jump shot made,1,3,3PT,8,42
+130888,30373-B-3,,CAN,DOM,Q3,2:16,69,61,51,DOM,416771,Jack,Liz,5,P3,3pt jump shot missed,0,3,3PT,9,43
+130888,30373-B-3,,CAN,DOM,Q3,1:56,69,61,51,DOM,416769,Enmanuel,Valera,27,P2,"2PtsFG under the basket, points after turnover, driving layup missed",0,2,2PT,132,40
+130888,30373-B-3,,CAN,DOM,Q3,1:46,69,61,34,CAN,410952,Lyris,Robinson,21,P3,3pt jump shot missed,0,3,3PT,272,33
+130888,30373-B-3,,CAN,DOM,Q3,1:39,69,61,51,DOM,416767,Angel,Parreño,7,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,154,36
+130888,30373-B-3,,CAN,DOM,Q3,1:15,71,61,34,CAN,415968,Settimo,Yugu,5,P2,"2PtsFG inside left, points after turnover, jump shot made",1,2,2PT,82,85
+130888,30373-B-3,,CAN,DOM,Q3,0:51,71,61,51,DOM,416771,Jack,Liz,5,P3,3pt jump shot missed,0,3,3PT,247,120
+130888,30373-B-3,,CAN,DOM,Q3,0:39,71,61,34,CAN,415963,Emmanuel,Oko-Oboh,24,FT,1st of 2 free throws missed,0,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q3,0:38,71,61,34,CAN,415963,Emmanuel,Oko-Oboh,24,FT,2nd of 2 free throws missed,0,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q3,0:16,71,61,34,CAN,415963,Emmanuel,Oko-Oboh,24,FT,1st of 2 free throws missed,0,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q3,0:16,72,61,34,CAN,415963,Emmanuel,Oko-Oboh,24,FT,2nd of 2 free throws made,1,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q3,0:11,72,63,51,DOM,416768,Brayan,Santana,3,P2,"2PtsFG under the basket, fast break, alley oop lay-up made",1,2,2PT,160,36
+130888,30373-B-3,,CAN,DOM,Q4,9:39,75,63,34,CAN,391167,Nathan,Yambayamba,8,P3,3pt jump shot from center made,1,3,3PT,104,169
+130888,30373-B-3,,CAN,DOM,Q4,9:20,75,63,51,DOM,416771,Jack,Liz,5,P2,2pt driving layup missed,0,2,2PT,145,15
+130888,30373-B-3,,CAN,DOM,Q4,9:12,77,63,34,CAN,410952,Lyris,Robinson,21,P2,"2PtsFG under the basket, fast break, driving layup made",1,2,2PT,144,39
+130888,30373-B-3,,CAN,DOM,Q4,8:53,77,63,51,DOM,390926,Marlon,Martinez,10,P3,3pt jump shot missed,0,3,3PT,228,150
+130888,30373-B-3,,CAN,DOM,Q4,8:33,77,63,34,CAN,342309,Maxime,Meyer,15,P2,"2PtsFG under the basket, pullup jump shot missed",0,2,2PT,140,42
+130888,30373-B-3,,CAN,DOM,Q4,8:32,79,63,34,CAN,342309,Maxime,Meyer,15,P2,2PtsFG under the basket made,1,2,2PT,140,31
+130888,30373-B-3,,CAN,DOM,Q4,8:17,79,63,51,DOM,390926,Marlon,Martinez,10,P2,"2PtsFG under the basket, turnaround jump shot missed",0,2,2PT,153,30
+130888,30373-B-3,,CAN,DOM,Q4,8:10,81,63,34,CAN,342682,Godson,Okokoh,4,P2,"2PtsFG under the basket, fast break, driving layup made",1,2,2PT,136,23
+130888,30373-B-3,,CAN,DOM,Q4,7:54,81,63,51,DOM,416805,Rayner,Montero,24,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,141,28
+130888,30373-B-3,,CAN,DOM,Q4,7:44,82,63,34,CAN,410952,Lyris,Robinson,21,FT,1st of 2 free throws made,1,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q4,7:44,83,63,34,CAN,410952,Lyris,Robinson,21,FT,2nd of 2 free throws made,1,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q4,7:35,83,63,51,DOM,416767,Angel,Parreño,7,P2,2pt jump shot missed,0,2,2PT,29,43
+130888,30373-B-3,,CAN,DOM,Q4,7:22,83,63,34,CAN,342309,Maxime,Meyer,15,P2,2pt hook shot missed,0,2,2PT,157,87
+130888,30373-B-3,,CAN,DOM,Q4,6:56,83,63,51,DOM,416767,Angel,Parreño,7,P2,"2PtsFG under the basket, hook shot missed",0,2,2PT,152,40
+130888,30373-B-3,,CAN,DOM,Q4,6:55,83,64,51,DOM,416805,Rayner,Montero,24,FT,1st of 2 free throws made,1,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q4,6:55,83,65,51,DOM,416805,Rayner,Montero,24,FT,2nd of 2 free throws made,1,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q4,6:41,83,65,34,CAN,415966,Javion,Tyndale,3,FT,1st of 2 free throws missed,0,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q4,6:41,84,65,34,CAN,415966,Javion,Tyndale,3,FT,2nd of 2 free throws made,1,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q4,6:18,87,65,34,CAN,415966,Javion,Tyndale,3,P3,3pt jump shot made,1,3,3PT,182,162
+130888,30373-B-3,,CAN,DOM,Q4,5:59,87,65,51,DOM,416899,Derek,Gomez,8,P3,3pt jump shot from center missed,0,3,3PT,168,164
+130888,30373-B-3,,CAN,DOM,Q4,5:33,87,65,34,CAN,391168,Deng,Ngor,11,P3,3pt jump shot missed,0,3,3PT,125,175
+130888,30373-B-3,,CAN,DOM,Q4,5:27,87,65,51,DOM,416768,Brayan,Santana,3,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,127,29
+130888,30373-B-3,,CAN,DOM,Q4,5:21,87,67,51,DOM,384379,Luis,Valdez,12,P2,"2PtsFG under the basket, layup made",1,2,2PT,161,26
+130888,30373-B-3,,CAN,DOM,Q4,5:04,89,67,34,CAN,415967,Kymani,Walters,6,P2,"2PtsFG under the basket, driving layup made",1,2,2PT,120,27
+130888,30373-B-3,,CAN,DOM,Q4,5:04,90,67,34,CAN,415967,Kymani,Walters,6,FT,1st free throw made,1,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q4,4:41,90,67,51,DOM,416767,Angel,Parreño,7,P2,"2PtsFG inside right wing, jump shot missed",0,2,2PT,252,26
+130888,30373-B-3,,CAN,DOM,Q4,4:34,92,67,34,CAN,391168,Deng,Ngor,11,P2,"2PtsFG under the basket, fast break, dunk made",1,2,2PT,139,39
+130888,30373-B-3,,CAN,DOM,Q4,4:15,92,67,51,DOM,416898,Brayan,Camacho,4,P3,3pt step back jump shot missed,0,3,3PT,9,40
+130888,30373-B-3,,CAN,DOM,Q4,4:09,94,67,34,CAN,391168,Deng,Ngor,11,P2,"2PtsFG under the basket, fast break, alley oop dunk made",1,2,2PT,134,24
+130888,30373-B-3,,CAN,DOM,Q4,3:58,94,69,51,DOM,416768,Brayan,Santana,3,P2,"2PtsFG under the basket, driving layup made",1,2,2PT,139,30
+130888,30373-B-3,,CAN,DOM,Q4,3:24,94,69,51,DOM,416899,Derek,Gomez,8,P2,2pt fadeaway jump shot missed,0,2,2PT,212,53
+130888,30373-B-3,,CAN,DOM,Q4,3:17,94,69,51,DOM,384379,Luis,Valdez,12,P2,"2PtsFG under the basket, points from second chance + after turnover, hook shot missed",0,2,2PT,154,31
+130888,30373-B-3,,CAN,DOM,Q4,3:13,94,71,51,DOM,416767,Angel,Parreño,7,P2,"2PtsFG under the basket, points from second chance + after turnover made",1,2,2PT,140,31
+130888,30373-B-3,,CAN,DOM,Q4,2:53,96,71,34,CAN,392260,Abdul-Malik,Olajuwon,2,P2,"2PtsFG inside left, jump shot made",1,2,2PT,77,95
+130888,30373-B-3,,CAN,DOM,Q4,2:33,96,71,51,DOM,416768,Brayan,Santana,3,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,118,33
+130888,30373-B-3,,CAN,DOM,Q4,2:25,96,71,34,CAN,392260,Abdul-Malik,Olajuwon,2,P3,3pt jump shot missed,0,3,3PT,6,29
+130888,30373-B-3,,CAN,DOM,Q4,2:20,96,71,34,CAN,342682,Godson,Okokoh,4,P2,"2PtsFG under the basket, layup missed",0,2,2PT,141,43
+130888,30373-B-3,,CAN,DOM,Q4,2:07,96,71,51,DOM,416767,Angel,Parreño,7,P2,"2PtsFG under the basket, points after turnover, driving layup missed",0,2,2PT,130,41
+130888,30373-B-3,,CAN,DOM,Q4,2:02,96,71,34,CAN,271788,Mateo,Vigneault,22,FT,1st of 2 free throws missed,0,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q4,2:02,97,71,34,CAN,271788,Mateo,Vigneault,22,FT,2nd of 2 free throws made,1,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q4,1:43,97,74,51,DOM,416768,Brayan,Santana,3,P3,3pt jump shot made,1,3,3PT,251,124
+130888,30373-B-3,,CAN,DOM,Q4,1:33,97,74,34,CAN,342682,Godson,Okokoh,4,FT,1st of 2 free throws missed,0,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q4,1:33,98,74,34,CAN,342682,Godson,Okokoh,4,FT,2nd of 2 free throws made,1,1,FT,0,0
+130888,30373-B-3,,CAN,DOM,Q4,1:18,98,74,51,DOM,416767,Angel,Parreño,7,P2,"2PtsFG under the basket, turnaround jump shot missed",0,2,2PT,151,31
+130888,30373-B-3,,CAN,DOM,Q4,1:13,98,74,34,CAN,415967,Kymani,Walters,6,P2,"2PtsFG under the basket, driving layup missed",0,2,2PT,138,44
+130888,30373-B-3,,CAN,DOM,Q4,1:03,100,74,34,CAN,392260,Abdul-Malik,Olajuwon,2,P2,layup made,1,2,2PT,131,51
+130888,30373-B-3,,CAN,DOM,Q4,0:58,100,77,51,DOM,384379,Luis,Valdez,12,P3,3pt jump shot from center made,1,3,3PT,152,169
+130888,30373-B-3,,CAN,DOM,Q4,0:40,100,77,51,DOM,416767,Angel,Parreño,7,P3,3pt step back jump shot missed,0,3,3PT,153,179
+130888,30373-B-3,,CAN,DOM,Q4,0:28,100,79,51,DOM,384379,Luis,Valdez,12,P2,"2PtsFG under the basket, points from fastbreak + after turnover, driving layup made",1,2,2PT,148,40
+130888,30373-B-3,,CAN,DOM,Q4,0:20,100,79,34,CAN,392260,Abdul-Malik,Olajuwon,2,P3,3pt jump shot missed,0,3,3PT,28,126
+130888,30373-B-3,,CAN,DOM,Q4,0:04,100,79,51,DOM,416899,Derek,Gomez,8,P2,"2PtsFG inside center, jump shot missed",0,2,2PT,163,136
+130888,30373-B-3,,CAN,DOM,Q4,0:00,100,79,34,CAN,271788,Mateo,Vigneault,22,P3,"3PtsFG back court, jump shot missed",0,3,3PT,98,63
 130886,30373-B-4,,PUR,VEN,Q1,9:26,0,0,158,VEN,390925,Jose,Lara,7,P3,3pt jump shot missed,0,3,3PT,266,83
 130886,30373-B-4,,PUR,VEN,Q1,9:15,0,0,158,VEN,378577,Kevin,Gutierrez,14,P2,"2PtsFG under the basket, points from second chance + after turnover, driving layup missed",0,2,2PT,161,29
 130886,30373-B-4,,PUR,VEN,Q1,9:04,0,0,158,VEN,378577,Kevin,Gutierrez,14,P3,3pt jump shot missed,0,3,3PT,270,27
