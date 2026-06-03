@@ -1375,48 +1375,63 @@ function renderStandings() {
     });
     statsMap[t.Equipo]={Equipo:t.Equipo,PJ,G,P,ptsFor,ptsAgainst,localG,localP,visitG,visitP,last5:results.slice(-5)};
   });
-  const rows = Object.values(statsMap).sort((a,b) => {
+
+  const sortRows = arr => arr.sort((a,b) => {
     const wa=a.PJ?a.G/a.PJ:0, wb=b.PJ?b.G/b.PJ:0;
     if(wb!==wa) return wb-wa;
     if(b.PJ!==a.PJ) return b.PJ-a.PJ;
     return (b.PJ?b.ptsFor/b.PJ:0)-(a.PJ?a.ptsFor/a.PJ:0);
   });
-  const tbody = document.getElementById('posAllTbody');
-  if (!tbody) return;
-  tbody.innerHTML = '';
-  const cutoff = Math.ceil(rows.length / 2);
-  rows.forEach((t, i) => {
-    const pos = i + 1;
-    const wpct = t.PJ ? t.G/t.PJ*100 : 0;
-    const ptspg = t.PJ ? t.ptsFor/t.PJ : 0;
-    const ptsapg = t.PJ ? t.ptsAgainst/t.PJ : 0;
-    const dif = ptspg - ptsapg;
-    const wc = wpct >= 60 ? 'win-rate-high' : wpct >= 40 ? 'win-rate-mid' : 'win-rate-low';
-    const difClass = dif >= 0 ? 'pos-diff-pos' : 'pos-diff-neg';
-    const topClass = pos <= cutoff ? ' pos-top8' : '';
-    const logoSrc = LOGOS[t.Equipo];
-    const logoHtml = logoSrc
-      ? `<img src="${logoSrc}" class="pos-logo" alt="" onerror="this.style.visibility='hidden'">`
-      : '<span class="pos-logo-ph"></span>';
-    tbody.innerHTML += `<tr class="${topClass}" onclick="showTeamGames('${t.Equipo.replace(/'/g,"\\'")}')">
-      <td>${pos}</td>
-      <td>${logoHtml}${t.Equipo}</td>
-      <td>${t.PJ}</td>
-      <td style="color:var(--green);font-weight:700">${t.G}</td>
-      <td style="color:var(--red)">${t.P}</td>
-      <td class="${wc}">${wpct.toFixed(1)}%</td>
-      <td class="pos-pts-f">${ptspg.toFixed(1)}</td>
-      <td class="pos-pts-a">${ptsapg.toFixed(1)}</td>
-      <td class="${difClass}">${(dif>=0?'+':'')+dif.toFixed(1)}</td>
-      <td style="color:var(--muted);font-size:.78rem">${t.localG}-${t.localP}</td>
-      <td style="color:var(--muted);font-size:.78rem">${t.visitG}-${t.visitP}</td>
-      <td style="text-align:center">${t.last5.map(g=>g
-        ? `<span style="color:var(--green);font-weight:700;font-size:.72rem">V</span>`
-        : `<span style="color:var(--red);font-weight:700;font-size:.72rem">D</span>`
-      ).join('<span style="color:var(--muted);opacity:.3;margin:0 1px">·</span>')}</td>
-      <td class="pos-row-chevron">›</td>
-    </tr>`;
-  });
+
+  const all = Object.values(statsMap);
+  const rowsA = sortRows(all.filter(t => CONF_NORTE.has(t.Equipo)));
+  const rowsB = sortRows(all.filter(t => CONF_SUR.has(t.Equipo)));
+
+  const titleA = document.getElementById('posATitle');
+  const titleB = document.getElementById('posBTitle');
+  if (titleA) titleA.textContent = _TCFG.confALabel || 'Grupo A';
+  if (titleB) titleB.textContent = _TCFG.confBLabel || 'Grupo B';
+
+  const fillTbody = (rows, tbodyId) => {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    rows.forEach((t, i) => {
+      const pos = i + 1;
+      const wpct = t.PJ ? t.G/t.PJ*100 : 0;
+      const ptspg = t.PJ ? t.ptsFor/t.PJ : 0;
+      const ptsapg = t.PJ ? t.ptsAgainst/t.PJ : 0;
+      const dif = ptspg - ptsapg;
+      const wc = wpct >= 60 ? 'win-rate-high' : wpct >= 40 ? 'win-rate-mid' : 'win-rate-low';
+      const difClass = dif >= 0 ? 'pos-diff-pos' : 'pos-diff-neg';
+      const topClass = pos <= 2 ? ' pos-top8' : '';
+      const logoSrc = LOGOS[t.Equipo];
+      const logoHtml = logoSrc
+        ? `<img src="${logoSrc}" class="pos-logo" alt="" onerror="this.style.visibility='hidden'">`
+        : '<span class="pos-logo-ph"></span>';
+      tbody.innerHTML += `<tr class="${topClass}" onclick="showTeamGames('${t.Equipo.replace(/'/g,"\\'")}')">
+        <td>${pos}</td>
+        <td>${logoHtml}${t.Equipo}</td>
+        <td>${t.PJ}</td>
+        <td style="color:var(--green);font-weight:700">${t.G}</td>
+        <td style="color:var(--red)">${t.P}</td>
+        <td class="${wc}">${wpct.toFixed(1)}%</td>
+        <td class="pos-pts-f">${ptspg.toFixed(1)}</td>
+        <td class="pos-pts-a">${ptsapg.toFixed(1)}</td>
+        <td class="${difClass}">${(dif>=0?'+':'')+dif.toFixed(1)}</td>
+        <td style="color:var(--muted);font-size:.78rem">${t.localG}-${t.localP}</td>
+        <td style="color:var(--muted);font-size:.78rem">${t.visitG}-${t.visitP}</td>
+        <td style="text-align:center">${t.last5.map(g=>g
+          ? `<span style="color:var(--green);font-weight:700;font-size:.72rem">V</span>`
+          : `<span style="color:var(--red);font-weight:700;font-size:.72rem">D</span>`
+        ).join('<span style="color:var(--muted);opacity:.3;margin:0 1px">·</span>')}</td>
+        <td class="pos-row-chevron">›</td>
+      </tr>`;
+    });
+  };
+
+  fillTbody(rowsA, 'posATbody');
+  fillTbody(rowsB, 'posBTbody');
 }
 
 function renderAllGames() {
