@@ -1376,10 +1376,29 @@ function renderStandings() {
     statsMap[t.Equipo]={Equipo:t.Equipo,PJ,G,P,ptsFor,ptsAgainst,localG,localP,visitG,visitP,last5:results.slice(-5)};
   });
 
+  // Head-to-head map (group stage only)
+  const h2h = {};
+  TEAMS.forEach(t => {
+    (t._gamelog || []).forEach(g => {
+      const [fd,fm,fy] = g.fecha.split('/');
+      if (new Date(+fy,+fm-1,+fd) >= PLAYOFF_DATE) return;
+      if (!h2h[t.Equipo]) h2h[t.Equipo] = {};
+      if (!h2h[t.Equipo][g.rival]) h2h[t.Equipo][g.rival] = {wins:0, dif:0};
+      if (g.ganado) h2h[t.Equipo][g.rival].wins++;
+      h2h[t.Equipo][g.rival].dif += (g.ptsFor||0) - (g.ptsAgainst||0);
+    });
+  });
+
   const sortRows = arr => arr.sort((a,b) => {
     const wa=a.PJ?a.G/a.PJ:0, wb=b.PJ?b.G/b.PJ:0;
     if(wb!==wa) return wb-wa;
     if(b.PJ!==a.PJ) return b.PJ-a.PJ;
+    // Head-to-head: wins, then point differential
+    const ab = (h2h[a.Equipo]||{})[b.Equipo] || {wins:0,dif:0};
+    const ba = (h2h[b.Equipo]||{})[a.Equipo] || {wins:0,dif:0};
+    if(ab.wins !== ba.wins) return ba.wins - ab.wins;
+    if(ab.dif  !== ba.dif)  return ba.dif  - ab.dif;
+    // Overall PTS/P
     return (b.PJ?b.ptsFor/b.PJ:0)-(a.PJ?a.ptsFor/a.PJ:0);
   });
 
