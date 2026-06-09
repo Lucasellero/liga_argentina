@@ -135,11 +135,56 @@ function buildRAW_J(rows) {
 function buildRAW_T(rows) {
   const map = {}, byGame = {};
   const tots = rows.filter(r => r['Nombre completo'] === 'TOTALES');
-  tots.forEach(r => {
-    if (!byGame[r['IdPartido']]) byGame[r['IdPartido']] = [];
-    byGame[r['IdPartido']].push(r);
+
+  const playerSums = {};
+  rows.filter(r => r['Nombre completo'] !== 'TOTALES').forEach(r => {
+    const key = r['IdPartido'] + '||' + r['Equipo'];
+    if (!playerSums[key]) playerSums[key] = {
+      pts:0, t2a:0, t2i:0, t3a:0, t3i:0, t1a:0, t1i:0,
+      dreb:0, oreb:0, treb:0, ast:0, rec:0, per:0, tap:0, val:0
+    };
+    const s = playerSums[key];
+    s.pts  += parseFloat(r['Puntos'])||0;
+    s.t2a  += parseFloat(r['T2A'])||0;   s.t2i  += parseFloat(r['T2I'])||0;
+    s.t3a  += parseFloat(r['T3A'])||0;   s.t3i  += parseFloat(r['T3I'])||0;
+    s.t1a  += parseFloat(r['T1A'])||0;   s.t1i  += parseFloat(r['T1I'])||0;
+    s.dreb += parseFloat(r['DReb'])||0;  s.oreb += parseFloat(r['OReb'])||0;
+    s.treb += parseFloat(r['TReb'])||0;  s.ast  += parseFloat(r['Asistencias'])||0;
+    s.rec  += parseFloat(r['Recuperos'])||0; s.per += parseFloat(r['Perdidas'])||0;
+    s.tap  += parseFloat(r['Tapones cometidos'])||0; s.val += parseFloat(r['Valoracion'])||0;
   });
-  tots.forEach(r => {
+
+  const extractS = r => ({
+    pts:  parseFloat(r['Puntos'])||0,
+    t2a:  parseFloat(r['T2A'])||0,   t2i: parseFloat(r['T2I'])||0,
+    t3a:  parseFloat(r['T3A'])||0,   t3i: parseFloat(r['T3I'])||0,
+    t1a:  parseFloat(r['T1A'])||0,   t1i: parseFloat(r['T1I'])||0,
+    dreb: parseFloat(r['DReb'])||0,  oreb: parseFloat(r['OReb'])||0,
+    treb: parseFloat(r['TReb'])||0,  ast:  parseFloat(r['Asistencias'])||0,
+    rec:  parseFloat(r['Recuperos'])||0, per: parseFloat(r['Perdidas'])||0,
+    tap:  parseFloat(r['Tapones cometidos'])||0, val: parseFloat(r['Valoracion'])||0,
+  });
+  const extractSFromSums = s => ({
+    pts: s.pts||0, t2a: s.t2a||0, t2i: s.t2i||0,
+    t3a: s.t3a||0, t3i: s.t3i||0, t1a: s.t1a||0, t1i: s.t1i||0,
+    dreb: s.dreb||0, oreb: s.oreb||0, treb: s.treb||0,
+    ast: s.ast||0, rec: s.rec||0, per: s.per||0, tap: s.tap||0, val: s.val||0,
+  });
+
+  const _seenTot = new Set();
+  const totsDeduped = tots.filter(r => {
+    const k = r['Fecha'] + '||' + r['Equipo'] + '||' + r['Rival'];
+    if (_seenTot.has(k)) return false;
+    _seenTot.add(k); return true;
+  });
+
+  totsDeduped.forEach(r => {
+    const teams = [r['Equipo'], r['Rival']].sort().join('|');
+    const key = r['Fecha'] + '||' + teams;
+    if (!byGame[key]) byGame[key] = [];
+    byGame[key].push(r);
+  });
+  totsDeduped.forEach(r => {
     const eq = r['Equipo'];
     if (!map[eq]) map[eq] = {
       Equipo: eq, PJ: 0, Ganados: 0, Perdidos: 0, OPP_PTS: 0,
@@ -165,25 +210,18 @@ function buildRAW_T(rows) {
     t.TAP += parseFloat(r['Tapones cometidos']) || 0; t.VAL += parseFloat(r['Valoracion']) || 0;
   });
   Object.values(byGame).forEach(gr => {
-    if (gr.length === 2) {
-      [0, 1].forEach(i => {
-        const my = gr[i], opp = gr[1-i];
+    const localRow = gr.find(r => r['Condicion equipos'] === 'LOCAL');
+    const visitRow = gr.find(r => r['Condicion equipos'] === 'VISITANTE');
+    if (localRow && visitRow) {
+      const canonId = localRow['IdPartido'];
+      [localRow, visitRow].forEach(my => {
+        const opp = my === localRow ? visitRow : localRow;
         if (map[my['Equipo']]) {
           map[my['Equipo']].OPP_PTS += parseFloat(opp['Puntos']) || 0;
           map[my['Equipo']].OPP_DReb += parseFloat(opp['DReb']) || 0;
           map[my['Equipo']].OPP_RO += parseFloat(opp['OReb']) || 0;
-          const extractS = r => ({
-            pts:  parseFloat(r['Puntos'])||0,
-            t2a:  parseFloat(r['T2A'])||0,   t2i: parseFloat(r['T2I'])||0,
-            t3a:  parseFloat(r['T3A'])||0,   t3i: parseFloat(r['T3I'])||0,
-            t1a:  parseFloat(r['T1A'])||0,   t1i: parseFloat(r['T1I'])||0,
-            dreb: parseFloat(r['DReb'])||0,  oreb: parseFloat(r['OReb'])||0,
-            treb: parseFloat(r['TReb'])||0,  ast:  parseFloat(r['Asistencias'])||0,
-            rec:  parseFloat(r['Recuperos'])||0, per: parseFloat(r['Perdidas'])||0,
-            tap:  parseFloat(r['Tapones cometidos'])||0, val: parseFloat(r['Valoracion'])||0,
-          });
           map[my['Equipo']]._gamelog.push({
-            gameId: my['IdPartido'],
+            gameId: canonId,
             fecha: my['Fecha'],
             rival: opp['Equipo'],
             condicion: my['Condicion equipos'],
@@ -195,6 +233,42 @@ function buildRAW_T(rows) {
           });
         }
       });
+    } else {
+      const my = gr[0];
+      const rivalKey = my['IdPartido'] + '||' + my['Rival'];
+      const opp = playerSums[rivalKey] || {};
+      const myGanado = my['Ganado'] === 'True';
+      const myCond   = my['Condicion equipos'];
+      const oppCond  = myCond === 'LOCAL' ? 'VISITANTE' : 'LOCAL';
+      const myPts    = parseFloat(my['Puntos']) || 0;
+      const oppPts   = opp.pts || 0;
+      const myS      = extractS(my);
+      const oppS     = extractSFromSums(opp);
+      const canonId  = my['IdPartido'];
+      if (map[my['Equipo']]) {
+        map[my['Equipo']].OPP_PTS  += oppPts;
+        map[my['Equipo']].OPP_DReb += opp.dreb || 0;
+        map[my['Equipo']].OPP_RO   += opp.oreb || 0;
+        map[my['Equipo']]._gamelog.push({
+          gameId: canonId, fecha: my['Fecha'],
+          rival: my['Rival'], condicion: myCond,
+          ptsFor: myPts, ptsAgainst: oppPts,
+          ganado: myGanado, estadio: my['Estadio'] || '',
+          myS, oppS,
+        });
+      }
+      if (map[my['Rival']]) {
+        map[my['Rival']].OPP_PTS  += myPts;
+        map[my['Rival']].OPP_DReb += myS.dreb;
+        map[my['Rival']].OPP_RO   += myS.oreb;
+        map[my['Rival']]._gamelog.push({
+          gameId: canonId, fecha: my['Fecha'],
+          rival: my['Equipo'], condicion: oppCond,
+          ptsFor: oppPts, ptsAgainst: myPts,
+          ganado: !myGanado, estadio: my['Estadio'] || '',
+          myS: oppS, oppS: myS,
+        });
+      }
     }
   });
   Object.values(map).forEach(t => {
