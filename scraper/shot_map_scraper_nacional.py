@@ -161,70 +161,61 @@ def main():
         log.error(f"CSV no encontrado: {INPUT_CSV}")
         sys.exit(1)
 
-    # Build game list from TOTALES rows
+    # Build game list from TOTALES rows usando clave estable fecha|local|visitante
+    # (los IDs del sitio son dinámicos y cambian en cada request)
     df = pd.read_csv(INPUT_CSV, encoding="utf-8-sig")
     totales = df[df["Nombre completo"] == "TOTALES"]
 
-    games: dict[str, dict] = {}
+    games: dict[str, dict] = {}  # key: "fecha|local|visitante"
     for _, row in totales.iterrows():
-        gid = str(row["IdPartido"])
-        if gid not in games:
-            games[gid] = {"fecha": row["Fecha"], "local": "", "visitante": ""}
-        if row["Condicion equipos"] == "LOCAL":
-            games[gid]["local"] = row["Equipo"]
-        else:
-            games[gid]["visitante"] = row["Equipo"]
+        if str(row.get("Condicion equipos", "")) == "LOCAL":
+            key = f"{row['Fecha']}|{row['Equipo']}|{row['Rival']}"
+            if key not in games:
+                games[key] = {
+                    "fecha": row["Fecha"],
+                    "local": row["Equipo"],
+                    "visitante": row["Rival"],
+                    "game_id": str(row["IdPartido"]),
+                }
 
     log.info(f"Total partidos: {len(games)}")
 
-    # Cache
-    cached_ids: set[str] = set()
+    # Cache: clave estable fecha|equipo_local|equipo_visitante desde el CSV de tiros
+    cached_keys: set[str] = set()
     existing_df = None
     if not args.full and OUTPUT_CSV.exists():
         existing_df = pd.read_csv(OUTPUT_CSV, encoding="utf-8-sig")
-        cached_ids = set(existing_df["IdPartido"].dropna().astype(str).unique())
-        log.info(f"Cache: {len(cached_ids)} partidos ya scrapeados")
+        for _, _r in existing_df.drop_duplicates(subset=["Fecha","Equipo_local","Equipo_visitante"]).iterrows():
+            cached_keys.add(f"{_r['Fecha']}|{_r['Equipo_local']}|{_r['Equipo_visitante']}")
+        log.info(f"Cache: {len(cached_keys)} partidos ya scrapeados")
 
-    # Detectar cambio de formato de IDs (ej: migración del sitio a IDs "v2")
-    if cached_ids and games:
-        _sample_new = next(iter(games))
-        _sample_old = next(iter(cached_ids))
-        if _sample_new[:2] != _sample_old[:2]:
-            log.warning(
-                f"Cambio de formato de IDs detectado "
-                f"('{_sample_old[:8]}...' → '{_sample_new[:8]}...'). "
-                f"Descartando caché para evitar duplicados."
-            )
-            cached_ids = set()
-            existing_df = None
-
-    new_game_ids = [gid for gid in games if gid not in cached_ids and gid not in BLOCKED_GAME_IDS]
-    log.info(f"A scrapear: {len(new_game_ids)} partidos")
+    new_game_keys = [k for k in games if k not in cached_keys]
+    log.info(f"A scrapear: {len(new_game_keys)} partidos")
 
     if args.dry_run:
-        for gid in new_game_ids:
-            g = games[gid]
-            log.info(f"  {g['fecha']}  {g['local']} vs {g['visitante']}  [{gid}]")
+        for k in new_game_keys:
+            g = games[k]
+            log.info(f"  {g['fecha']}  {g['local']} vs {g['visitante']}")
         return
 
-    if not new_game_ids:
+    if not new_game_keys:
         log.info("Nada nuevo.")
         return
 
     session  = make_session()
     new_rows = []
 
-    for i, gid in enumerate(new_game_ids, 1):
-        g = games[gid]
-        log.info(f"[{i}/{len(new_game_ids)}] {g['fecha']}  {g['local']} vs {g['visitante']}")
+    for i, k in enumerate(new_game_keys, 1):
+        g = games[k]
+        log.info(f"[{i}/{len(new_game_keys)}] {g['fecha']}  {g['local']} vs {g['visitante']}")
 
-        rows = scrape_game(session, gid, g["local"], g["visitante"])
+        rows = scrape_game(session, g["game_id"], g["local"], g["visitante"])
         for r in rows:
             r["Fecha"] = g["fecha"]
         new_rows.extend(rows)
         log.info(f"  -> {len(rows)} tiros")
 
-        if i < len(new_game_ids):
+        if i < len(new_game_keys):
             time.sleep(DELAY)
 
     # Merge and save
@@ -237,6 +228,16 @@ def main():
         )
     else:
         merged = new_df
+
+    # Deduplicar por contenido del tiro (no por IdPartido, que es dinámico)
+    before_dd = len(merged)
+    merged = merged.drop_duplicates(
+        subset=["Fecha", "Equipo_local", "Equipo_visitante", "Equipo", "Dorsal",
+                "Periodo", "Tipo", "Resultado", "Left_pct", "Top_pct"],
+        keep="last",
+    )
+    if len(merged) < before_dd:
+        log.warning(f"drop_duplicates: eliminadas {before_dd - len(merged)} filas duplicadas")
 
     DOCS_DIR.mkdir(parents=True, exist_ok=True)
     merged.to_csv(OUTPUT_CSV, index=False, encoding="utf-8-sig")

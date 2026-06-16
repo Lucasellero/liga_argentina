@@ -902,6 +902,49 @@ Orden de ejes en el radar (sentido horario desde arriba): SCORING → SHOOTING �
 
 **Nota de portabilidad**: esta sección existe en `docs/liga_nacional/index.html` y `docs/index.html` (Liga Argentina). Si se porta a otras ligas, copiar el bloque CSS `.radar-*`, el HTML `sec-j-radar`, las funciones `radar*` y añadir `'j-radar':'jugadores'` a `_SUB_GROUP` y `'j-radar':4` a `_SUB_IDX`.
 
+## IDs dinámicos del sitio — bug documentado (junio 2026)
+
+### Problema
+El sitio `laliganacional.com.ar` genera IDs de partido dinámicos que **cambian en cada request**. Cada vez que se accede al fixture, los mismos partidos tienen IDs distintos a los scrapeados anteriormente.
+
+**Consecuencia**: el cache de los scrapers (stats y shots) comparaba `IdPartido` del fixture contra `IdPartido` del CSV → 0 matches → re-scrapeaba todos los partidos → los concatenaba al CSV existente → **el CSV crecía con duplicados en cada run del workflow**.
+
+Al descubrirlo, el CSV de Liga Nacional tenía cada partido repetido ~7 veces (una por día de workflow). Se detectó porque el PBP scraper reportó 3508 "partidos" cuando deberían ser ~390.
+
+### Fix aplicado (junio 2026)
+Los scrapers `data_scraper_nacional.py` y `shot_map_scraper_nacional.py` fueron corregidos para usar **clave estable `fecha|local|visitante`** en lugar de `IdPartido` tanto para el cache como para el `drop_duplicates` al mergear.
+
+Los mismos scrapers de las otras ligas (`data_scraper.py`, `data_scraper_femenina.py`, `data_scraper_proximo.py`, `shot_map_scraper.py`, etc.) tienen el mismo bug latente y deben aplicar el mismo fix si el sitio cambia el formato de IDs de esa liga también.
+
+### Recuperación manual de un CSV duplicado
+Si el CSV ya está duplicado, deduplicarlo con clave estable:
+```bash
+# Stats CSV
+python3 -c "
+import pandas as pd
+df = pd.read_csv('docs/liga_nacional/liga_nacional.csv')
+print(f'Antes: {len(df)} filas')
+df = df.drop_duplicates(subset=['Fecha','Condicion equipos','Equipo','Nombre completo'], keep='last')
+df.to_csv('docs/liga_nacional/liga_nacional.csv', index=False)
+print(f'Después: {len(df)} filas')
+"
+
+# Shots CSV
+python3 -c "
+import pandas as pd
+df = pd.read_csv('docs/liga_nacional/liga_nacional_shots.csv')
+print(f'Antes: {len(df)} filas')
+df = df.drop_duplicates(subset=['Fecha','Equipo_local','Equipo_visitante','Equipo','Dorsal','Periodo','Tipo','Resultado','Left_pct','Top_pct'], keep='last')
+df.to_csv('docs/liga_nacional/liga_nacional_shots.csv', index=False)
+print(f'Después: {len(df)} filas')
+"
+```
+
+### Señales de alerta
+- PBP scraper reporta muchos más partidos que el fixture real (~390 para Liga Nacional)
+- El CSV de stats tiene más de ~10.000 filas (Liga Nacional, temporada completa ≈ 9.800 filas)
+- `data_scraper_nacional.py` reporta `Ya cacheados: 0` teniendo un CSV existente
+
 ## Integridad de datos
 
 Antes de dar por bueno cualquier torneo nuevo o después de un scrape `--full`, correr los checks definidos en **`Skill.md`** (raíz del repo):
