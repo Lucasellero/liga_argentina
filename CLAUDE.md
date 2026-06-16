@@ -212,23 +212,43 @@ python3.12 liga_argentina/Scraper/update_nacional.py
 Ciertos partidos son scrapeados automáticamente pero **no pertenecen a la temporada regular** y deben eliminarse del CSV después de cada scrape.
 
 ### Liga Nacional — Copa Liga Malvinas (abril 2026)
-Torneo de 4 equipos (2 semis + final) jugado entre fecha 36 y los playoffs. IDs a eliminar:
+Torneo de 4 equipos (2 semis + final) jugado entre fecha 36 y los playoffs.
 
-| Fecha | Partido | IdPartido |
-|---|---|---|
-| 01/04/2026 | INDEPENDIENTE (O) vs OBRAS | `CVziX9hLM2fiIX5QRDxVvw==` |
-| 01/04/2026 | LA UNION FSA. vs FERRO | `J1PrR-tkUftYS_wjRvAJ_w==` |
-| 02/04/2026 | FERRO vs OBRAS | `StLSs290jBa1eY7d9qyvjw==` |
+| Fecha | Partido |
+|---|---|
+| 01/04/2026 | INDEPENDIENTE (O) vs OBRAS |
+| 01/04/2026 | LA UNION FSA. vs FERRO |
+| 02/04/2026 | FERRO vs OBRAS |
+
+**⚠️ No filtrar por `IdPartido`** — los IDs son dinámicos y cambian en cada request (ver sección "IDs dinámicos"). Usar clave estable `fecha|equipoA|equipoB`.
 
 **Después de correr `data_scraper_nacional.py`**, ejecutar:
 ```bash
-python3 -c "
+python3 << 'EOF'
 import pandas as pd
-IDS = {'CVziX9hLM2fiIX5QRDxVvw==', 'J1PrR-tkUftYS_wjRvAJ_w==', 'StLSs290jBa1eY7d9qyvjw=='}
-for f in ['docs/liga_nacional/liga_nacional.csv', 'docs/liga_nacional/liga_nacional_shots.csv', 'docs/liga_nacional/liga_nacional_pbp.csv']:
-    df = pd.read_csv(f); df = df[~df['IdPartido'].isin(IDS)]; df.to_csv(f, index=False)
-    print(f'Limpiado: {f}')
-"
+
+EXCLUDED_PAIRS = {
+    ('01/04/2026', frozenset(['INDEPENDIENTE (O)', 'OBRAS'])),
+    ('01/04/2026', frozenset(['LA UNION FSA.', 'FERRO'])),
+    ('02/04/2026', frozenset(['FERRO', 'OBRAS'])),
+    ('05/03/2026', frozenset(['BOCA', 'INSTITUTO'])),  # partido especial cancha Atenas
+}
+
+def is_excluded(fecha, equipo, rival):
+    return (fecha, frozenset([equipo, rival])) in EXCLUDED_PAIRS
+
+for f, local_col, visit_col in [
+    ('docs/liga_nacional/liga_nacional.csv', 'Equipo', 'Rival'),
+    ('docs/liga_nacional/liga_nacional_shots.csv', 'Equipo_local', 'Equipo_visitante'),
+    ('docs/liga_nacional/liga_nacional_pbp.csv', 'Equipo_local', 'Equipo_visitante'),
+]:
+    df = pd.read_csv(f)
+    mask = df.apply(lambda r: is_excluded(r['Fecha'], r[local_col], r[visit_col]), axis=1)
+    before = len(df)
+    df = df[~mask].reset_index(drop=True)
+    df.to_csv(f, index=False, encoding='utf-8-sig')
+    print(f'{f}: {before} → {len(df)} filas')
+EOF
 ```
 
 ## Fuente de datos
@@ -945,6 +965,84 @@ print(f'Después: {len(df)} filas')
 - El CSV de stats tiene más de ~10.000 filas (Liga Nacional, temporada completa ≈ 9.800 filas)
 - `data_scraper_nacional.py` reporta `Ya cacheados: 0` teniendo un CSV existente
 
+### Efecto secundario: cleanup de partidos excluidos
+El script de exclusión documentado en "Partidos a excluir" también usaba `IdPartido` → no eliminaba nada. Si el workflow corrió varias veces antes del fix, los partidos excluidos (Copa Malvinas, Boca vs Instituto) pueden seguir en el CSV. Verificar con:
+```bash
+python3 -c "
+import pandas as pd
+df = pd.read_csv('docs/liga_nacional/liga_nacional.csv')
+excl_dates = ['01/04/2026','02/04/2026','05/03/2026']
+print(df[df['Fecha'].isin(excl_dates)][['Fecha','Equipo','Rival']].drop_duplicates())
+"
+```
+Si aparecen filas, ejecutar el script de "Partidos a excluir" actualizado (que usa clave estable).
+
+## Bugs en el shots CSV — documentados (junio 2026)
+
+### Bug 1: `Equipo` y `Equipo_local` NaN para tiros del equipo local
+
+**Síntoma**: en `liga_nacional_shots.csv`, el 50% de los tiros (`Local=True`) tenían `Equipo=NaN` y todas las filas tenían `Equipo_local=NaN`.
+
+**Causa**: el scraper original almacenaba correctamente `Equipo_visitante` pero fallaba al escribir el nombre del equipo local en `Equipo` y `Equipo_local`.
+
+**Impacto en el dashboard**:
+- `j-tiro`: `SHOTS_BY_PLAYER` se construye con `s['Equipo']||s['Dorsal']` — los tiros locales con `Equipo=NaN` no aparecían en el mapa de ningún jugador local.
+- `t-tiro`: filtra por `s['Equipo'] === teamName` — el equipo local nunca mostraba sus tiros.
+
+**Fix**: reconstruir `Equipo_local` y `Equipo` desde el stats CSV via lookup `(Fecha, Equipo_visitante) → Equipo_local`:
+```bash
+python3 << 'EOF'
+import pandas as pd
+shots = pd.read_csv('docs/liga_nacional/liga_nacional_shots.csv')
+stats = pd.read_csv('docs/liga_nacional/liga_nacional.csv')
+visit_rows = stats[(stats['Nombre completo']=='TOTALES') & (stats['Condicion equipos']=='VISITANTE')]
+lookup = {(r['Fecha'], r['Equipo']): r['Rival'] for _, r in visit_rows.iterrows()}
+shots['Equipo_local'] = shots.apply(lambda r: lookup.get((r['Fecha'], r['Equipo_visitante']), float('nan')), axis=1)
+shots.loc[shots['Local']==True, 'Equipo'] = shots.loc[shots['Local']==True, 'Equipo_local']
+shots.to_csv('docs/liga_nacional/liga_nacional_shots.csv', index=False, encoding='utf-8-sig')
+print(f'Equipo NaN: {shots["Equipo"].isna().sum()}  (esperado: 0)')
+EOF
+```
+
+**El scraper nuevo (`shot_map_scraper_nacional.py` post-fix) ya escribe estos campos correctamente** — el bug solo existe en datos históricos.
+
+---
+
+### Bug 2: filas LOCAL TOTALES faltantes después de la deduplicación
+
+**Síntoma**: ciertos partidos en el stats CSV tenían filas de jugadores locales pero sin la fila `TOTALES` del equipo local. El dashboard usa `TOTALES` para `calcOPP_PTS` y el gamelog — sin ella, el partido puede computarse incorrectamente.
+
+**Causa**: la dedup masiva (de 86k → 10k filas) usó `keep='last'`. En algunos partidos (en particular playoffs y semis), la fila LOCAL TOTALES tenía un `IdPartido` diferente al resto de las filas del mismo partido (distintas sesiones de scrape con IDs dinámicos), y fue eliminada.
+
+**Detección**: contar TOTALES LOCAL vs VISITANTE — deben ser iguales:
+```bash
+python3 -c "
+import pandas as pd
+df = pd.read_csv('docs/liga_nacional/liga_nacional.csv')
+t = df[df['Nombre completo']=='TOTALES']
+print('LOCAL:', len(t[t['Condicion equipos']=='LOCAL']))
+print('VISIT:', len(t[t['Condicion equipos']=='VISITANTE']))
+"
+```
+
+**Fix**: computar los TOTALES faltantes sumando las filas de jugadores locales:
+```bash
+python3 << 'EOF'
+import pandas as pd, numpy as np
+stats = pd.read_csv('docs/liga_nacional/liga_nacional.csv')
+totales = stats[stats['Nombre completo']=='TOTALES']
+local_keys = set(totales[totales['Condicion equipos']=='LOCAL'].apply(lambda r: f"{r['Fecha']}|{r['Equipo']}|{r['Rival']}", axis=1))
+visit_keys = set(totales[totales['Condicion equipos']=='VISITANTE'].apply(lambda r: f"{r['Fecha']}|{r['Rival']}|{r['Equipo']}", axis=1))
+missing = visit_keys - local_keys
+print(f'Partidos con LOCAL TOTALES faltante: {len(missing)}')
+for k in sorted(missing): print(f'  {k}')
+EOF
+```
+
+Si hay faltantes, calcularlos a mano (sumar columnas numéricas de los jugadores locales) e insertarlos antes de volver a commitear.
+
+---
+
 ## Integridad de datos
 
 Antes de dar por bueno cualquier torneo nuevo o después de un scrape `--full`, correr los checks definidos en **`Skill.md`** (raíz del repo):
@@ -955,8 +1053,20 @@ Antes de dar por bueno cualquier torneo nuevo o después de un scrape `--full`, 
 | Check 2 | Asistencias: PBP vs box score (requiere PBP local) | Ídem, solo si PBP está disponible localmente |
 | Check 3 | Resumen una línea por liga (todas las ligas a la vez) | Periódicamente o al cierre de cada fase |
 | Check 4 | `j-tiro` suma = `t-tiro` total liga (tiros sin dorsal = 0) | Al agregar torneo o ante inconsistencias visuales |
+| Check 5 | TOTALES LOCAL == TOTALES VISITANTE en stats CSV | Después de deduplicar o limpiar el CSV |
 
 **Umbrales**: ✓ ≥99% · ~ 90–98% · ✗ <90%. Si hay gap, correr el scraper de shots con `--full`.
+
+**Check 5 rápido**:
+```bash
+python3 -c "
+import pandas as pd
+df = pd.read_csv('docs/liga_nacional/liga_nacional.csv')
+t = df[df['Nombre completo']=='TOTALES']
+l, v = len(t[t['Condicion equipos']=='LOCAL']), len(t[t['Condicion equipos']=='VISITANTE'])
+print(f'LOCAL={l} VISITANTE={v}', '✓' if l==v else '✗ DESBALANCEADO')
+"
+```
 
 Los scripts listos para copiar-pegar están en `Skill.md`. Correr siempre desde la raíz del repo (`liga_argentina/`).
 
