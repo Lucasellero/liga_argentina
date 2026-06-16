@@ -16,8 +16,8 @@ import os, sys
 import pandas as pd
 import numpy as np
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC  = os.path.join(ROOT, "sudamericano_u18")
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+SRC  = os.path.join(ROOT, "torneos_internacionales", "sudamericano_u18")
 OUT  = os.path.join(ROOT, "docs", "argentina_formativas")
 
 # ── Fechas conocidas ────────────────────────────────────────────────────────

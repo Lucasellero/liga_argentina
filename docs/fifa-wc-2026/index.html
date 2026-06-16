@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="../liga_argentina/logos/scouteados_favicon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIFA World Cup 2026 · Scouteado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<script defer src="/_vercel/insights/script.js"></script>
+<style>
+:root {
+  --bg:        #0b0b16;
+  --surface:   #12121f;
+  --surface2:  #1a1a2e;
+  --border:    rgba(139,92,246,.18);
+  --border2:   rgba(255,255,255,.07);
+  --text:      #e2e8f0;
+  --text-muted:#94a3b8;
+  --text-dim:  #64748b;
+  --purple:    #8b5cf6;
+  --purple-l:  #a78bfa;
+  --purple-d:  #6d28d9;
+  --teal:      #2dd4bf;
+  --teal-l:    #5eead4;
+  --gold:      #f59e0b;
+  --gold-l:    #fbbf24;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+/* ── Header ── */
+.header{display:flex;align-items:center;gap:16px;padding:14px 28px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.header-logo{width:52px;height:52px;object-fit:contain}
+.header-title{font-size:1.1rem;font-weight:800;letter-spacing:.04em;color:var(--text)}
+.header-sub{font-size:.72rem;color:var(--gold-l);font-weight:600;letter-spacing:.03em;margin-top:2px}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+#headerUser{display:none;align-items:center;gap:10px}
+#headerUserName{font-size:.78rem;color:var(--purple-l);font-weight:600}
+.btn-logout{font-size:.72rem;font-weight:600;padding:5px 12px;border-radius:20px;border:1px solid rgba(139,92,246,.32);background:rgba(139,92,246,.1);color:var(--purple-l);cursor:pointer;transition:background .15s}
+.btn-logout:hover{background:rgba(139,92,246,.22)}
+#headerLogin{display:inline-flex;align-items:center;gap:6px;font-size:.75rem;font-weight:600;padding:6px 14px;border-radius:20px;border:1px solid rgba(139,92,246,.4);background:rgba(139,92,246,.12);color:var(--purple-l);text-decoration:none;transition:background .15s}
+#headerLogin:hover{background:rgba(139,92,246,.24)}
+
+/* ── Nav tabs ── */
+.main-tabs{display:flex;align-items:center;gap:4px;padding:8px 28px;background:var(--surface);border-bottom:1px solid var(--border2);overflow-x:auto;scrollbar-width:none}
+.main-tabs::-webkit-scrollbar{display:none}
+.main-tab{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:10px;font-size:.8rem;font-weight:600;color:var(--text-muted);transition:all .15s;white-space:nowrap}
+.main-tab:hover{background:rgba(139,92,246,.1);color:var(--purple-l)}
+.main-tab.active{background:rgba(139,92,246,.18);color:var(--purple-l);border:1px solid rgba(139,92,246,.3)}
+
+/* ── Sections ── */
+.section{display:none;padding:24px 28px;min-height:calc(100vh - 140px)}
+.section.active{display:block}
+.section-title{font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:16px}
+
+/* ── Loading ── */
+#loadingOverlay{display:flex;position:fixed;inset:0;z-index:9999;background:rgba(11,11,22,.97);align-items:center;justify-content:center;flex-direction:column;gap:16px}
+.spinner{width:44px;height:44px;border:4px solid rgba(139,92,246,.2);border-top-color:var(--purple);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loadingText{color:var(--text-muted);font-size:.9rem;letter-spacing:.04em}
+
+/* ── Match cards ── */
+.matches-grid{display:flex;flex-direction:column;gap:8px}
+.group-section{margin-bottom:24px}
+.group-label{font-size:.72rem;font-weight:700;letter-spacing:.12em;color:var(--gold-l);text-transform:uppercase;margin-bottom:10px;padding:4px 10px;background:rgba(245,158,11,.1);border-radius:6px;display:inline-block}
+.match-card{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;cursor:pointer;transition:border-color .15s,background .15s}
+.match-card:hover{border-color:rgba(139,92,246,.3);background:var(--surface2)}
+.match-date{font-size:.68rem;color:var(--text-dim);width:80px;flex-shrink:0}
+.match-teams{flex:1;display:flex;align-items:center;gap:10px}
+.match-team{font-size:.88rem;font-weight:600;flex:1}
+.match-team.home{text-align:right}
+.match-team.away{text-align:left}
+.match-score{font-size:1.1rem;font-weight:800;color:var(--gold-l);min-width:54px;text-align:center;padding:4px 10px;background:rgba(245,158,11,.1);border-radius:8px}
+.match-score.upcoming{font-size:.78rem;font-weight:600;color:var(--text-muted);background:rgba(255,255,255,.05)}
+.match-stadium{font-size:.66rem;color:var(--text-dim);margin-left:auto;flex-shrink:0;max-width:160px;text-align:right}
+.match-winner{color:var(--gold-l)}
+
+/* ── Standings ── */
+.groups-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.standing-card{background:var(--surface);border:1px solid var(--border2);border-radius:10px;overflow:hidden}
+.standing-header{padding:10px 14px;font-size:.72rem;font-weight:700;letter-spacing:.1em;color:var(--gold-l);text-transform:uppercase;background:rgba(245,158,11,.08);border-bottom:1px solid var(--border2)}
+.standing-table{width:100%;border-collapse:collapse}
+.standing-table th{font-size:.65rem;font-weight:700;color:var(--text-dim);letter-spacing:.06em;padding:6px 8px;text-align:right;border-bottom:1px solid var(--border2)}
+.standing-table th:first-child{text-align:left}
+.standing-table td{font-size:.78rem;padding:7px 8px;text-align:right;border-bottom:1px solid rgba(255,255,255,.04)}
+.standing-table td:first-child{text-align:left;font-weight:600;color:var(--text)}
+.standing-table td.pts{font-weight:700;color:var(--purple-l)}
+.standing-table tr:last-child td{border-bottom:none}
+.standing-table tr.qualify{background:rgba(45,212,191,.04)}
+.standing-table tr.qualify td:first-child::before{content:'';display:inline-block;width:3px;height:12px;background:var(--teal);border-radius:2px;margin-right:6px;vertical-align:middle}
+
+/* ── Player table ── */
+.table-controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:14px}
+.search-input{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:7px 12px;font-size:.82rem;color:var(--text);width:200px;font-family:inherit;outline:none;transition:border-color .15s}
+.search-input:focus{border-color:rgba(139,92,246,.4)}
+.search-input::placeholder{color:var(--text-dim)}
+.filter-select{background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:7px 10px;font-size:.8rem;color:var(--text);font-family:inherit;cursor:pointer;outline:none}
+.toggle-group{display:flex;gap:3px;background:rgba(255,255,255,.04);padding:3px;border-radius:8px}
+.toggle-btn{padding:5px 12px;border-radius:6px;font-size:.75rem;font-weight:600;color:var(--text-muted);transition:all .15s}
+.toggle-btn.active{background:rgba(139,92,246,.2);color:var(--purple-l)}
+
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border2)}
+.stats-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.stats-table thead th{padding:9px 10px;text-align:right;font-size:.67rem;font-weight:700;color:var(--text-dim);letter-spacing:.05em;background:var(--surface2);border-bottom:1px solid var(--border2);white-space:nowrap;cursor:pointer;user-select:none;position:sticky;top:0}
+.stats-table thead th:hover{color:var(--purple-l)}
+.stats-table thead th.sorted-asc::after{content:' ↑';color:var(--purple-l)}
+.stats-table thead th.sorted-desc::after{content:' ↓';color:var(--purple-l)}
+.stats-table thead th:nth-child(1),.stats-table thead th:nth-child(2),.stats-table thead th:nth-child(3){text-align:left}
+.stats-table tbody td{padding:8px 10px;text-align:right;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text-muted)}
+.stats-table tbody td:nth-child(1),.stats-table tbody td:nth-child(2),.stats-table tbody td:nth-child(3){text-align:left}
+.stats-table tbody td:nth-child(1){font-weight:600;color:var(--text);white-space:nowrap}
+.stats-table tbody td:nth-child(2){font-size:.72rem;color:var(--text-dim)}
+.stats-table tbody td:nth-child(3){font-size:.72rem;color:var(--text-dim);white-space:nowrap}
+.stats-table tbody tr:hover{background:rgba(139,92,246,.05)}
+.stats-table tbody tr:last-child td{border-bottom:none}
+td.highlight{color:var(--text);font-weight:600}
+td.val-high{color:var(--teal-l);font-weight:700}
+td.val-goal{color:var(--gold-l);font-weight:700}
+.table-empty{padding:40px;text-align:center;color:var(--text-dim)}
+
+/* ── Team stats ── */
+.team-grid{display:flex;flex-direction:column;gap:10px}
+.team-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);border:1px solid var(--border2);border-radius:10px}
+.team-name-col{font-size:.85rem;font-weight:600;width:160px;flex-shrink:0}
+.team-bar-col{flex:1}
+.bar-label{font-size:.65rem;color:var(--text-dim);margin-bottom:3px}
+.bar-track{height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .3s}
+.bar-fill.purple{background:var(--purple-l)}
+.bar-fill.teal{background:var(--teal-l)}
+.bar-fill.gold{background:var(--gold-l)}
+.bar-val{font-size:.75rem;font-weight:600;width:50px;text-align:right;flex-shrink:0}
+
+/* ── Responsive ── */
+@media(max-width:640px){
+  .header{padding:10px 14px;gap:10px}
+  .header-logo{width:40px;height:40px}
+  .section{padding:14px}
+  .main-tabs{padding:6px 10px}
+  .groups-grid{grid-template-columns:1fr}
+  .match-stadium{display:none}
+  .match-date{width:60px}
+  .table-controls{flex-direction:column;align-items:stretch}
+  .search-input{width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- Loading overlay -->
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <div id="loadingText">Cargando datos...</div>
+</div>
+
+<!-- Main app -->
+<div id="mainApp" style="display:none">
+
+<!-- Header -->
+<div class="header">
+  <img class="header-logo" src="../liga_argentina/logos/scouteado_logo.png" alt="Scouteado">
+  <div>
+    <div class="header-title">SCOUTEADO</div>
+    <div class="header-sub">FIFA World Cup 2026</div>
+  </div>
+  <div class="header-right">
+    <div id="headerUser">
+      <span id="headerUserName"></span>
+      <button class="btn-logout" onclick="authLogout()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+    <a id="headerLogin" href="../login.html?returnTo=fifa-wc-2026/">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      Iniciar sesión
+    </a>
+  </div>
+</div>
+
+<!-- Nav tabs -->
+<div class="main-tabs">
+  <button class="main-tab active" onclick="switchSection('resultados')">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>
+    Resultados
+  </button>
+  <button class="main-tab" onclick="switchSection('grupos')">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+    Grupos
+  </button>
+  <button class="main-tab" onclick="switchSection('jugadores')">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Jugadores
+  </button>
+  <button class="main-tab" onclick="switchSection('equipos')">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Equipos
+  </button>
+</div>
+
+<!-- ── Resultados ── -->
+<div id="sec-resultados" class="section active">
+  <div id="matchesContainer"></div>
+</div>
+
+<!-- ── Grupos ── -->
+<div id="sec-grupos" class="section">
+  <div id="groupsContainer" class="groups-grid"></div>
+</div>
+
+<!-- ── Jugadores ── -->
+<div id="sec-jugadores" class="section">
+  <div class="table-controls">
+    <input id="playerSearch" class="search-input" placeholder="Buscar jugador..." oninput="onPlayerFilter()">
+    <select id="teamFilter" class="filter-select" onchange="onPlayerFilter()">
+      <option value="">Todas las selecciones</option>
+    </select>
+    <div class="toggle-group">
+      <button id="tglPos" class="toggle-btn active" onclick="setPlayerView('pos')">Posesión</button>
+      <button id="tglDef" class="toggle-btn" onclick="setPlayerView('def')">Defensa</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table class="stats-table" id="playerTable">
+      <thead id="playerThead"></thead>
+      <tbody id="playerTbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Equipos ── -->
+<div id="sec-equipos" class="section">
+  <div class="table-controls">
+    <div class="toggle-group">
+      <button id="tglTeamXg"  class="toggle-btn active" onclick="setTeamMetric('xg')">xG</button>
+      <button id="tglTeamPas" class="toggle-btn" onclick="setTeamMetric('pas')">Pases</button>
+      <button id="tglTeamLb"  class="toggle-btn" onclick="setTeamMetric('lb')">Líneas Rotas</button>
+      <button id="tglTeamPre" class="toggle-btn" onclick="setTeamMetric('pre')">Presión</button>
+    </div>
+  </div>
+  <div id="teamsContainer" class="team-grid"></div>
+</div>
+
+</div><!-- /mainApp -->
+
+<div id="thTip" style="position:fixed;z-index:9999;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:.72rem;padding:5px 9px;border-radius:6px;pointer-events:none;display:none;max-width:200px;line-height:1.4"></div>
+
+<script>
+// ── Auth guard ───────────────────────────────────────────────────────────────
+(function() {
+  const LOGIN_URL = '../login.html?returnTo=fifa-wc-2026/';
+  const token = localStorage.getItem('auth_token');
+  if (!token) { window.location.replace(LOGIN_URL); return; }
+  try {
+    const b64     = token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+    const payload = JSON.parse(atob(b64));
+    if (!payload.exp || Date.now() / 1000 > payload.exp) {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
+      window.location.replace(LOGIN_URL);
+      return;
+    }
+    // Allowed users (whitelist) or wc_access metadata
+    const ALLOWED = new Set([
+      '996a7324-08c2-47de-bc55-4219c7d144fd', // ramiellero@gmail.com
+    ]);
+    const uid = payload.sub || '';
+    if (!ALLOWED.has(uid) && !payload.user_metadata?.wc_access) {
+      document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('loadingOverlay').style.display = 'none';
+        alert('No tenés acceso a esta sección. Contactá a scoutea2@gmail.com.');
+        window.location.replace('../');
+      });
+      return;
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+      const user = JSON.parse(localStorage.getItem('auth_user') || '{}');
+      if (user.nombre) {
+        document.getElementById('headerUserName').textContent = user.nombre + ' ' + (user.apellido || '');
+        document.getElementById('headerUser').style.display = 'flex';
+      }
+      document.getElementById('headerLogin').style.display = 'none';
+    });
+  } catch(e) {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    window.location.replace(LOGIN_URL);
+  }
+})();
+
+function authLogout() {
+  localStorage.removeItem('auth_token');
+  localStorage.removeItem('auth_user');
+  window.location.replace('../login.html?returnTo=fifa-wc-2026/');
+}
+
+// ── CSV parser ───────────────────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.split('\n');
+  if (!lines.length) return [];
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    const vals = [];
+    let cur = '', inQ = false;
+    for (let c = 0; c < line.length; c++) {
+      if (line[c] === '"') { inQ = !inQ; continue; }
+      if (line[c] === ',' && !inQ) { vals.push(cur.trim()); cur = ''; continue; }
+      cur += line[c];
+    }
+    vals.push(cur.trim());
+    const row = {};
+    headers.forEach((h, idx) => { row[h] = vals[idx] ?? ''; });
+    rows.push(row);
+  }
+  return rows;
+}
+
+function numOrNull(v) {
+  const n = parseFloat(v);
+  return isNaN(n) ? null : n;
+}
+function fmtNum(v, dec=1) {
+  if (v === null || v === undefined || v === '' || isNaN(v)) return '—';
+  return dec === 0 ? Math.round(v).toString() : parseFloat(v).toFixed(dec);
+}
+function fmtPct(v) {
+  if (v === null || v === undefined || v === '' || isNaN(v)) return '—';
+  return Math.round(parseFloat(v)) + '%';
+}
+
+// ── Global state ─────────────────────────────────────────────────────────────
+let MATCHES       = [];
+let TEAM_STATS    = [];
+let PLAYERS_DIST  = [];
+let PLAYERS_DEF   = [];
+let PLAYERS       = [];  // merged
+let TEAMS_AGG     = {};  // aggregated team stats
+
+let _playerView   = 'pos';
+let _playerSort   = { col: 'lb_comp', asc: false };
+let _teamMetric   = 'xg';
+
+// ── Navigation ───────────────────────────────────────────────────────────────
+function switchSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  const tabs = document.querySelectorAll('.main-tab');
+  const order = ['resultados','grupos','jugadores','equipos'];
+  const idx = order.indexOf(id);
+  if (idx >= 0 && tabs[idx]) tabs[idx].classList.add('active');
+
+  if (id === 'equipos' && document.getElementById('teamsContainer').children.length === 0) {
+    renderTeams();
+  }
+}
+
+// ── Data loading ─────────────────────────────────────────────────────────────
+async function initApp() {
+  const ts = Date.now();
+  try {
+    const [mRes, tRes, dRes, defRes] = await Promise.all([
+      fetch(`wc_matches.csv?v=${ts}`),
+      fetch(`wc_team_stats.csv?v=${ts}`),
+      fetch(`wc_player_possession.csv?v=${ts}`),
+      fetch(`wc_player_defense.csv?v=${ts}`),
+    ]);
+    const [mText, tText, dText, defText] = await Promise.all([
+      mRes.ok ? mRes.text() : '',
+      tRes.ok ? tRes.text() : '',
+      dRes.ok ? dRes.text() : '',
+      defRes.ok ? defRes.text() : '',
+    ]);
+
+    MATCHES      = parseCSV(mText).filter(r => r.home && r.home !== 'NaN');
+    TEAM_STATS   = parseCSV(tText);
+    PLAYERS_DIST = parseCSV(dText);
+    PLAYERS_DEF  = parseCSV(defText);
+
+    buildPlayers();
+    buildTeamsAgg();
+    populateTeamFilter();
+    renderMatches();
+    renderGroups();
+    renderPlayerTable();
+
+    document.getElementById('loadingOverlay').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+  } catch(e) {
+    document.getElementById('loadingText').textContent = 'Error cargando datos.';
+    console.error(e);
+  }
+}
+
+// ── Build player objects (merge possession + defense) ────────────────────────
+function buildPlayers() {
+  const map = new Map();
+  for (const r of PLAYERS_DIST) {
+    if (!r.player || r.player === 'NaN') continue;
+    const key = `${r.match_num}|${r.team}|${r.player}`;
+    map.set(key, { ...r });
+  }
+  for (const r of PLAYERS_DEF) {
+    if (!r.player || r.player === 'NaN') continue;
+    const key = `${r.match_num}|${r.team}|${r.player}`;
+    const ex = map.get(key) || {};
+    map.set(key, { ...ex, ...r });
+  }
+  PLAYERS = [...map.values()].map(p => ({
+    ...p,
+    _match_label: `${p.home || '?'} ${p.home_score ?? '?'}-${p.away_score ?? '?'} ${p.away || '?'}`,
+  }));
+}
+
+// ── Build team aggregates from TEAM_STATS ────────────────────────────────────
+function buildTeamsAgg() {
+  const map = {};
+  for (const r of TEAM_STATS) {
+    const process = (team, side) => {
+      if (!team || team === 'NaN') return;
+      if (!map[team]) map[team] = { team, matches:0, xg:0, passes_att:0, pass_pct:0, lb:0, pressures:0, poss_regains:0 };
+      const t = map[team];
+      t.matches++;
+      t.xg          += numOrNull(r[`xg_${side}`]) || 0;
+      t.passes_att  += numOrNull(r[`passes_att_${side}`]) || 0;
+      t.pass_pct    += numOrNull(r[`pass_pct_${side}`]) || 0;
+      t.lb          += numOrNull(r[`lb_${side}`]) || 0;
+      t.pressures   += numOrNull(r[`pressures_${side}`]) || 0;
+    };
+    process(r.home, 'home');
+    process(r.away, 'away');
+  }
+  // Average percentages
+  for (const t of Object.values(map)) {
+    if (t.matches > 0) t.pass_pct /= t.matches;
+  }
+  TEAMS_AGG = map;
+}
+
+// ── Standings calculation ────────────────────────────────────────────────────
+function buildStandings() {
+  const teams = {};
+  const groupOf = {};
+
+  for (const m of MATCHES) {
+    if (m.home_score === '' || m.home_score === 'NaN' || m.home_score === undefined) continue;
+    const hs = parseInt(m.home_score), as_ = parseInt(m.away_score);
+    if (isNaN(hs) || isNaN(as_)) continue;
+    const g = m.group || '?';
+
+    const addTeam = (name, gf, ga) => {
+      if (!teams[name]) teams[name] = { team:name, pj:0, g:0, e:0, p:0, gf:0, ga:0, pts:0 };
+      teams[name].pj++;
+      teams[name].gf += gf;
+      teams[name].ga += ga;
+      if (gf > ga)       { teams[name].g++;  teams[name].pts += 3; }
+      else if (gf === ga) { teams[name].e++;  teams[name].pts += 1; }
+      else                { teams[name].p++; }
+      groupOf[name] = g;
+    };
+
+    addTeam(m.home, hs, as_);
+    addTeam(m.away, as_, hs);
+  }
+
+  // Group by letter
+  const groups = {};
+  for (const [team, data] of Object.entries(teams)) {
+    const g = groupOf[team] || '?';
+    if (!groups[g]) groups[g] = [];
+    groups[g].push({ ...data, gd: data.gf - data.ga });
+  }
+
+  // Sort each group
+  for (const g of Object.values(groups)) {
+    g.sort((a,b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
+  }
+
+  return groups;
+}
+
+// ── Render: Matches ──────────────────────────────────────────────────────────
+function renderMatches() {
+  const groups = {};
+  for (const m of MATCHES) {
+    const g = m.group || '?';
+    if (!groups[g]) groups[g] = [];
+    groups[g].push(m);
+  }
+
+  const container = document.getElementById('matchesContainer');
+  container.innerHTML = '';
+
+  for (const g of Object.keys(groups).sort()) {
+    const sec = document.createElement('div');
+    sec.className = 'group-section';
+    sec.innerHTML = `<div class="group-label">Grupo ${g}</div><div class="matches-grid" id="mg-${g}"></div>`;
+    container.appendChild(sec);
+
+    const grid = sec.querySelector(`#mg-${g}`);
+    for (const m of groups[g]) {
+      const hasScore = m.home_score !== '' && m.home_score !== 'NaN';
+      const hs = parseInt(m.home_score), as_ = parseInt(m.away_score);
+      const homeWin = hasScore && hs > as_;
+      const awayWin = hasScore && as_ > hs;
+
+      const card = document.createElement('div');
+      card.className = 'match-card';
+      card.innerHTML = `
+        <div class="match-date">${m.date || ''}</div>
+        <div class="match-teams">
+          <div class="match-team home ${homeWin ? 'match-winner' : ''}">${m.home}</div>
+          <div class="match-score ${!hasScore ? 'upcoming' : ''}">${hasScore ? `${hs} - ${as_}` : '—'}</div>
+          <div class="match-team away ${awayWin ? 'match-winner' : ''}">${m.away}</div>
+        </div>
+        <div class="match-stadium">${m.stadium || ''}</div>`;
+      grid.appendChild(card);
+    }
+  }
+}
+
+// ── Render: Groups / Standings ───────────────────────────────────────────────
+function renderGroups() {
+  const groups = buildStandings();
+  const container = document.getElementById('groupsContainer');
+  container.innerHTML = '';
+
+  for (const g of Object.keys(groups).sort()) {
+    const rows = groups[g];
+    const card = document.createElement('div');
+    card.className = 'standing-card';
+    card.innerHTML = `
+      <div class="standing-header">Grupo ${g}</div>
+      <table class="standing-table">
+        <thead><tr>
+          <th>Selección</th>
+          <th data-tip="Partidos jugados">PJ</th>
+          <th data-tip="Victorias">V</th>
+          <th data-tip="Empates">E</th>
+          <th data-tip="Derrotas">D</th>
+          <th data-tip="Goles a favor">GF</th>
+          <th data-tip="Goles en contra">GC</th>
+          <th data-tip="Diferencia de gol">DG</th>
+          <th data-tip="Puntos">Pts</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map((r,i) => `
+            <tr class="${i < 2 ? 'qualify' : ''}">
+              <td>${r.team}</td>
+              <td>${r.pj}</td>
+              <td>${r.g}</td>
+              <td>${r.e}</td>
+              <td>${r.p}</td>
+              <td>${r.gf}</td>
+              <td>${r.ga}</td>
+              <td>${r.gd > 0 ? '+' : ''}${r.gd}</td>
+              <td class="pts">${r.pts}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+    container.appendChild(card);
+  }
+}
+
+// ── Render: Player table ──────────────────────────────────────────────────────
+const POS_COLS = [
+  { key:'player',       label:'Jugador',     fmt: p=>p.player,                   tip:'Jugador' },
+  { key:'team',         label:'Selección',   fmt: p=>p.team,                     tip:'Selección nacional' },
+  { key:'_match_label', label:'Partido',     fmt: p=>p._match_label,             tip:'Partido' },
+  { key:'passes_att',   label:'PA',          fmt: p=>fmtNum(p.passes_att,0),     tip:'Pases intentados' },
+  { key:'passes_comp',  label:'PC',          fmt: p=>fmtNum(p.passes_comp,0),    tip:'Pases completados' },
+  { key:'pass_pct',     label:'PA%',         fmt: p=>fmtPct(p.pass_pct),         tip:'% de pases completados' },
+  { key:'switches',     label:'Cam',         fmt: p=>fmtNum(p.switches,0),       tip:'Cambios de juego (switches)' },
+  { key:'crosses_att',  label:'Crs',         fmt: p=>fmtNum(p.crosses_att,0),    tip:'Centros intentados' },
+  { key:'crosses_comp', label:'CrsC',        fmt: p=>fmtNum(p.crosses_comp,0),   tip:'Centros completados' },
+  { key:'lb_att',       label:'LRA',         fmt: p=>fmtNum(p.lb_att,0),         tip:'Líneas rotas intentadas' },
+  { key:'lb_comp',      label:'LRC',         fmt: p=>fmtNum(p.lb_comp,0),        tip:'Líneas rotas completadas' },
+  { key:'lb_pct',       label:'LR%',         fmt: p=>fmtPct(p.lb_pct),           tip:'% de líneas rotas completadas' },
+  { key:'ball_prog',    label:'PBal',        fmt: p=>fmtNum(p.ball_prog,0),      tip:'Progresiones de balón' },
+  { key:'take_ons',     label:'TA',          fmt: p=>fmtNum(p.take_ons,0),       tip:'Regates intentados (take-ons)' },
+  { key:'step_ins',     label:'StIn',        fmt: p=>fmtNum(p.step_ins,0),       tip:'Step-ins (penetraciones)' },
+  { key:'att_goal',     label:'IG',          fmt: p=>fmtNum(p.att_goal,0),       tip:'Intentos de gol' },
+  { key:'goals',        label:'Gol',         fmt: p=>fmtNum(p.goals,0),          tip:'Goles' },
+];
+
+const DEF_COLS = [
+  { key:'player',              label:'Jugador',   fmt: p=>p.player,                          tip:'Jugador' },
+  { key:'team',                label:'Selección', fmt: p=>p.team,                            tip:'Selección nacional' },
+  { key:'_match_label',        label:'Partido',   fmt: p=>p._match_label,                    tip:'Partido' },
+  { key:'tackles_made',        label:'TG',        fmt: p=>fmtNum(p.tackles_made,0),          tip:'Tackles realizados' },
+  { key:'tackles_won',         label:'TGG',       fmt: p=>fmtNum(p.tackles_won,0),           tip:'Tackles ganados' },
+  { key:'blocks',              label:'Blo',       fmt: p=>fmtNum(p.blocks,0),                tip:'Bloqueos' },
+  { key:'interceptions',       label:'Int',       fmt: p=>fmtNum(p.interceptions,0),         tip:'Intercepciones' },
+  { key:'pressing_contests',   label:'Pre',       fmt: p=>fmtNum(p.pressing_contests,0),     tip:'Disputas de presión' },
+  { key:'clearances',          label:'Des',       fmt: p=>fmtNum(p.clearances,0),            tip:'Despejes' },
+  { key:'pushing_on_won',      label:'POn',       fmt: p=>fmtNum(p.pushing_on_won,0),        tip:'Pushing on ganado' },
+  { key:'pressing_direct',     label:'PreD',      fmt: p=>fmtNum(p.pressing_direct,0),       tip:'Presiones directas' },
+  { key:'pressing_indirect',   label:'PreI',      fmt: p=>fmtNum(p.pressing_indirect,0),     tip:'Presiones indirectas' },
+  { key:'duels_aerial',        label:'DA',        fmt: p=>fmtNum(p.duels_aerial,0),          tip:'Duelos aéreos ganados' },
+  { key:'duels_physical',      label:'DF',        fmt: p=>fmtNum(p.duels_physical,0),        tip:'Duelos físicos ganados' },
+  { key:'loose_ball',          label:'LBal',      fmt: p=>fmtNum(p.loose_ball,0),            tip:'Recepciones de segunda jugada' },
+  { key:'pushing_on_pressing', label:'PonP',      fmt: p=>fmtNum(p.pushing_on_pressing,0),   tip:'Presionando en avance' },
+  { key:'poss_regains',        label:'RPo',       fmt: p=>fmtNum(p.poss_regains,0),          tip:'Recuperaciones de posesión' },
+  { key:'poss_interrupted',    label:'IPo',       fmt: p=>fmtNum(p.poss_interrupted,0),      tip:'Posesiones interrumpidas' },
+];
+
+const HIGHLIGHT_POS = new Set(['lb_comp','att_goal','goals','take_ons','ball_prog']);
+const HIGHLIGHT_DEF = new Set(['poss_regains','interceptions','tackles_won','duels_aerial']);
+const GOAL_COLS     = new Set(['goals']);
+
+function setPlayerView(view) {
+  _playerView = view;
+  document.getElementById('tglPos').classList.toggle('active', view === 'pos');
+  document.getElementById('tglDef').classList.toggle('active', view === 'def');
+  _playerSort = { col: view === 'pos' ? 'lb_comp' : 'poss_regains', asc: false };
+  renderPlayerTable();
+}
+
+function onPlayerFilter() { renderPlayerTable(); }
+
+function getFilteredPlayers() {
+  const q     = document.getElementById('playerSearch').value.toLowerCase().trim();
+  const team  = document.getElementById('teamFilter').value;
+  return PLAYERS.filter(p => {
+    if (q    && !p.player?.toLowerCase().includes(q))   return false;
+    if (team && p.team !== team)                         return false;
+    return true;
+  });
+}
+
+function getSortedPlayers(players) {
+  const { col, asc } = _playerSort;
+  return [...players].sort((a,b) => {
+    let va = a[col], vb = b[col];
+    const na = parseFloat(va), nb = parseFloat(vb);
+    if (!isNaN(na) && !isNaN(nb)) return asc ? na - nb : nb - na;
+    va = String(va||''); vb = String(vb||'');
+    return asc ? va.localeCompare(vb) : vb.localeCompare(va);
+  });
+}
+
+function renderPlayerTable() {
+  const cols     = _playerView === 'pos' ? POS_COLS : DEF_COLS;
+  const hlSet    = _playerView === 'pos' ? HIGHLIGHT_POS : HIGHLIGHT_DEF;
+  const players  = getSortedPlayers(getFilteredPlayers());
+
+  const thead = document.getElementById('playerThead');
+  const tbody = document.getElementById('playerTbody');
+
+  thead.innerHTML = `<tr>${cols.map(c => {
+    const isSorted = _playerSort.col === c.key;
+    const cls = isSorted ? (_playerSort.asc ? 'sorted-asc' : 'sorted-desc') : '';
+    return `<th class="${cls}" data-tip="${c.tip}" onclick="sortPlayerTable('${c.key}')">${c.label}</th>`;
+  }).join('')}</tr>`;
+
+  if (!players.length) {
+    tbody.innerHTML = `<tr><td colspan="${cols.length}" class="table-empty">Sin resultados</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = players.map(p => `<tr>${cols.map(c => {
+    const val  = c.fmt(p);
+    const isHL = hlSet.has(c.key) && val !== '—' && parseFloat(val) > 0;
+    const isG  = GOAL_COLS.has(c.key) && val !== '0' && val !== '—';
+    const cls  = isG ? 'val-goal' : (isHL ? 'val-high' : (c.key === 'player' ? 'highlight' : ''));
+    return `<td class="${cls}">${val}</td>`;
+  }).join('')}</tr>`).join('');
+}
+
+function sortPlayerTable(col) {
+  if (_playerSort.col === col) _playerSort.asc = !_playerSort.asc;
+  else _playerSort = { col, asc: false };
+  renderPlayerTable();
+}
+
+function populateTeamFilter() {
+  const sel = document.getElementById('teamFilter');
+  const teams = [...new Set(PLAYERS.map(p => p.team).filter(Boolean))].sort();
+  for (const t of teams) {
+    const opt = document.createElement('option');
+    opt.value = t; opt.textContent = t;
+    sel.appendChild(opt);
+  }
+}
+
+// ── Render: Teams ─────────────────────────────────────────────────────────────
+const TEAM_METRICS = {
+  xg:  { label:'xG',                key:'xg',         dec:2, color:'gold' },
+  pas: { label:'Pases intentados',  key:'passes_att',  dec:0, color:'purple' },
+  lb:  { label:'Líneas rotas',      key:'lb',          dec:0, color:'teal' },
+  pre: { label:'Presiones totales', key:'pressures',   dec:0, color:'purple' },
+};
+
+function setTeamMetric(m) {
+  _teamMetric = m;
+  ['xg','pas','lb','pre'].forEach(k => {
+    document.getElementById(`tglTeam${k.charAt(0).toUpperCase()+k.slice(1)}`).classList.toggle('active', k === m);
+  });
+  renderTeams();
+}
+
+function renderTeams() {
+  const meta    = TEAM_METRICS[_teamMetric];
+  const teams   = Object.values(TEAMS_AGG);
+  const maxVal  = Math.max(...teams.map(t => t[meta.key] || 0));
+  const sorted  = [...teams].sort((a,b) => (b[meta.key]||0) - (a[meta.key]||0));
+
+  const container = document.getElementById('teamsContainer');
+  container.innerHTML = `<p style="font-size:.72rem;color:var(--text-dim);margin-bottom:12px">${meta.label} · Total acumulado por partido(s) jugados</p>`;
+
+  for (const t of sorted) {
+    const val  = t[meta.key] || 0;
+    const pct  = maxVal > 0 ? (val / maxVal * 100) : 0;
+    const disp = meta.dec === 2 ? val.toFixed(2) : Math.round(val);
+    const row  = document.createElement('div');
+    row.className = 'team-row';
+    row.innerHTML = `
+      <div class="team-name-col">${t.team}</div>
+      <div class="team-bar-col">
+        <div class="bar-track"><div class="bar-fill ${meta.color}" style="width:${pct}%"></div></div>
+      </div>
+      <div class="bar-val" style="color:var(--${meta.color === 'gold' ? 'gold-l' : meta.color === 'teal' ? 'teal-l' : 'purple-l'})">${disp}</div>`;
+    container.appendChild(row);
+  }
+}
+
+// ── Tooltip ───────────────────────────────────────────────────────────────────
+(function(){
+  const tip = document.getElementById('thTip');
+  document.addEventListener('mouseover', e => {
+    const th = e.target.closest('th[data-tip]');
+    if (!th) return;
+    tip.textContent = th.dataset.tip;
+    tip.style.display = 'block';
+  });
+  document.addEventListener('mousemove', e => {
+    if (tip.style.display === 'none') return;
+    const h = tip.offsetHeight;
+    let x = e.clientX + 14, y = e.clientY - h - 10;
+    if (x + tip.offsetWidth > window.innerWidth) x = e.clientX - tip.offsetWidth - 8;
+    if (y < 0) y = e.clientY + 14;
+    tip.style.left = x + 'px';
+    tip.style.top  = y + 'px';
+  });
+  document.addEventListener('mouseout', e => {
+    if (!e.target.closest('th[data-tip]')) return;
+    tip.style.display = 'none';
+  });
+})();
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', initApp);
+</script>
+</body>
+</html>

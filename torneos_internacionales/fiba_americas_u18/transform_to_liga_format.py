@@ -16,8 +16,8 @@ import os, sys
 import pandas as pd
 import re
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC  = os.path.join(ROOT, "fiba_americas_u18")
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+SRC  = os.path.join(ROOT, "torneos_internacionales", "fiba_americas_u18")
 OUT  = os.path.join(ROOT, "docs", "argentina_formativas", "fiba_u18")
 
 # ── Fechas (DD/MM/YYYY) ──────────────────────────────────────────────────────

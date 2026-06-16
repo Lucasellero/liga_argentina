@@ -1,0 +1,347 @@
+team,jersey,player,tackles_made,tackles_won,blocks,interceptions,pressing_contests,clearances,pushing_on_won,pressing_direct,pressing_indirect,duels_aerial,duels_physical,loose_ball,pushing_on_pressing,poss_regains,poss_interrupted,match_num,group,date,home,away,home_score,away_score
+Mexico,1,Raul RANGEL,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,0.0,0.0,6.0,0.0,1,A,11 June 2026,Mexico,South Africa,2,0
+South Africa,17,Evidence MAKGOPA,0.0,0.0,0.0,0.0,1.0,11.0,3.0,0.0,3.0,0.0,2.0,6.0,6.0,0.0,0.0,1,A,11 June 2026,Mexico,South Africa,2,0
+South Africa,11,Themba ZWANE,1.0,0.0,0.0,0.0,0.0,12.0,0.0,0.0,0.0,0.0,2.0,9.0,5.0,1.0,0.0,1,A,11 June 2026,Mexico,South Africa,2,0
+South Africa,7,Oswin APPOLLIS,1.0,1.0,0.0,0.0,0.0,8.0,0.0,0.0,0.0,0.0,0.0,9.0,7.0,1.0,0.0,1,A,11 June 2026,Mexico,South Africa,2,0
+South Africa,5,Thalente MBATHA,2.0,0.0,2.0,0.0,4.0,22.0,1.0,1.0,3.0,1.0,1.0,21.0,11.0,1.0,3.0,1,A,11 June 2026,Mexico,South Africa,2,0
+South Africa,23,Jayden ADAMS,1.0,0.0,3.0,0.0,1.0,22.0,0.0,0.0,1.0,0.0,3.0,20.0,11.0,2.0,1.0,1,A,11 June 2026,Mexico,South Africa,2,0
+South Africa,21,Ime OKON,2.0,1.0,1.0,0.0,1.0,8.0,2.0,0.0,2.0,4.0,7.0,29.0,3.0,9.0,1.0,1,A,11 June 2026,Mexico,South Africa,2,0
+South Africa,20,Khuliso MUDAU,5.0,0.0,2.0,1.0,4.0,30.0,0.0,0.0,1.0,2.0,1.0,27.0,17.0,2.0,3.0,1,A,11 June 2026,Mexico,South Africa,2,0
+South Africa,19,Nkosinathi SIBISI,0.0,0.0,0.0,2.0,6.0,9.0,0.0,0.0,1.0,2.0,5.0,40.0,6.0,5.0,1.0,1,A,11 June 2026,Mexico,South Africa,2,0
+South Africa,14,Mbekezeli MBOKAZI,4.0,1.0,3.0,3.0,8.0,18.0,0.0,0.0,0.0,1.0,2.0,21.0,12.0,5.0,4.0,1,A,11 June 2026,Mexico,South Africa,2,0
+South Africa,13,Sphephelo SITHOLE,2.0,0.0,2.0,1.0,6.0,13.0,1.0,0.0,1.0,0.0,1.0,26.0,7.0,3.0,2.0,1,A,11 June 2026,Mexico,South Africa,2,0
+South Africa,9,Lyle FOSTER,1.0,0.0,1.0,0.0,1.0,24.0,0.0,0.0,0.0,0.0,0.0,21.0,13.0,0.0,1.0,1,A,11 June 2026,Mexico,South Africa,2,0
+South Africa,6,Aubrey MODIBA,5.0,0.0,1.0,0.0,6.0,17.0,0.0,0.0,0.0,0.0,3.0,26.0,13.0,0.0,3.0,1,A,11 June 2026,Mexico,South Africa,2,0
+South Africa,4,Teboho MOKOENA,4.0,0.0,1.0,2.0,7.0,33.0,2.0,0.0,2.0,1.0,1.0,45.0,18.0,4.0,2.0,1,A,11 June 2026,Mexico,South Africa,2,0
+South Africa,1,Ronwen WILLIAMS,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,2.0,0.0,0.0,8.0,1.0,1,A,11 June 2026,Mexico,South Africa,2,0
+South Africa,15,Iqraam RAYNERS,1.0,0.0,1.0,0.0,0.0,34.0,0.0,0.0,0.0,0.0,3.0,29.0,12.0,0.0,1.0,1,A,11 June 2026,Mexico,South Africa,2,0
+Mexico,19,Gilberto MORA,0.0,0.0,0.0,1.0,1.0,7.0,0.0,0.0,0.0,0.0,1.0,3.0,1.0,1.0,0.0,1,A,11 June 2026,Mexico,South Africa,2,0
+Mexico,24,Luis CHAVEZ,2.0,1.0,2.0,0.0,3.0,1.0,0.0,0.0,0.0,1.0,1.0,2.0,1.0,1.0,2.0,1,A,11 June 2026,Mexico,South Africa,2,0
+Mexico,5,Johan VASQUEZ,2.0,0.0,2.0,0.0,2.0,2.0,3.0,1.0,4.0,2.0,4.0,12.0,3.0,3.0,3.0,1,A,11 June 2026,Mexico,South Africa,2,0
+Mexico,6,Erik LIRA,2.0,1.0,1.0,0.0,3.0,9.0,1.0,0.0,1.0,1.0,3.0,30.0,7.0,1.0,1.0,1,A,11 June 2026,Mexico,South Africa,2,0
+Mexico,8,Alvaro FIDALGO,0.0,0.0,1.0,1.0,3.0,14.0,0.0,0.0,0.0,0.0,3.0,27.0,10.0,1.0,1.0,1,A,11 June 2026,Mexico,South Africa,2,0
+Mexico,9,Raul JIMENEZ,1.0,1.0,1.0,0.0,0.0,21.0,4.0,0.0,4.0,0.0,3.0,14.0,10.0,2.0,0.0,1,A,11 June 2026,Mexico,South Africa,2,0
+Mexico,15,Israel REYES,0.0,0.0,1.0,1.0,0.0,4.0,1.0,0.0,2.0,2.0,1.0,25.0,2.0,3.0,1.0,1,A,11 June 2026,Mexico,South Africa,2,0
+Mexico,16,Julian QUINONES,0.0,0.0,0.0,0.0,1.0,38.0,0.0,0.0,1.0,0.0,5.0,20.0,17.0,1.0,0.0,1,A,11 June 2026,Mexico,South Africa,2,0
+Mexico,3,Cesar MONTES,0.0,0.0,0.0,0.0,2.0,1.0,2.0,0.0,2.0,3.0,10.0,4.0,1.0,4.0,0.0,1,A,11 June 2026,Mexico,South Africa,2,0
+Mexico,25,Roberto ALVARADO,4.0,2.0,0.0,2.0,4.0,7.0,0.0,0.0,1.0,0.0,4.0,14.0,6.0,5.0,1.0,1,A,11 June 2026,Mexico,South Africa,2,0
+Mexico,26,Brian GUTIERREZ,1.0,0.0,0.0,0.0,2.0,15.0,0.0,0.0,0.0,1.0,3.0,9.0,5.0,0.0,1.0,1,A,11 June 2026,Mexico,South Africa,2,0
+Mexico,4,Edson ALVAREZ,3.0,1.0,0.0,0.0,3.0,1.0,0.0,0.0,0.0,0.0,0.0,2.0,1.0,1.0,0.0,1,A,11 June 2026,Mexico,South Africa,2,0
+Mexico,10,Alexis VEGA,0.0,0.0,0.0,0.0,0.0,3.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1,A,11 June 2026,Mexico,South Africa,2,0
+Mexico,14,Armando GONZALEZ,0.0,0.0,1.0,0.0,0.0,7.0,0.0,0.0,0.0,0.0,1.0,4.0,1.0,0.0,0.0,1,A,11 June 2026,Mexico,South Africa,2,0
+Mexico,23,Jesus GALLARDO,1.0,0.0,4.0,1.0,2.0,14.0,4.0,0.0,4.0,4.0,2.0,34.0,14.0,8.0,3.0,1,A,11 June 2026,Mexico,South Africa,2,0
+Czechia,4,Robin HRANAC,2.0,1.0,1.0,1.0,4.0,8.0,2.0,0.0,2.0,2.0,4.0,29.0,4.0,4.0,1.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Czechia,5,Vladimir COUFAL,1.0,0.0,1.0,1.0,5.0,7.0,1.0,0.0,1.0,2.0,8.0,36.0,8.0,2.0,4.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Czechia,6,Stepan CHALOUPEK,5.0,2.0,4.0,1.0,15.0,7.0,3.0,0.0,4.0,8.0,6.0,31.0,13.0,9.0,5.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Czechia,7,Ladislav KREJCI,4.0,1.0,1.0,0.0,4.0,9.0,3.0,0.0,3.0,5.0,9.0,19.0,6.0,3.0,6.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Czechia,10,Patrik SCHICK,0.0,0.0,1.0,0.0,2.0,25.0,1.0,0.0,1.0,1.0,3.0,31.0,16.0,0.0,1.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Czechia,15,Pavel SULC,4.0,2.0,2.0,0.0,7.0,39.0,0.0,0.0,0.0,1.0,3.0,25.0,17.0,3.0,2.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Czechia,17,Lukas PROVOD,3.0,1.0,1.0,0.0,3.0,24.0,1.0,0.0,1.0,2.0,3.0,17.0,8.0,2.0,2.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Czechia,24,Alexandr SOJKA,4.0,0.0,4.0,0.0,7.0,44.0,0.0,0.0,0.0,1.0,10.0,41.0,24.0,3.0,1.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Czechia,22,Tomas SOUCEK,2.0,0.0,1.0,0.0,1.0,22.0,3.0,0.0,3.0,4.0,5.0,30.0,9.0,1.0,2.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Czechia,9,Adam HLOZEK,1.0,1.0,0.0,0.0,3.0,16.0,1.0,0.0,1.0,0.0,1.0,12.0,7.0,1.0,0.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Czechia,13,Mojmir CHYTIL,0.0,0.0,0.0,0.0,1.0,3.0,0.0,0.0,0.0,0.0,0.0,2.0,2.0,0.0,0.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Czechia,18,Michal SADILEK,2.0,0.0,0.0,1.0,1.0,13.0,0.0,0.0,0.0,0.0,4.0,16.0,10.0,1.0,0.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Czechia,19,Tomas CHORY,0.0,0.0,0.0,0.0,0.0,10.0,5.0,0.0,5.0,0.0,0.0,14.0,6.0,1.0,0.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Czechia,20,Jaroslav ZELENY,1.0,0.0,2.0,2.0,1.0,20.0,1.0,0.0,1.0,4.0,5.0,34.0,8.0,4.0,2.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Czechia,1,Matej KOVAR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,4.0,0.0,0.0,8.0,1.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Korea Republic,10,LEE Jaesung,1.0,0.0,3.0,0.0,1.0,14.0,1.0,0.0,2.0,1.0,4.0,20.0,11.0,2.0,1.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Korea Republic,24,KIM Jingyu,0.0,0.0,0.0,0.0,0.0,4.0,1.0,0.0,1.0,0.0,0.0,4.0,2.0,1.0,0.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Korea Republic,25,EOM Jisung,1.0,0.0,0.0,0.0,0.0,2.0,1.0,0.0,1.0,0.0,2.0,2.0,2.0,0.0,1.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Korea Republic,2,LEE Hanbeom,1.0,0.0,4.0,0.0,5.0,7.0,5.0,0.0,5.0,5.0,2.0,22.0,4.0,8.0,5.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Korea Republic,3,LEE Gihyuk,1.0,0.0,2.0,1.0,1.0,3.0,5.0,0.0,5.0,13.0,1.0,9.0,1.0,7.0,9.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Korea Republic,4,KIM Minjae,2.0,1.0,3.0,2.0,3.0,1.0,4.0,0.0,4.0,5.0,2.0,6.0,3.0,9.0,2.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Korea Republic,6,HWANG Inbeom,0.0,0.0,2.0,2.0,4.0,15.0,2.0,0.0,2.0,3.0,3.0,14.0,9.0,3.0,2.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Korea Republic,7,SON Heungmin,0.0,0.0,0.0,0.0,0.0,16.0,0.0,0.0,0.0,0.0,2.0,10.0,3.0,0.0,0.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Korea Republic,8,PAIK Seungho,0.0,0.0,0.0,0.0,0.0,9.0,1.0,0.0,1.0,4.0,4.0,16.0,2.0,2.0,2.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Korea Republic,1,KIM Seunggyu,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,6.0,0.0,0.0,5.0,1.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Korea Republic,13,LEE Taeseok,1.0,1.0,1.0,0.0,1.0,5.0,2.0,0.0,2.0,4.0,3.0,12.0,3.0,5.0,3.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Korea Republic,19,LEE Kangin,3.0,0.0,1.0,0.0,1.0,25.0,0.0,0.0,1.0,0.0,2.0,12.0,9.0,0.0,2.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Korea Republic,22,SEOL Youngwoo,3.0,0.0,1.0,1.0,4.0,11.0,0.0,0.0,0.0,2.0,4.0,13.0,4.0,2.0,1.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Korea Republic,11,HWANG Heechan,0.0,0.0,1.0,0.0,1.0,3.0,0.0,0.0,0.0,1.0,1.0,2.0,1.0,1.0,1.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Korea Republic,16,PARK Jinseob,0.0,0.0,0.0,0.0,0.0,1.0,3.0,0.0,3.0,2.0,1.0,4.0,1.0,5.0,1.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Korea Republic,18,OH Hyeongyu,0.0,0.0,0.0,0.0,1.0,9.0,2.0,0.0,2.0,0.0,2.0,2.0,2.0,0.0,0.0,2,A,11 June 2026,Korea Republic,Czechia,2,1
+Bosnia and Herzegovina,5,Sead KOLASINAC,6.0,2.0,5.0,1.0,6.0,7.0,2.0,0.0,2.0,6.0,6.0,14.0,3.0,7.0,4.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Bosnia and Herzegovina,6,Benjamin TAHIROVIC,4.0,0.0,2.0,0.0,1.0,27.0,0.0,0.0,1.0,6.0,10.0,20.0,7.0,2.0,6.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Bosnia and Herzegovina,7,Amar DEDIC,4.0,1.0,7.0,2.0,3.0,21.0,4.0,0.0,4.0,10.0,1.0,22.0,15.0,9.0,11.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Bosnia and Herzegovina,10,Ermedin DEMIROVIC,1.0,0.0,1.0,0.0,3.0,24.0,7.0,0.0,7.0,3.0,7.0,12.0,10.0,2.0,2.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Bosnia and Herzegovina,15,Amar MEMIC,2.0,0.0,4.0,0.0,0.0,16.0,2.0,0.0,2.0,3.0,2.0,11.0,6.0,2.0,5.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Bosnia and Herzegovina,18,Nikola KATIC,7.0,1.0,5.0,1.0,8.0,5.0,11.0,0.0,12.0,12.0,2.0,15.0,3.0,11.0,7.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Bosnia and Herzegovina,8,Armin GIGOVIC,1.0,1.0,0.0,0.0,3.0,8.0,1.0,0.0,2.0,2.0,4.0,7.0,2.0,3.0,2.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Bosnia and Herzegovina,25,Jovo LUKIC,1.0,0.0,0.0,0.0,2.0,14.0,9.0,1.0,10.0,4.0,0.0,17.0,11.0,0.0,0.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Bosnia and Herzegovina,4,Tarik MUHAREMOVIC,1.0,1.0,5.0,1.0,2.0,4.0,7.0,0.0,8.0,14.0,5.0,7.0,3.0,10.0,11.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Bosnia and Herzegovina,9,Samed BAZDAR,3.0,0.0,0.0,0.0,2.0,4.0,1.0,0.0,2.0,0.0,2.0,2.0,2.0,0.0,1.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Bosnia and Herzegovina,14,Ivan SUNJIC,1.0,0.0,1.0,0.0,0.0,6.0,1.0,0.0,1.0,0.0,6.0,4.0,2.0,1.0,0.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Bosnia and Herzegovina,17,Dzenis BURNIC,0.0,0.0,0.0,0.0,0.0,5.0,0.0,0.0,0.0,0.0,2.0,7.0,3.0,0.0,0.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Bosnia and Herzegovina,19,Kerim ALAJBEGOVIC,0.0,0.0,0.0,0.0,0.0,4.0,0.0,0.0,0.0,0.0,1.0,2.0,1.0,0.0,0.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Bosnia and Herzegovina,20,Esmir BAJRAKTAREVIC,2.0,0.0,6.0,2.0,1.0,16.0,1.0,0.0,1.0,4.0,3.0,30.0,8.0,6.0,6.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Bosnia and Herzegovina,1,Nikola VASILJ,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.0,0.0,0.0,9.0,0.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Bosnia and Herzegovina,13,Ivan BASIC,3.0,0.0,0.0,1.0,4.0,7.0,1.0,0.0,1.0,1.0,6.0,20.0,5.0,1.0,0.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Canada,21,Jonathan OSORIO,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Canada,24,Promise DAVID,1.0,1.0,0.0,0.0,0.0,3.0,1.0,0.0,1.0,1.0,3.0,3.0,3.0,2.0,1.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Canada,2,Alistair JOHNSTON,3.0,0.0,2.0,0.0,2.0,7.0,5.0,0.0,5.0,6.0,7.0,17.0,2.0,5.0,3.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Canada,4,Luc DE FOUGEROLLES,3.0,2.0,0.0,0.0,3.0,4.0,4.0,1.0,5.0,10.0,4.0,14.0,3.0,13.0,4.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Canada,7,Stephen EUSTAQUIO,2.0,0.0,1.0,2.0,2.0,18.0,1.0,0.0,1.0,1.0,10.0,10.0,4.0,3.0,3.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Canada,8,Ismael KONE,7.0,0.0,1.0,0.0,4.0,16.0,1.0,0.0,1.0,1.0,10.0,12.0,4.0,3.0,2.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Canada,10,Jonathan DAVID,2.0,0.0,0.0,1.0,4.0,9.0,0.0,0.0,0.0,0.0,5.0,13.0,6.0,1.0,0.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Canada,11,Liam MILLAR,6.0,0.0,3.0,0.0,6.0,5.0,2.0,0.0,2.0,0.0,5.0,8.0,4.0,3.0,1.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Canada,16,Maxime CREPEAU,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,8.0,0.0,0.0,3.0,0.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Canada,13,Derek CORNELIUS,4.0,3.0,4.0,2.0,1.0,4.0,8.0,0.0,8.0,13.0,8.0,4.0,2.0,17.0,10.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Canada,17,Tajon BUCHANAN,2.0,0.0,0.0,0.0,3.0,7.0,0.0,0.0,0.0,0.0,1.0,13.0,6.0,1.0,1.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Canada,22,Richie LARYEA,6.0,2.0,1.0,0.0,6.0,12.0,1.0,1.0,2.0,3.0,9.0,7.0,6.0,7.0,3.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Canada,9,Cyle LARIN,0.0,0.0,0.0,0.0,0.0,2.0,1.0,0.0,1.0,1.0,0.0,1.0,1.0,0.0,0.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Canada,14,Jacob SHAFFELBURG,1.0,1.0,0.0,0.0,2.0,2.0,0.0,0.0,0.0,0.0,1.0,3.0,2.0,1.0,0.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Canada,20,Ali AHMED,2.0,1.0,3.0,0.0,2.0,15.0,0.0,0.0,0.0,0.0,2.0,13.0,11.0,1.0,2.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Canada,12,Tani OLUWASEYI,1.0,0.0,0.0,2.0,2.0,18.0,6.0,1.0,8.0,0.0,3.0,20.0,11.0,4.0,0.0,3,B,12 June 2026,Canada,Bosnia and Herzegovina,1,1
+Paraguay,4,Juan Jose CACERES,11.0,3.0,2.0,0.0,10.0,21.0,2.0,1.0,3.0,12.0,2.0,27.0,20.0,4.0,13.0,4,D,12 June 2026,USA,Paraguay,4,1
+Paraguay,6,Junior ALONSO,4.0,0.0,4.0,0.0,3.0,30.0,0.0,0.0,0.0,2.0,5.0,40.0,21.0,3.0,3.0,4,D,12 June 2026,USA,Paraguay,4,1
+Paraguay,8,Diego GOMEZ,8.0,1.0,5.0,2.0,11.0,37.0,2.0,0.0,2.0,1.0,7.0,52.0,28.0,5.0,5.0,4,D,12 June 2026,USA,Paraguay,4,1
+Paraguay,9,Antonio SANABRIA,1.0,0.0,0.0,0.0,1.0,31.0,3.0,0.0,4.0,0.0,1.0,12.0,7.0,0.0,0.0,4,D,12 June 2026,USA,Paraguay,4,1
+Paraguay,10,Miguel ALMIRON,4.0,1.0,1.0,2.0,3.0,33.0,0.0,1.0,1.0,0.0,6.0,29.0,23.0,3.0,1.0,4,D,12 June 2026,USA,Paraguay,4,1
+Paraguay,14,Andres CUBAS,11.0,3.0,7.0,0.0,20.0,26.0,1.0,0.0,1.0,4.0,8.0,53.0,21.0,6.0,12.0,4,D,12 June 2026,USA,Paraguay,4,1
+Paraguay,2,Gustavo VELAZQUEZ,1.0,0.0,0.0,0.0,2.0,3.0,1.0,0.0,1.0,1.0,1.0,10.0,2.0,0.0,1.0,4,D,12 June 2026,USA,Paraguay,4,1
+Paraguay,16,Damian BOBADILLA,3.0,0.0,3.0,2.0,4.0,13.0,0.0,0.0,0.0,0.0,1.0,30.0,7.0,2.0,1.0,4,D,12 June 2026,USA,Paraguay,4,1
+Paraguay,19,Julio ENCISO,5.0,0.0,3.0,0.0,3.0,29.0,0.0,0.0,3.0,0.0,4.0,41.0,16.0,3.0,0.0,4,D,12 June 2026,USA,Paraguay,4,1
+Paraguay,7,Ramon SOSA,1.0,0.0,0.0,0.0,1.0,11.0,0.0,0.0,0.0,1.0,1.0,7.0,4.0,0.0,1.0,4,D,12 June 2026,USA,Paraguay,4,1
+Paraguay,11,MAURICIO,1.0,0.0,1.0,1.0,1.0,19.0,1.0,0.0,1.0,0.0,1.0,17.0,12.0,3.0,0.0,4,D,12 June 2026,USA,Paraguay,4,1
+Paraguay,3,Omar ALDERETE,1.0,0.0,1.0,1.0,1.0,3.0,4.0,0.0,4.0,11.0,5.0,11.0,0.0,6.0,6.0,4,D,12 June 2026,USA,Paraguay,4,1
+Paraguay,18,Alex ARCE,2.0,1.0,1.0,0.0,4.0,14.0,0.0,0.0,0.0,1.0,1.0,11.0,3.0,3.0,0.0,4,D,12 June 2026,USA,Paraguay,4,1
+Paraguay,15,Gustavo GOMEZ,1.0,1.0,6.0,0.0,6.0,7.0,5.0,0.0,5.0,10.0,0.0,3.0,0.0,6.0,12.0,4,D,12 June 2026,USA,Paraguay,4,1
+Paraguay,12,Orlando GILL,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,8.0,1.0,4,D,12 June 2026,USA,Paraguay,4,1
+Paraguay,17,Alejandro ROMERO GAMARRA,3.0,0.0,0.0,0.0,5.0,8.0,0.0,0.0,0.0,0.0,3.0,18.0,5.0,0.0,0.0,4,D,12 June 2026,USA,Paraguay,4,1
+USA,14,Sebastian BERHALTER,2.0,0.0,2.0,1.0,4.0,16.0,2.0,1.0,3.0,0.0,9.0,13.0,6.0,3.0,0.0,4,D,12 June 2026,USA,Paraguay,4,1
+USA,24,Matt FREESE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2.0,0.0,0.0,3.0,0.0,4,D,12 June 2026,USA,Paraguay,4,1
+USA,2,Sergino DEST,0.0,0.0,2.0,0.0,0.0,21.0,0.0,0.0,2.0,0.0,7.0,19.0,14.0,0.0,1.0,4,D,12 June 2026,USA,Paraguay,4,1
+USA,3,Chris RICHARDS,1.0,0.0,0.0,1.0,3.0,1.0,5.0,0.0,5.0,5.0,4.0,11.0,2.0,6.0,2.0,4,D,12 June 2026,USA,Paraguay,4,1
+USA,4,Tyler ADAMS,3.0,2.0,1.0,1.0,5.0,9.0,2.0,1.0,5.0,10.0,9.0,17.0,4.0,11.0,6.0,4,D,12 June 2026,USA,Paraguay,4,1
+USA,5,Antonee ROBINSON,3.0,0.0,1.0,0.0,4.0,14.0,2.0,1.0,4.0,3.0,7.0,11.0,7.0,3.0,2.0,4,D,12 June 2026,USA,Paraguay,4,1
+USA,8,Weston McKENNIE,2.0,0.0,0.0,0.0,3.0,22.0,0.0,0.0,1.0,1.0,8.0,22.0,11.0,1.0,2.0,4,D,12 June 2026,USA,Paraguay,4,1
+USA,21,Timothy WEAH,0.0,0.0,0.0,0.0,2.0,8.0,0.0,0.0,1.0,1.0,0.0,5.0,4.0,1.0,1.0,4,D,12 June 2026,USA,Paraguay,4,1
+USA,13,Tim REAM,2.0,0.0,3.0,1.0,2.0,1.0,0.0,0.0,0.0,5.0,9.0,11.0,1.0,6.0,4.0,4,D,12 June 2026,USA,Paraguay,4,1
+USA,16,Alex FREEMAN,2.0,1.0,2.0,1.0,5.0,7.0,6.0,0.0,6.0,3.0,8.0,18.0,8.0,5.0,3.0,4,D,12 June 2026,USA,Paraguay,4,1
+USA,17,Malik TILLMAN,2.0,1.0,3.0,2.0,4.0,22.0,1.0,0.0,1.0,2.0,11.0,26.0,16.0,6.0,0.0,4,D,12 June 2026,USA,Paraguay,4,1
+USA,20,Folarin BALOGUN,1.0,0.0,1.0,0.0,2.0,22.0,0.0,1.0,1.0,0.0,4.0,20.0,13.0,1.0,0.0,4,D,12 June 2026,USA,Paraguay,4,1
+USA,7,Giovanni REYNA,0.0,0.0,0.0,0.0,1.0,8.0,1.0,0.0,1.0,1.0,0.0,3.0,1.0,0.0,1.0,4,D,12 June 2026,USA,Paraguay,4,1
+USA,9,Ricardo PEPI,1.0,1.0,0.0,0.0,3.0,6.0,0.0,0.0,0.0,0.0,3.0,9.0,5.0,1.0,0.0,4,D,12 June 2026,USA,Paraguay,4,1
+USA,10,Christian PULISIC,1.0,0.0,1.0,0.0,1.0,8.0,0.0,0.0,0.0,0.0,3.0,4.0,4.0,0.0,1.0,4,D,12 June 2026,USA,Paraguay,4,1
+Scotland,3,Andy ROBERTSON,2.0,0.0,2.0,0.0,1.0,10.0,0.0,0.0,0.0,2.0,3.0,21.0,6.0,2.0,3.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Scotland,4,Scott McTOMINAY,1.0,0.0,1.0,0.0,1.0,14.0,2.0,0.0,2.0,1.0,4.0,12.0,2.0,0.0,2.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Scotland,5,Grant HANLEY,1.0,1.0,3.0,0.0,2.0,2.0,3.0,0.0,3.0,4.0,4.0,10.0,3.0,6.0,2.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Scotland,7,John McGINN,1.0,0.0,0.0,0.0,1.0,16.0,0.0,0.0,0.0,0.0,4.0,14.0,9.0,0.0,0.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Scotland,10,Che ADAMS,2.0,0.0,0.0,0.0,3.0,20.0,5.0,0.0,5.0,0.0,0.0,18.0,10.0,1.0,0.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Scotland,13,Jack HENDRY,0.0,0.0,2.0,0.0,2.0,3.0,2.0,0.0,2.0,3.0,2.0,5.0,1.0,2.0,4.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Scotland,9,Lyndon DYKES,0.0,0.0,1.0,0.0,1.0,7.0,2.0,0.0,2.0,2.0,0.0,8.0,3.0,1.0,2.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Scotland,19,Lewis FERGUSON,2.0,1.0,3.0,1.0,7.0,10.0,3.0,0.0,4.0,2.0,7.0,10.0,1.0,7.0,2.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Scotland,20,Lawrence SHANKLAND,3.0,0.0,0.0,0.0,7.0,29.0,4.0,1.0,6.0,0.0,4.0,38.0,18.0,1.0,1.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Scotland,11,Ryan CHRISTIE,3.0,0.0,3.0,0.0,4.0,17.0,0.0,0.0,0.0,0.0,3.0,13.0,11.0,1.0,1.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Scotland,22,Nathan PATTERSON,2.0,0.0,1.0,0.0,0.0,7.0,1.0,0.0,1.0,1.0,2.0,10.0,4.0,1.0,1.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Scotland,23,Kenny McLEAN,2.0,0.0,1.0,0.0,1.0,4.0,0.0,0.0,0.0,0.0,1.0,6.0,2.0,0.0,2.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Scotland,2,Aaron HICKEY,2.0,1.0,2.0,2.0,5.0,11.0,1.0,0.0,1.0,3.0,4.0,20.0,8.0,7.0,0.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Scotland,17,Ben GANNONDOAK,3.0,1.0,2.0,0.0,4.0,33.0,0.0,0.0,0.0,1.0,3.0,19.0,16.0,2.0,2.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Scotland,25,Findlay CURTIS,0.0,0.0,0.0,0.0,0.0,8.0,0.0,0.0,0.0,0.0,0.0,7.0,5.0,0.0,0.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Scotland,1,Angus GUNN,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,0.0,0.0,8.0,0.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Haiti,19,Yassin FORTUNE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Haiti,21,Josue CASIMIR,2.0,0.0,0.0,0.0,3.0,5.0,1.0,0.0,1.0,1.0,5.0,5.0,3.0,0.0,1.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Haiti,1,Johny PLACIDE,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.0,0.0,0.0,4.0,0.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Haiti,2,Carlens ARCUS,2.0,0.0,1.0,1.0,2.0,9.0,0.0,1.0,1.0,3.0,2.0,18.0,6.0,5.0,1.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Haiti,4,Ricardo ADE,2.0,0.0,2.0,2.0,1.0,5.0,1.0,0.0,1.0,6.0,3.0,9.0,2.0,5.0,5.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Haiti,8,Martin EXPERIENCE,5.0,1.0,3.0,0.0,6.0,18.0,1.0,0.0,1.0,5.0,8.0,21.0,14.0,3.0,7.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Haiti,10,Jean-Ricner BELLEGARDE,3.0,1.0,3.0,1.0,5.0,14.0,1.0,0.0,2.0,1.0,5.0,11.0,6.0,5.0,3.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Haiti,5,Hannes DELCROIX,2.0,2.0,3.0,2.0,1.0,2.0,1.0,2.0,4.0,6.0,3.0,8.0,1.0,9.0,3.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Haiti,15,Ruben PROVIDENCE,2.0,0.0,2.0,0.0,3.0,16.0,0.0,0.0,1.0,0.0,7.0,16.0,12.0,0.0,2.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Haiti,17,Danley JEAN JACQUES,4.0,2.0,4.0,0.0,10.0,13.0,1.0,0.0,1.0,4.0,5.0,26.0,6.0,6.0,4.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Haiti,18,Wilson ISIDOR,0.0,0.0,1.0,0.0,0.0,27.0,3.0,0.0,3.0,0.0,1.0,24.0,11.0,1.0,0.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Haiti,20,Frantzdy PIERROT,0.0,0.0,0.0,0.0,1.0,18.0,4.0,1.0,5.0,2.0,1.0,12.0,8.0,0.0,0.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Haiti,16,Lenny JOSEPH,0.0,0.0,0.0,0.0,0.0,6.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Haiti,11,Louicius DEEDSON,0.0,0.0,2.0,1.0,3.0,17.0,0.0,0.0,0.0,3.0,1.0,15.0,10.0,2.0,3.0,5,C,13 June 2026,Haiti,Scotland,0,1
+Türkiye,14,Abdulkerim BARDAKCI,7.0,1.0,2.0,0.0,6.0,6.0,4.0,1.0,5.0,5.0,17.0,7.0,4.0,6.0,7.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Türkiye,6,Orkun KOKCU,3.0,0.0,1.0,1.0,2.0,12.0,0.0,0.0,0.0,1.0,6.0,18.0,5.0,1.0,2.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Türkiye,7,Kerem AKTURKOGLU,1.0,0.0,0.0,0.0,2.0,27.0,0.0,0.0,1.0,0.0,4.0,37.0,19.0,0.0,0.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Türkiye,8,Arda GULER,5.0,0.0,1.0,0.0,1.0,14.0,0.0,0.0,0.0,0.0,11.0,23.0,8.0,0.0,3.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Türkiye,10,Hakan CALHANOGLU,2.0,0.0,1.0,2.0,2.0,14.0,1.0,0.0,2.0,1.0,5.0,14.0,7.0,3.0,2.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Türkiye,16,Ismail YUKSEK,7.0,3.0,4.0,1.0,6.0,17.0,2.0,0.0,3.0,2.0,7.0,18.0,7.0,7.0,4.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Türkiye,19,Yunus AKGUN,1.0,0.0,1.0,0.0,1.0,2.0,0.0,0.0,0.0,0.0,2.0,2.0,1.0,0.0,0.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Türkiye,21,Baris Alper YILMAZ,1.0,0.0,0.0,0.0,1.0,15.0,0.0,0.0,0.0,0.0,0.0,9.0,8.0,0.0,1.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Türkiye,5,Salih OZCAN,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0,1.0,3.0,1.0,1.0,0.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Türkiye,9,Deniz GUL,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Türkiye,11,Kenan YILDIZ,0.0,0.0,3.0,0.0,1.0,6.0,0.0,0.0,1.0,0.0,7.0,3.0,2.0,1.0,3.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Türkiye,18,Mert MULDUR,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Türkiye,3,Merih DEMIRAL,1.0,0.0,2.0,0.0,0.0,3.0,4.0,0.0,4.0,8.0,4.0,4.0,1.0,6.0,5.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Türkiye,20,Ferdi KADIOGLU,0.0,0.0,1.0,2.0,3.0,6.0,1.0,0.0,2.0,5.0,8.0,9.0,3.0,4.0,4.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Türkiye,23,Ugurcan CAKIR,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2.0,2.0,0.0,0.0,4.0,1.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Türkiye,2,Zeki CELIK,4.0,0.0,1.0,0.0,5.0,15.0,2.0,0.0,2.0,1.0,5.0,20.0,11.0,0.0,3.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Australia,23,Nishan VELUPILLAY,0.0,0.0,1.0,0.0,1.0,27.0,1.0,0.0,1.0,0.0,2.0,15.0,14.0,0.0,1.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Australia,3,Alessandro CIRCATI,2.0,1.0,6.0,2.0,9.0,6.0,2.0,0.0,2.0,7.0,5.0,13.0,8.0,8.0,3.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Australia,4,Jacob ITALIANO,4.0,1.0,7.0,1.0,6.0,40.0,1.0,0.0,1.0,7.0,5.0,45.0,37.0,3.0,12.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Australia,5,Jordan BOS,2.0,0.0,2.0,0.0,6.0,24.0,0.0,0.0,0.0,0.0,1.0,26.0,20.0,0.0,3.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Australia,8,Connor METCALFE,3.0,0.0,7.0,0.0,3.0,52.0,2.0,0.0,2.0,2.0,4.0,34.0,28.0,3.0,5.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Australia,9,Mohamed TOURE,1.0,1.0,0.0,0.0,2.0,29.0,2.0,0.0,2.0,0.0,2.0,17.0,12.0,1.0,0.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Australia,13,Aiden ONEILL,4.0,0.0,2.0,0.0,7.0,36.0,0.0,0.0,1.0,5.0,7.0,28.0,8.0,0.0,6.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Australia,17,Nestory IRANKUNDA,0.0,0.0,0.0,0.0,0.0,29.0,0.0,0.0,0.0,2.0,4.0,18.0,13.0,0.0,2.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Australia,18,Patrick BEACH,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,4.0,0.0,0.0,10.0,0.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Australia,21,Cameron BURGESS,6.0,5.0,1.0,0.0,8.0,2.0,4.0,0.0,4.0,5.0,4.0,5.0,1.0,6.0,5.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Australia,24,Paul OKONENGSTLER,5.0,1.0,5.0,3.0,3.0,41.0,2.0,0.0,3.0,6.0,6.0,37.0,21.0,8.0,8.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Australia,6,Jason GERIA,0.0,0.0,0.0,0.0,1.0,14.0,1.0,0.0,1.0,2.0,2.0,12.0,11.0,1.0,0.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Australia,16,Aziz BEHICH,2.0,0.0,3.0,0.0,4.0,6.0,0.0,0.0,0.0,2.0,2.0,11.0,9.0,0.0,4.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Australia,22,Jackson IRVINE,0.0,0.0,0.0,0.0,1.0,11.0,1.0,0.0,2.0,2.0,1.0,6.0,5.0,1.0,1.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Australia,26,Tete YENGI,3.0,2.0,1.0,0.0,2.0,7.0,4.0,0.0,5.0,0.0,1.0,5.0,5.0,4.0,2.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Australia,19,Harry SOUTTAR,2.0,0.0,4.0,0.0,4.0,3.0,3.0,0.0,3.0,11.0,3.0,19.0,5.0,3.0,9.0,6,D,13 June 2026,Australia,Türkiye,2,0
+Morocco,3,Noussair MAZRAOUI,4.0,1.0,2.0,0.0,3.0,11.0,1.0,0.0,2.0,4.0,5.0,15.0,8.0,3.0,5.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Morocco,6,Ayyoub BOUADDI,5.0,1.0,2.0,2.0,5.0,25.0,1.0,0.0,2.0,1.0,9.0,66.0,19.0,4.0,4.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Morocco,8,Azzedine OUNAHI,0.0,0.0,0.0,1.0,2.0,26.0,0.0,0.0,0.0,0.0,6.0,19.0,8.0,1.0,0.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Morocco,10,Brahim DIAZ,1.0,0.0,2.0,1.0,4.0,22.0,0.0,0.0,0.0,0.0,4.0,17.0,15.0,1.0,0.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Morocco,11,Ismael SAIBARI,3.0,1.0,0.0,0.0,4.0,63.0,1.0,0.0,1.0,1.0,1.0,28.0,24.0,1.0,1.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Morocco,14,Issa DIOP,0.0,0.0,2.0,1.0,1.0,3.0,1.0,0.0,1.0,4.0,8.0,16.0,2.0,5.0,3.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Morocco,7,Chemsdine TALBI,0.0,0.0,1.0,0.0,1.0,12.0,0.0,0.0,0.0,1.0,1.0,7.0,6.0,1.0,2.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Morocco,23,Bilal EL KHANNOUSS,6.0,3.0,2.0,0.0,3.0,28.0,0.0,0.0,1.0,0.0,3.0,22.0,19.0,4.0,1.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Morocco,24,Neil EL AYNAOUI,4.0,2.0,0.0,2.0,8.0,12.0,0.0,0.0,0.0,1.0,14.0,22.0,7.0,7.0,1.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Morocco,9,Soufiane RAHIMI,1.0,0.0,0.0,0.0,1.0,2.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Morocco,15,Samir EL MOURABET,0.0,0.0,1.0,0.0,0.0,15.0,0.0,0.0,0.0,0.0,3.0,13.0,11.0,0.0,1.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Morocco,21,Ayoube AMAIMOUNI,1.0,1.0,1.0,0.0,0.0,3.0,0.0,0.0,0.0,0.0,2.0,4.0,1.0,1.0,0.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Morocco,2,Achraf HAKIMI,6.0,1.0,3.0,2.0,5.0,15.0,0.0,1.0,2.0,1.0,6.0,31.0,17.0,5.0,2.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Morocco,18,Chadi RIAD,1.0,1.0,1.0,1.0,3.0,3.0,0.0,1.0,1.0,4.0,5.0,11.0,4.0,7.0,3.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Morocco,1,Yassine BOUNOU,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,7.0,0.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Morocco,26,Anass SALAH EDDINE,1.0,0.0,0.0,0.0,1.0,4.0,0.0,0.0,0.0,0.0,2.0,3.0,3.0,0.0,1.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Brazil,18,DANILO SANTOS,0.0,0.0,0.0,0.0,1.0,6.0,0.0,0.0,0.0,0.0,0.0,6.0,3.0,0.0,0.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Brazil,1,ALISSON,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2.0,0.0,0.0,3.0,0.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Brazil,3,GABRIEL MAGALHAES,2.0,0.0,3.0,2.0,2.0,8.0,1.0,0.0,1.0,7.0,7.0,9.0,7.0,3.0,8.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Brazil,4,MARQUINHOS,0.0,0.0,3.0,0.0,0.0,6.0,3.0,0.0,3.0,6.0,3.0,13.0,3.0,8.0,4.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Brazil,5,CASEMIRO,6.0,1.0,2.0,2.0,2.0,19.0,2.0,0.0,2.0,3.0,5.0,10.0,2.0,4.0,3.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Brazil,7,VINICIUS JUNIOR,2.0,0.0,0.0,1.0,5.0,34.0,0.0,0.0,0.0,0.0,5.0,38.0,18.0,1.0,0.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Brazil,8,BRUNO GUIMARAES,4.0,2.0,1.0,0.0,2.0,28.0,2.0,0.0,4.0,1.0,5.0,17.0,6.0,2.0,2.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Brazil,11,RAPHINHA,5.0,0.0,1.0,0.0,5.0,42.0,2.0,0.0,3.0,0.0,3.0,30.0,19.0,1.0,0.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Brazil,21,LUIZ HENRIQUE,1.0,0.0,0.0,1.0,3.0,7.0,1.0,0.0,1.0,0.0,2.0,15.0,4.0,1.0,0.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Brazil,20,LUCAS PAQUETA,11.0,2.0,2.0,0.0,8.0,26.0,2.0,0.0,2.0,3.0,3.0,22.0,15.0,5.0,7.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Brazil,24,ROGER IBANEZ,4.0,0.0,0.0,1.0,1.0,9.0,1.0,0.0,1.0,1.0,2.0,8.0,6.0,1.0,2.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Brazil,25,IGOR THIAGO,2.0,2.0,0.0,1.0,5.0,20.0,1.0,0.0,1.0,0.0,1.0,27.0,14.0,3.0,0.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Brazil,9,MATHEUS CUNHA,2.0,0.0,0.0,1.0,2.0,19.0,0.0,0.0,2.0,1.0,0.0,23.0,11.0,2.0,0.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Brazil,13,DANILO,0.0,0.0,2.0,1.0,0.0,2.0,1.0,0.0,1.0,4.0,2.0,6.0,1.0,4.0,3.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Brazil,17,FABINHO,3.0,0.0,4.0,1.0,4.0,18.0,1.0,0.0,1.0,3.0,3.0,27.0,9.0,2.0,5.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Brazil,16,DOUGLAS SANTOS,12.0,4.0,0.0,4.0,14.0,17.0,0.0,0.0,1.0,3.0,5.0,43.0,15.0,8.0,6.0,7,C,13 June 2026,Brazil,Morocco,1,1
+Switzerland,4,Nico ELVEDI,0.0,0.0,0.0,5.0,2.0,1.0,3.0,1.0,4.0,5.0,8.0,4.0,1.0,7.0,3.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Switzerland,5,Manuel AKANJI,1.0,1.0,0.0,0.0,0.0,2.0,2.0,0.0,2.0,7.0,9.0,9.0,1.0,1.0,7.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Switzerland,6,Denis ZAKARIA,2.0,2.0,3.0,4.0,9.0,6.0,2.0,0.0,2.0,0.0,4.0,12.0,6.0,8.0,1.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Switzerland,7,Breel EMBOLO,1.0,0.0,2.0,0.0,2.0,24.0,0.0,1.0,1.0,0.0,2.0,16.0,13.0,0.0,3.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Switzerland,8,Remo FREULER,1.0,0.0,1.0,0.0,3.0,15.0,1.0,0.0,1.0,1.0,6.0,19.0,6.0,1.0,1.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Switzerland,10,Granit XHAKA,1.0,0.0,2.0,2.0,2.0,11.0,1.0,0.0,1.0,0.0,5.0,31.0,6.0,3.0,2.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Switzerland,11,Dan NDOYE,1.0,1.0,0.0,0.0,2.0,7.0,0.0,0.0,0.0,1.0,3.0,4.0,3.0,1.0,0.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Switzerland,20,Michel AEBISCHER,0.0,0.0,1.0,1.0,0.0,13.0,0.0,0.0,1.0,2.0,6.0,21.0,9.0,4.0,2.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Switzerland,17,Ruben VARGAS,2.0,1.0,1.0,0.0,3.0,8.0,1.0,0.0,1.0,0.0,1.0,8.0,5.0,1.0,0.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Switzerland,2,Miro MUHEIM,0.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0,1.0,1.0,1.0,1.0,0.0,2.0,0.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Switzerland,9,Johan MANZAMBI,2.0,0.0,0.0,0.0,5.0,8.0,0.0,0.0,0.0,0.0,1.0,9.0,9.0,0.0,1.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Switzerland,14,Ardon JASHARI,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,2.0,2.0,0.0,0.0,1.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Switzerland,22,Fabian RIEDER,0.0,0.0,1.0,0.0,1.0,26.0,0.0,0.0,0.0,0.0,2.0,15.0,11.0,0.0,1.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Switzerland,1,Gregor KOBEL,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.0,0.0,0.0,6.0,0.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Switzerland,13,Ricardo RODRIGUEZ,1.0,0.0,2.0,0.0,2.0,7.0,3.0,0.0,3.0,3.0,7.0,15.0,6.0,5.0,1.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Switzerland,23,Zeki AMDOUNI,1.0,0.0,2.0,0.0,2.0,4.0,0.0,0.0,1.0,0.0,2.0,5.0,1.0,2.0,1.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Qatar,26,MOHAMED MANAI,1.0,0.0,2.0,1.0,1.0,14.0,0.0,0.0,0.0,0.0,1.0,9.0,7.0,2.0,1.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Qatar,12,KARIM BOUDIAF,1.0,1.0,2.0,0.0,1.0,8.0,0.0,0.0,0.0,1.0,2.0,13.0,4.0,2.0,1.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Qatar,20,AHMED FATHY,1.0,1.0,2.0,1.0,3.0,12.0,0.0,0.0,0.0,0.0,4.0,10.0,5.0,2.0,1.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Qatar,1,MAHMOUD ABUNADA,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.0,0.0,0.0,9.0,0.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Qatar,2,PEDRO MIGUEL,2.0,1.0,3.0,0.0,2.0,7.0,2.0,0.0,2.0,10.0,2.0,7.0,5.0,8.0,7.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Qatar,4,ISSA LAYE,3.0,0.0,1.0,0.0,2.0,8.0,2.0,0.0,2.0,6.0,5.0,17.0,3.0,3.0,5.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Qatar,8,EDMILSON JUNIOR,3.0,0.0,0.0,0.0,4.0,24.0,0.0,0.0,0.0,1.0,4.0,19.0,11.0,2.0,1.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Qatar,11,AKRAM AFIF,2.0,1.0,1.0,0.0,4.0,15.0,0.0,0.0,0.0,0.0,4.0,10.0,5.0,3.0,1.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Qatar,5,JASSEM GABER,6.0,0.0,4.0,0.0,3.0,40.0,3.0,0.0,4.0,1.0,0.0,29.0,16.0,1.0,6.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Qatar,14,HOMAM AHMED,2.0,0.0,6.0,0.0,5.0,27.0,1.0,0.0,1.0,3.0,6.0,36.0,24.0,2.0,3.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Qatar,15,YUSUF ABDURISAG,3.0,1.0,1.0,0.0,6.0,37.0,1.0,0.0,1.0,1.0,4.0,43.0,21.0,1.0,4.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Qatar,16,BOUALEM KHOUKHI,2.0,1.0,3.0,3.0,4.0,1.0,1.0,0.0,1.0,10.0,3.0,4.0,1.0,6.0,10.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Qatar,23,ASSIM MADIBO,2.0,0.0,4.0,0.0,3.0,25.0,0.0,0.0,1.0,1.0,3.0,31.0,17.0,4.0,2.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Qatar,7,AHMED ALAAELDIN,1.0,1.0,0.0,0.0,2.0,14.0,1.0,0.0,1.0,0.0,3.0,17.0,5.0,1.0,0.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Qatar,10,HASSAN ALHAYDOS,0.0,0.0,0.0,0.0,0.0,6.0,0.0,0.0,0.0,1.0,0.0,4.0,4.0,0.0,1.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Qatar,13,AYOUB ALOUI,4.0,0.0,3.0,0.0,2.0,14.0,1.0,0.0,1.0,3.0,3.0,20.0,11.0,0.0,5.0,8,B,13 June 2026,Qatar,Switzerland,1,1
+Ecuador,14,Alan MINDA,1.0,1.0,1.0,0.0,1.0,27.0,0.0,0.0,0.0,1.0,2.0,18.0,14.0,2.0,0.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Ecuador,4,Joel ORDONEZ,3.0,1.0,1.0,0.0,3.0,6.0,4.0,0.0,4.0,9.0,3.0,37.0,6.0,4.0,6.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Ecuador,6,Willian PACHO,2.0,0.0,6.0,0.0,7.0,10.0,2.0,0.0,2.0,2.0,9.0,13.0,4.0,5.0,5.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Ecuador,9,John YEBOAH,2.0,1.0,3.0,1.0,5.0,15.0,0.0,0.0,0.0,0.0,6.0,11.0,8.0,2.0,1.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Ecuador,13,Enner VALENCIA,0.0,0.0,1.0,1.0,4.0,25.0,0.0,0.0,0.0,0.0,4.0,26.0,16.0,2.0,1.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Ecuador,25,Jackson POROZO,0.0,0.0,0.0,0.0,0.0,2.0,0.0,0.0,0.0,0.0,0.0,4.0,1.0,0.0,0.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Ecuador,3,Piero HINCAPIE,8.0,3.0,1.0,2.0,8.0,22.0,2.0,0.0,2.0,1.0,3.0,31.0,18.0,7.0,3.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Ecuador,19,Gonzalo PLATA,3.0,2.0,3.0,0.0,5.0,36.0,0.0,0.0,0.0,0.0,9.0,30.0,18.0,3.0,1.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Ecuador,21,Alan FRANCO,4.0,2.0,2.0,1.0,1.0,7.0,1.0,0.0,1.0,2.0,4.0,21.0,5.0,4.0,1.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Ecuador,23,Moises CAICEDO,5.0,2.0,2.0,2.0,10.0,17.0,1.0,0.0,1.0,2.0,3.0,31.0,6.0,8.0,4.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Ecuador,11,Kevin RODRIGUEZ,0.0,0.0,0.0,0.0,1.0,5.0,2.0,1.0,3.0,0.0,0.0,9.0,5.0,0.0,0.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Ecuador,17,Angelo PRECIADO,3.0,2.0,0.0,0.0,1.0,10.0,0.0,0.0,1.0,0.0,1.0,4.0,2.0,2.0,0.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Ecuador,20,Nilson ANGULO,2.0,0.0,0.0,0.0,5.0,9.0,0.0,0.0,0.0,0.0,2.0,16.0,9.0,0.0,1.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Ecuador,15,Pedro VITE,4.0,2.0,2.0,1.0,10.0,28.0,1.0,0.0,2.0,2.0,6.0,40.0,17.0,5.0,3.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Ecuador,1,Hernan GALINDEZ,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,6.0,1.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Côte d'Ivoire,17,Guela DOUE,2.0,1.0,1.0,2.0,5.0,17.0,4.0,0.0,4.0,3.0,6.0,24.0,11.0,7.0,1.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Côte d'Ivoire,18,Ibrahim SANGARE,1.0,0.0,0.0,0.0,1.0,6.0,1.0,0.0,1.0,0.0,1.0,4.0,0.0,0.0,0.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Côte d'Ivoire,1,Yahia FOFANA,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,4.0,0.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Côte d'Ivoire,3,Ghislain KONAN,1.0,0.0,2.0,1.0,1.0,17.0,0.0,0.0,1.0,4.0,5.0,32.0,15.0,2.0,4.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Côte d'Ivoire,5,Wilfried SINGO,1.0,0.0,5.0,2.0,6.0,3.0,4.0,0.0,4.0,7.0,6.0,18.0,5.0,7.0,7.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Côte d'Ivoire,8,Franck KESSIE,4.0,2.0,2.0,0.0,2.0,25.0,0.0,0.0,0.0,1.0,8.0,47.0,9.0,4.0,1.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Côte d'Ivoire,11,Yan DIOMANDE,4.0,2.0,2.0,1.0,5.0,26.0,0.0,0.0,0.0,0.0,8.0,25.0,19.0,4.0,1.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Côte d'Ivoire,12,Elye WAHI,1.0,1.0,0.0,0.0,1.0,36.0,0.0,0.0,0.0,0.0,1.0,35.0,22.0,1.0,0.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Côte d'Ivoire,6,Seko FOFANA,0.0,0.0,1.0,0.0,1.0,21.0,0.0,0.0,0.0,2.0,6.0,16.0,6.0,3.0,0.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Côte d'Ivoire,20,Emmanuel AGBADOU,5.0,2.0,2.0,1.0,1.0,4.0,4.0,0.0,4.0,7.0,7.0,16.0,3.0,7.0,6.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Côte d'Ivoire,24,Bazoumana TOURE,2.0,0.0,1.0,0.0,2.0,31.0,0.0,0.0,0.0,1.0,4.0,27.0,22.0,0.0,2.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Côte d'Ivoire,7,Odilon KOSSOUNOU,0.0,0.0,0.0,2.0,0.0,1.0,0.0,1.0,1.0,1.0,0.0,1.0,1.0,2.0,0.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Côte d'Ivoire,9,Ange-Yoan BONNY,0.0,0.0,0.0,0.0,0.0,20.0,0.0,1.0,1.0,1.0,0.0,14.0,8.0,1.0,0.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Côte d'Ivoire,15,Amad DIALLO,0.0,0.0,0.0,1.0,0.0,4.0,0.0,0.0,0.0,0.0,0.0,2.0,2.0,1.0,0.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Côte d'Ivoire,19,Nicolas PEPE,2.0,0.0,0.0,0.0,4.0,42.0,3.0,0.0,3.0,0.0,4.0,37.0,25.0,0.0,0.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Côte d'Ivoire,26,Christ Inao OULAI,0.0,0.0,2.0,1.0,2.0,4.0,1.0,0.0,1.0,1.0,0.0,6.0,3.0,1.0,0.0,9,E,14 June 2026,Côte d'Ivoire,Ecuador,1,0
+Japan,16,Tsuyoshi WATANABE,2.0,1.0,1.0,0.0,1.0,4.0,3.0,0.0,3.0,4.0,2.0,11.0,3.0,5.0,5.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Japan,8,Takefusa KUBO,0.0,0.0,1.0,0.0,3.0,46.0,0.0,0.0,1.0,0.0,2.0,17.0,12.0,1.0,0.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Japan,10,Ritsu DOAN,2.0,0.0,1.0,0.0,7.0,23.0,0.0,0.0,0.0,3.0,1.0,32.0,20.0,1.0,1.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Japan,11,Daizen MAEDA,3.0,0.0,2.0,0.0,6.0,38.0,1.0,0.0,1.0,2.0,1.0,33.0,24.0,0.0,2.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Japan,13,Keito NAKAMURA,4.0,1.0,3.0,2.0,4.0,25.0,0.0,0.0,0.0,2.0,7.0,36.0,26.0,4.0,2.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Japan,15,Daichi KAMADA,6.0,1.0,1.0,1.0,6.0,21.0,0.0,0.0,1.0,1.0,8.0,45.0,10.0,2.0,1.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Japan,26,Kento SHIOGAI,0.0,0.0,0.0,0.0,2.0,4.0,0.0,0.0,0.0,0.0,1.0,4.0,2.0,0.0,0.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Japan,24,Kaishu SANO,4.0,1.0,0.0,2.0,4.0,26.0,3.0,0.0,3.0,2.0,3.0,26.0,12.0,5.0,4.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Japan,2,Yukinari SUGAWARA,0.0,0.0,0.0,0.0,1.0,4.0,1.0,0.0,1.0,1.0,1.0,4.0,4.0,1.0,1.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Japan,14,Junya ITO,0.0,0.0,0.0,0.0,0.0,9.0,1.0,0.0,1.0,0.0,1.0,3.0,3.0,0.0,0.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Japan,19,Koki OGAWA,0.0,0.0,0.0,0.0,0.0,9.0,0.0,0.0,0.0,1.0,0.0,3.0,3.0,0.0,1.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Japan,22,Takehiro TOMIYASU,0.0,0.0,0.0,0.0,2.0,1.0,0.0,0.0,1.0,1.0,1.0,5.0,3.0,2.0,0.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Japan,3,Shogo TANIGUCHI,0.0,0.0,2.0,0.0,2.0,3.0,0.0,1.0,1.0,9.0,6.0,8.0,2.0,4.0,5.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Japan,21,Hiroki ITO,1.0,0.0,3.0,1.0,3.0,3.0,1.0,0.0,2.0,5.0,2.0,19.0,2.0,5.0,4.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Japan,1,Zion SUZUKI,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2.0,0.0,0.0,6.0,0.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Japan,18,Ayase UEDA,2.0,0.0,0.0,0.0,5.0,54.0,1.0,1.0,2.0,0.0,1.0,28.0,25.0,1.0,0.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Netherlands,20,Teun KOOPMEINERS,2.0,0.0,0.0,0.0,3.0,14.0,1.0,0.0,1.0,0.0,0.0,14.0,10.0,0.0,1.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Netherlands,1,Bart VERBRUGGEN,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,4.0,0.0,0.0,4.0,0.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Netherlands,4,Virgil VAN DIJK,1.0,0.0,0.0,3.0,1.0,1.0,4.0,0.0,4.0,7.0,4.0,5.0,1.0,5.0,4.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Netherlands,6,Jan Paul VAN HECKE,2.0,1.0,4.0,1.0,2.0,6.0,5.0,0.0,6.0,5.0,4.0,5.0,2.0,7.0,6.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Netherlands,8,Ryan GRAVENBERCH,1.0,1.0,3.0,2.0,1.0,11.0,1.0,0.0,1.0,1.0,1.0,8.0,1.0,4.0,2.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Netherlands,26,Quinten TIMBER,0.0,0.0,1.0,0.0,3.0,8.0,2.0,0.0,3.0,2.0,0.0,11.0,5.0,2.0,1.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Netherlands,14,Tijjani REIJNDERS,0.0,0.0,1.0,1.0,1.0,5.0,0.0,0.0,1.0,0.0,4.0,8.0,3.0,1.0,1.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Netherlands,15,Micky VAN DE VEN,2.0,0.0,1.0,0.0,4.0,21.0,2.0,0.0,2.0,3.0,5.0,18.0,17.0,1.0,1.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Netherlands,11,Cody GAKPO,0.0,0.0,0.0,1.0,1.0,17.0,4.0,0.0,4.0,1.0,3.0,8.0,8.0,1.0,1.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Netherlands,21,Frenkie DE JONG,8.0,2.0,2.0,0.0,8.0,15.0,0.0,0.0,0.0,4.0,11.0,29.0,8.0,3.0,4.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Netherlands,22,Denzel DUMFRIES,1.0,0.0,4.0,0.0,0.0,19.0,2.0,0.0,2.0,2.0,1.0,16.0,12.0,2.0,3.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Netherlands,24,Crysencio SUMMERVILLE,2.0,0.0,0.0,0.0,3.0,15.0,1.0,0.0,1.0,0.0,2.0,12.0,8.0,1.0,0.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Netherlands,5,Nathan AKE,0.0,0.0,1.0,0.0,1.0,3.0,0.0,0.0,0.0,1.0,0.0,10.0,1.0,0.0,1.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Netherlands,10,Memphis DEPAY,0.0,0.0,0.0,0.0,0.0,13.0,0.0,0.0,0.0,0.0,1.0,5.0,2.0,0.0,0.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Netherlands,19,Brian BROBBEY,0.0,0.0,0.0,0.0,0.0,4.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Netherlands,18,Donyell MALEN,0.0,0.0,1.0,0.0,2.0,12.0,1.0,1.0,4.0,0.0,1.0,8.0,7.0,1.0,1.0,11,F,14 June 2026,Netherlands,Japan,2,2
+Tunisia,2,Ali ABDI,7.0,1.0,1.0,0.0,5.0,13.0,3.0,0.0,3.0,1.0,0.0,21.0,9.0,6.0,1.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Tunisia,3,Montassar TALBI,1.0,0.0,4.0,0.0,2.0,2.0,3.0,0.0,4.0,5.0,4.0,4.0,0.0,1.0,7.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Tunisia,4,Omar REKIK,2.0,0.0,1.0,2.0,3.0,5.0,2.0,0.0,2.0,7.0,11.0,10.0,5.0,5.0,6.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Tunisia,8,Elias SAAD,1.0,1.0,0.0,0.0,2.0,31.0,0.0,0.0,2.0,0.0,5.0,27.0,20.0,1.0,0.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Tunisia,10,Hannibal MEJBRI,9.0,3.0,0.0,1.0,9.0,31.0,2.0,0.0,2.0,0.0,5.0,27.0,15.0,5.0,3.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Tunisia,13,Rani KHEDIRA,2.0,1.0,2.0,0.0,4.0,11.0,0.0,0.0,1.0,1.0,5.0,14.0,5.0,2.0,2.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Tunisia,15,Mohamed HADJ MAHMOUD,2.0,1.0,1.0,0.0,4.0,5.0,0.0,0.0,0.0,0.0,1.0,2.0,2.0,1.0,0.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Tunisia,20,Yan VALERY,1.0,0.0,1.0,0.0,1.0,19.0,2.0,0.0,5.0,2.0,5.0,11.0,9.0,3.0,2.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Tunisia,21,Mohamed Amine BEN HMIDA,4.0,1.0,3.0,2.0,5.0,10.0,0.0,0.0,0.0,9.0,11.0,14.0,4.0,7.0,8.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Tunisia,25,Anis SLIMANE,1.0,0.0,1.0,0.0,1.0,33.0,4.0,0.0,5.0,1.0,3.0,28.0,11.0,1.0,1.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Tunisia,7,Elias ACHOURI,0.0,0.0,0.0,0.0,2.0,5.0,0.0,0.0,0.0,0.0,2.0,7.0,5.0,0.0,0.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Tunisia,11,Ismael GHARBI,0.0,0.0,1.0,0.0,2.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,1.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Tunisia,1,Mouhib CHAMAKH,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2.0,0.0,0.0,5.0,0.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Tunisia,17,Ellyes SKHIRI,4.0,0.0,3.0,0.0,5.0,8.0,0.0,0.0,0.0,2.0,5.0,19.0,3.0,2.0,5.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Sweden,24,Elliot STROUD,0.0,0.0,1.0,0.0,0.0,3.0,0.0,0.0,0.0,1.0,2.0,1.0,1.0,1.0,2.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Sweden,16,Jesper KARLSTROM,3.0,1.0,2.0,1.0,2.0,16.0,2.0,0.0,2.0,6.0,1.0,24.0,8.0,5.0,6.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Sweden,11,Anthony ELANGA,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Sweden,8,Daniel SVENSSON,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Sweden,7,Lucas BERGVALL,1.0,0.0,0.0,1.0,2.0,6.0,0.0,0.0,0.0,0.0,2.0,4.0,2.0,2.0,0.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Sweden,21,Alexander BERNHARDSSON,4.0,1.0,2.0,1.0,4.0,23.0,3.0,0.0,3.0,6.0,5.0,16.0,8.0,3.0,5.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Sweden,18,Yasin AYARI,5.0,3.0,5.0,1.0,7.0,14.0,0.0,0.0,1.0,3.0,9.0,6.0,4.0,9.0,4.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Sweden,17,Viktor GYOKERES,0.0,0.0,0.0,0.0,0.0,11.0,1.0,0.0,1.0,0.0,6.0,13.0,6.0,0.0,0.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Sweden,10,Benjamin NYGREN,3.0,0.0,0.0,2.0,9.0,15.0,1.0,0.0,1.0,0.0,4.0,15.0,6.0,2.0,0.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Sweden,9,Alexander ISAK,2.0,1.0,1.0,0.0,5.0,16.0,0.0,1.0,1.0,0.0,3.0,10.0,7.0,3.0,0.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Sweden,5,Gabriel GUDMUNDSSON,4.0,1.0,2.0,0.0,4.0,8.0,2.0,0.0,2.0,4.0,6.0,12.0,8.0,3.0,4.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Sweden,4,Isak HIEN,2.0,0.0,1.0,2.0,4.0,3.0,5.0,0.0,5.0,6.0,5.0,9.0,5.0,5.0,6.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Sweden,3,Victor LINDELOF,1.0,1.0,0.0,0.0,2.0,4.0,3.0,0.0,3.0,4.0,6.0,11.0,2.0,4.0,3.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Sweden,2,Gustaf LAGERBIELKE,0.0,0.0,0.0,0.0,3.0,6.0,3.0,0.0,3.0,5.0,7.0,19.0,5.0,4.0,3.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Sweden,23,Kristoffer NORDFELDT,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.0,0.0,0.0,5.0,0.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Tunisia,19,Firas CHAOUAT,0.0,0.0,0.0,0.0,0.0,2.0,0.0,0.0,0.0,0.0,0.0,2.0,0.0,0.0,0.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Sweden,19,Mattias SVANBERG,0.0,0.0,0.0,0.0,0.0,2.0,0.0,0.0,0.0,1.0,0.0,3.0,1.0,0.0,1.0,12,F,14 June 2026,Sweden,Tunisia,5,1
+Tunisia,26,Sebastian TOUNEKTI,1.0,0.0,0.0,0.0,0.0,3.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0,0.0,0.0,12,F,14 June 2026,Sweden,Tunisia,5,1

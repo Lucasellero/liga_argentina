@@ -10,24 +10,24 @@ en el medio), no regresa a su ciudad entre juegos.
   - Partido suelto: home → city → home  (ida y vuelta simple)
 
 Ejecutar desde la carpeta liga_argentina/:
-    python travel_km.py
+    python scraper/travel_km.py
 """
 
 import pandas as pd
 from math import radians, sin, cos, sqrt, atan2
 
 # ── Configuración ──────────────────────────────────────────────────────────────
-CITIES_CSV = "docs/ciudades_equipos.csv"
+CITIES_CSV = "../docs/ciudades_equipos.csv"
 GIRA_MAX_DAYS = 7  # días máximos entre dos partidos fuera para considerarlos gira
 
 LIGAS = {
     "Liga Nacional": {
-        "csv": "docs/liga_nacional/liga_nacional.csv",
+        "csv": "../docs/liga_nacional/liga_nacional.csv",
         "liga_key": "liga_nacional",
         "cutoff": "2026-04-24",
     },
     "Liga Argentina": {
-        "csv": "docs/liga_argentina/liga_argentina.csv",
+        "csv": "../docs/liga_argentina/liga_argentina.csv",
         "liga_key": "liga_argentina",
         "cutoff": "2026-03-30",
     },

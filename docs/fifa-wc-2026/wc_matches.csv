@@ -1,0 +1,13 @@
+home,away,home_score,away_score,group,date,stadium,match_num
+Mexico,South Africa,2.0,0.0,A,11 June 2026,Mexico City Stadium,1
+Korea Republic,Czechia,2.0,1.0,A,11 June 2026,Guadalajara Stadium,2
+Canada,Bosnia and Herzegovina,1.0,1.0,B,12 June 2026,Toronto Stadium,3
+USA,Paraguay,4.0,1.0,D,12 June 2026,Los Angeles Stadium,4
+Haiti,Scotland,0.0,1.0,C,13 June 2026,Boston Stadium,5
+Australia,Türkiye,2.0,0.0,D,13 June 2026,,6
+Brazil,Morocco,1.0,1.0,C,13 June 2026,New York/New Jersey Stadium,7
+Qatar,Switzerland,1.0,1.0,B,13 June 2026,San Francisco Bay Area Stadium,8
+Côte d'Ivoire,Ecuador,1.0,0.0,E,14 June 2026,Philadelphia Stadium,9
+,,,,E,,,10
+Netherlands,Japan,2.0,2.0,F,14 June 2026,Dallas Stadium,11
+Sweden,Tunisia,5.0,1.0,F,14 June 2026,Monterrey Stadium,12

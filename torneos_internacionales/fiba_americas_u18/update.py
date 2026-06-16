@@ -4,8 +4,8 @@
 Runner maestro: scrape incremental + transform → CSVs del dashboard.
 
 Uso:
-    python fiba_americas_u18/update.py          # incremental (solo nuevos partidos)
-    python fiba_americas_u18/update.py --full   # re-scrape completo
+    python torneos_internacionales/fiba_americas_u18/update.py          # incremental (solo nuevos partidos)
+    python torneos_internacionales/fiba_americas_u18/update.py --full   # re-scrape completo
 """
 
 import sys
@@ -14,7 +14,7 @@ import argparse
 import subprocess
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(HERE)
+ROOT = os.path.dirname(os.path.dirname(HERE))
 
 
 def run(script, extra_args=None):

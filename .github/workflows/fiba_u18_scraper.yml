@@ -39,7 +39,7 @@ jobs:
         run: pip install cloudscraper pandas requests
 
       - name: Correr scraper FIBA U18 (boxscore + shots + pbp + transform)
-        run: python fiba_americas_u18/update.py
+        run: python torneos_internacionales/fiba_americas_u18/update.py
 
       - name: Commitear CSVs actualizados
         run: |
@@ -49,8 +49,8 @@ jobs:
             docs/argentina_formativas/fiba_u18/fiba_u18.csv \
             docs/argentina_formativas/fiba_u18/fiba_u18_shots.csv \
             docs/argentina_formativas/fiba_u18/fiba_u18_pbp.csv \
-            fiba_americas_u18/fiba_u18_boxscore.csv \
-            fiba_americas_u18/fiba_u18_shots.csv \
-            fiba_americas_u18/fiba_u18_pbp.csv
+            torneos_internacionales/fiba_americas_u18/fiba_u18_boxscore.csv \
+            torneos_internacionales/fiba_americas_u18/fiba_u18_shots.csv \
+            torneos_internacionales/fiba_americas_u18/fiba_u18_pbp.csv
           git diff --cached --quiet || git commit -m "data: FIBA U18 — actualizar CSVs $(date +'%d-%m-%Y %H:%M UTC')"
           git push

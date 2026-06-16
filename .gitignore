@@ -8,3 +8,6 @@ docs/liga_argentina/liga_argentina_pbp.csv
 docs/liga_nacional/liga_nacional_pbp.csv
 docs/liga_femenina/liga_femenina_pbp.csv
 docs/liga_proximo/liga_proximo_pbp.csv
+.gstack/
+.claude/
+scraper/cache/
