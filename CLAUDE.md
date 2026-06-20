@@ -554,7 +554,7 @@ loadShots()
 - `LEAGUE_ZONE_STATS` se computa una vez (lazy) al primer render del zone chart, agregando todos los tiros de `SHOTS_MAP`
 
 ### Datos de jugada a jugada (`PBP_MAP` + `LINEUP_DATA`)
-Carga **lazy**: se fetch al seleccionar un equipo en el tab "Quintetos" por primera vez.
+Carga **lazy**: se fetch al entrar al tab "Quintetos" por primera vez (o al entrar a Tríos/Duplas/Conexiones si el PBP no fue cargado antes).
 ```
 loadPbp()
   → fetch('liga_argentina_pbp.csv?v=<timestamp>')
@@ -567,6 +567,16 @@ computeLineups()   ← llamado una sola vez después de loadPbp()
   → acumula {secs, pf, pa, fga, fgm, fg3a, fg3m, fta, ast, oreb, dreb, to, dfga, dfgm, dfg3a, dfg3m, dfta, doreb, ddreb, dto} por segmento activo
   → LINEUP_DATA = Map<teamName → Map<lineupKey → stats>>
 ```
+
+**⚠️ `Equipo_local` siempre vacío en los PBP scrapeados:**
+El scraper construye la lista de partidos desde el CSV de stats, donde el IdPartido del LOCAL y del VISITANTE son distintos (los IDs son dinámicos y se generan por request). Como resultado, cada partido en el PBP queda con `Equipo_local = ""` y `Equipo_visitante` poblado.
+
+`computeLineups` resuelve esto con inferencia por votación:
+1. Pre-construye `_lastNameToTeam`: mapa `apellido → Set<equipo>` desde el array global `PLAYERS`
+2. Para cada partido con `Equipo_local` vacío, escanea los eventos con `Equipo_lado = 'LOCAL'`, extrae el apellido de cada jugador y busca en `_lastNameToTeam` excluyendo al `visitTeam`
+3. El equipo con más votos se usa como `localTeam`
+
+Si no se puede inferir ningún equipo (partido sin eventos LOCAL con jugador), el partido se descarta con `return`. Esto cubre quintetos, tríos y duplas (que derivan de `LINEUP_DATA`).
 
 **Manejo de límites de período en `computeLineups`:**
 - El scraper emite `CAMBIO-JUGADOR-ENTRA` para los 5 titulares al inicio de **cada período**. Algunos partidos (≈8 en el dataset) omiten estos CAMBIO-ENTRA en períodos intermedios.
@@ -680,7 +690,8 @@ El bloque fue eliminado. No agregar redirects condicionales por referrer en pág
 
 **Sección "Quintetos" (`quintetos`):**
 - Selector de equipo (poblado desde `TEAMS` al abrir el tab) + filtro de minutos mínimos
-- Carga lazy del PBP al seleccionar equipo; `computeLineups()` se ejecuta una sola vez y queda en `LINEUP_DATA`
+- **Auto-carga al entrar al tab**: `switchSection('quintetos')` dispara `loadPbp()` + `computeLineups()` + `renderQuintetos()` inmediatamente, sin esperar selección de equipo. El valor por defecto del selector es `''` ("Toda la liga"), así que al entrar por primera vez el usuario ve el Top 20 league-wide sin interacción
+- `computeLineups()` se ejecuta una sola vez y queda en `LINEUP_DATA` (si PBP ya fue cargado por otra sección, solo llama `renderQuintetos()`)
 - Tabla ordenable por cualquier columna (default: Min ↓)
 - **Tracking de posesiones por evento**: cada tiro/TL/rebote/pérdida/asistencia se acumula simultáneamente en el segmento activo del equipo atacante (ofensa) y del defensor (defensa)
 - `calcPoss(fga, fta, oreb, to)` = `FGA + 0.44×FTA − OReb + TO`
@@ -718,12 +729,14 @@ Columnas: `IdPartido, Fecha, Equipo_local, Equipo_visitante, NumAccion, Tipo, Eq
 - `Marcador_local` / `Marcador_visitante`: marcador vigente en el momento del evento (forward-fill desde la última canasta). Arranca en `0 - 0` antes de la primera canasta. El valor en canastas refleja el marcador **después** de convertir.
 - Fuente: `https://www.laliganacional.com.ar/laligaargentina/partido/en-vivo/{game_id}` (HTML puro, sin arrays JS)
 - Datos lazy cargados del `liga_argentina.csv` para obtener la lista de partidos y nombres de equipos
+- **`Equipo_local` siempre vacío**: el scraper construye la lista de partidos desde el CSV de stats donde el `IdPartido` del LOCAL y del VISITANTE son distintos (IDs dinámicos). Por esto `games[gid]` solo captura un equipo por gid — siempre el visitante. Ver fix en `computeLineups()` (inferencia por apellidos de jugadores)
 
 ## CSV: liga_nacional_pbp.csv
 Mismo esquema y formato que `liga_argentina_pbp.csv`. Columnas idénticas: `IdPartido, Fecha, Equipo_local, Equipo_visitante, NumAccion, Tipo, Equipo_lado, Dorsal, Jugador, Periodo, Tiempo, Marcador_local, Marcador_visitante`
 - Fuente: `https://www.laliganacional.com.ar/laliga/partido/en-vivo/{game_id}` (HTML puro, misma estructura)
 - Scraper: `Scraper/pbp_scraper_nacional.py` — lógica de parsing idéntica a `pbp_scraper.py`, solo cambia `LEAGUE = "/laliga"` y los paths a `docs/liga_nacional/`
 - Datos lazy cargados del `docs/liga_nacional/liga_nacional.csv` para obtener la lista de partidos y nombres de equipos
+- **`Equipo_local` siempre vacío**: misma causa que en `liga_argentina_pbp.csv`. Ver fix en `computeLineups()` de `liga_nacional.js`
 
 ## CSV: liga_femenina_pbp.csv
 Mismo esquema y formato que `liga_argentina_pbp.csv` y `liga_nacional_pbp.csv`.
