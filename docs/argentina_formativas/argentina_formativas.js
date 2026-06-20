@@ -446,11 +446,14 @@ function switchSection(id) {
         sel.appendChild(o);
       });
     }
-    if (!sel.value && PBP_MAP === null) {
+    if (PBP_MAP === null) {
       const loading = document.getElementById('qntLoading');
       const empty = document.getElementById('qntEmpty');
       loading.style.display = ''; empty.style.display = 'none';
       loadPbp().then(() => { if (LINEUP_DATA === null) computeLineups(); renderQuintetos(); });
+    } else {
+      if (LINEUP_DATA === null) computeLineups();
+      renderQuintetos();
     }
   }
   if(id==='trios') { trioInit(); }
@@ -3311,10 +3314,29 @@ function calcPoss(fga, fta, oreb, to) { return fga + 0.44 * fta - oreb + to; }
 function computeLineups() {
   if (LINEUP_DATA !== null) return;
   LINEUP_DATA = new Map();
+  const _lastNameToTeam = new Map();
+  PLAYERS.forEach(p => {
+    const ln = (p['Nombre completo'] || '').split(',')[0].trim().toUpperCase();
+    if (!_lastNameToTeam.has(ln)) _lastNameToTeam.set(ln, new Set());
+    _lastNameToTeam.get(ln).add(p.Equipo);
+  });
   PBP_MAP.forEach((events, gameId) => {
     events.sort((a, b) => parseInt(a['NumAccion']) - parseInt(b['NumAccion']));
-    const localTeam = events[0]['Equipo_local'];
-    const visitTeam = events[0]['Equipo_visitante'];
+    let localTeam = (events.find(e => e['Equipo_local'])     || {})['Equipo_local']     || '';
+    const visitTeam = (events.find(e => e['Equipo_visitante']) || {})['Equipo_visitante'] || '';
+    if (!localTeam && visitTeam) {
+      const votes = new Map();
+      events.forEach(ev => {
+        if (ev['Equipo_lado'] !== 'LOCAL' || !ev['Jugador']) return;
+        const ln = ev['Jugador'].split(',')[0].trim().toUpperCase();
+        const teams = _lastNameToTeam.get(ln);
+        if (teams) teams.forEach(t => { if (t !== visitTeam) votes.set(t, (votes.get(t) || 0) + 1); });
+      });
+      let best = '', bestCount = 0;
+      votes.forEach((cnt, t) => { if (cnt > bestCount) { best = t; bestCount = cnt; } });
+      localTeam = best;
+    }
+    if (!localTeam || !visitTeam) return;
     let localCourt = new Set(), visitCourt = new Set();
     let localSeg = null, visitSeg = null;
     // Possession counters for the active segment of each side
