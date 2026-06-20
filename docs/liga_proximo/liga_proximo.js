@@ -337,14 +337,15 @@ let jHov=-1, jPin=new Set(), tHov=-1, tPin=-1;
 
 // ── SHOTS DATA ──────────────────────────────────────
 const SHOTS_CSV = 'liga_proximo_shots.csv';
-let SHOTS_MAP = null; // null=not loaded, Map keyed by gameId
+let SHOTS_MAP = null;        // null=not loaded, Map keyed by shots CSV IdPartido
+let SHOTS_STABLE_MAP = null; // Map keyed by "fecha|local|visit" (cross-CSV stable key)
 let SHOTS_BY_PLAYER = null; // Map keyed by "Equipo||Dorsal"
 let LEAGUE_ZONE_STATS = null;
 let tzcPeriod='all';
 let tzcCurrentTeam=null;
 let tzcTeamAllShots=[];
 let tzcTeamGameIds=null;
-let _smState = { gameId: null, local: '', visit: '', focusTeam: null, filter: { team: 'all', tipo: 'all', result: 'all' } };
+let _smState = { gameId: null, fecha: null, local: '', visit: '', focusTeam: null, filter: { team: 'all', tipo: 'all', result: 'all' } };
 
 const f2=v=>v==null||isNaN(v)?'—':v.toFixed(2);
 const f1=v=>v==null||isNaN(v)?'—':v.toFixed(1);
@@ -1431,12 +1432,17 @@ async function loadShots() {
     const text = await resp.text();
     const rows = parseCSV(text);
     SHOTS_MAP = new Map();
+    SHOTS_STABLE_MAP = new Map();
     SHOTS_BY_PLAYER = new Map();
     rows.forEach(r => {
       const gid = r['IdPartido'];
       if (!gid) return;
       if (!SHOTS_MAP.has(gid)) SHOTS_MAP.set(gid, []);
       SHOTS_MAP.get(gid).push(r);
+      // Stable cross-CSV key: IdPartido is dynamic; use fecha|local|visit instead
+      const skey = r['Fecha'] + '|' + r['Equipo_local'] + '|' + r['Equipo_visitante'];
+      if (!SHOTS_STABLE_MAP.has(skey)) SHOTS_STABLE_MAP.set(skey, []);
+      SHOTS_STABLE_MAP.get(skey).push(r);
       // Index by player: Equipo||Dorsal (normalised to integer string)
       const dNum = String(Math.round(parseFloat(r['Dorsal']) || 0));
       const pkey = r['Equipo'] + '||' + dNum;
@@ -1445,6 +1451,7 @@ async function loadShots() {
     });
   } catch(e) {
     SHOTS_MAP = new Map(); // empty map on error
+    SHOTS_STABLE_MAP = new Map();
     SHOTS_BY_PLAYER = new Map();
   }
 }
@@ -1480,14 +1487,16 @@ function renderShotMap() {
   const canvas = document.getElementById('shotMapCanvas');
   const noData = document.getElementById('smNoData');
   const legend = document.getElementById('smLegend');
-  const { gameId, local, visit, filter } = _smState;
+  const { fecha, local, visit, filter } = _smState;
 
   // Size canvas to match CSS width, derive height from 28:15 aspect ratio
   const W = canvas.offsetWidth || 600;
   const H = Math.round(W * 15 / 28);
   canvas.width = W; canvas.height = H;
 
-  const shots = SHOTS_MAP ? (SHOTS_MAP.get(gameId) || []) : [];
+  // Use stable key (fecha|local|visit) — IdPartido is dynamic between CSVs
+  const _smSkey = fecha + '|' + local + '|' + visit;
+  const shots = SHOTS_STABLE_MAP ? (SHOTS_STABLE_MAP.get(_smSkey) || []) : [];
 
   if (!shots.length) {
     noData.style.display = '';
@@ -1663,6 +1672,7 @@ function openPartidoModal(game) {
   _partidoMode = true;
   // Set shot map state
   _smState.gameId    = game.gameId;
+  _smState.fecha     = game.fecha || null;
   _smState.local     = game.local;
   _smState.visit     = game.visit;
   _smState.focusTeam = game.local;
@@ -1802,9 +1812,11 @@ function renderBoxScore(gameId, localTeam, visitTeam) {
 }
 
 // ── EVOLUCIÓN DE PARTIDO ──────────────────────────────────────
-function computeScoreDelta(gameId) {
-  if (!PBP_MAP) return null;
-  const events = PBP_MAP.get(gameId);
+function computeScoreDelta(gameId, stableKey) {
+  if (!PBP_MAP && !PBP_STABLE_MAP) return null;
+  // Prefer stable key (fecha|local|visit) to avoid cross-CSV dynamic ID mismatch
+  const events = (PBP_STABLE_MAP && stableKey ? PBP_STABLE_MAP.get(stableKey) : null)
+              || (PBP_MAP ? PBP_MAP.get(gameId) : null);
   if (!events || !events.length) return null;
   let sLoc = 0, sVis = 0;
   const readings = [];
@@ -1848,7 +1860,8 @@ function renderScoreDelta(gameId, localTeam, visitTeam) {
   const teamB     = invert ? localTeam : visitTeam;
 
   const doRender = () => {
-    let data = computeScoreDelta(gameId);
+    const _evolSkey = _smState.fecha ? _smState.fecha + '|' + localTeam + '|' + visitTeam : null;
+    let data = computeScoreDelta(gameId, _evolSkey);
     if (!data || !data.length) {
       panel.innerHTML = `<div class="evol-empty">No hay datos de evolución para este partido.</div>`;
       return;
@@ -2193,6 +2206,7 @@ function showGameDetail(g, teamName) {
   // Store state for shot map
   const isLocal = g.condicion === 'LOCAL';
   _smState.gameId    = g.gameId || null;
+  _smState.fecha     = g.fecha  || null;
   _smState.local     = isLocal ? teamName : g.rival;
   _smState.visit     = isLocal ? g.rival  : teamName;
   _smState.focusTeam = teamName;
@@ -3144,7 +3158,8 @@ document.getElementById('tzcLoading').style.display = 'none';
 // QUINTETOS
 // ============================================================
 const PBP_CSV = 'https://repsndqhmyklxukffovf.supabase.co/storage/v1/object/public/pbp/liga_proximo_pbp.csv';
-let PBP_MAP = null;    // null=not loaded, Map<gameId, rows[]>
+let PBP_MAP = null;        // null=not loaded, Map<gameId, rows[]> keyed by PBP CSV IdPartido
+let PBP_STABLE_MAP = null; // Map keyed by "fecha|local|visit" (cross-CSV stable key)
 let LINEUP_DATA = null; // Map<teamName, Map<lineupKey, {players,secs,pf,pa,games}>>
 let qntSort = 'min', qntDir = 'desc';
 
@@ -3156,12 +3171,17 @@ async function loadPbp() {
     const text = await resp.text();
     const rows = parseCSV(text);
     PBP_MAP = new Map();
+    PBP_STABLE_MAP = new Map();
     rows.forEach(r => {
       const gid = r['IdPartido']; if (!gid) return;
       if (!PBP_MAP.has(gid)) PBP_MAP.set(gid, []);
       PBP_MAP.get(gid).push(r);
+      // Stable cross-CSV key: IdPartido is dynamic; use fecha|local|visit instead
+      const skey = r['Fecha'] + '|' + r['Equipo_local'] + '|' + r['Equipo_visitante'];
+      if (!PBP_STABLE_MAP.has(skey)) PBP_STABLE_MAP.set(skey, []);
+      PBP_STABLE_MAP.get(skey).push(r);
     });
-  } catch(e) { PBP_MAP = new Map(); }
+  } catch(e) { PBP_MAP = new Map(); PBP_STABLE_MAP = new Map(); }
 }
 
 // Convert period + time-remaining string "MM:SS" to total elapsed seconds

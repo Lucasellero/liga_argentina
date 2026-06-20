@@ -354,11 +354,12 @@ let jHov=-1, jPin=new Set(), tHov=-1, tPin=-1;
 
 // ── SHOTS DATA ──────────────────────────────────────
 const SHOTS_CSV = 'liga_nacional_shots.csv';
-let SHOTS_MAP = null; // null=not loaded, Map keyed by gameId
+let SHOTS_MAP = null;        // null=not loaded, Map keyed by shots CSV IdPartido
+let SHOTS_STABLE_MAP = null; // Map keyed by "fecha|local|visit" (cross-CSV stable key)
 let PRED_MAP  = {};   // keyed by "fecha|local|visitante" → {prob_local, prob_visit}
 let SHOTS_BY_PLAYER = null; // Map keyed by "Equipo||Dorsal"
 let LEAGUE_ZONE_STATS = null;
-let _smState = { gameId: null, local: '', visit: '', focusTeam: null, filter: { team: 'all', tipo: 'all', result: 'all' } };
+let _smState = { gameId: null, fecha: null, local: '', visit: '', focusTeam: null, filter: { team: 'all', tipo: 'all', result: 'all' } };
 
 const f2=v=>v==null||isNaN(v)?'—':v.toFixed(2);
 const f1=v=>v==null||isNaN(v)?'—':v.toFixed(1);
@@ -367,11 +368,11 @@ const f1=v=>v==null||isNaN(v)?'—':v.toFixed(1);
 // NAV
 // ============================================================
 const _SUB_GROUP = {
-  't-tabla':'equipos','t-tcmp':'equipos','t-chart':'equipos','quintetos':'equipos','t-tiro':'equipos','t-conexiones':'equipos',
+  't-tabla':'equipos','t-tcmp':'equipos','t-chart':'equipos','quintetos':'equipos','trios':'equipos','duplas':'equipos','t-tiro':'equipos','t-conexiones':'equipos',
   'j-tabla':'jugadores','j-tiro':'jugadores','j-chart':'jugadores','j-conexiones':'jugadores','j-radar':'jugadores'
 };
 const _SUB_IDX = {
-  't-tabla':0,'t-tcmp':1,'t-chart':2,'quintetos':3,'t-tiro':4,'t-conexiones':5,
+  't-tabla':0,'t-tcmp':1,'t-chart':2,'quintetos':3,'trios':4,'duplas':5,'t-tiro':6,'t-conexiones':7,
   'j-tabla':0,'j-tiro':1,'j-chart':2,'j-conexiones':3,'j-radar':4
 };
 
@@ -433,6 +434,8 @@ function switchSection(id) {
   }
   if(id==='j-chart') setTimeout(drawJChart,30);
   if(id==='j-conexiones') { cnxInit(); setTimeout(drawConnections,30); }
+  if(id==='trios') { trioInit(); }
+  if(id==='duplas') { dupInit(); }
   if(id==='t-tiro') { tzcInit(); }
   if(id==='t-conexiones') { tCnxInit(); }
   if(id==='t-chart') setTimeout(drawTChart,30);
@@ -1642,12 +1645,17 @@ async function loadShots() {
     const text = await resp.text();
     const rows = parseCSV(text);
     SHOTS_MAP = new Map();
+    SHOTS_STABLE_MAP = new Map();
     SHOTS_BY_PLAYER = new Map();
     rows.forEach(r => {
       const gid = r['IdPartido'];
       if (!gid) return;
       if (!SHOTS_MAP.has(gid)) SHOTS_MAP.set(gid, []);
       SHOTS_MAP.get(gid).push(r);
+      // Stable cross-CSV key: IdPartido is dynamic; use fecha|local|visit instead
+      const skey = r['Fecha'] + '|' + r['Equipo_local'] + '|' + r['Equipo_visitante'];
+      if (!SHOTS_STABLE_MAP.has(skey)) SHOTS_STABLE_MAP.set(skey, []);
+      SHOTS_STABLE_MAP.get(skey).push(r);
       // Index by player: Equipo||Dorsal (normalised to integer string)
       const dNum = String(Math.round(parseFloat(r['Dorsal']) || 0));
       const pkey = r['Equipo'] + '||' + dNum;
@@ -1656,6 +1664,7 @@ async function loadShots() {
     });
   } catch(e) {
     SHOTS_MAP = new Map(); // empty map on error
+    SHOTS_STABLE_MAP = new Map();
     SHOTS_BY_PLAYER = new Map();
   }
 }
@@ -1691,14 +1700,16 @@ function renderShotMap() {
   const canvas = document.getElementById('shotMapCanvas');
   const noData = document.getElementById('smNoData');
   const legend = document.getElementById('smLegend');
-  const { gameId, local, visit, filter } = _smState;
+  const { fecha, local, visit, filter } = _smState;
 
   // Size canvas to match CSS width, derive height from 28:15 aspect ratio
   const W = canvas.offsetWidth || 600;
   const H = Math.round(W * 15 / 28);
   canvas.width = W; canvas.height = H;
 
-  const shots = SHOTS_MAP ? (SHOTS_MAP.get(gameId) || []) : [];
+  // Use stable key (fecha|local|visit) — IdPartido is dynamic between CSVs
+  const _smSkey = fecha + '|' + local + '|' + visit;
+  const shots = SHOTS_STABLE_MAP ? (SHOTS_STABLE_MAP.get(_smSkey) || []) : [];
 
   if (!shots.length) {
     noData.style.display = '';
@@ -1874,6 +1885,7 @@ function openPartidoModal(game) {
   _partidoMode = true;
   // Set shot map state
   _smState.gameId    = game.gameId;
+  _smState.fecha     = game.fecha || null;
   _smState.local     = game.local;
   _smState.visit     = game.visit;
   _smState.focusTeam = game.local;
@@ -2013,9 +2025,11 @@ function renderBoxScore(gameId, localTeam, visitTeam) {
 }
 
 // ── EVOLUCIÓN DE PARTIDO ──────────────────────────────────────
-function computeScoreDelta(gameId) {
-  if (!PBP_MAP) return null;
-  const events = PBP_MAP.get(gameId);
+function computeScoreDelta(gameId, stableKey) {
+  if (!PBP_MAP && !PBP_STABLE_MAP) return null;
+  // Prefer stable key (fecha|local|visit) to avoid cross-CSV dynamic ID mismatch
+  const events = (PBP_STABLE_MAP && stableKey ? PBP_STABLE_MAP.get(stableKey) : null)
+              || (PBP_MAP ? PBP_MAP.get(gameId) : null);
   if (!events || !events.length) return null;
   let sLoc = 0, sVis = 0;
   const readings = [];
@@ -2059,7 +2073,8 @@ function renderScoreDelta(gameId, localTeam, visitTeam) {
   const teamB     = invert ? localTeam : visitTeam;
 
   const doRender = () => {
-    let data = computeScoreDelta(gameId);
+    const _evolSkey = _smState.fecha ? _smState.fecha + '|' + localTeam + '|' + visitTeam : null;
+    let data = computeScoreDelta(gameId, _evolSkey);
     if (!data || !data.length) {
       panel.innerHTML = `<div class="evol-empty">No hay datos de evolución para este partido.</div>`;
       return;
@@ -2414,6 +2429,7 @@ function showGameDetail(g, teamName) {
   // Store state for shot map
   const isLocal = g.condicion === 'LOCAL';
   _smState.gameId    = g.gameId || null;
+  _smState.fecha     = g.fecha  || null;
   _smState.local     = isLocal ? teamName : g.rival;
   _smState.visit     = isLocal ? g.rival  : teamName;
   _smState.focusTeam = teamName;
@@ -3239,9 +3255,27 @@ function selectSzcPlayer(idx) {
     const dNum = String(Math.round(parseFloat(player.DORSAL) || 0));
     const key = player.Equipo + '||' + dNum;
     const rawShots = SHOTS_BY_PLAYER ? (SHOTS_BY_PLAYER.get(key) || []) : [];
-    szcPlayerGameIds = player._gameIds || null;
-    const gidSet = szcPlayerGameIds ? new Set(szcPlayerGameIds) : null;
-    const allShots = gidSet ? rawShots.filter(s => gidSet.has(s['IdPartido'])) : rawShots;
+    // Use stable key (fecha|local|visit) to match shots — IdPartido is dynamic and may
+    // differ between stats CSV and shots CSV scraped at different times.
+    const _pStableKeys = new Set(player._games.map(r => {
+      const local = r['Condicion equipos'] === 'LOCAL' ? r['Equipo'] : r['Rival'];
+      const visit = r['Condicion equipos'] === 'LOCAL' ? r['Rival'] : r['Equipo'];
+      return r['Fecha'] + '|' + local + '|' + visit;
+    }));
+    const allShots = _pStableKeys.size ? rawShots.filter(s =>
+      _pStableKeys.has(s['Fecha'] + '|' + s['Equipo_local'] + '|' + s['Equipo_visitante'])
+    ) : rawShots;
+    // Build szcPlayerGameIds using shots CSV IDs in chronological order
+    const _pShotsIdByStable = new Map();
+    rawShots.forEach(s => {
+      const k = s['Fecha'] + '|' + s['Equipo_local'] + '|' + s['Equipo_visitante'];
+      if (!_pShotsIdByStable.has(k)) _pShotsIdByStable.set(k, s['IdPartido']);
+    });
+    szcPlayerGameIds = player._games.map(r => {
+      const local = r['Condicion equipos'] === 'LOCAL' ? r['Equipo'] : r['Rival'];
+      const visit = r['Condicion equipos'] === 'LOCAL' ? r['Rival'] : r['Equipo'];
+      return _pShotsIdByStable.get(r['Fecha'] + '|' + local + '|' + visit) || null;
+    }).filter(Boolean);
     szcPlayerAllShots = allShots;
     const locVisShots = szcApplyLocVis(allShots);
     const locVisGameIds = szcLocVis === 'all' ? szcPlayerGameIds : null;
@@ -3395,9 +3429,31 @@ function onTzcTeamChange() {
       shots.forEach(s => { if (isLiga || s['Equipo'] === teamName) allShots.push(s); });
     });
     const team = isLiga ? null : TEAM_MAP[teamName];
-    tzcTeamGameIds = team ? team._gamelog.map(g => g.gameId) : null;
-    const gidSet = tzcTeamGameIds ? new Set(tzcTeamGameIds) : null;
-    const filteredShots = gidSet ? allShots.filter(s => gidSet.has(s['IdPartido'])) : allShots;
+    // Use stable key (fecha|local|visit) to match shots — IdPartido is dynamic and may
+    // differ between stats CSV and shots CSV scraped at different times.
+    let filteredShots = allShots;
+    if (!isLiga && team) {
+      const _tStableKeys = new Set(team._gamelog.map(g => {
+        const local = g.condicion === 'LOCAL' ? teamName : g.rival;
+        const visit = g.condicion === 'LOCAL' ? g.rival : teamName;
+        return g.fecha + '|' + local + '|' + visit;
+      }));
+      filteredShots = allShots.filter(s =>
+        _tStableKeys.has(s['Fecha'] + '|' + s['Equipo_local'] + '|' + s['Equipo_visitante'])
+      );
+      const _tShotsIdByStable = new Map();
+      filteredShots.forEach(s => {
+        const k = s['Fecha'] + '|' + s['Equipo_local'] + '|' + s['Equipo_visitante'];
+        if (!_tShotsIdByStable.has(k)) _tShotsIdByStable.set(k, s['IdPartido']);
+      });
+      tzcTeamGameIds = team._gamelog.map(g => {
+        const local = g.condicion === 'LOCAL' ? teamName : g.rival;
+        const visit = g.condicion === 'LOCAL' ? g.rival : teamName;
+        return _tShotsIdByStable.get(g.fecha + '|' + local + '|' + visit) || null;
+      }).filter(Boolean);
+    } else {
+      tzcTeamGameIds = null;
+    }
     tzcTeamAllShots = filteredShots;
     const tzcLocVisShots = tzcApplyLocVis(filteredShots);
     const tzcLocVisGameIds = tzcLocVis === 'all' ? tzcTeamGameIds : null;
@@ -3447,7 +3503,8 @@ function updateJFilterVisibility(){
 // QUINTETOS
 // ============================================================
 const PBP_CSV = 'https://repsndqhmyklxukffovf.supabase.co/storage/v1/object/public/pbp/liga_nacional_pbp.csv';
-let PBP_MAP = null;    // null=not loaded, Map<gameId, rows[]>
+let PBP_MAP = null;        // null=not loaded, Map<gameId, rows[]> keyed by PBP CSV IdPartido
+let PBP_STABLE_MAP = null; // Map keyed by "fecha|local|visit" (cross-CSV stable key)
 let LINEUP_DATA = null; // Map<teamName, Map<lineupKey, {players,secs,pf,pa,games}>>
 let qntSort = 'min', qntDir = 'desc';
 
@@ -3459,12 +3516,17 @@ async function loadPbp() {
     const text = await resp.text();
     const rows = parseCSV(text);
     PBP_MAP = new Map();
+    PBP_STABLE_MAP = new Map();
     rows.forEach(r => {
       const gid = r['IdPartido']; if (!gid) return;
       if (!PBP_MAP.has(gid)) PBP_MAP.set(gid, []);
       PBP_MAP.get(gid).push(r);
+      // Stable cross-CSV key: IdPartido is dynamic; use fecha|local|visit instead
+      const skey = r['Fecha'] + '|' + r['Equipo_local'] + '|' + r['Equipo_visitante'];
+      if (!PBP_STABLE_MAP.has(skey)) PBP_STABLE_MAP.set(skey, []);
+      PBP_STABLE_MAP.get(skey).push(r);
     });
-  } catch(e) { PBP_MAP = new Map(); }
+  } catch(e) { PBP_MAP = new Map(); PBP_STABLE_MAP = new Map(); }
 }
 
 // Convert period + time-remaining string "MM:SS" to total elapsed seconds
@@ -4247,6 +4309,293 @@ function cnxSetFilter(type) {
   if (gEl) gEl.style.opacity    = (_cnxFilter === 'received') ? '0.4' : '1';
   if (rEl) rEl.style.opacity    = (_cnxFilter === 'given')    ? '0.4' : '1';
   drawConnections();
+}
+
+// ============================================================
+// TRÍOS Y DUPLAS
+// ============================================================
+let TRIO_DATA  = null; // Map<teamName, Map<trioKey, stats>>
+let DUPLA_DATA = null; // Map<teamName, Map<duplaKey, stats>>
+let trioSort = 'min', trioDir = 'desc';
+let dupSort  = 'min', dupDir  = 'desc';
+
+function _combinations(arr, k) {
+  if (k === arr.length) return [arr.slice()];
+  if (k === 1) return arr.map(x => [x]);
+  const result = [];
+  for (let i = 0; i <= arr.length - k; i++) {
+    const sub = _combinations(arr.slice(i + 1), k - 1);
+    sub.forEach(c => result.push([arr[i], ...c]));
+  }
+  return result;
+}
+
+function computeSublineups(size) {
+  const map = new Map();
+  LINEUP_DATA.forEach((teamMap, teamName) => {
+    teamMap.forEach(v => {
+      const combos = _combinations(v.players, size);
+      combos.forEach(combo => {
+        const key = combo.join('~');
+        if (!map.has(teamName)) map.set(teamName, new Map());
+        const tmap = map.get(teamName);
+        if (!tmap.has(key)) tmap.set(key, {
+          players: combo, secs: 0, pf: 0, pa: 0, games: new Set(),
+          fga:0,fgm:0,fg3a:0,fg3m:0,fta:0,ast:0,oreb:0,dreb:0,to:0,
+          dfga:0,dfgm:0,dfg3a:0,dfg3m:0,dfta:0,doreb:0,ddreb:0,dto:0
+        });
+        const e = tmap.get(key);
+        e.secs += v.secs; e.pf += v.pf; e.pa += v.pa;
+        v.games.forEach(g => e.games.add(g));
+        e.fga+=v.fga; e.fgm+=v.fgm; e.fg3a+=v.fg3a; e.fg3m+=v.fg3m;
+        e.fta+=v.fta; e.ast+=v.ast; e.oreb+=v.oreb; e.dreb+=v.dreb; e.to+=v.to;
+        e.dfga+=v.dfga; e.dfgm+=v.dfgm; e.dfg3a+=v.dfg3a; e.dfg3m+=v.dfg3m;
+        e.dfta+=v.dfta; e.doreb+=v.doreb; e.ddreb+=v.ddreb; e.dto+=v.dto;
+      });
+    });
+  });
+  return map;
+}
+
+function _sublineupRowStats(v) {
+  const min = v.secs / 60;
+  const offPoss = calcPoss(v.fga, v.fta, v.oreb, v.to);
+  const defPoss = calcPoss(v.dfga, v.dfta, v.doreb, v.dto);
+  const poss    = (offPoss + defPoss) / 2;
+  const pm      = v.pf - v.pa;
+  const offrtg  = offPoss > 0 ? v.pf / offPoss * 100 : 0;
+  const defrtg  = defPoss > 0 ? v.pa / defPoss * 100 : 0;
+  const net     = offrtg - defrtg;
+  const fgpct   = v.fga  > 0 ? v.fgm  / v.fga  * 100 : 0;
+  const fg3pct  = v.fg3a > 0 ? v.fg3m / v.fg3a * 100 : 0;
+  const ast100  = v.fgm  > 0 ? v.ast  / v.fgm  * 100 : 0;
+  const tovpct  = (v.fga + 0.44*v.fta + v.to) > 0 ? v.to / (v.fga + 0.44*v.fta + v.to) * 100 : 0;
+  const orebpct = (v.oreb + v.ddreb) > 0 ? v.oreb / (v.oreb + v.ddreb) * 100 : 0;
+  const drebpct = (v.dreb + v.doreb) > 0 ? v.dreb / (v.dreb + v.doreb) * 100 : 0;
+  const fg3rate = v.fga  > 0 ? v.fg3a / v.fga  * 100 : 0;
+  const ftr     = v.fga  > 0 ? v.fta  / v.fga        : 0;
+  return { players: v.players, min, poss, pm, offrtg, defrtg, net, fgpct, fg3pct, ast100, tovpct, orebpct, drebpct, fg3rate, ftr };
+}
+
+const SUBLINEUP_COLS = [
+  { key: 'players', label: 'Jugadores', align: 'left',  tip: 'Los jugadores que compartieron cancha' },
+  { key: 'min',    label: 'Min',    align: 'right', tip: 'Minutos totales jugados juntos' },
+  { key: 'poss',    label: 'Pos',    align: 'right', tip: 'Posesiones estimadas (promedio de ofensivas y defensivas)' },
+  { key: 'pm',      label: '+/-',    align: 'right', tip: 'Diferencial de puntos mientras estuvieron en cancha juntos' },
+  { key: 'offrtg',  label: 'OffRtg', align: 'right', tip: 'Puntos anotados por cada 100 posesiones ofensivas' },
+  { key: 'defrtg',  label: 'DefRtg', align: 'right', tip: 'Puntos recibidos por cada 100 posesiones defensivas (menor = mejor)' },
+  { key: 'net',     label: 'Net',    align: 'right', tip: 'OffRtg \u2212 DefRtg' },
+  { key: 'fgpct',   label: 'TC%',     align: 'right', tip: '% de tiros de campo convertidos atacando' },
+  { key: 'fg3pct',  label: '3P%',     align: 'right', tip: '% de triples convertidos' },
+  { key: 'ast100',  label: 'AST%',    align: 'right', tip: '% de canastas asistidas. AST / FGM \u00d7 100' },
+  { key: 'tovpct',  label: 'TOV%',    align: 'right', tip: '% de posesiones terminadas en p\u00e9rdida (menor = mejor)' },
+  { key: 'orebpct', label: 'ORB%',    align: 'right', tip: '% de rebotes ofensivos disponibles capturados' },
+  { key: 'drebpct', label: 'DReb%',   align: 'right', tip: '% de rebotes defensivos disponibles capturados' },
+  { key: 'fg3rate', label: '3PA Rate',align: 'right', tip: '% de tiros que son intentos de triple' },
+  { key: 'ftr',     label: 'FTr',     align: 'right', tip: 'Tiros libres intentados por tiro de campo (FTA / FGA)' },
+];
+
+function _renderSublineupTable(dataMap, teamSel, minMin, sortKey, sortDir, ids, leagueLabel) {
+  const { emptyEl, loadingEl, contentEl, countEl, theadEl, tbodyEl } = ids;
+  function lerpRgb(t,r1,g1,b1,r2,g2,b2){return `rgb(${Math.round(r1+(r2-r1)*t)},${Math.round(g1+(g2-g1)*t)},${Math.round(b1+(b2-b1)*t)})`;}
+  function heatRG(v,mn,mx){if(mn===mx)return'';const t=(v-mn)/(mx-mn);return t>=.5?lerpRgb((t-.5)*2,100,116,139,52,211,153):lerpRgb(t*2,248,113,113,100,116,139);}
+  function heatPur(v,mn,mx){if(mn===mx)return'';return lerpRgb((v-mn)/(mx-mn),100,116,139,167,139,250);}
+  function heatTeal(v,mn,mx){if(mn===mx)return'';return lerpRgb(1-(v-mn)/(mx-mn),100,116,139,94,234,212);}
+  function heatWht(v,mn,mx){if(mn===mx)return'';return lerpRgb((v-mn)/(mx-mn),100,116,139,226,232,240);}
+  const fRtg = v => v===0?'\u2014':v.toFixed(1);
+  const fPct = v => v===0?'\u2014':v.toFixed(1)+'%';
+  const fRat = v => v===0?'\u2014':v.toFixed(2);
+  const sign = v => v>0?'+':'';
+
+  if (!teamSel) {
+    let allRows = [];
+    dataMap.forEach((tmap,teamName)=>{tmap.forEach(v=>{const row=_sublineupRowStats(v);if(row.min<minMin)return;allRows.push({team:teamName,...row});});});
+    allRows.sort((a,b)=>b.min-a.min); allRows=allRows.slice(0,20);
+    loadingEl.style.display='none'; emptyEl.style.display='none'; contentEl.style.display='';
+    countEl.textContent='Top 20 \u00b7 liga';
+    const vr=allRows.filter(r=>r.poss>0);
+    const cr=key=>{const vs=vr.map(r=>r[key]).filter(v=>v!==0);return vs.length?[Math.min(...vs),Math.max(...vs)]:[0,0];};
+    const[mnMin2,mxMin2]=cr('min'),[mnPos,mxPos]=cr('poss'),[mnPm,mxPm]=cr('pm'),
+         [mnOff,mxOff]=cr('offrtg'),[mnDef,mxDef]=cr('defrtg'),[mnNet,mxNet]=cr('net'),
+         [mnFg,mxFg]=cr('fgpct'),[mnFg3,mxFg3]=cr('fg3pct'),[mnAst,mxAst]=cr('ast100'),
+         [mnTov,mxTov]=cr('tovpct'),[mnOreb,mxOreb]=cr('orebpct'),[mnDreb,mxDreb]=cr('drebpct'),
+         [mnFg3r,mxFg3r]=cr('fg3rate'),[mnFtr,mxFtr]=cr('ftr');
+    const LEAGUE_COLS=[{key:'team',label:'Equipo',align:'left',tip:'Equipo al que pertenecen los jugadores'},...SUBLINEUP_COLS];
+    theadEl.innerHTML='<tr>'+LEAGUE_COLS.map(c=>`<th class="qnt-th" style="text-align:${c.align}" data-tip="${c.tip}">${c.label}</th>`).join('')+'</tr>';
+    tbodyEl.innerHTML=allRows.map((r,i)=>{
+      const ph=r.players.map(p=>`<span class="qnt-player">${formatPlayerShort(p)}</span>`).join('');
+      return `<tr style="background:${i%2===0?'rgba(139,92,246,.04)':'rgba(255,255,255,.015)'}">
+        <td><span style="display:flex;align-items:center;gap:5px">${teamLogoHtml(r.team)}${r.team}</span></td>
+        <td><div class="qnt-players">${ph}</div></td>
+        <td style="color:${heatWht(r.min,mnMin2,mxMin2)};font-weight:600">${r.min.toFixed(1)}</td>
+        <td style="color:${heatWht(r.poss,mnPos,mxPos)};font-weight:600">${r.poss>0?Math.round(r.poss):'\u2014'}</td>
+        <td style="color:${heatRG(r.pm,mnPm,mxPm)};font-weight:700">${sign(r.pm)}${r.pm}</td>
+        <td style="color:${heatPur(r.offrtg,mnOff,mxOff)};font-weight:700">${fRtg(r.offrtg)}</td>
+        <td style="color:${heatTeal(r.defrtg,mnDef,mxDef)};font-weight:700">${fRtg(r.defrtg)}</td>
+        <td style="color:${heatRG(r.net,mnNet,mxNet)};font-weight:700">${sign(r.net)}${fRtg(r.net)}</td>
+        <td style="color:${heatPur(r.fgpct,mnFg,mxFg)};font-weight:600">${fPct(r.fgpct)}</td>
+        <td style="color:${heatPur(r.fg3pct,mnFg3,mxFg3)};font-weight:600">${fPct(r.fg3pct)}</td>
+        <td style="color:${heatPur(r.ast100,mnAst,mxAst)};font-weight:600">${fPct(r.ast100)}</td>
+        <td style="color:${heatTeal(r.tovpct,mnTov,mxTov)};font-weight:600">${fPct(r.tovpct)}</td>
+        <td style="color:${heatPur(r.orebpct,mnOreb,mxOreb)};font-weight:600">${fPct(r.orebpct)}</td>
+        <td style="color:${heatTeal(r.drebpct,mnDreb,mxDreb)};font-weight:600">${fPct(r.drebpct)}</td>
+        <td style="color:${heatWht(r.fg3rate,mnFg3r,mxFg3r)};font-weight:600">${fPct(r.fg3rate)}</td>
+        <td style="color:${heatPur(r.ftr,mnFtr,mxFtr)};font-weight:600">${fRat(r.ftr)}</td>
+      </tr>`;
+    }).join('');
+    return;
+  }
+
+  const tmap=dataMap.get(teamSel);
+  if(!tmap||tmap.size===0){emptyEl.textContent='No hay datos de jugada a jugada para este equipo.';emptyEl.style.display='';contentEl.style.display='none';loadingEl.style.display='none';countEl.textContent='';return;}
+
+  let rows=[];
+  tmap.forEach(v=>{const row=_sublineupRowStats(v);if(row.min>=minMin)rows.push(row);});
+  rows.sort((a,b)=>{if(sortKey==='players'){const cmp=a.players.join('').localeCompare(b.players.join(''));return sortDir==='asc'?cmp:-cmp;}return sortDir==='asc'?a[sortKey]-b[sortKey]:b[sortKey]-a[sortKey];});
+
+  loadingEl.style.display='none'; emptyEl.style.display='none'; contentEl.style.display='';
+  countEl.innerHTML=`${rows.length} ${leagueLabel} <span style="display:inline-flex;align-items:center;gap:4px;color:var(--purple-l)">&middot; ${teamLogoHtml(teamSel)}${teamSel}</span>`;
+
+  const vr=rows.filter(r=>r.poss>0);
+  const cr=key=>{const vs=vr.map(r=>r[key]).filter(v=>v!==0);return vs.length?[Math.min(...vs),Math.max(...vs)]:[0,0];};
+  const[mnMin2,mxMin2]=cr('min'),[mnPos,mxPos]=cr('poss'),[mnPm,mxPm]=cr('pm'),
+       [mnOff,mxOff]=cr('offrtg'),[mnDef,mxDef]=cr('defrtg'),[mnNet,mxNet]=cr('net'),
+       [mnFg,mxFg]=cr('fgpct'),[mnFg3,mxFg3]=cr('fg3pct'),[mnAst,mxAst]=cr('ast100'),
+       [mnTov,mxTov]=cr('tovpct'),[mnOreb,mxOreb]=cr('orebpct'),[mnDreb,mxDreb]=cr('drebpct'),
+       [mnFg3r,mxFg3r]=cr('fg3rate'),[mnFtr,mxFtr]=cr('ftr');
+
+  const TEAM_COLS=[{key:'team',label:'Equipo',align:'left',tip:'Equipo al que pertenecen los jugadores'},...SUBLINEUP_COLS];
+  theadEl.innerHTML='<tr>'+TEAM_COLS.map(c=>{
+    const sorted=c.key===sortKey;
+    const arrow=sorted?(sortDir==='asc'?' \u2191':' \u2193'):'';
+    const onclick=c.key==='team'?'':` onclick="${leagueLabel==='tr\u00edos'?'trioSortBy':'dupSortBy'}('${c.key}')"`;
+    return `<th class="qnt-th${sorted?' qnt-sorted':''}" style="text-align:${c.align}"${onclick} data-tip="${c.tip}">${c.label}${arrow}</th>`;
+  }).join('')+'</tr>';
+
+  if(!rows.length){tbodyEl.innerHTML=`<tr><td colspan="${TEAM_COLS.length}" style="text-align:center;color:var(--muted);padding:32px">No hay ${leagueLabel} con ${minMin}+ minutos juntos.</td></tr>`;return;}
+
+  tbodyEl.innerHTML=rows.map((r,i)=>{
+    const ph=r.players.map(p=>`<span class="qnt-player">${formatPlayerShort(p)}</span>`).join('');
+    return `<tr style="background:${i%2===0?'rgba(139,92,246,.04)':'rgba(255,255,255,.015)'}">
+      <td><span style="display:flex;align-items:center;gap:5px">${teamLogoHtml(teamSel)}${teamSel}</span></td>
+      <td><div class="qnt-players">${ph}</div></td>
+      <td style="color:${heatWht(r.min,mnMin2,mxMin2)};font-weight:600">${r.min.toFixed(1)}</td>
+      <td style="color:${heatWht(r.poss,mnPos,mxPos)};font-weight:600">${r.poss>0?Math.round(r.poss):'\u2014'}</td>
+      <td style="color:${heatRG(r.pm,mnPm,mxPm)};font-weight:700">${sign(r.pm)}${r.pm}</td>
+      <td style="color:${heatPur(r.offrtg,mnOff,mxOff)};font-weight:700">${fRtg(r.offrtg)}</td>
+      <td style="color:${heatTeal(r.defrtg,mnDef,mxDef)};font-weight:700">${fRtg(r.defrtg)}</td>
+      <td style="color:${heatRG(r.net,mnNet,mxNet)};font-weight:700">${sign(r.net)}${fRtg(r.net)}</td>
+      <td style="color:${heatPur(r.fgpct,mnFg,mxFg)};font-weight:600">${fPct(r.fgpct)}</td>
+      <td style="color:${heatPur(r.fg3pct,mnFg3,mxFg3)};font-weight:600">${fPct(r.fg3pct)}</td>
+      <td style="color:${heatPur(r.ast100,mnAst,mxAst)};font-weight:600">${fPct(r.ast100)}</td>
+      <td style="color:${heatTeal(r.tovpct,mnTov,mxTov)};font-weight:600">${fPct(r.tovpct)}</td>
+      <td style="color:${heatPur(r.orebpct,mnOreb,mxOreb)};font-weight:600">${fPct(r.orebpct)}</td>
+      <td style="color:${heatTeal(r.drebpct,mnDreb,mxDreb)};font-weight:600">${fPct(r.drebpct)}</td>
+      <td style="color:${heatWht(r.fg3rate,mnFg3r,mxFg3r)};font-weight:600">${fPct(r.fg3rate)}</td>
+      <td style="color:${heatPur(r.ftr,mnFtr,mxFtr)};font-weight:600">${fRat(r.ftr)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function _sublineupInit(prefix, renderFn) {
+  const sel = document.getElementById(prefix + 'Team');
+  if (sel.options.length <= 1) {
+    [...new Set(TEAMS.map(t=>t.Equipo))].sort().forEach(eq => {
+      const o = document.createElement('option'); o.value = eq; o.textContent = eq;
+      sel.appendChild(o);
+    });
+  }
+  if (PBP_MAP === null) {
+    document.getElementById(prefix + 'Loading').style.display = '';
+    document.getElementById(prefix + 'Empty').style.display = 'none';
+    loadPbp().then(() => {
+      if (LINEUP_DATA === null) computeLineups();
+      if (TRIO_DATA === null)   TRIO_DATA  = computeSublineups(3);
+      if (DUPLA_DATA === null)  DUPLA_DATA = computeSublineups(2);
+      renderFn();
+    });
+  } else {
+    if (LINEUP_DATA === null) computeLineups();
+    if (TRIO_DATA === null)   TRIO_DATA  = computeSublineups(3);
+    if (DUPLA_DATA === null)  DUPLA_DATA = computeSublineups(2);
+    renderFn();
+  }
+}
+
+function trioInit()  { _sublineupInit('trio', renderTrios);  }
+function dupInit()   { _sublineupInit('dup',  renderDuplas); }
+
+function trioSortBy(col) {
+  if (trioSort === col) trioDir = trioDir === 'asc' ? 'desc' : 'asc';
+  else { trioSort = col; trioDir = col === 'players' ? 'asc' : 'desc'; }
+  renderTrios();
+}
+function dupSortBy(col) {
+  if (dupSort === col) dupDir = dupDir === 'asc' ? 'desc' : 'asc';
+  else { dupSort = col; dupDir = col === 'players' ? 'asc' : 'desc'; }
+  renderDuplas();
+}
+
+async function onTrioTeamChange() {
+  if (PBP_MAP === null) {
+    document.getElementById('trioLoading').style.display = '';
+    document.getElementById('trioEmpty').style.display = 'none';
+    document.getElementById('trioContent').style.display = 'none';
+    await loadPbp();
+  }
+  if (LINEUP_DATA === null) computeLineups();
+  if (TRIO_DATA === null) TRIO_DATA = computeSublineups(3);
+  renderTrios();
+}
+
+async function onDupTeamChange() {
+  if (PBP_MAP === null) {
+    document.getElementById('dupLoading').style.display = '';
+    document.getElementById('dupEmpty').style.display = 'none';
+    document.getElementById('dupContent').style.display = 'none';
+    await loadPbp();
+  }
+  if (LINEUP_DATA === null) computeLineups();
+  if (DUPLA_DATA === null) DUPLA_DATA = computeSublineups(2);
+  renderDuplas();
+}
+
+function renderTrios() {
+  if (!TRIO_DATA) return;
+  _renderSublineupTable(
+    TRIO_DATA,
+    document.getElementById('trioTeam').value,
+    parseFloat(document.getElementById('trioMinMin').value) || 5,
+    trioSort, trioDir,
+    {
+      emptyEl:   document.getElementById('trioEmpty'),
+      loadingEl: document.getElementById('trioLoading'),
+      contentEl: document.getElementById('trioContent'),
+      countEl:   document.getElementById('trioCount'),
+      theadEl:   document.getElementById('trioThead'),
+      tbodyEl:   document.getElementById('trioTbody'),
+    },
+    'tr\u00edos'
+  );
+}
+
+function renderDuplas() {
+  if (!DUPLA_DATA) return;
+  _renderSublineupTable(
+    DUPLA_DATA,
+    document.getElementById('dupTeam').value,
+    parseFloat(document.getElementById('dupMinMin').value) || 5,
+    dupSort, dupDir,
+    {
+      emptyEl:   document.getElementById('dupEmpty'),
+      loadingEl: document.getElementById('dupLoading'),
+      contentEl: document.getElementById('dupContent'),
+      countEl:   document.getElementById('dupCount'),
+      theadEl:   document.getElementById('dupThead'),
+      tbodyEl:   document.getElementById('dupTbody'),
+    },
+    'duplas'
+  );
 }
 
 // ============================================================

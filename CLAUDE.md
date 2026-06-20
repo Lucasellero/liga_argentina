@@ -387,9 +387,9 @@ La tabla `j-tabla` tiene un toggle adicional: **Todos / Local / Visitante**.
 - Media cancha coloreada por zonas de eficiencia vs promedio de liga
 - **Filtro de período**: toggle **Temporada / Últ. 5 / Últ. 10** en el `.szc-header` (junto al buscador). Estado: `szcPeriod` (`'all'|'last5'|'last10'`), jugador activo: `szcCurrentIdx`.
   - `setSzcPeriod(p)`: actualiza estado, botón activo, y re-renderiza si hay jugador seleccionado.
-  - `szcFilterByPeriod(shots, period, gameIds)`: filtra tiros a los últimos N partidos. Acepta un tercer argumento `gameIds` (array de `IdPartido` ya ordenados cronológicamente desde `player._gameIds`). Si `gameIds` está presente, usa `gameIds.slice(-n)` como fuente de verdad — esto garantiza que "último 5" coincida exactamente con la tabla de jugadores. Sin `gameIds` (fallback), deriva los partidos del shots CSV ordenando fechas con `new Date(ay,am-1,ad)` (DD/MM/YYYY). **No usar comparación lexicográfica sobre strings DD/MM/YYYY** — da resultados incorrectos entre fechas de distintos meses.
-  - `player._gameIds`: array de `IdPartido` (strings) correspondiente a `player._games`, en orden cronológico ascendente. Se computa en `initApp()` junto a `_last5`/`_last10`. Permite que `szcFilterByPeriod` use la misma ventana de partidos que la tabla.
-  - `szcPlayerGameIds`: variable global (inicialmente `null`) que se actualiza en `selectSzcPlayer()` con `player._gameIds`. Se pasa a todas las llamadas de `szcFilterByPeriod` (incluyendo las de `renderZoneChart` para las zone cards).
+  - `szcFilterByPeriod(shots, period, gameIds)`: filtra tiros a los últimos N partidos. Acepta un tercer argumento `gameIds` (array de `IdPartido` del shots CSV, ordenados cronológicamente). Si `gameIds` está presente, usa `gameIds.slice(-n)` como fuente de verdad. Sin `gameIds` (fallback), deriva los partidos del shots CSV ordenando fechas con `new Date(ay,am-1,ad)` (DD/MM/YYYY). **No usar comparación lexicográfica sobre strings DD/MM/YYYY** — da resultados incorrectos entre fechas de distintos meses.
+  - `player._gameIds`: array de `IdPartido` del **stats CSV**, en orden cronológico ascendente. Se computa en `initApp()` junto a `_last5`/`_last10`. **No usar directamente para filtrar shots** — los IDs dinámicos pueden diferir entre CSVs (ver sección "IDs dinámicos").
+  - `szcPlayerGameIds`: variable global (inicialmente `null`) que se reconstruye en `selectSzcPlayer()` usando **IDs del shots CSV** (no `player._gameIds`). Se construye mapeando cada entrada de `player._games` a su shots ID via clave estable `fecha|local|visit`. Se pasa a todas las llamadas de `szcFilterByPeriod` (incluyendo las de `renderZoneChart` para las zone cards).
 - **Filtro Local/Visitante**: toggle **Todos / Local / Visitante** en el `.szc-header` (junto al filtro de período). Por defecto "Todos".
   - Estado: `szcLocVis` (`'all'|'local'|'visit'`).
   - `szcApplyLocVis(shots)`: filtra por `s['Local'] === 'True'` (local) o `'False'` (visitante). Devuelve el array sin modificar si `szcLocVis === 'all'`.
@@ -450,7 +450,7 @@ Versión consolidada de `j-tiro` para un equipo completo. Misma lógica de zonas
   - `onTzcTeamChange()` aplica `tzcApplyLocVis` sobre `filteredShots` antes de `szcFilterByPeriod`. `renderTzcZoneChart()` aplica `tzcApplyLocVis` sobre `tzcTeamAllShots` al recomputar las zone cards.
   - Los badges 2PT/3PT del header de equipo también reflejan solo los tiros de la condición seleccionada.
 - **Recolección de tiros on-demand**: en lugar de un `SHOTS_BY_TEAM` separado, `onTzcTeamChange()` itera `SHOTS_MAP` y filtra `s['Equipo'] === teamName`. Esto evita modificar la función `loadShots()` ya existente.
-- **Ventana temporal para Últ. 5 / Últ. 10**: usa `team._gamelog.map(g => g.gameId)` (array ya ordenado cronológicamente por `buildRAW_T`) como `tzcTeamGameIds`, igual que `player._gameIds` en `j-tiro`. Se pasa a `szcFilterByPeriod(shots, period, tzcTeamGameIds)`.
+- **Ventana temporal para Últ. 5 / Últ. 10**: `tzcTeamGameIds` se construye en `onTzcTeamChange()` usando **IDs del shots CSV** (no `team._gamelog[].gameId`). Se mapea cada entrada del gamelog a su shots ID via clave estable `fecha|local|visit`. Se pasa a `szcFilterByPeriod(shots, period, tzcTeamGameIds)`. **No usar `team._gamelog.map(g => g.gameId)` directamente** — los IDs dinámicos pueden diferir entre CSVs (ver sección "IDs dinámicos").
 - **SVG overlay**: reutiliza `szcUpdateSvg(pStats, leagueStats, 'tzcSvg')` — el tercer argumento opcional `svgId` fue agregado a esa función para soportar ambas variantes sin duplicar código.
 - **Panel lateral de zonas**: `tzcRenderZoneCards(statsAll, statsL10, statsL5, LEAGUE_ZONE_STATS)` — espejo de `szcRenderZoneCards` pero con ID `#tzcZoneCards` y estado `tzcPeriod`.
 - **Canvas / SVG CSS**: `#tzcCanvas` y `#tzcSvg` tienen las mismas reglas que `#szcCanvas` / `#szcSvg`. En particular `#tzcSvg` necesita `position:absolute;top:0;left:0;width:100%;height:100%` para superponerse sobre el canvas como overlay.
@@ -771,6 +771,22 @@ Mismo esquema y formato que los demás PBP CSVs.
   python3 -c "import pandas as pd; df=pd.read_csv('docs/liga_nacional/liga_nacional_pbp.csv'); df.drop_duplicates(inplace=True); df.to_csv('docs/liga_nacional/liga_nacional_pbp.csv', index=False)"
   ```
 
+**Secciones "Tríos" (`trios`) y "Duplas" (`duplas`) — Liga Argentina:**
+- Selector de equipo + filtro de minutos mínimos (2/5/10/20 min, default 5)
+- Primera opción del selector: `'Toda la liga'` (valor `''`) — muestra el top 20 de tríos/duplas de toda la liga ordenados por minutos totales.
+- Carga lazy del PBP; `computeLineups()` se ejecuta si `LINEUP_DATA === null`. Luego se computan `TRIO_DATA` y `DUPLA_DATA` con `computeSublineups(3)` y `computeSublineups(2)`.
+- `computeSublineups(size)` — itera `LINEUP_DATA` y genera todas las combinaciones de `size` jugadores por quinteto; acumula los mismos campos que `LINEUP_DATA` (secs, pf, pa, fga, fgm, …). Devuelve `Map<teamName, Map<comboKey, stats>>`.
+- `_renderSublineupTable(dataMap, teamSel, minMin, sortKey, sortDir, ids, leagueLabel)` — función compartida para tríos y duplas:
+  - **Vista "Toda la liga"** (`teamSel === ''`): muestra top 20 por minutos. Columnas: `LEAGUE_COLS` = `[Equipo, ...SUBLINEUP_COLS]`. Thead y tbody incluyen la columna `Equipo` con logo.
+  - **Vista de equipo específico** (`teamSel` no vacío): filtra `dataMap.get(teamSel)`, orderable por cualquier columna. Columnas: `TEAM_COLS` = `[Equipo, ...SUBLINEUP_COLS]`. Thead y tbody también incluyen la columna `Equipo` con logo (mismo equipo en todas las filas). El `countEl` muestra `"N tríos · [logo] EQUIPO"`.
+- `SUBLINEUP_COLS` — array de 15 columnas: `Jugadores, Min, Pos, +/-, OffRtg, DefRtg, Net, TC%, 3P%, AST%, TOV%, ORB%, DReb%, 3PA Rate, FTr`. Mismas fórmulas que Quintetos.
+- `trioSortBy(col)` / `dupSortBy(col)` — alternan dirección de sort; solo aplican en la vista de equipo específico.
+- Estado global: `TRIO_DATA`, `DUPLA_DATA`, `trioSort`, `trioDir`, `dupSort`, `dupDir`.
+
+**Bug corregido (junio 2026) — columna Equipo faltante en vista de equipo específico:**
+Al seleccionar un equipo en Tríos o Duplas, la tabla renderizaba sin la columna `Equipo`, usando `SUBLINEUP_COLS` directamente tanto para el thead como para el tbody (15 `<td>`). El `countEl` tampoco mostraba el nombre del equipo. La vista "Toda la liga" sí incluía `LEAGUE_COLS` con la columna `Equipo`.
+**Fix**: en la ruta de equipo específico, se usa `TEAM_COLS = [Equipo, ...SUBLINEUP_COLS]` para el thead (con columna `Equipo` no-sortable), se añade `<td>` de equipo con logo como primer elemento de cada fila del tbody, y se actualiza `countEl.innerHTML` para mostrar `"N tríos · [logo] EQUIPO"`.
+
 **Sección "Conexiones Equipo" (`t-conexiones`):**
 - Selector de equipo → tabla con las 10 duplas de mayor conexión del equipo
 - Carga lazy del PBP (igual que Quintetos y `j-conexiones`). `computeLineups()` se ejecuta si `LINEUP_DATA === null`.
@@ -964,6 +980,31 @@ print(f'Después: {len(df)} filas')
 - PBP scraper reporta muchos más partidos que el fixture real (~390 para Liga Nacional)
 - El CSV de stats tiene más de ~10.000 filas (Liga Nacional, temporada completa ≈ 9.800 filas)
 - `data_scraper_nacional.py` reporta `Ya cacheados: 0` teniendo un CSV existente
+
+### Fix JS — shots no se mostraban en j-tiro y t-tiro (junio 2026)
+
+El mismo problema de IDs dinámicos afectaba al **frontend de Liga Nacional**. `selectSzcPlayer()` filtraba los tiros del jugador comparando `player._gameIds` (IDs del stats CSV) contra `s['IdPartido']` de cada tiro (ID del shots CSV). Como los dos CSVs se scrapean en momentos distintos, los IDs no coincidían y se descartaba ~50% de los tiros (23 de 47 partidos de BOCA quedaban fuera).
+
+**Fix aplicado en todos los JS de liga (`liga_nacional.js`, `liga_argentina.js`, `liga_femenina.js`, `liga_proximo.js`):**
+
+**Parte 1 — j-tiro y t-tiro (acceso por jugador/equipo):**
+- **`selectSzcPlayer` (j-tiro)**: reemplaza el filtro por ID con filtro por clave estable `fecha|Equipo_local|Equipo_visitante`, construida desde `player._games`. `szcPlayerGameIds` se reconstruye usando los IDs reales del shots CSV (no `player._gameIds`) para que el filtro de período también funcione.
+- **`onTzcTeamChange` (t-tiro)**: mismo fix. El filtro de `filteredShots` usa clave estable derivada del gamelog del equipo. `tzcTeamGameIds` se reconstruye con los IDs del shots CSV en orden cronológico.
+
+**Parte 2 — modal de partido: mapa de tiro y evolución del marcador (junio 2026):**
+
+El modal de partido también usaba `IdPartido` del stats CSV para hacer lookups en los otros CSVs:
+- **`renderShotMap`**: buscaba `SHOTS_MAP.get(gameId)` con el ID del stats CSV. `SHOTS_MAP` está indexado por el ID del shots CSV. → mapa de tiro vacío en el modal.
+- **`computeScoreDelta`**: buscaba `PBP_MAP.get(gameId)` con el ID del stats CSV. `PBP_MAP` está indexado por el ID del PBP CSV. → gráfico de evolución vacío.
+
+**Solución**: construir mapas paralelos indexados por clave estable:
+- `SHOTS_STABLE_MAP = Map<"fecha|local|visit" → rows[]>` — construido en `loadShots()`.
+- `PBP_STABLE_MAP = Map<"fecha|local|visit" → rows[]>` — construido en `loadPbp()`.
+- `_smState.fecha` agregado al estado del modal y propagado desde `openPartidoModal(game)` y `showGameDetail(g, ...)`.
+- `renderShotMap`: usa `SHOTS_STABLE_MAP.get(fecha + '|' + local + '|' + visit)`.
+- `computeScoreDelta(gameId, stableKey)`: acepta `stableKey` opcional; prefiere `PBP_STABLE_MAP.get(stableKey)` sobre `PBP_MAP.get(gameId)`.
+
+**Regla**: cada vez que se crucen datos entre CSVs (stats ↔ shots ↔ PBP), usar clave estable `fecha|local|visit` y NO `IdPartido`. Los mapas primarios (`SHOTS_MAP`, `PBP_MAP`) se mantienen por compatibilidad interna pero no deben usarse para lookups cross-CSV.
 
 ### Efecto secundario: cleanup de partidos excluidos
 El script de exclusión documentado en "Partidos a excluir" también usaba `IdPartido` → no eliminaba nada. Si el workflow corrió varias veces antes del fix, los partidos excluidos (Copa Malvinas, Boca vs Instituto) pueden seguir en el CSV. Verificar con:

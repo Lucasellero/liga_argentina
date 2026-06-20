@@ -352,7 +352,8 @@ let jHov=-1, jPin=new Set(), tHov=-1, tPin=-1;
 
 // ── SHOTS DATA ──────────────────────────────────────
 const SHOTS_CSV = 'liga_argentina_shots.csv';
-let SHOTS_MAP = null; // null=not loaded, Map keyed by gameId
+let SHOTS_MAP = null;        // null=not loaded, Map keyed by shots CSV IdPartido
+let SHOTS_STABLE_MAP = null; // Map keyed by "fecha|local|visit" (cross-CSV stable key)
 let SHOTS_BY_PLAYER = null; // Map keyed by "Equipo||Dorsal"
 let LEAGUE_ZONE_STATS = null;
 let tzcPeriod='all';
@@ -360,7 +361,7 @@ let tzcLocVis='all';
 let tzcCurrentTeam=null;
 let tzcTeamAllShots=[];
 let tzcTeamGameIds=null;
-let _smState = { gameId: null, local: '', visit: '', focusTeam: null, filter: { team: 'all', tipo: 'all', result: 'all' } };
+let _smState = { gameId: null, fecha: null, local: '', visit: '', focusTeam: null, filter: { team: 'all', tipo: 'all', result: 'all' } };
 
 const f2=v=>v==null||isNaN(v)?'—':v.toFixed(2);
 const f1=v=>v==null||isNaN(v)?'—':v.toFixed(1);
@@ -1767,12 +1768,17 @@ async function loadShots() {
     const text = await resp.text();
     const rows = parseCSV(text);
     SHOTS_MAP = new Map();
+    SHOTS_STABLE_MAP = new Map();
     SHOTS_BY_PLAYER = new Map();
     rows.forEach(r => {
       const gid = r['IdPartido'];
       if (!gid) return;
       if (!SHOTS_MAP.has(gid)) SHOTS_MAP.set(gid, []);
       SHOTS_MAP.get(gid).push(r);
+      // Stable cross-CSV key: IdPartido is dynamic; use fecha|local|visit instead
+      const skey = r['Fecha'] + '|' + r['Equipo_local'] + '|' + r['Equipo_visitante'];
+      if (!SHOTS_STABLE_MAP.has(skey)) SHOTS_STABLE_MAP.set(skey, []);
+      SHOTS_STABLE_MAP.get(skey).push(r);
       // Index by player: Equipo||Dorsal (normalised to integer string)
       const dNum = String(Math.round(parseFloat(r['Dorsal']) || 0));
       const pkey = r['Equipo'] + '||' + dNum;
@@ -1781,6 +1787,7 @@ async function loadShots() {
     });
   } catch(e) {
     SHOTS_MAP = new Map(); // empty map on error
+    SHOTS_STABLE_MAP = new Map();
     SHOTS_BY_PLAYER = new Map();
   }
 }
@@ -1816,14 +1823,16 @@ function renderShotMap() {
   const canvas = document.getElementById('shotMapCanvas');
   const noData = document.getElementById('smNoData');
   const legend = document.getElementById('smLegend');
-  const { gameId, local, visit, filter } = _smState;
+  const { fecha, local, visit, filter } = _smState;
 
   // Size canvas to match CSS width, derive height from 28:15 aspect ratio
   const W = canvas.offsetWidth || 600;
   const H = Math.round(W * 15 / 28);
   canvas.width = W; canvas.height = H;
 
-  const shots = SHOTS_MAP ? (SHOTS_MAP.get(gameId) || []) : [];
+  // Use stable key (fecha|local|visit) — IdPartido is dynamic between CSVs
+  const _smSkey = fecha + '|' + local + '|' + visit;
+  const shots = SHOTS_STABLE_MAP ? (SHOTS_STABLE_MAP.get(_smSkey) || []) : [];
 
   if (!shots.length) {
     noData.style.display = '';
@@ -1999,6 +2008,7 @@ function openPartidoModal(game) {
   _partidoMode = true;
   // Set shot map state
   _smState.gameId    = game.gameId;
+  _smState.fecha     = game.fecha || null;
   _smState.local     = game.local;
   _smState.visit     = game.visit;
   _smState.focusTeam = game.local;
@@ -2138,9 +2148,11 @@ function renderBoxScore(gameId, localTeam, visitTeam) {
 }
 
 // ── EVOLUCIÓN DE PARTIDO ──────────────────────────────────────
-function computeScoreDelta(gameId) {
-  if (!PBP_MAP) return null;
-  const events = PBP_MAP.get(gameId);
+function computeScoreDelta(gameId, stableKey) {
+  if (!PBP_MAP && !PBP_STABLE_MAP) return null;
+  // Prefer stable key (fecha|local|visit) to avoid cross-CSV dynamic ID mismatch
+  const events = (PBP_STABLE_MAP && stableKey ? PBP_STABLE_MAP.get(stableKey) : null)
+              || (PBP_MAP ? PBP_MAP.get(gameId) : null);
   if (!events || !events.length) return null;
 
   // Walk events in order, tracking running score at each second-elapsed bucket
@@ -2190,7 +2202,8 @@ function renderScoreDelta(gameId, localTeam, visitTeam) {
   const teamB     = invert ? localTeam : visitTeam;
 
   const doRender = () => {
-    let data = computeScoreDelta(gameId);
+    const _evolSkey = _smState.fecha ? _smState.fecha + '|' + localTeam + '|' + visitTeam : null;
+    let data = computeScoreDelta(gameId, _evolSkey);
     if (!data || !data.length) {
       panel.innerHTML = `<div class="evol-empty">No hay datos de evolución para este partido.</div>`;
       return;
@@ -2537,6 +2550,7 @@ function showGameDetail(g, teamName) {
   // Store state for shot map
   const isLocal = g.condicion === 'LOCAL';
   _smState.gameId    = g.gameId || null;
+  _smState.fecha     = g.fecha  || null;
   _smState.local     = isLocal ? teamName : g.rival;
   _smState.visit     = isLocal ? g.rival  : teamName;
   _smState.focusTeam = teamName;
@@ -3563,7 +3577,8 @@ function onTzcTeamChange() {
 // QUINTETOS
 // ============================================================
 const PBP_CSV = 'https://repsndqhmyklxukffovf.supabase.co/storage/v1/object/public/pbp/liga_argentina_pbp.csv';
-let PBP_MAP = null;    // null=not loaded, Map<gameId, rows[]>
+let PBP_MAP = null;        // null=not loaded, Map<gameId, rows[]> keyed by PBP CSV IdPartido
+let PBP_STABLE_MAP = null; // Map keyed by "fecha|local|visit" (cross-CSV stable key)
 let LINEUP_DATA = null; // Map<teamName, Map<lineupKey, {players,secs,pf,pa,games}>>
 let qntSort = 'min', qntDir = 'desc';
 
@@ -3575,12 +3590,17 @@ async function loadPbp() {
     const text = await resp.text();
     const rows = parseCSV(text);
     PBP_MAP = new Map();
+    PBP_STABLE_MAP = new Map();
     rows.forEach(r => {
       const gid = r['IdPartido']; if (!gid) return;
       if (!PBP_MAP.has(gid)) PBP_MAP.set(gid, []);
       PBP_MAP.get(gid).push(r);
+      // Stable cross-CSV key: IdPartido is dynamic; use fecha|local|visit instead
+      const skey = r['Fecha'] + '|' + r['Equipo_local'] + '|' + r['Equipo_visitante'];
+      if (!PBP_STABLE_MAP.has(skey)) PBP_STABLE_MAP.set(skey, []);
+      PBP_STABLE_MAP.get(skey).push(r);
     });
-  } catch(e) { PBP_MAP = new Map(); }
+  } catch(e) { PBP_MAP = new Map(); PBP_STABLE_MAP = new Map(); }
 }
 
 // Convert period + time-remaining string "MM:SS" to total elapsed seconds
@@ -4170,7 +4190,7 @@ function _renderSublineupTable(dataMap, teamSel, minMin, sortKey, sortDir, ids, 
   });
 
   loadingEl.style.display = 'none'; emptyEl.style.display = 'none'; contentEl.style.display = '';
-  countEl.textContent = rows.length + ' ' + leagueLabel;
+  countEl.innerHTML = `${rows.length} ${leagueLabel} <span style="display:inline-flex;align-items:center;gap:4px;color:var(--purple-l)">&middot; ${teamLogoHtml(teamSel)}${teamSel}</span>`;
 
   const vr = rows.filter(r => r.poss > 0);
   const cr = key => { const vs=vr.map(r=>r[key]).filter(v=>v!==0); return vs.length?[Math.min(...vs),Math.max(...vs)]:[0,0]; };
@@ -4180,20 +4200,23 @@ function _renderSublineupTable(dataMap, teamSel, minMin, sortKey, sortDir, ids, 
         [mnTov,mxTov]=cr('tovpct'),[mnOreb,mxOreb]=cr('orebpct'),[mnDreb,mxDreb]=cr('drebpct'),
         [mnFg3r,mxFg3r]=cr('fg3rate'),[mnFtr,mxFtr]=cr('ftr');
 
-  theadEl.innerHTML = '<tr>' + SUBLINEUP_COLS.map(c => {
+  const TEAM_COLS = [{ key:'team', label:'Equipo', align:'left', tip:'Equipo al que pertenecen los jugadores' }, ...SUBLINEUP_COLS];
+  theadEl.innerHTML = '<tr>' + TEAM_COLS.map(c => {
     const sorted = c.key === sortKey;
     const arrow = sorted ? (sortDir === 'asc' ? ' ↑' : ' ↓') : '';
-    return `<th class="qnt-th${sorted?' qnt-sorted':''}" style="text-align:${c.align}" onclick="${leagueLabel==='tríos'?'trioSortBy':'dupSortBy'}('${c.key}')" data-tip="${c.tip}">${c.label}${arrow}</th>`;
+    const onclick = c.key === 'team' ? '' : ` onclick="${leagueLabel==='tríos'?'trioSortBy':'dupSortBy'}('${c.key}')"`;
+    return `<th class="qnt-th${sorted?' qnt-sorted':''}" style="text-align:${c.align}"${onclick} data-tip="${c.tip}">${c.label}${arrow}</th>`;
   }).join('') + '</tr>';
 
   if (!rows.length) {
-    tbodyEl.innerHTML = `<tr><td colspan="${SUBLINEUP_COLS.length}" style="text-align:center;color:var(--muted);padding:32px">No hay ${leagueLabel} con ${minMin}+ minutos juntos.</td></tr>`;
+    tbodyEl.innerHTML = `<tr><td colspan="${TEAM_COLS.length}" style="text-align:center;color:var(--muted);padding:32px">No hay ${leagueLabel} con ${minMin}+ minutos juntos.</td></tr>`;
     return;
   }
 
   tbodyEl.innerHTML = rows.map((r, i) => {
     const ph = r.players.map(p => `<span class="qnt-player">${formatPlayerShort(p)}</span>`).join('');
     return `<tr style="background:${i%2===0?'rgba(139,92,246,.04)':'rgba(255,255,255,.015)'}">
+      <td><span style="display:flex;align-items:center;gap:5px">${teamLogoHtml(teamSel)}${teamSel}</span></td>
       <td><div class="qnt-players">${ph}</div></td>
       <td style="color:${heatWht(r.min,mnMin2,mxMin2)};font-weight:600">${r.min.toFixed(1)}</td>
       <td style="color:${heatWht(r.poss,mnPos,mxPos)};font-weight:600">${r.poss>0?Math.round(r.poss):'—'}</td>
