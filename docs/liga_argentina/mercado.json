@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-25T16:47:02.082191+00:00",
+  "updated_at": "2026-07-25T20:41:43.261988+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -204,7 +204,7 @@
       "id": "quilmes_mdp",
       "name": "Quilmes",
       "team": "QUILMES (MDP)",
-      "pct": 42,
+      "pct": 50,
       "coach": "Sebastián Saborido",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2028,14 +2028,14 @@
       "name": "Bryce Beamer",
       "position": "alero",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "27",
       "height": "1.97",
       "last_club": "Cordón (Uruguay)",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Bryce-Beamer-Quilmes.jpg",
-      "updated_at": "2026-07-22 11:13:46"
+      "updated_at": "2026-07-25 14:08:38"
     },
     {
       "id": "p_b5601623-4cc7-4437-aef1-3e0fee6eef16",
