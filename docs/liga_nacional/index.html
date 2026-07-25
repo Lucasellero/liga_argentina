@@ -28,6 +28,112 @@
   }
 </script>
 <style>
+/* ── MERCADO ─────────────────────────────────────── */
+.mkt-header{position:relative;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:10px;min-height:26px;}
+.mkt-header-center{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.mkt-title{font-size:1.2rem;font-weight:800;color:var(--text-bright);letter-spacing:-.3px;text-align:center;}
+.mkt-insight{font-size:.74rem;color:var(--muted);text-align:center;}
+.mkt-insight b{color:var(--text-bright);font-weight:700;}
+
+.mkt-progress-wrap{max-width:620px;margin:0 auto 22px;}
+.mkt-progress-bar{display:flex;height:7px;border-radius:5px;overflow:hidden;background:var(--surface2);border:1px solid var(--border2);}
+.mkt-progress-seg{height:100%;transition:width .3s;}
+.mkt-progress-seg:not(:last-child){border-right:1px solid rgba(0,0,0,.25);}
+.mkt-progress-legend{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:9px;font-size:.66rem;color:var(--muted);}
+.mkt-progress-legend .dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;}
+.mkt-progress-legend b{color:var(--text-bright);font-weight:700;}
+
+.mkt-layout{display:grid;grid-template-columns:280px 1fr;gap:18px;align-items:start;}
+.mkt-clubs-panel{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:12px;max-height:900px;overflow-y:auto;}
+.mkt-panel-title{font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:4px 6px 10px;}
+.mkt-club-group-title{font-size:.64rem;font-weight:700;color:var(--purple-l);text-transform:uppercase;letter-spacing:.5px;padding:10px 8px 5px;}
+.mkt-club-group-title:first-child{padding-top:2px;}
+.mkt-club-row{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:9px;padding:8px 8px;border-radius:10px;cursor:pointer;margin-bottom:3px;border:1px solid transparent;transition:background .12s;}
+.mkt-club-row:hover{background:rgba(139,92,246,.08);}
+.mkt-club-row.active{background:rgba(139,92,246,.16);border-color:rgba(139,92,246,.35);}
+.mkt-club-row img{width:26px;height:26px;object-fit:contain;flex-shrink:0;}
+.mkt-club-row .mkt-club-noimg{width:26px;height:26px;border-radius:6px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:800;color:var(--muted);}
+.mkt-club-name{font-size:.76rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mkt-club-pct-wrap{display:flex;align-items:center;gap:6px;}
+.mkt-club-pct-bar{width:34px;height:4px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;}
+.mkt-club-pct-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--teal));border-radius:3px;}
+.mkt-club-pct-val{font-size:.62rem;color:var(--muted);font-weight:700;width:26px;text-align:right;}
+
+.mkt-main{min-width:0;}
+.mkt-filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+.mkt-status-pills{display:flex;gap:6px;flex-wrap:wrap;}
+.mkt-pill{border:1px solid var(--border2);background:var(--surface);color:var(--muted);font-size:.72rem;font-weight:700;padding:6px 12px;border-radius:20px;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:6px;}
+.mkt-pill:hover{color:var(--text);}
+.mkt-pill .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.mkt-pill.active{color:#fff;border-color:transparent;}
+.mkt-pill.active[data-st="confirmado"]{background:var(--green);}
+.mkt-pill.active[data-st="pretendido"]{background:var(--orange);}
+.mkt-pill.active[data-st="se_queda"]{background:var(--teal);}
+.mkt-pill.active[data-st="se_va"]{background:var(--red);}
+.mkt-pill.active[data-st="vacante"]{background:var(--muted);}
+.mkt-pill.active[data-st=""]{background:linear-gradient(135deg,var(--purple-d),var(--purple));}
+.mkt-search{position:relative;flex:1;min-width:180px;max-width:260px;}
+.mkt-search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+.mkt-search input{width:100%;padding:8px 12px 8px 32px;background:var(--surface2);border:1px solid var(--border2);border-radius:9px;color:var(--text);font-family:inherit;font-size:.78rem;}
+.mkt-clear-club{font-size:.7rem;color:var(--purple-l);cursor:pointer;font-weight:600;padding:6px 10px;}
+
+.mkt-count{font-size:.72rem;color:var(--muted);margin-bottom:10px;}
+.mkt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;}
+.mkt-card{background:var(--surface);border:1px solid var(--border2);border-radius:13px;padding:13px 14px;display:flex;flex-direction:column;gap:9px;}
+.mkt-card-top{display:flex;align-items:center;gap:9px;}
+.mkt-card-top img{width:24px;height:24px;object-fit:contain;flex-shrink:0;}
+.mkt-card-name{font-size:.86rem;font-weight:700;color:var(--text-bright);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mkt-badge{font-size:.62rem;font-weight:800;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.3px;color:#fff;flex-shrink:0;}
+.mkt-badge.st-confirmado{background:rgba(52,211,153,.18);color:var(--green);}
+.mkt-badge.st-pretendido{background:rgba(251,146,60,.18);color:var(--orange);}
+.mkt-badge.st-se_queda{background:rgba(45,212,191,.18);color:var(--teal-l);}
+.mkt-badge.st-se_va{background:rgba(248,113,113,.18);color:var(--red);}
+.mkt-badge.st-vacante{background:rgba(148,163,184,.16);color:var(--muted);}
+.mkt-card-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:.7rem;color:var(--muted);}
+.mkt-card-meta b{color:var(--text);font-weight:600;}
+.mkt-card-bottom{display:flex;align-items:center;justify-content:space-between;font-size:.68rem;color:var(--muted2);border-top:1px solid var(--border2);padding-top:8px;}
+.mkt-conf-tag{font-size:.64rem;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(139,92,246,.1);color:var(--purple-l);}
+.mkt-empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:.85rem;}
+
+/* ── MERCADO: tablero de plantel por equipo ─────────── */
+.mkt-board-head{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.mkt-board-head img{width:38px;height:38px;object-fit:contain;flex-shrink:0;}
+.mkt-board-head-name{font-size:1.05rem;font-weight:800;color:var(--text-bright);}
+.mkt-board-head-meta{font-size:.72rem;color:var(--muted);margin-top:2px;}
+.mkt-board{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;align-items:start;}
+.mkt-board-col-title{font-size:.72rem;font-weight:800;color:var(--purple-l);text-transform:uppercase;letter-spacing:.6px;margin-bottom:9px;text-align:center;}
+.mkt-board-col{display:flex;flex-direction:column;}
+.mkt-board-col-cards{display:flex;flex-direction:column;gap:10px;}
+.mkt-board-card{background:var(--surface);border:1px solid var(--border2);border-radius:13px;padding:12px;text-align:center;}
+.mkt-board-photo{width:64px;height:64px;border-radius:12px;object-fit:cover;margin:0 auto 8px;display:block;background:var(--surface2);}
+.mkt-board-photo-ph{width:64px;height:64px;border-radius:12px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;background:var(--surface2);color:var(--muted);font-weight:800;font-size:.9rem;}
+.mkt-board-name{font-size:.78rem;font-weight:700;color:var(--text-bright);line-height:1.25;margin-bottom:8px;}
+.mkt-board-badges{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.mkt-board-card.is-vacant{border-style:dashed;border-color:var(--border2);background:transparent;}
+.mkt-board-card.is-vacant .mkt-board-photo-ph{background:transparent;border:1.5px dashed var(--border2);color:var(--muted2);font-size:1.3rem;}
+.mkt-board-card.is-vacant .mkt-board-name{color:var(--muted);font-weight:600;}
+
+@media (max-width:900px){
+  .mkt-board{grid-template-columns:repeat(2,1fr);}
+}
+@media (max-width:640px){
+  .mkt-layout{grid-template-columns:1fr;}
+  .mkt-clubs-panel{max-height:220px;}
+  .mkt-grid{grid-template-columns:1fr;}
+  .mkt-board{grid-template-columns:1fr;}
+}
+
+/* ── MERCADO: tooltip de stats de temporada ─────────── */
+#mktTip{position:fixed;z-index:9999;background:var(--surface2);border:1px solid var(--border2);color:var(--text);
+  padding:10px 13px;border-radius:10px;font-size:.74rem;line-height:1.4;min-width:190px;max-width:230px;
+  pointer-events:none;box-shadow:0 8px 26px rgba(0,0,0,.55);display:none;}
+.mkt-tip-hd{font-weight:800;color:var(--text-bright);font-size:.76rem;margin-bottom:1px;}
+.mkt-tip-sub{font-size:.64rem;color:var(--purple-l);font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:8px;}
+.mkt-tip-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;}
+.mkt-tip-stat-val{font-size:.92rem;font-weight:800;color:var(--text-bright);line-height:1;}
+.mkt-tip-stat-lbl{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-top:2px;}
+.mkt-tip-loading{color:var(--muted);font-size:.72rem;}
+[data-mkt-name]{cursor:default;}
 </style>
 <script defer src="/_vercel/insights/script.js"></script>
 </head>
@@ -79,6 +185,10 @@
 
 <!-- MAIN TABS -->
 <div class="main-tabs">
+  <button class="main-tab" onclick="switchSection('mercado')">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>
+    Mercado
+  </button>
   <button class="main-tab active" onclick="switchSection('posiciones')">
     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     Home
@@ -1339,6 +1449,52 @@
   </div>
 </div>
 
+<!-- ============================= MERCADO ============================= -->
+<div class="section" id="sec-mercado">
+  <div class="mkt-header">
+    <div class="mkt-header-center">
+      <div class="mkt-title">Mercado de Pases</div>
+      <div class="mkt-insight" id="mktInsight"></div>
+    </div>
+  </div>
+
+  <div class="mkt-progress-wrap">
+    <div class="mkt-progress-bar" id="mktProgressBar"></div>
+    <div class="mkt-progress-legend" id="mktProgressLegend"></div>
+  </div>
+
+  <div class="mkt-layout">
+    <div class="mkt-clubs-panel">
+      <div class="mkt-panel-title" id="mktClubsTitle">Clubes</div>
+      <div id="mktClubList"></div>
+    </div>
+    <div class="mkt-main">
+      <div class="mkt-filters">
+        <div class="mkt-status-pills" id="mktStatusPills"></div>
+        <div class="mkt-search">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="mktSearch" placeholder="Buscar jugador..." oninput="mktRender()"/>
+        </div>
+        <span class="mkt-clear-club" id="mktClearClub" style="display:none" onclick="mktSelectClub(null)">✕ Quitar filtro de club</span>
+      </div>
+      <div id="mktListView">
+        <div class="mkt-count" id="mktCount"></div>
+        <div class="mkt-grid" id="mktGrid"></div>
+      </div>
+      <div id="mktBoardView" style="display:none">
+        <div class="mkt-board-head">
+          <img id="mktBoardLogo" src="" alt="" onerror="this.style.display='none'">
+          <div>
+            <div class="mkt-board-head-name" id="mktBoardName"></div>
+            <div class="mkt-board-head-meta" id="mktBoardMeta"></div>
+          </div>
+        </div>
+        <div class="mkt-board" id="mktBoard"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ============================= POSICIONES ============================= -->
 <div class="section active" id="sec-posiciones">
   <div class="pos-tab-bar">
@@ -1679,6 +1835,7 @@
 </div>
 
 <div id="thTip"></div>
+<div id="mktTip"></div>
 
 <script src="liga_nacional.js"></script>
 <footer style="text-align:center;padding:18px 40px;margin-top:12px;border-top:1px solid var(--border);color:var(--muted);font-size:.78rem;display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;">

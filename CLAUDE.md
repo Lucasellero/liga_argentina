@@ -110,6 +110,7 @@ El repo tiene dos niveles: la raíz del repo (git root) y `liga_argentina/` que 
 ```
 <repo-root>/
   .github/workflows/scraper.yml  # CI/CD: corre scrapers + retrain del modelo diariamente y pushea
+  .github/workflows/mercado.yml  # CI/CD: refresca Mercado de Pases (LA + LN) 4 veces al día y pushea
   backend/
     .env                         # Variables de entorno del backend
   scouting/                      # Análisis y reportes de scouting
@@ -136,6 +137,8 @@ liga_argentina/
     pbp_scraper_femenina.py      # Scraper jugada a jugada (Liga Femenina)
     pbp_scraper_proximo.py       # Scraper jugada a jugada (Liga de Desarrollo)
     players_dob_scraper.py       # Scraper de fechas de nacimiento
+    mercado_scraper.py           # Scraper del Mercado de Pases en vivo (Liga Argentina, fuente pickandroll.com.ar)
+    mercado_scraper_nacional.py  # Scraper del Mercado de Pases en vivo (Liga Nacional, fuente pickandroll.com.ar)
     update_nacional.py           # Orquestador: corre los 3 scrapers de Liga Nacional + retrain
     requirements.txt             # cloudscraper, pandas, bs4, lxml, playwright, sklearn, joblib
   modelos/                       # ML: predicción de resultados y similitud entre jugadores
@@ -157,6 +160,8 @@ liga_argentina/
     liga_argentina_pbp.csv       # Jugada a jugada (eventos por partido)
     fixture_upcoming.csv         # Partidos por jugar (fecha,hora,local,visitante,estadio)
     players_dob.csv              # Fechas de nacimiento (compartido entre ligas)
+    mercado.json                 # Mercado de pases en vivo (tab "Mercado")
+    CLAUDE_MERCADO.md            # Documentación técnica del tab Mercado
     login.html                   # Auth compartida entre ligas
     register.html                # Registro compartido entre ligas
     logos/                       # JPEGs de equipos Liga Argentina + favicon/logo
@@ -176,6 +181,7 @@ liga_argentina/
       liga_nacional_pbp.csv
       fixture_upcoming.csv
       predicciones_upcoming.csv  # Generado por modelos/modelo_liga_nacional.py
+      mercado.json               # Mercado de pases en vivo (tab "Mercado")
       logos/
     liga_femenina/               # Liga Femenina (sirve en /liga_femenina/)
       (misma estructura)
@@ -1124,6 +1130,22 @@ print(f'LOCAL={l} VISITANTE={v}', '✓' if l==v else '✗ DESBALANCEADO')
 
 Los scripts listos para copiar-pegar están en `Skill.md`. Correr siempre desde la raíz del repo (`liga_argentina/`).
 
+## Mercado de Pases — Liga Argentina y Liga Nacional (tab "Mercado")
+
+Tab presente en Liga Argentina y Liga Nacional (primer botón del `.main-tabs`, sección `mercado`; no existe en Femenina ni Desarrollo — Pick and Roll no las trackea). Re-empaqueta el feed en vivo de pickandroll.com.ar con el mismo lenguaje visual del dashboard: KPIs, sidebar de clubes con % de plantel armado, y un tablero por club con las 5 posiciones (titulares confirmados / vacantes).
+
+Documentación técnica completa (fuente de datos, esquema de `mercado.json`, mapeo de clubes, arquitectura del frontend, limitaciones conocidas): **`docs/liga_argentina/CLAUDE_MERCADO.md`** (cubre ambas ligas).
+
+Se actualiza automáticamente **4 veces al día** vía `.github/workflows/mercado.yml` (10:00, 13:00, 17:00 y 21:00 ART) — workflow independiente del scraper diario de stats (`scraper.yml`), para no bloquearlo si pickandroll cambia de estructura.
+
+```bash
+# Actualizar Mercado de Pases en vivo — Liga Argentina
+python3 scraper/mercado_scraper.py
+
+# Actualizar Mercado de Pases en vivo — Liga Nacional
+python3 scraper/mercado_scraper_nacional.py
+```
+
 ## Comandos útiles
 ```bash
 # Actualizar stats de jugadores — Liga Argentina
@@ -1185,4 +1207,10 @@ python Scraper/pbp_scraper_proximo.py
 
 # Forzar re-scrape completo de jugada a jugada — Liga de Desarrollo
 python Scraper/pbp_scraper_proximo.py --full
+
+# Actualizar Mercado de Pases en vivo — Liga Argentina (tab "Mercado")
+python3 scraper/mercado_scraper.py
+
+# Actualizar Mercado de Pases en vivo — Liga Nacional (tab "Mercado")
+python3 scraper/mercado_scraper_nacional.py
 ```

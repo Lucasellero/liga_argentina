@@ -1,0 +1,44 @@
+name: Mercado de Pases
+
+on:
+  schedule:
+    - cron: '0 13 * * *'   # 10:00 ART (UTC-3)
+    - cron: '0 16 * * *'   # 13:00 ART (UTC-3)
+    - cron: '0 20 * * *'   # 17:00 ART (UTC-3)
+    - cron: '0 0 * * *'    # 21:00 ART (UTC-3)
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: pip install -r scraper/requirements.txt
+
+      - name: Mercado – Liga Argentina
+        run: python scraper/mercado_scraper.py
+
+      - name: Mercado – Liga Nacional
+        run: python scraper/mercado_scraper_nacional.py
+
+      - name: Commitear mercado.json actualizado
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add \
+            docs/liga_argentina/mercado.json \
+            docs/liga_nacional/mercado.json
+          git diff --cached --quiet || git commit -m "data: actualizar mercado de pases $(date +'%d-%m-%Y %H:%M')"
+          git push

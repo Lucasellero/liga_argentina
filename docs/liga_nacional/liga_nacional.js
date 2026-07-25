@@ -69,6 +69,7 @@ function authLogout() {
 const CSV_PATH = 'liga_nacional.csv';
 const DOB_PATH = '../shared/players_dob.csv';
 let DOB_MAP = {};
+let DOB_ROWS_ALL = []; // todas las ligas, sin filtrar — usado por el buscador de stats del tab Mercado
 function calcAge(dob) {
   if (!dob) return null;
   const [d, m, y] = dob.split('/');
@@ -438,6 +439,7 @@ function switchSection(id) {
   if(id==='duplas') { dupInit(); }
   if(id==='t-tiro') { tzcInit(); }
   if(id==='t-conexiones') { tCnxInit(); }
+  if(id==='mercado') { mktInit(); }
   if(id==='t-chart') setTimeout(drawTChart,30);
   if(id==='j-tabla') setTimeout(()=>remeasureScroll('jTableWrap'), 50);
   if(id==='t-tabla'||isTcmp) setTimeout(()=>remeasureScroll('tTableWrap'), 50);
@@ -1450,6 +1452,359 @@ function teamLogoHtml(teamName, size) {
   const src = LOGOS[teamName];
   if (!src) return '';
   return '<img src="' + src + '" style="width:' + size + 'px;height:' + size + 'px;object-fit:contain;vertical-align:middle;flex-shrink:0" alt="" onerror="this.style.display=\'none\'">';
+}
+
+// ============================================================
+// MERCADO EN VIVO
+// ============================================================
+let MKT_DATA = null;
+let mktStatus = '';
+let mktClub = null;
+const MKT_STATUS_ORDER = ['confirmado','pretendido','se_queda','se_va','vacante'];
+const MKT_STATUS_DOT = {confirmado:'var(--green)',pretendido:'var(--orange)',se_queda:'var(--teal-l)',se_va:'var(--red)',vacante:'var(--muted)'};
+const MKT_POS_LABEL = {base:'Base',escolta:'Escolta',alero:'Alero',ala_pivote:'Ala-Pívot',pivote:'Pívot'};
+const MKT_POS_ORDER = ['base','escolta','alero','ala_pivote','pivote'];
+
+function mktInit() {
+  mktBuildNameIndex();
+  if (MKT_DATA) { mktRender(); return; }
+  const grid = document.getElementById('mktGrid');
+  grid.innerHTML = '<div class="mkt-empty">Cargando mercado…</div>';
+  fetch('mercado.json?v=' + Date.now())
+    .then(r => r.json())
+    .then(data => { MKT_DATA = data; mktBuildStatic(); mktRender(); })
+    .catch(() => { grid.innerHTML = '<div class="mkt-empty">No se pudo cargar la información del mercado.</div>'; });
+}
+
+function mktBuildStatic() {
+  const total = MKT_DATA.players.length;
+  const byStatus = {};
+  MKT_STATUS_ORDER.forEach(s => byStatus[s] = 0);
+  MKT_DATA.players.forEach(p => { if (byStatus[p.status] != null) byStatus[p.status]++; });
+  const avgPct = MKT_DATA.clubs.length ? Math.round(MKT_DATA.clubs.reduce((a,c) => a + (c.pct||0), 0) / MKT_DATA.clubs.length) : 0;
+
+  document.getElementById('mktInsight').innerHTML =
+    '<b>' + avgPct + '%</b> de planteles armados en promedio · <b>' + total + '</b> movimientos en <b>' + MKT_DATA.clubs.length + '</b> clubes';
+
+  document.getElementById('mktProgressBar').innerHTML = MKT_STATUS_ORDER.map(s => {
+    const pct = total ? (byStatus[s] / total * 100) : 0;
+    if (!pct) return '';
+    return '<span class="mkt-progress-seg" style="width:' + pct.toFixed(2) + '%;background:' + MKT_STATUS_DOT[s] + '" title="' + (MKT_DATA.statuses[s]||s) + ': ' + byStatus[s] + '"></span>';
+  }).join('');
+
+  document.getElementById('mktProgressLegend').innerHTML = MKT_STATUS_ORDER.map(s =>
+    '<span><span class="dot" style="background:' + MKT_STATUS_DOT[s] + '"></span>' + (MKT_DATA.statuses[s]||s) + ' <b>' + byStatus[s] + '</b></span>'
+  ).join('');
+
+  const pillsHtml = ['<button class="mkt-pill active" data-st="" onclick="mktSetStatus(\'\')">Todos</button>']
+    .concat(MKT_STATUS_ORDER.map(s =>
+      '<button class="mkt-pill" data-st="' + s + '" onclick="mktSetStatus(\'' + s + '\')"><span class="dot" style="background:' + MKT_STATUS_DOT[s] + '"></span>' + (MKT_DATA.statuses[s]||s) + '</button>'
+    ));
+  document.getElementById('mktStatusPills').innerHTML = pillsHtml.join('');
+
+  document.getElementById('mktClubsTitle').textContent = 'Clubes (' + MKT_DATA.clubs.length + ')';
+
+  const renderClubRow = c => {
+    const logo = c.team && LOGOS[c.team] ? '<img src="' + LOGOS[c.team] + '" alt="">' : '<span class="mkt-club-noimg">' + (c.name||'').slice(0,3).toUpperCase() + '</span>';
+    return '<div class="mkt-club-row" data-club="' + c.id + '" onclick="mktSelectClub(\'' + c.id + '\')">' +
+      logo +
+      '<span class="mkt-club-name">' + (c.team || c.name) + '</span>' +
+      '<span class="mkt-club-pct-wrap"><span class="mkt-club-pct-bar"><span class="mkt-club-pct-fill" style="width:' + c.pct + '%"></span></span><span class="mkt-club-pct-val">' + c.pct + '%</span></span>' +
+    '</div>';
+  };
+
+  const norte = [], sur = [], otros = [];
+  MKT_DATA.clubs.forEach(c => {
+    if (c.team && CONF_NORTE.has(c.team)) norte.push(c);
+    else if (c.team && CONF_SUR.has(c.team)) sur.push(c);
+    else otros.push(c);
+  });
+  const byName = (a,b) => (a.team||a.name).localeCompare(b.team||b.name);
+  norte.sort(byName); sur.sort(byName); otros.sort(byName);
+
+  let html = '';
+  if (norte.length) html += '<div class="mkt-club-group-title">Conferencia Norte</div>' + norte.map(renderClubRow).join('');
+  if (sur.length) html += '<div class="mkt-club-group-title">Conferencia Sur</div>' + sur.map(renderClubRow).join('');
+  if (otros.length) html += '<div class="mkt-club-group-title">Otros</div>' + otros.map(renderClubRow).join('');
+  document.getElementById('mktClubList').innerHTML = html;
+}
+
+function mktSetStatus(s) {
+  mktStatus = s;
+  document.querySelectorAll('.mkt-pill').forEach(b => b.classList.toggle('active', b.getAttribute('data-st') === s));
+  mktRender();
+}
+
+function mktSelectClub(clubId) {
+  mktClub = clubId;
+  document.querySelectorAll('.mkt-club-row').forEach(el => el.classList.toggle('active', el.getAttribute('data-club') === clubId));
+  document.getElementById('mktClearClub').style.display = clubId ? '' : 'none';
+  document.getElementById('mktStatusPills').style.display = clubId ? 'none' : '';
+  document.querySelector('.mkt-search').style.display = clubId ? 'none' : '';
+  document.getElementById('mktListView').style.display = clubId ? 'none' : '';
+  document.getElementById('mktBoardView').style.display = clubId ? '' : 'none';
+  if (clubId) mktRenderBoard(clubId); else mktRender();
+}
+
+function mktRenderBoard(clubId) {
+  if (!MKT_DATA) return;
+  const club = MKT_DATA.clubs.find(c => c.id === clubId);
+  if (!club) return;
+  const logoSrc = club.team && LOGOS[club.team] ? LOGOS[club.team] : '';
+  const logoEl = document.getElementById('mktBoardLogo');
+  logoEl.src = logoSrc;
+  logoEl.style.display = logoSrc ? '' : 'none';
+  document.getElementById('mktBoardName').textContent = club.team || club.name;
+  const confirmedCount = MKT_DATA.players.filter(p => p.club_id === clubId && p.status === 'confirmado').length;
+  document.getElementById('mktBoardMeta').textContent = confirmedCount + ' jugador' + (confirmedCount===1?'':'es') + ' confirmado' + (confirmedCount===1?'':'s') + (club.coach ? ' · DT ' + club.coach : '');
+
+  const clubPlayers = MKT_DATA.players.filter(p => p.club_id === clubId);
+
+  document.getElementById('mktBoard').innerHTML = MKT_POS_ORDER.map(pos => {
+    const confirmed = clubPlayers.filter(p => p.position === pos && p.status === 'confirmado');
+    let cardsHtml;
+    if (confirmed.length) {
+      cardsHtml = confirmed.map(p => {
+        const photo = p.image_url
+          ? '<img class="mkt-board-photo" src="' + p.image_url + '" alt="" onerror="this.outerHTML=\'<div class=&quot;mkt-board-photo-ph&quot;>' + mktInitials(p.name) + '</div>\'">'
+          : '<div class="mkt-board-photo-ph">' + mktInitials(p.name) + '</div>';
+        return '<div class="mkt-board-card" data-mkt-name="' + mktEscAttr(p.name) + '" data-mkt-team="' + mktEscAttr(club.team || club.name) + '">' + photo +
+          '<div class="mkt-board-name">' + p.name + '</div>' +
+          '<div class="mkt-board-badges">' +
+            '<span class="mkt-badge st-confirmado">' + (MKT_DATA.statuses.confirmado||'Confirmado') + '</span>' +
+            (p.confidence ? '<span class="mkt-badge" style="background:rgba(148,163,184,.14);color:var(--muted)">' + (MKT_DATA.confidence_levels[p.confidence]||p.confidence) + '</span>' : '') +
+          '</div>' +
+        '</div>';
+      }).join('');
+    } else {
+      const vLabel = MKT_DATA.statuses.vacante || 'Vacante';
+      cardsHtml = '<div class="mkt-board-card is-vacant"><div class="mkt-board-photo-ph">+</div>' +
+        '<div class="mkt-board-name">Jugador a definir</div>' +
+        '<div class="mkt-board-badges"><span class="mkt-badge st-vacante">' + vLabel + '</span></div>' +
+      '</div>';
+    }
+    return '<div class="mkt-board-col"><div class="mkt-board-col-title">' + (MKT_POS_LABEL[pos]||pos) + '</div><div class="mkt-board-col-cards">' + cardsHtml + '</div></div>';
+  }).join('');
+}
+
+function mktInitials(name) {
+  return (name||'').split(/\s+/).filter(Boolean).map(w => w[0]).slice(0,2).join('').toUpperCase();
+}
+
+function mktEscAttr(s) {
+  return (s || '').replace(/"/g, '&quot;');
+}
+
+// ── Mercado: stats de temporada on-hover (Liga Nacional) ──
+let MKT_NAME_INDEX = null;               // "NOMBRE APELLIDO" -> {liga, nombre_abreviado}
+let MKT_NAME_TOKENS = null;              // [{key, tokens:Set, entry}] -- mismos datos que MKT_NAME_INDEX, para el match por subconjunto de palabras
+let MKT_FUZZY_CACHE = null;              // cache de matches aproximados ya resueltos (por typos del origen)
+
+function mktNorm(s) {
+  return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim().replace(/\s+/g, ' ');
+}
+
+function mktBuildNameIndex() {
+  if (MKT_NAME_INDEX) return;
+  MKT_NAME_INDEX = {};
+  MKT_FUZZY_CACHE = {};
+  DOB_ROWS_ALL.forEach(r => {
+    if (!r.nombre_completo || r.liga !== 'Liga Nacional') return;
+    const key = mktNorm(r.nombre_completo);
+    if (!MKT_NAME_INDEX[key]) MKT_NAME_INDEX[key] = { liga: r.liga, nombre_abreviado: r.nombre_abreviado };
+  });
+  MKT_NAME_TOKENS = Object.keys(MKT_NAME_INDEX).map(key => ({
+    key, tokens: new Set(key.split(' ')), entry: MKT_NAME_INDEX[key],
+  }));
+}
+
+// Distancia de edicion (Levenshtein) -- tolera typos del scraping de Pick and Roll
+// (acentos faltantes, letras de mas/menos, espacios dobles, etc.)
+function mktLevenshtein(a, b) {
+  const m = a.length, n = b.length;
+  if (!m) return n;
+  if (!n) return m;
+  let prev = new Array(n + 1);
+  for (let j = 0; j <= n; j++) prev[j] = j;
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) {
+      const cost = a.charCodeAt(i - 1) === b.charCodeAt(j - 1) ? 0 : 1;
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+    }
+    prev = cur;
+  }
+  return prev[n];
+}
+
+function mktIsSubset(small, big) {
+  for (const x of small) if (!big.has(x)) return false;
+  return true;
+}
+
+// Pick and Roll y players_dob.csv suelen escribir el "mismo" nombre con distinta
+// cantidad de palabras: falta/sobra un segundo nombre ("Jano Martinez" vs "JANO DAVID
+// MARTINEZ"), falta/sobra un segundo apellido ("Agustin Perez Tapia" vs "AGUSTIN
+// PEREZ"), o se usa el segundo nombre de pila como si fuera el primero ("Ignacio
+// Respaud" vs "JUAN IGNACIO RESPAUD"). En todos esos casos, el conjunto de palabras
+// de un nombre es subconjunto del otro. Busca, entre todas las claves del indice, la
+// que tenga la menor diferencia de palabras respecto al nombre buscado; si hay empate
+// entre distintas personas, no adivina (null) para no mostrar stats de otro jugador.
+function mktSubsetMatch(key) {
+  const qTok = new Set(key.split(' '));
+  if (qTok.size < 2) return null;
+  let bestDiff = Infinity, bestCands = [];
+  for (const cand of MKT_NAME_TOKENS) {
+    if (cand.key === key) continue;
+    const small = qTok.size <= cand.tokens.size ? qTok : cand.tokens;
+    const big = qTok.size <= cand.tokens.size ? cand.tokens : qTok;
+    if (small.size < 2 || !mktIsSubset(small, big)) continue;
+    const diff = big.size - small.size;
+    if (diff < bestDiff) { bestDiff = diff; bestCands = [cand]; }
+    else if (diff === bestDiff) { bestCands.push(cand); }
+  }
+  if (!bestCands.length) return null;
+  const seen = new Set(bestCands.map(c => c.entry.nombre_abreviado));
+  // Si el mejor empate corresponde a mas de una persona distinta, es ambiguo.
+  return seen.size === 1 ? bestCands[0].entry : null;
+}
+
+// Resuelve un nombre (crudo, tal como viene de pickandroll) a una entrada del indice.
+// 1) match exacto normalizado. 2) match por subconjunto de palabras (nombres/apellidos
+// de mas o de menos). 3) el nombre mas parecido por distancia de Levenshtein (tildes
+// faltantes, letras de mas/menos, espacios dobles), como ultimo recurso para typos que
+// no cambian la cantidad de palabras. Cachea el resultado (incluso null) por nombre.
+function mktResolveEntry(fullName) {
+  if (!MKT_NAME_INDEX) return null;
+  const key = mktNorm(fullName);
+  if (MKT_NAME_INDEX[key]) return MKT_NAME_INDEX[key];
+  if (key in MKT_FUZZY_CACHE) return MKT_FUZZY_CACHE[key];
+
+  const subset = mktSubsetMatch(key);
+  if (subset) { MKT_FUZZY_CACHE[key] = subset; return subset; }
+
+  const maxDist = Math.min(3, Math.max(1, Math.round(key.length * 0.12)));
+  let bestKey = null, bestDist = Infinity;
+  for (const k in MKT_NAME_INDEX) {
+    if (Math.abs(k.length - key.length) > maxDist) continue; // descarte rapido
+    const d = mktLevenshtein(key, k);
+    if (d < bestDist) { bestDist = d; bestKey = k; if (d === 0) break; }
+  }
+  const entry = (bestKey && bestDist <= maxDist) ? MKT_NAME_INDEX[bestKey] : null;
+  MKT_FUZZY_CACHE[key] = entry;
+  return entry;
+}
+
+// Entre varias temporadas/equipos del mismo jugador, prioriza la del equipo al que
+// acaba de fichar (típico de una renovación). Si no jugó para ese equipo, cae al de
+// más PJ (su temporada más relevante).
+function mktPickBest(candidates, currentTeam) {
+  if (currentTeam) {
+    const sameTeam = candidates.filter(p => p.Equipo === currentTeam);
+    if (sameTeam.length) return { entry: sameTeam.reduce((a, b) => (b.PJ || 0) > (a.PJ || 0) ? b : a), sameTeam: true };
+  }
+  return { entry: candidates.reduce((a, b) => (b.PJ || 0) > (a.PJ || 0) ? b : a), sameTeam: false };
+}
+
+function mktLookupStatsSync(fullName, currentTeam) {
+  if (!MKT_NAME_INDEX) return null;
+  const entry = mktResolveEntry(fullName);
+  if (!entry) return null;
+
+  const candidates = PLAYERS.filter(p => p['Nombre completo'] === entry.nombre_abreviado);
+  if (!candidates.length) return null;
+  const { entry: best, sameTeam } = mktPickBest(candidates, currentTeam);
+  return { liga: 'Liga Nacional', equipo: best.Equipo, sameTeam, PJ: best.PJ, MPG: best.MPG, PPG: best.PPG, RPG: best.RPG, APG: best.APG, SPG: best.SPG, BPG: best.BPG, 'TC%': best['TC%'], 'T3%': best['T3%'] };
+}
+
+// ── Tooltip flotante de stats (mismo patrón que #thTip) ──────────────────
+(function () {
+  const tip = document.getElementById('mktTip');
+  let currentTarget = null;
+
+  function render(stats, name) {
+    if (!stats) { tip.style.display = 'none'; return; }
+    const rows = [
+      ['PPG', stats.PPG], ['RPG', stats.RPG], ['APG', stats.APG],
+      ['MIN', stats.MPG], ['TC%', stats['TC%']], ['3P%', stats['T3%']],
+    ];
+    tip.innerHTML =
+      '<div class="mkt-tip-hd">' + name + '</div>' +
+      '<div class="mkt-tip-sub">' + stats.equipo + ' · ' + stats.liga + ' · ' + stats.PJ + ' PJ' + (stats.sameTeam ? ' · <span style="color:var(--teal-l)">sigue en el club</span>' : '') + '</div>' +
+      '<div class="mkt-tip-grid">' + rows.map(([lbl, val]) =>
+        '<div><div class="mkt-tip-stat-val">' + (val==null?'—':val) + '</div><div class="mkt-tip-stat-lbl">' + lbl + '</div></div>'
+      ).join('') + '</div>';
+  }
+
+  document.addEventListener('mouseover', function (e) {
+    const card = e.target.closest('[data-mkt-name]');
+    if (!card) return;
+    if (card === currentTarget) return;
+    currentTarget = card;
+    const name = card.getAttribute('data-mkt-name');
+    const team = card.getAttribute('data-mkt-team') || null;
+    mktBuildNameIndex();
+    const stats = mktLookupStatsSync(name, team);
+    if (!stats) { tip.style.display = 'none'; return; }
+    tip.style.display = 'block';
+    render(stats, name);
+  });
+  document.addEventListener('mousemove', function (e) {
+    if (tip.style.display === 'none') return;
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    let left = e.clientX + 16, top = e.clientY - th - 12;
+    if (left + tw > vw - 8) left = e.clientX - tw - 16;
+    if (top < 8) top = e.clientY + 18;
+    tip.style.left = left + 'px'; tip.style.top = top + 'px';
+  });
+  document.addEventListener('mouseout', function (e) {
+    const card = e.target.closest('[data-mkt-name]');
+    if (card && card === currentTarget && (!e.relatedTarget || !card.contains(e.relatedTarget))) {
+      currentTarget = null;
+      tip.style.display = 'none';
+    }
+  });
+})();
+
+function mktRender() {
+  if (!MKT_DATA) return;
+  const search = (document.getElementById('mktSearch').value || '').trim().toUpperCase();
+  const clubById = {};
+  MKT_DATA.clubs.forEach(c => clubById[c.id] = c);
+
+  let list = MKT_DATA.players.filter(p => {
+    if (mktStatus && p.status !== mktStatus) return false;
+    if (mktClub && p.club_id !== mktClub) return false;
+    if (search && !p.name.toUpperCase().includes(search)) return false;
+    return true;
+  });
+
+  document.getElementById('mktCount').textContent = list.length + ' jugador' + (list.length===1?'':'es') + (mktClub ? ' · ' + (clubById[mktClub].team || clubById[mktClub].name) : '');
+
+  if (!list.length) {
+    document.getElementById('mktGrid').innerHTML = '<div class="mkt-empty">Sin movimientos para este filtro.</div>';
+    return;
+  }
+
+  const statusWeight = {confirmado:0,pretendido:1,se_queda:2,se_va:3,vacante:4};
+  list = list.slice().sort((a,b) => (statusWeight[a.status]??9) - (statusWeight[b.status]??9) || a.name.localeCompare(b.name));
+
+  document.getElementById('mktGrid').innerHTML = list.map(p => {
+    const club = clubById[p.club_id] || {};
+    const logo = club.team && LOGOS[club.team] ? '<img src="' + LOGOS[club.team] + '" alt="">' : '';
+    const meta = [];
+    if (p.age) meta.push('<span><b>' + p.age + '</b> años</span>');
+    if (p.height) meta.push('<span><b>' + p.height + '</b> m</span>');
+    if (p.last_club) meta.push('<span>Proc. <b>' + p.last_club + '</b></span>');
+    return '<div class="mkt-card" data-mkt-name="' + mktEscAttr(p.name) + '" data-mkt-team="' + mktEscAttr(club.team || club.name || '') + '">' +
+      '<div class="mkt-card-top">' + logo + '<span class="mkt-card-name">' + p.name + '</span>' +
+        '<span class="mkt-badge st-' + p.status + '">' + (MKT_DATA.statuses[p.status]||p.status) + '</span>' +
+      '</div>' +
+      '<div class="mkt-card-meta"><span class="mkt-conf-tag">' + (MKT_POS_LABEL[p.position]||p.position||'—') + '</span>' + meta.join('') + '</div>' +
+      '<div class="mkt-card-bottom"><span>' + (club.team || club.name || '') + '</span><span>' + (MKT_DATA.confidence_levels[p.confidence]||'') + '</span></div>' +
+    '</div>';
+  }).join('');
 }
 
 function renderStandings() {
@@ -2562,6 +2917,7 @@ async function initApp() {
     const text = await resp.text();
     if (dobResp && dobResp.ok) {
       const dobRows = parseCSV(await dobResp.text());
+      DOB_ROWS_ALL = dobRows;
       dobRows.forEach(r => { if (r.liga === 'Liga Nacional') DOB_MAP[r.nombre_abreviado] = r.fecha_nacimiento; });
     }
     const rows = parseCSV(text);
