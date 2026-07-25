@@ -1954,7 +1954,10 @@ function mktRender() {
     const meta = [];
     if (p.age) meta.push('<span><b>' + p.age + '</b> años</span>');
     if (p.height) meta.push('<span><b>' + p.height + '</b> m</span>');
-    if (p.last_club) meta.push('<span>Proc. <b>' + p.last_club + '</b></span>');
+    if (p.last_club) {
+      const lastClubLogo = LOGOS[p.last_club.toUpperCase()] ? '<img class="mkt-lastclub-logo" src="' + LOGOS[p.last_club.toUpperCase()] + '" alt="">' : '';
+      meta.push('<span>Proc. ' + lastClubLogo + '<b>' + p.last_club + '</b></span>');
+    }
     return '<div class="mkt-card" data-mkt-name="' + mktEscAttr(p.name) + '" data-mkt-team="' + mktEscAttr(club.team || club.name || '') + '">' +
       '<div class="mkt-card-top">' + logo + '<span class="mkt-card-name">' + p.name + '</span>' +
         '<span class="mkt-badge st-' + p.status + '">' + (MKT_DATA.statuses[p.status]||p.status) + '</span>' +
