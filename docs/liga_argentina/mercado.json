@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-25T20:41:43.261988+00:00",
+  "updated_at": "2026-07-26T02:49:31.684239+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -226,7 +226,7 @@
       "id": "deportivo_viedma",
       "name": "Deportivo Viedma",
       "team": "DEP. VIEDMA",
-      "pct": 25,
+      "pct": 33,
       "coach": "Guillermo Bogliacino",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -237,7 +237,7 @@
       "id": "centenario_vt",
       "name": "Centenario",
       "team": "CENTENARIO (VT)",
-      "pct": 8,
+      "pct": 25,
       "coach": "Victor Daitch",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2156,6 +2156,51 @@
       "source_type": "club_oficial",
       "image_url": "",
       "updated_at": "2026-07-23 20:26:55"
+    },
+    {
+      "id": "p_4f7758f3-1864-4789-8989-1ad789c42284",
+      "club_id": "deportivo_viedma",
+      "name": "Jaaquin Petre",
+      "position": "escolta",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "22",
+      "height": "1.88",
+      "last_club": "Deportivo Viedma",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Joaquin-Petre-Viedma-5.jpg",
+      "updated_at": "2026-07-25 18:56:37"
+    },
+    {
+      "id": "p_dc7062c8-623d-46da-8f3a-6afb359b53e4",
+      "club_id": "centenario_vt",
+      "name": "Matias Aristu",
+      "position": "alero",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "31",
+      "height": "1.93",
+      "last_club": "Centenario",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Matias-Aristu-Centenario-34.jpg",
+      "updated_at": "2026-07-25 19:00:28"
+    },
+    {
+      "id": "p_ab1d5a1b-27bc-4ab0-bb66-734283f0686f",
+      "club_id": "centenario_vt",
+      "name": "Gaspar Ruiz",
+      "position": "base",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "25",
+      "height": "1.84",
+      "last_club": "Centenario",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Gaspar-Ruiz-Centenario-4.jpg",
+      "updated_at": "2026-07-25 19:13:36"
     }
   ],
   "statuses": {
