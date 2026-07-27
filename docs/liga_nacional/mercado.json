@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-26T20:47:47.325543+00:00",
+  "updated_at": "2026-07-27T02:57:30.592589+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -50,7 +50,7 @@
       "id": "gimnasia_cr",
       "name": "Gimnasia (CR)",
       "team": "GIMNASIA (CR)",
-      "pct": 58,
+      "pct": 67,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -149,7 +149,7 @@
       "id": "quimsa",
       "name": "Quimsa",
       "team": "QUIMSA",
-      "pct": 58,
+      "pct": 67,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -171,7 +171,7 @@
       "id": "regatas",
       "name": "Regatas",
       "team": "REGATAS (C)",
-      "pct": 50,
+      "pct": 58,
       "coach": "Martín Villagrán",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -1569,14 +1569,14 @@
       "name": "Francisco Conrradi",
       "position": "base",
       "ficha_type": "u21",
-      "status": "pretendido",
-      "confidence": "muy_avanzado",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "22",
       "height": "1,92",
       "last_club": "Independiente",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Conrradi-F-Quimsa-N.jpg",
-      "updated_at": "2026-07-05 16:44:04"
+      "updated_at": "2026-07-26 18:48:25"
     },
     {
       "id": "p_3bc500d7-12b3-4b17-8b43-99070404738c",
@@ -2642,6 +2642,36 @@
       "source_type": "pnr",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Kriss-Helmanis.jpg",
       "updated_at": "2026-07-18 22:04:35"
+    },
+    {
+      "id": "p_5379d225-15c7-4488-afeb-e6b6c0223a4a",
+      "club_id": "gimnasia_cr",
+      "name": "Amar Sylla",
+      "position": "pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "26",
+      "height": "2.06",
+      "last_club": "",
+      "source_type": "pnr",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Amar-Sylla.jpg",
+      "updated_at": "2026-07-26 18:43:20"
+    },
+    {
+      "id": "p_760d174c-200c-45dc-8cd8-58a564afad37",
+      "club_id": "regatas",
+      "name": "Roberto Acuña",
+      "position": "pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "35",
+      "height": "2.06",
+      "last_club": "Peñarol",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/roberto-acuna.jpg",
+      "updated_at": "2026-07-26 18:47:37"
     }
   ],
   "statuses": {
