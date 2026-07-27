@@ -1925,6 +1925,37 @@ function mktLookupStatsSync(fullName, currentTeam) {
   });
 })();
 
+const MKT_RECENT_MS = 24 * 60 * 60 * 1000;
+
+function mktCardHtml(p, clubById) {
+  const club = clubById[p.club_id] || {};
+  const clubLogo = club.team && LOGOS[club.team] ? '<img class="mkt-club-mini" src="' + LOGOS[club.team] + '" alt="">' : '';
+  const photo = p.image_url
+    ? '<img class="mkt-card-photo" src="' + p.image_url + '" alt="" onerror="this.outerHTML=\'<div class=&quot;mkt-card-photo-ph&quot;>' + mktInitials(p.name) + '</div>\'">'
+    : '<div class="mkt-card-photo-ph">' + mktInitials(p.name) + '</div>';
+  const meta = [];
+  if (p.age) meta.push('<span><b>' + p.age + '</b> años</span>');
+  if (p.height) meta.push('<span><b>' + p.height + '</b> m</span>');
+  let proc = '';
+  if (p.last_club) {
+    const lastClubLogo = LOGOS[p.last_club.toUpperCase()] ? '<img class="mkt-lastclub-logo" src="' + LOGOS[p.last_club.toUpperCase()] + '" alt="">' : '';
+    proc = '<span class="mkt-proc-label">Proc.</span>' + lastClubLogo + '<b title="' + mktEscAttr(p.last_club) + '">' + p.last_club + '</b>';
+  }
+  const teamName = club.team || club.name || '';
+  return '<div class="mkt-card" data-mkt-name="' + mktEscAttr(p.name) + '" data-mkt-team="' + mktEscAttr(teamName) + '">' +
+    '<div class="mkt-card-top">' + photo +
+      '<div class="mkt-card-toptext">' +
+        '<div class="mkt-card-name-row">' + clubLogo + '<span class="mkt-card-name" title="' + mktEscAttr(p.name) + '">' + p.name + '</span>' +
+          '<span class="mkt-badge st-' + p.status + '">' + (MKT_DATA.statuses[p.status]||p.status) + '</span>' +
+        '</div>' +
+        '<div class="mkt-card-meta"><span class="mkt-conf-tag">' + (MKT_POS_LABEL[p.position]||p.position||'—') + '</span>' + meta.join('') + '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="mkt-card-proc">' + proc + '</div>' +
+    '<div class="mkt-card-bottom"><span title="' + mktEscAttr(teamName) + '">' + teamName + '</span><span>' + (MKT_DATA.confidence_levels[p.confidence]||'') + '</span></div>' +
+  '</div>';
+}
+
 function mktRender() {
   if (!MKT_DATA) return;
   const search = (document.getElementById('mktSearch').value || '').trim().toUpperCase();
@@ -1940,7 +1971,10 @@ function mktRender() {
 
   document.getElementById('mktCount').textContent = list.length + ' jugador' + (list.length===1?'':'es') + (mktClub ? ' · ' + (clubById[mktClub].team || clubById[mktClub].name) : '');
 
+  const recentSection = document.getElementById('mktRecentSection');
+
   if (!list.length) {
+    recentSection.style.display = 'none';
     document.getElementById('mktGrid').innerHTML = '<div class="mkt-empty">Sin movimientos para este filtro.</div>';
     return;
   }
@@ -1948,34 +1982,28 @@ function mktRender() {
   const statusWeight = {confirmado:0,pretendido:1,se_queda:2,se_va:3,vacante:4};
   list = list.slice().sort((a,b) => (new Date(b.updated_at) - new Date(a.updated_at)) || (statusWeight[a.status]??9) - (statusWeight[b.status]??9) || a.name.localeCompare(b.name));
 
-  document.getElementById('mktGrid').innerHTML = list.map(p => {
-    const club = clubById[p.club_id] || {};
-    const clubLogo = club.team && LOGOS[club.team] ? '<img class="mkt-club-mini" src="' + LOGOS[club.team] + '" alt="">' : '';
-    const photo = p.image_url
-      ? '<img class="mkt-card-photo" src="' + p.image_url + '" alt="" onerror="this.outerHTML=\'<div class=&quot;mkt-card-photo-ph&quot;>' + mktInitials(p.name) + '</div>\'">'
-      : '<div class="mkt-card-photo-ph">' + mktInitials(p.name) + '</div>';
-    const meta = [];
-    if (p.age) meta.push('<span><b>' + p.age + '</b> años</span>');
-    if (p.height) meta.push('<span><b>' + p.height + '</b> m</span>');
-    let proc = '';
-    if (p.last_club) {
-      const lastClubLogo = LOGOS[p.last_club.toUpperCase()] ? '<img class="mkt-lastclub-logo" src="' + LOGOS[p.last_club.toUpperCase()] + '" alt="">' : '';
-      proc = '<span class="mkt-proc-label">Proc.</span>' + lastClubLogo + '<b title="' + mktEscAttr(p.last_club) + '">' + p.last_club + '</b>';
-    }
-    const teamName = club.team || club.name || '';
-    return '<div class="mkt-card" data-mkt-name="' + mktEscAttr(p.name) + '" data-mkt-team="' + mktEscAttr(teamName) + '">' +
-      '<div class="mkt-card-top">' + photo +
-        '<div class="mkt-card-toptext">' +
-          '<div class="mkt-card-name-row">' + clubLogo + '<span class="mkt-card-name" title="' + mktEscAttr(p.name) + '">' + p.name + '</span>' +
-            '<span class="mkt-badge st-' + p.status + '">' + (MKT_DATA.statuses[p.status]||p.status) + '</span>' +
-          '</div>' +
-          '<div class="mkt-card-meta"><span class="mkt-conf-tag">' + (MKT_POS_LABEL[p.position]||p.position||'—') + '</span>' + meta.join('') + '</div>' +
-        '</div>' +
-      '</div>' +
-      '<div class="mkt-card-proc">' + proc + '</div>' +
-      '<div class="mkt-card-bottom"><span title="' + mktEscAttr(teamName) + '">' + teamName + '</span><span>' + (MKT_DATA.confidence_levels[p.confidence]||'') + '</span></div>' +
-    '</div>';
-  }).join('');
+  // "Últimos fichajes": confirmados cerrados en las últimas 24hs, separados del resto del listado.
+  const now = Date.now();
+  const recent = [];
+  const rest = [];
+  list.forEach(p => {
+    const closedAt = p.status === 'confirmado' && p.updated_at ? new Date(p.updated_at.replace(' ', 'T')).getTime() : NaN;
+    if (!isNaN(closedAt) && (now - closedAt) <= MKT_RECENT_MS && (now - closedAt) >= 0) recent.push(p);
+    else rest.push(p);
+  });
+
+  if (recent.length) {
+    recentSection.style.display = '';
+    document.getElementById('mktRecentSub').textContent = '· ' + recent.length + ' cerrado' + (recent.length===1?'':'s') + ' en las últimas 24hs';
+    document.getElementById('mktRecentGrid').innerHTML = recent.map(p => mktCardHtml(p, clubById)).join('');
+    document.querySelector('.mkt-section-label-rest').style.display = rest.length ? '' : 'none';
+  } else {
+    recentSection.style.display = 'none';
+  }
+
+  document.getElementById('mktGrid').innerHTML = rest.length
+    ? rest.map(p => mktCardHtml(p, clubById)).join('')
+    : (recent.length ? '' : '<div class="mkt-empty">Sin movimientos para este filtro.</div>');
 }
 
 function renderStandings() {

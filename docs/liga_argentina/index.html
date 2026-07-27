@@ -78,6 +78,14 @@
 .mkt-clear-club{font-size:.7rem;color:var(--purple-l);cursor:pointer;font-weight:600;padding:6px 10px;}
 
 .mkt-count{font-size:.72rem;color:var(--muted);margin-bottom:10px;}
+.mkt-section-label{display:flex;align-items:center;gap:8px;font-size:.72rem;font-weight:800;color:var(--text-bright);text-transform:uppercase;letter-spacing:.5px;margin:4px 0 10px;}
+.mkt-section-label-recent{color:var(--green);}
+.mkt-section-label-rest{color:var(--muted);margin-top:22px;padding-top:14px;border-top:1px solid var(--border2);}
+.mkt-section-sub{font-size:.68rem;font-weight:600;text-transform:none;letter-spacing:0;color:var(--muted);margin-left:2px;}
+.mkt-recent-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:mktPulse 1.8s infinite;}
+@keyframes mktPulse{0%{box-shadow:0 0 0 0 rgba(52,211,153,.5);}70%{box-shadow:0 0 0 6px rgba(52,211,153,0);}100%{box-shadow:0 0 0 0 rgba(52,211,153,0);}}
+#mktRecentSection .mkt-grid{margin-bottom:0;}
+#mktRecentSection .mkt-card{border-color:rgba(52,211,153,.35);}
 .mkt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:12px;align-items:stretch;}
 .mkt-card{background:var(--surface);border:1px solid var(--border2);border-radius:13px;padding:13px 14px;display:flex;flex-direction:column;gap:9px;min-width:0;height:100%;}
 .mkt-card-top{display:flex;align-items:flex-start;gap:10px;min-width:0;}
@@ -1523,6 +1531,11 @@
       </div>
       <div id="mktListView">
         <div class="mkt-count" id="mktCount"></div>
+        <div id="mktRecentSection" style="display:none">
+          <div class="mkt-section-label mkt-section-label-recent"><span class="mkt-recent-dot"></span>Últimos fichajes<span class="mkt-section-sub" id="mktRecentSub"></span></div>
+          <div class="mkt-grid" id="mktRecentGrid"></div>
+          <div class="mkt-section-label mkt-section-label-rest">Resto de movimientos</div>
+        </div>
         <div class="mkt-grid" id="mktGrid"></div>
       </div>
       <div id="mktBoardView" style="display:none">
