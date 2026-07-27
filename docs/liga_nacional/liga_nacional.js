@@ -1788,7 +1788,7 @@ function mktRender() {
   }
 
   const statusWeight = {confirmado:0,pretendido:1,se_queda:2,se_va:3,vacante:4};
-  list = list.slice().sort((a,b) => (statusWeight[a.status]??9) - (statusWeight[b.status]??9) || a.name.localeCompare(b.name));
+  list = list.slice().sort((a,b) => (new Date(b.updated_at) - new Date(a.updated_at)) || (statusWeight[a.status]??9) - (statusWeight[b.status]??9) || a.name.localeCompare(b.name));
 
   document.getElementById('mktGrid').innerHTML = list.map(p => {
     const club = clubById[p.club_id] || {};

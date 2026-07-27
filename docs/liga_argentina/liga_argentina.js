@@ -1946,24 +1946,34 @@ function mktRender() {
   }
 
   const statusWeight = {confirmado:0,pretendido:1,se_queda:2,se_va:3,vacante:4};
-  list = list.slice().sort((a,b) => (statusWeight[a.status]??9) - (statusWeight[b.status]??9) || a.name.localeCompare(b.name));
+  list = list.slice().sort((a,b) => (new Date(b.updated_at) - new Date(a.updated_at)) || (statusWeight[a.status]??9) - (statusWeight[b.status]??9) || a.name.localeCompare(b.name));
 
   document.getElementById('mktGrid').innerHTML = list.map(p => {
     const club = clubById[p.club_id] || {};
-    const logo = club.team && LOGOS[club.team] ? '<img src="' + LOGOS[club.team] + '" alt="">' : '';
+    const clubLogo = club.team && LOGOS[club.team] ? '<img class="mkt-club-mini" src="' + LOGOS[club.team] + '" alt="">' : '';
+    const photo = p.image_url
+      ? '<img class="mkt-card-photo" src="' + p.image_url + '" alt="" onerror="this.outerHTML=\'<div class=&quot;mkt-card-photo-ph&quot;>' + mktInitials(p.name) + '</div>\'">'
+      : '<div class="mkt-card-photo-ph">' + mktInitials(p.name) + '</div>';
     const meta = [];
     if (p.age) meta.push('<span><b>' + p.age + '</b> años</span>');
     if (p.height) meta.push('<span><b>' + p.height + '</b> m</span>');
+    let proc = '';
     if (p.last_club) {
       const lastClubLogo = LOGOS[p.last_club.toUpperCase()] ? '<img class="mkt-lastclub-logo" src="' + LOGOS[p.last_club.toUpperCase()] + '" alt="">' : '';
-      meta.push('<span>Proc. ' + lastClubLogo + '<b>' + p.last_club + '</b></span>');
+      proc = '<span class="mkt-proc-label">Proc.</span>' + lastClubLogo + '<b title="' + mktEscAttr(p.last_club) + '">' + p.last_club + '</b>';
     }
-    return '<div class="mkt-card" data-mkt-name="' + mktEscAttr(p.name) + '" data-mkt-team="' + mktEscAttr(club.team || club.name || '') + '">' +
-      '<div class="mkt-card-top">' + logo + '<span class="mkt-card-name">' + p.name + '</span>' +
-        '<span class="mkt-badge st-' + p.status + '">' + (MKT_DATA.statuses[p.status]||p.status) + '</span>' +
+    const teamName = club.team || club.name || '';
+    return '<div class="mkt-card" data-mkt-name="' + mktEscAttr(p.name) + '" data-mkt-team="' + mktEscAttr(teamName) + '">' +
+      '<div class="mkt-card-top">' + photo +
+        '<div class="mkt-card-toptext">' +
+          '<div class="mkt-card-name-row">' + clubLogo + '<span class="mkt-card-name" title="' + mktEscAttr(p.name) + '">' + p.name + '</span>' +
+            '<span class="mkt-badge st-' + p.status + '">' + (MKT_DATA.statuses[p.status]||p.status) + '</span>' +
+          '</div>' +
+          '<div class="mkt-card-meta"><span class="mkt-conf-tag">' + (MKT_POS_LABEL[p.position]||p.position||'—') + '</span>' + meta.join('') + '</div>' +
+        '</div>' +
       '</div>' +
-      '<div class="mkt-card-meta"><span class="mkt-conf-tag">' + (MKT_POS_LABEL[p.position]||p.position||'—') + '</span>' + meta.join('') + '</div>' +
-      '<div class="mkt-card-bottom"><span>' + (club.team || club.name || '') + '</span><span>' + (MKT_DATA.confidence_levels[p.confidence]||'') + '</span></div>' +
+      '<div class="mkt-card-proc">' + proc + '</div>' +
+      '<div class="mkt-card-bottom"><span title="' + mktEscAttr(teamName) + '">' + teamName + '</span><span>' + (MKT_DATA.confidence_levels[p.confidence]||'') + '</span></div>' +
     '</div>';
   }).join('');
 }

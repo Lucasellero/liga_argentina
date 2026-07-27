@@ -78,22 +78,32 @@
 .mkt-clear-club{font-size:.7rem;color:var(--purple-l);cursor:pointer;font-weight:600;padding:6px 10px;}
 
 .mkt-count{font-size:.72rem;color:var(--muted);margin-bottom:10px;}
-.mkt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;}
-.mkt-card{background:var(--surface);border:1px solid var(--border2);border-radius:13px;padding:13px 14px;display:flex;flex-direction:column;gap:9px;}
-.mkt-card-top{display:flex;align-items:center;gap:9px;}
-.mkt-card-top img{width:24px;height:24px;object-fit:contain;flex-shrink:0;}
-.mkt-card-name{font-size:.86rem;font-weight:700;color:var(--text-bright);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.mkt-badge{font-size:.62rem;font-weight:800;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.3px;color:#fff;flex-shrink:0;}
+.mkt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:12px;align-items:stretch;}
+.mkt-card{background:var(--surface);border:1px solid var(--border2);border-radius:13px;padding:13px 14px;display:flex;flex-direction:column;gap:9px;min-width:0;height:100%;}
+.mkt-card-top{display:flex;align-items:flex-start;gap:10px;min-width:0;}
+.mkt-card-photo,.mkt-card-photo-ph{width:46px;height:46px;border-radius:10px;flex-shrink:0;object-fit:cover;background:var(--surface2);}
+.mkt-card-photo-ph{display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:800;font-size:.8rem;}
+.mkt-card-toptext{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;}
+.mkt-card-name-row{display:flex;align-items:center;gap:8px;min-width:0;}
+.mkt-card-top img.mkt-club-mini{width:16px;height:16px;object-fit:contain;flex-shrink:0;}
+.mkt-card-name{font-size:.82rem;font-weight:700;color:var(--text-bright);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mkt-badge{font-size:.6rem;font-weight:800;padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.2px;color:#fff;flex-shrink:0;white-space:nowrap;}
 .mkt-badge.st-confirmado{background:rgba(52,211,153,.18);color:var(--green);}
 .mkt-badge.st-pretendido{background:rgba(251,146,60,.18);color:var(--orange);}
 .mkt-badge.st-se_queda{background:rgba(45,212,191,.18);color:var(--teal-l);}
 .mkt-badge.st-se_va{background:rgba(248,113,113,.18);color:var(--red);}
 .mkt-badge.st-vacante{background:rgba(148,163,184,.16);color:var(--muted);}
-.mkt-card-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:.7rem;color:var(--muted);}
+.mkt-card-meta{display:flex;align-items:center;gap:8px;font-size:.7rem;color:var(--muted);min-width:0;overflow:hidden;white-space:nowrap;}
+.mkt-card-meta span{flex-shrink:0;}
 .mkt-card-meta b{color:var(--text);font-weight:600;}
-.mkt-lastclub-logo{width:14px;height:14px;object-fit:contain;vertical-align:-2px;margin-right:3px;}
-.mkt-card-bottom{display:flex;align-items:center;justify-content:space-between;font-size:.68rem;color:var(--muted2);border-top:1px solid var(--border2);padding-top:8px;}
-.mkt-conf-tag{font-size:.64rem;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(139,92,246,.1);color:var(--purple-l);}
+.mkt-card-proc{font-size:.7rem;color:var(--muted);min-width:0;min-height:1.3em;display:flex;align-items:center;gap:4px;}
+.mkt-proc-label{flex-shrink:0;}
+.mkt-card-proc b{color:var(--text);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1 1 auto;}
+.mkt-lastclub-logo{width:14px;height:14px;object-fit:contain;vertical-align:-2px;margin-right:3px;flex-shrink:0;}
+.mkt-card-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.68rem;color:var(--muted2);border-top:1px solid var(--border2);padding-top:8px;margin-top:auto;}
+.mkt-card-bottom span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1 1 auto;}
+.mkt-card-bottom span:last-child{flex-shrink:0;}
+.mkt-conf-tag{font-size:.64rem;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(139,92,246,.1);color:var(--purple-l);flex-shrink:0;white-space:nowrap;}
 .mkt-empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:.85rem;}
 
 /* ── MERCADO: tablero de plantel por equipo ─────────── */
