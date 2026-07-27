@@ -1445,6 +1445,8 @@ const LOGOS = {
   'RACING (CH)':    'logos/racing_ch.jpeg',
   'SAN LORENZO':    'logos/san_lorenzo.jpeg',
   'UNION (SF)':     'logos/union_sf.jpeg',
+  // Clubes fuera de la tabla de Liga Nacional pero presentes en Mercado de Pases
+  'LANUS':          'logos/lanus.jpeg',
 };
 
 function teamLogoHtml(teamName, size) {
