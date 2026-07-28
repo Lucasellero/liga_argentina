@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-27T21:03:48.620581+00:00",
+  "updated_at": "2026-07-28T02:33:51.161039+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -93,7 +93,7 @@
     {
       "id": "lanus",
       "name": "Lanús",
-      "team": "LANUS",
+      "team": null,
       "pct": 8,
       "coach": "Manuel Anglese",
       "market_status": "abierto",
@@ -138,7 +138,7 @@
       "id": "platense",
       "name": "Platense",
       "team": "PLATENSE",
-      "pct": 33,
+      "pct": 58,
       "coach": "Martín Yangüela",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -1464,14 +1464,14 @@
       "name": "Gastón Cordoba",
       "position": "ala_pivote",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "interes",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "32",
       "height": "2,01",
       "last_club": "Peñarol",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Cordoba-G-Platense-N.jpg",
-      "updated_at": "2026-07-05 16:18:50"
+      "updated_at": "2026-07-27 19:40:22"
     },
     {
       "id": "p_64a2100e-0ff5-4891-a729-fbf53b498ae1",
@@ -2454,14 +2454,14 @@
       "name": "Facundo Terra",
       "position": "base",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "muy_avanzado",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "28",
       "height": "1.88",
       "last_club": "Defensor Sporting",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/terra1.jpg",
-      "updated_at": "2026-07-09 19:03:31"
+      "updated_at": "2026-07-27 19:39:23"
     },
     {
       "id": "p_ce0a0c08-8b5b-4be2-9cb0-707000ff525f",
@@ -2484,14 +2484,14 @@
       "name": "Franco Smaniotti",
       "position": "escolta",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "muy_avanzado",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "25",
       "height": "1.87",
       "last_club": "Platense",
-      "source_type": "medio",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/franco-smaniotti1.jpg",
-      "updated_at": "2026-07-09 21:10:06"
+      "updated_at": "2026-07-27 19:39:51"
     },
     {
       "id": "p_c10d20c4-0d71-4e1b-8b57-ddd2a955e9ca",
