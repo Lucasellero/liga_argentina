@@ -1469,6 +1469,7 @@ const MKT_POS_ORDER = ['base','escolta','alero','ala_pivote','pivote'];
 
 function mktInit() {
   mktBuildNameIndex();
+  mktEnsureArgentinaLoaded(); // precarga en background para que el hover no espere
   if (MKT_DATA) { mktRender(); return; }
   const grid = document.getElementById('mktGrid');
   grid.innerHTML = '<div class="mkt-empty">Cargando mercado…</div>';
@@ -1557,13 +1558,18 @@ function mktRenderBoard(clubId) {
   logoEl.src = logoSrc;
   logoEl.style.display = logoSrc ? '' : 'none';
   document.getElementById('mktBoardName').textContent = club.team || club.name;
-  const confirmedCount = MKT_DATA.players.filter(p => p.club_id === clubId && p.status === 'confirmado').length;
-  document.getElementById('mktBoardMeta').textContent = confirmedCount + ' jugador' + (confirmedCount===1?'':'es') + ' confirmado' + (confirmedCount===1?'':'s') + (club.coach ? ' · DT ' + club.coach : '');
+  // "Confirmado" (ficha nueva), "se_queda" (renovación) y "pretendido" (target en
+  // danza) se muestran los tres en el tablero — cada uno con su propio badge de
+  // estado — para que el usuario vea el movimiento del puesto aunque todavía no
+  // esté cerrado. Solo "se_va" y "vacante" no ocupan un lugar en el tablero.
+  const ROSTER_STATUSES = ['confirmado', 'se_queda', 'pretendido'];
+  const closedCount = MKT_DATA.players.filter(p => p.club_id === clubId && (p.status === 'confirmado' || p.status === 'se_queda')).length;
+  document.getElementById('mktBoardMeta').textContent = closedCount + ' jugador' + (closedCount===1?'':'es') + ' confirmado' + (closedCount===1?'':'s') + (club.coach ? ' · DT ' + club.coach : '');
 
   const clubPlayers = MKT_DATA.players.filter(p => p.club_id === clubId);
 
   document.getElementById('mktBoard').innerHTML = MKT_POS_ORDER.map(pos => {
-    const confirmed = clubPlayers.filter(p => p.position === pos && p.status === 'confirmado');
+    const confirmed = clubPlayers.filter(p => p.position === pos && ROSTER_STATUSES.includes(p.status));
     let cardsHtml;
     if (confirmed.length) {
       cardsHtml = confirmed.map(p => {
@@ -1573,7 +1579,7 @@ function mktRenderBoard(clubId) {
         return '<div class="mkt-board-card" data-mkt-name="' + mktEscAttr(p.name) + '" data-mkt-team="' + mktEscAttr(club.team || club.name) + '">' + photo +
           '<div class="mkt-board-name">' + p.name + '</div>' +
           '<div class="mkt-board-badges">' +
-            '<span class="mkt-badge st-confirmado">' + (MKT_DATA.statuses.confirmado||'Confirmado') + '</span>' +
+            '<span class="mkt-badge st-' + p.status + '">' + (MKT_DATA.statuses[p.status]||p.status) + '</span>' +
             (p.confidence ? '<span class="mkt-badge" style="background:rgba(148,163,184,.14);color:var(--muted)">' + (MKT_DATA.confidence_levels[p.confidence]||p.confidence) + '</span>' : '') +
           '</div>' +
         '</div>';
@@ -1597,26 +1603,35 @@ function mktEscAttr(s) {
   return (s || '').replace(/"/g, '&quot;');
 }
 
-// ── Mercado: stats de temporada on-hover (Liga Nacional) ──
-let MKT_NAME_INDEX = null;               // "NOMBRE APELLIDO" -> {liga, nombre_abreviado}
-let MKT_NAME_TOKENS = null;              // [{key, tokens:Set, entry}] -- mismos datos que MKT_NAME_INDEX, para el match por subconjunto de palabras
+// ── Mercado: stats de temporada on-hover (Liga Nacional + Liga Argentina) ──
+let MKT_NAME_INDEX = null;               // "NAHUEL BUCHAILLOT" -> [{liga, nombre_abreviado}, ...] (puede tener ambas ligas)
+let MKT_NAME_TOKENS = null;              // [{key, tokens:Set, entries}] -- mismos datos que MKT_NAME_INDEX, para el match por subconjunto de palabras
+let MKT_ARGENTINA_ROWS = null;           // filas crudas de liga_argentina.csv, cacheadas
+let MKT_ARGENTINA_PLAYERS = null;        // salida de buildRAW_J sobre liga_argentina.csv
+let MKT_ARGENTINA_PROMISE = null;
 let MKT_FUZZY_CACHE = null;              // cache de matches aproximados ya resueltos (por typos del origen)
 
 function mktNorm(s) {
   return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim().replace(/\s+/g, ' ');
 }
 
+// Un jugador puede tener historial en Liga Nacional Y Liga Argentina (ascenso/descenso,
+// prestamos, etc.) -- guardamos todas las entradas por nombre, no solo la primera liga
+// encontrada, para no perder datos de la otra liga.
 function mktBuildNameIndex() {
   if (MKT_NAME_INDEX) return;
   MKT_NAME_INDEX = {};
   MKT_FUZZY_CACHE = {};
   DOB_ROWS_ALL.forEach(r => {
-    if (!r.nombre_completo || r.liga !== 'Liga Nacional') return;
+    if (!r.nombre_completo || (r.liga !== 'Liga Nacional' && r.liga !== 'Liga Argentina')) return;
     const key = mktNorm(r.nombre_completo);
-    if (!MKT_NAME_INDEX[key]) MKT_NAME_INDEX[key] = { liga: r.liga, nombre_abreviado: r.nombre_abreviado };
+    if (!MKT_NAME_INDEX[key]) MKT_NAME_INDEX[key] = [];
+    if (!MKT_NAME_INDEX[key].some(e => e.liga === r.liga && e.nombre_abreviado === r.nombre_abreviado)) {
+      MKT_NAME_INDEX[key].push({ liga: r.liga, nombre_abreviado: r.nombre_abreviado });
+    }
   });
   MKT_NAME_TOKENS = Object.keys(MKT_NAME_INDEX).map(key => ({
-    key, tokens: new Set(key.split(' ')), entry: MKT_NAME_INDEX[key],
+    key, tokens: new Set(key.split(' ')), entries: MKT_NAME_INDEX[key],
   }));
 }
 
@@ -1652,30 +1667,45 @@ function mktIsSubset(small, big) {
 // de un nombre es subconjunto del otro. Busca, entre todas las claves del indice, la
 // que tenga la menor diferencia de palabras respecto al nombre buscado; si hay empate
 // entre distintas personas, no adivina (null) para no mostrar stats de otro jugador.
+// Pick and Roll y players_dob.csv suelen escribir el "mismo" nombre con distinta
+// cantidad de palabras: falta/sobra un segundo nombre ("Jano Martinez" vs "JANO DAVID
+// MARTINEZ"), falta/sobra un segundo apellido ("Agustin Perez Tapia" vs "AGUSTIN
+// PEREZ"), o se usa el segundo nombre de pila como si fuera el primero ("Ignacio
+// Respaud" vs "JUAN IGNACIO RESPAUD"). En todos esos casos, el conjunto de palabras
+// de un nombre es subconjunto del otro. Busca, entre todas las claves del indice, la
+// que tenga la menor diferencia de palabras respecto al nombre buscado; si hay empate
+// entre distintas personas, no adivina (null) para no mostrar stats de otro jugador.
 function mktSubsetMatch(key) {
   const qTok = new Set(key.split(' '));
   if (qTok.size < 2) return null;
-  let bestDiff = Infinity, bestCands = [];
+  let bestDiff = Infinity, bestEntries = [];
   for (const cand of MKT_NAME_TOKENS) {
     if (cand.key === key) continue;
     const small = qTok.size <= cand.tokens.size ? qTok : cand.tokens;
     const big = qTok.size <= cand.tokens.size ? cand.tokens : qTok;
     if (small.size < 2 || !mktIsSubset(small, big)) continue;
     const diff = big.size - small.size;
-    if (diff < bestDiff) { bestDiff = diff; bestCands = [cand]; }
-    else if (diff === bestDiff) { bestCands.push(cand); }
+    if (diff < bestDiff) { bestDiff = diff; bestEntries = [cand]; }
+    else if (diff === bestDiff) { bestEntries.push(cand); }
   }
-  if (!bestCands.length) return null;
-  const seen = new Set(bestCands.map(c => c.entry.nombre_abreviado));
+  if (!bestEntries.length) return null;
+  const merged = [];
+  const seen = new Set();
+  bestEntries.forEach(c => c.entries.forEach(e => {
+    const id = e.liga + '|' + e.nombre_abreviado;
+    if (!seen.has(id)) { seen.add(id); merged.push(e); }
+  }));
   // Si el mejor empate corresponde a mas de una persona distinta, es ambiguo.
-  return seen.size === 1 ? bestCands[0].entry : null;
+  return merged.length === 1 || bestEntries.length === 1 ? merged : null;
 }
 
-// Resuelve un nombre (crudo, tal como viene de pickandroll) a una entrada del indice.
+// Resuelve un nombre (crudo, tal como viene de pickandroll) a las entradas del indice.
 // 1) match exacto normalizado. 2) match por subconjunto de palabras (nombres/apellidos
 // de mas o de menos). 3) el nombre mas parecido por distancia de Levenshtein (tildes
 // faltantes, letras de mas/menos, espacios dobles), como ultimo recurso para typos que
 // no cambian la cantidad de palabras. Cachea el resultado (incluso null) por nombre.
+// Devuelve un array de entradas ({liga, nombre_abreviado}) -- una por cada liga donde
+// el jugador tiene historial, o null si no se encontro ningun match.
 function mktResolveEntry(fullName) {
   if (!MKT_NAME_INDEX) return null;
   const key = mktNorm(fullName);
@@ -1697,26 +1727,85 @@ function mktResolveEntry(fullName) {
   return entry;
 }
 
-// Entre varias temporadas/equipos del mismo jugador, prioriza la del equipo al que
-// acaba de fichar (típico de una renovación). Si no jugó para ese equipo, cae al de
-// más PJ (su temporada más relevante).
+function mktEnsureArgentinaLoaded() {
+  if (MKT_ARGENTINA_PROMISE) return MKT_ARGENTINA_PROMISE;
+  MKT_ARGENTINA_PROMISE = fetch('../liga_argentina/liga_argentina.csv?v=' + Date.now())
+    .then(r => r.text())
+    .then(text => {
+      MKT_ARGENTINA_ROWS = parseCSV(text);
+      MKT_ARGENTINA_PLAYERS = buildRAW_J(MKT_ARGENTINA_ROWS);
+    })
+    .catch(() => { MKT_ARGENTINA_PLAYERS = []; });
+  return MKT_ARGENTINA_PROMISE;
+}
+
+function mktSimpleAverages(p) {
+  const pj = p.PJ || 1;
+  const tci = (p.T2I || 0) + (p.T3I || 0);
+  return {
+    PJ: p.PJ,
+    MPG: Math.round((p.SEG / pj / 60) * 10) / 10,
+    PPG: Math.round((p.PTS / pj) * 10) / 10,
+    RPG: Math.round((p.RT / pj) * 10) / 10,
+    APG: Math.round((p.AST / pj) * 10) / 10,
+    SPG: Math.round((p.REC / pj) * 10) / 10,
+    BPG: Math.round((p.TAP / pj) * 10) / 10,
+    'TC%': tci > 0 ? Math.round(((p.T2A + p.T3A) / tci) * 1000) / 10 : null,
+    'T3%': p.T3I > 0 ? Math.round((p.T3A / p.T3I) * 1000) / 10 : null,
+  };
+}
+
+// Junta los candidatos (temporadas/equipos) de un jugador en UNA liga, normalizados
+// al mismo shape de salida — para poder compararlos junto con los de la otra liga.
+function mktCandidatesForLeague(liga, nombreAbreviado) {
+  if (liga === 'Liga Nacional') {
+    return PLAYERS.filter(p => p['Nombre completo'] === nombreAbreviado).map(p => ({
+      liga: 'Liga Nacional', equipo: p.Equipo, PJ: p.PJ,
+      MPG: p.MPG, PPG: p.PPG, RPG: p.RPG, APG: p.APG, SPG: p.SPG, BPG: p.BPG,
+      'TC%': p['TC%'], 'T3%': p['T3%'],
+    }));
+  }
+  if (liga === 'Liga Argentina') {
+    if (!MKT_ARGENTINA_PLAYERS) return null; // todavía cargando
+    return MKT_ARGENTINA_PLAYERS.filter(p => p['Nombre completo'] === nombreAbreviado).map(p => ({
+      liga: 'Liga Argentina', equipo: p.Equipo, ...mktSimpleAverages(p),
+    }));
+  }
+  return [];
+}
+
+// Entre varias temporadas/equipos del mismo jugador (potencialmente en ambas ligas),
+// prioriza la del equipo al que acaba de fichar (típico de una renovación: "jugó la
+// última temporada en el mismo club"). Si no jugó para ese equipo, cae al de más PJ
+// (su temporada más relevante), sin importar en qué liga haya sido.
 function mktPickBest(candidates, currentTeam) {
   if (currentTeam) {
-    const sameTeam = candidates.filter(p => p.Equipo === currentTeam);
+    const sameTeam = candidates.filter(p => p.equipo === currentTeam);
     if (sameTeam.length) return { entry: sameTeam.reduce((a, b) => (b.PJ || 0) > (a.PJ || 0) ? b : a), sameTeam: true };
   }
   return { entry: candidates.reduce((a, b) => (b.PJ || 0) > (a.PJ || 0) ? b : a), sameTeam: false };
 }
 
+// Un jugador puede tener historial en Liga Nacional Y Liga Argentina (ascenso/descenso,
+// préstamos). Si viene de cualquiera de las dos, la data debe estar disponible: se
+// combinan los candidatos de ambas ligas antes de elegir cuál mostrar.
 function mktLookupStatsSync(fullName, currentTeam) {
   if (!MKT_NAME_INDEX) return null;
-  const entry = mktResolveEntry(fullName);
-  if (!entry) return null;
+  const entries = mktResolveEntry(fullName);
+  if (!entries || !entries.length) return null;
 
-  const candidates = PLAYERS.filter(p => p['Nombre completo'] === entry.nombre_abreviado);
-  if (!candidates.length) return null;
+  let candidates = [];
+  let stillLoading = false;
+  entries.forEach(entry => {
+    const c = mktCandidatesForLeague(entry.liga, entry.nombre_abreviado);
+    if (c === null) { stillLoading = true; return; } // Liga Argentina todavía no cargó
+    candidates = candidates.concat(c);
+  });
+
+  if (!candidates.length) return stillLoading ? null : null;
+
   const { entry: best, sameTeam } = mktPickBest(candidates, currentTeam);
-  return { liga: 'Liga Nacional', equipo: best.Equipo, sameTeam, PJ: best.PJ, MPG: best.MPG, PPG: best.PPG, RPG: best.RPG, APG: best.APG, SPG: best.SPG, BPG: best.BPG, 'TC%': best['TC%'], 'T3%': best['T3%'] };
+  return { liga: best.liga, equipo: best.equipo, sameTeam, PJ: best.PJ, MPG: best.MPG, PPG: best.PPG, RPG: best.RPG, APG: best.APG, SPG: best.SPG, BPG: best.BPG, 'TC%': best['TC%'], 'T3%': best['T3%'] };
 }
 
 // ── Tooltip flotante de stats (mismo patrón que #thTip) ──────────────────
@@ -1725,6 +1814,7 @@ function mktLookupStatsSync(fullName, currentTeam) {
   let currentTarget = null;
 
   function render(stats, name) {
+    if (stats === 'loading') { tip.innerHTML = '<div class="mkt-tip-loading">Buscando stats…</div>'; return; }
     if (!stats) { tip.style.display = 'none'; return; }
     const rows = [
       ['PPG', stats.PPG], ['RPG', stats.RPG], ['APG', stats.APG],
@@ -1746,7 +1836,25 @@ function mktLookupStatsSync(fullName, currentTeam) {
     const name = card.getAttribute('data-mkt-name');
     const team = card.getAttribute('data-mkt-team') || null;
     mktBuildNameIndex();
-    const stats = mktLookupStatsSync(name, team);
+    const entries = mktResolveEntry(name);
+    const needsArgentina = entries && entries.some(en => en.liga === 'Liga Argentina') && !MKT_ARGENTINA_PLAYERS;
+    let stats = mktLookupStatsSync(name, team);
+    if (needsArgentina) {
+      // El jugador tiene (también) historial en Liga Argentina y ese CSV todavía no
+      // cargó — esperamos antes de decidir, para no perder un posible match mejor
+      // (ej. "sigue en el club") o el único dato disponible si no jugó en Liga Nacional.
+      tip.style.display = 'block';
+      render(stats || 'loading', name);
+      mktEnsureArgentinaLoaded().then(() => {
+        if (currentTarget === card) {
+          const finalStats = mktLookupStatsSync(name, team);
+          if (!finalStats) { tip.style.display = 'none'; return; }
+          tip.style.display = 'block';
+          render(finalStats, name);
+        }
+      });
+      return;
+    }
     if (!stats) { tip.style.display = 'none'; return; }
     tip.style.display = 'block';
     render(stats, name);
@@ -1769,6 +1877,37 @@ function mktLookupStatsSync(fullName, currentTeam) {
   });
 })();
 
+const MKT_RECENT_MS = 24 * 60 * 60 * 1000;
+
+function mktCardHtml(p, clubById) {
+  const club = clubById[p.club_id] || {};
+  const clubLogo = club.team && LOGOS[club.team] ? '<img class="mkt-club-mini" src="' + LOGOS[club.team] + '" alt="">' : '';
+  const photo = p.image_url
+    ? '<img class="mkt-card-photo" src="' + p.image_url + '" alt="" onerror="this.outerHTML=\'<div class=&quot;mkt-card-photo-ph&quot;>' + mktInitials(p.name) + '</div>\'">'
+    : '<div class="mkt-card-photo-ph">' + mktInitials(p.name) + '</div>';
+  const meta = [];
+  if (p.age) meta.push('<span><b>' + p.age + '</b> años</span>');
+  if (p.height) meta.push('<span><b>' + p.height + '</b> m</span>');
+  let proc = '';
+  if (p.last_club) {
+    const lastClubLogo = LOGOS[p.last_club.toUpperCase()] ? '<img class="mkt-lastclub-logo" src="' + LOGOS[p.last_club.toUpperCase()] + '" alt="">' : '';
+    proc = '<span class="mkt-proc-label">Proc.</span>' + lastClubLogo + '<b title="' + mktEscAttr(p.last_club) + '">' + p.last_club + '</b>';
+  }
+  const teamName = club.team || club.name || '';
+  return '<div class="mkt-card" data-mkt-name="' + mktEscAttr(p.name) + '" data-mkt-team="' + mktEscAttr(teamName) + '">' +
+    '<div class="mkt-card-top">' + photo +
+      '<div class="mkt-card-toptext">' +
+        '<div class="mkt-card-name-row">' + clubLogo + '<span class="mkt-card-name" title="' + mktEscAttr(p.name) + '">' + p.name + '</span>' +
+          '<span class="mkt-badge st-' + p.status + '">' + (MKT_DATA.statuses[p.status]||p.status) + '</span>' +
+        '</div>' +
+        '<div class="mkt-card-meta"><span class="mkt-conf-tag">' + (MKT_POS_LABEL[p.position]||p.position||'—') + '</span>' + meta.join('') + '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="mkt-card-proc">' + proc + '</div>' +
+    '<div class="mkt-card-bottom"><span title="' + mktEscAttr(teamName) + '">' + teamName + '</span><span>' + (MKT_DATA.confidence_levels[p.confidence]||'') + '</span></div>' +
+  '</div>';
+}
+
 function mktRender() {
   if (!MKT_DATA) return;
   const search = (document.getElementById('mktSearch').value || '').trim().toUpperCase();
@@ -1784,7 +1923,10 @@ function mktRender() {
 
   document.getElementById('mktCount').textContent = list.length + ' jugador' + (list.length===1?'':'es') + (mktClub ? ' · ' + (clubById[mktClub].team || clubById[mktClub].name) : '');
 
+  const recentSection = document.getElementById('mktRecentSection');
+
   if (!list.length) {
+    recentSection.style.display = 'none';
     document.getElementById('mktGrid').innerHTML = '<div class="mkt-empty">Sin movimientos para este filtro.</div>';
     return;
   }
@@ -1792,21 +1934,28 @@ function mktRender() {
   const statusWeight = {confirmado:0,pretendido:1,se_queda:2,se_va:3,vacante:4};
   list = list.slice().sort((a,b) => (new Date(b.updated_at) - new Date(a.updated_at)) || (statusWeight[a.status]??9) - (statusWeight[b.status]??9) || a.name.localeCompare(b.name));
 
-  document.getElementById('mktGrid').innerHTML = list.map(p => {
-    const club = clubById[p.club_id] || {};
-    const logo = club.team && LOGOS[club.team] ? '<img src="' + LOGOS[club.team] + '" alt="">' : '';
-    const meta = [];
-    if (p.age) meta.push('<span><b>' + p.age + '</b> años</span>');
-    if (p.height) meta.push('<span><b>' + p.height + '</b> m</span>');
-    if (p.last_club) meta.push('<span>Proc. <b>' + p.last_club + '</b></span>');
-    return '<div class="mkt-card" data-mkt-name="' + mktEscAttr(p.name) + '" data-mkt-team="' + mktEscAttr(club.team || club.name || '') + '">' +
-      '<div class="mkt-card-top">' + logo + '<span class="mkt-card-name">' + p.name + '</span>' +
-        '<span class="mkt-badge st-' + p.status + '">' + (MKT_DATA.statuses[p.status]||p.status) + '</span>' +
-      '</div>' +
-      '<div class="mkt-card-meta"><span class="mkt-conf-tag">' + (MKT_POS_LABEL[p.position]||p.position||'—') + '</span>' + meta.join('') + '</div>' +
-      '<div class="mkt-card-bottom"><span>' + (club.team || club.name || '') + '</span><span>' + (MKT_DATA.confidence_levels[p.confidence]||'') + '</span></div>' +
-    '</div>';
-  }).join('');
+  // "Últimos fichajes": confirmados cerrados en las últimas 24hs, separados del resto del listado.
+  const now = Date.now();
+  const recent = [];
+  const rest = [];
+  list.forEach(p => {
+    const closedAt = p.status === 'confirmado' && p.updated_at ? new Date(p.updated_at.replace(' ', 'T')).getTime() : NaN;
+    if (!isNaN(closedAt) && (now - closedAt) <= MKT_RECENT_MS && (now - closedAt) >= 0) recent.push(p);
+    else rest.push(p);
+  });
+
+  if (recent.length) {
+    recentSection.style.display = '';
+    document.getElementById('mktRecentSub').textContent = '· ' + recent.length + ' cerrado' + (recent.length===1?'':'s') + ' en las últimas 24hs';
+    document.getElementById('mktRecentGrid').innerHTML = recent.map(p => mktCardHtml(p, clubById)).join('');
+    document.querySelector('.mkt-section-label-rest').style.display = rest.length ? '' : 'none';
+  } else {
+    recentSection.style.display = 'none';
+  }
+
+  document.getElementById('mktGrid').innerHTML = rest.length
+    ? rest.map(p => mktCardHtml(p, clubById)).join('')
+    : (recent.length ? '' : '<div class="mkt-empty">Sin movimientos para este filtro.</div>');
 }
 
 function renderStandings() {
