@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-28T02:33:51.161039+00:00",
+  "updated_at": "2026-07-28T15:20:11.569659+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -194,7 +194,7 @@
       "name": "San Martín",
       "team": "SAN MARTÍN (C)",
       "pct": 0,
-      "coach": "",
+      "coach": "Gabriel Revidatti",
       "market_status": "abierto",
       "target_mayor": 9,
       "target_u23": 3,
