@@ -37,8 +37,10 @@ CLUB_ID_TO_TEAM = {
     "san_lorenzo": "SAN LORENZO",
     "san_martin": "SAN MARTÍN (C)",
     "union_sf": "UNION (SF)",
-    # "lanus" no matchea con ningún equipo de LOGOS (Liga Nacional 2025/26 no
-    # incluye Lanús) -> se sirve sin logo (fallback de 3 letras en el frontend)
+    # Lanús no juega Liga Nacional 2025/26, pero aparece en el mercado en vivo.
+    # Se reutiliza el escudo de Liga Argentina (LOGOS['LANUS'] agregado a mano
+    # en liga_nacional.js, no forma parte de la tabla de posiciones).
+    "lanus": "LANUS",
 }
 
 
