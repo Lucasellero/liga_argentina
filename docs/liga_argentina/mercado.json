@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-29T02:39:45.050198+00:00",
+  "updated_at": "2026-07-29T15:30:59.680639+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -193,7 +193,7 @@
       "id": "pico_fc",
       "name": "Pico Football Club",
       "team": "PICO F.C.",
-      "pct": 55,
+      "pct": 64,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 7,
@@ -2531,6 +2531,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/maximo-araujo.jpg",
       "updated_at": "2026-07-28 21:18:18"
+    },
+    {
+      "id": "p_3e2f9b5c-2756-44e4-9e2d-d7411e52e530",
+      "club_id": "pico_fc",
+      "name": "Valentin Allier",
+      "position": "escolta",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "21",
+      "height": "1.85",
+      "last_club": "Pico Football Club",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/valentin-allier.jpg",
+      "updated_at": "2026-07-29 12:14:29"
     }
   ],
   "statuses": {
