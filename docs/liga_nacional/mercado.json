@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-28T21:00:28.469634+00:00",
+  "updated_at": "2026-07-29T02:39:45.886507+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -50,7 +50,7 @@
       "id": "gimnasia_cr",
       "name": "Gimnasia (CR)",
       "team": "GIMNASIA (CR)",
-      "pct": 67,
+      "pct": 75,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -932,21 +932,6 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Anyelo-Cisneros1.jpg",
       "updated_at": "2026-07-07 20:36:50"
-    },
-    {
-      "id": "p_a69f10b6-605f-49b2-b1da-21fc45bbef5e",
-      "club_id": "gimnasia_cr",
-      "name": "Bryan Carabalí",
-      "position": "pivote",
-      "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "en_duda",
-      "age": "26",
-      "height": "2,15",
-      "last_club": "Gimnasia (CR)",
-      "source_type": "pnr",
-      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/bryan-carabali1.jpg",
-      "updated_at": "2026-07-04 10:46:25"
     },
     {
       "id": "p_2a80e694-3885-4dd6-a5cd-47b289381021",
@@ -2314,21 +2299,6 @@
       "updated_at": "2026-07-05 16:43:30"
     },
     {
-      "id": "p_0aae51d0-5003-4974-a84f-789654c12271",
-      "club_id": "gimnasia_cr",
-      "name": "Gino Balbo",
-      "position": "escolta",
-      "ficha_type": "u21",
-      "status": "pretendido",
-      "confidence": "interes",
-      "age": "20",
-      "height": "1.83",
-      "last_club": "Santa Paula de Gálvez",
-      "source_type": "pnr",
-      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Gino-Balbo1.jpg",
-      "updated_at": "2026-07-04 10:48:27"
-    },
-    {
       "id": "p_a9ff2d17-aa6b-423c-b506-9167a8ba91f6",
       "club_id": "racing_ch",
       "name": "Juan Bocca",
@@ -2672,6 +2642,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/roberto-acuna.jpg",
       "updated_at": "2026-07-26 18:47:37"
+    },
+    {
+      "id": "p_10164bac-5653-413f-b3fc-d849d0f9930e",
+      "club_id": "gimnasia_cr",
+      "name": "Obiajulum Okafor",
+      "position": "ala_pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "26",
+      "height": "2.00",
+      "last_club": "Rioverde Clavijo (España)",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Obiajulum-Okafor.jpg",
+      "updated_at": "2026-07-28 19:51:51"
     }
   ],
   "statuses": {

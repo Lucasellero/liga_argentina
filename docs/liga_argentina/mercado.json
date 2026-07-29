@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-28T21:00:27.547051+00:00",
+  "updated_at": "2026-07-29T02:39:45.050198+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -94,7 +94,7 @@
       "id": "villa_san_martin",
       "name": "Villa San Martín",
       "team": "VILLA SAN MARTIN",
-      "pct": 8,
+      "pct": 25,
       "coach": "Eduardo \"Chiche\" Japez",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -237,7 +237,7 @@
       "id": "centenario_vt",
       "name": "Centenario",
       "team": "CENTENARIO (VT)",
-      "pct": 33,
+      "pct": 42,
       "coach": "Victor Daitch",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2486,6 +2486,51 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/fausto-moussa.jpg",
       "updated_at": "2026-07-28 10:23:04"
+    },
+    {
+      "id": "p_3726cf54-d32a-422c-a936-1c7c252a003e",
+      "club_id": "villa_san_martin",
+      "name": "Yildon Mendoza",
+      "position": "ala_pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "29",
+      "height": "2.06",
+      "last_club": "Caimanes del Llano (Colombia)",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Yildon-Mendoza.jpg",
+      "updated_at": "2026-07-28 20:47:25"
+    },
+    {
+      "id": "p_7bc4b6fe-e580-4ea7-abdd-cbe7fd734451",
+      "club_id": "villa_san_martin",
+      "name": "Valentin Costa",
+      "position": "base",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "26",
+      "height": "1.82",
+      "last_club": "Ciclista Juninense",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/valentin-costa.jpg",
+      "updated_at": "2026-07-28 20:50:43"
+    },
+    {
+      "id": "p_f3dbe612-e2a8-4ae5-98ba-4bc841b8967d",
+      "club_id": "centenario_vt",
+      "name": "Máximo Araujo",
+      "position": "escolta",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "23",
+      "height": "1.83",
+      "last_club": "Belgrano de Tucumán",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/maximo-araujo.jpg",
+      "updated_at": "2026-07-28 21:18:18"
     }
   ],
   "statuses": {
