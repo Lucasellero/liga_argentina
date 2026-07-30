@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-30T15:09:56.554353+00:00",
+  "updated_at": "2026-07-30T17:16:49.822915+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -138,7 +138,7 @@
       "id": "platense",
       "name": "Platense",
       "team": "PLATENSE",
-      "pct": 58,
+      "pct": 67,
       "coach": "Martín Yangüela",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -171,7 +171,7 @@
       "id": "regatas",
       "name": "Regatas",
       "team": "REGATAS (C)",
-      "pct": 58,
+      "pct": 50,
       "coach": "Martín Villagrán",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -193,7 +193,7 @@
       "id": "san_martin",
       "name": "San Martín",
       "team": "SAN MARTÍN (C)",
-      "pct": 0,
+      "pct": 8,
       "coach": "Gabriel Revidatti",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -1464,14 +1464,14 @@
       "name": "Nico Burgos",
       "position": "pivote",
       "ficha_type": "u21",
-      "status": "pretendido",
-      "confidence": "muy_avanzado",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "22",
       "height": "2,07",
       "last_club": "Platense",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Burgos-N-Platense-25.jpg",
-      "updated_at": "2026-07-05 16:10:14"
+      "updated_at": "2026-07-30 14:11:27"
     },
     {
       "id": "p_82b16cec-bec6-402f-92c4-fd40fd343a91",
@@ -1757,21 +1757,6 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Ferraro-F-Regatas-11.jpg",
       "updated_at": "2026-07-05 20:45:33"
-    },
-    {
-      "id": "p_fc302945-af81-4c30-a347-c739edbbf71d",
-      "club_id": "regatas",
-      "name": "Ignacio Ortega",
-      "position": "pivote",
-      "ficha_type": "u21",
-      "status": "confirmado",
-      "confidence": "oficial",
-      "age": "22",
-      "height": "2,05",
-      "last_club": "Regatas",
-      "source_type": "club_oficial",
-      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Ortega-N-Regatas-15.jpg",
-      "updated_at": "2026-07-05 20:46:09"
     },
     {
       "id": "p_06aaf176-c3e2-4ba1-98b8-a6ec936542dd",
@@ -2495,18 +2480,18 @@
     },
     {
       "id": "p_de712627-bbd3-4eb5-a81c-e88d6d49ce6b",
-      "club_id": "quimsa",
+      "club_id": "san_martin",
       "name": "Franco Mendez",
       "position": "escolta",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "24",
       "height": "1.85",
       "last_club": "San Martin",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Mendez-F-San-Martin-12.jpg",
-      "updated_at": "2026-07-13 12:10:45"
+      "updated_at": "2026-07-30 14:12:52"
     },
     {
       "id": "p_e67d9d04-22d9-4b26-a943-b5279d50acbc",
