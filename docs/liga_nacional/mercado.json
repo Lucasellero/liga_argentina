@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-29T20:43:59.977861+00:00",
+  "updated_at": "2026-07-30T02:26:38.974301+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -93,7 +93,7 @@
     {
       "id": "lanus",
       "name": "Lanús",
-      "team": null,
+      "team": "LANUS",
       "pct": 8,
       "coach": "Manuel Anglese",
       "market_status": "abierto",
