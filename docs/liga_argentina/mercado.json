@@ -1,13 +1,24 @@
 {
-  "updated_at": "2026-07-30T17:16:48.926877+00:00",
+  "updated_at": "2026-07-30T20:58:22.138036+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
+    {
+      "id": "riachuelo",
+      "name": "Riachuelo",
+      "team": null,
+      "pct": 0,
+      "coach": "",
+      "market_status": "abierto",
+      "target_mayor": 7,
+      "target_u23": 4,
+      "order": 0
+    },
     {
       "id": "amancay",
       "name": "Amancay Club",
       "team": "AMANCAY (LR)",
       "pct": 33,
-      "coach": "",
+      "coach": "José Gabriel Albornoz",
       "market_status": "abierto",
       "target_mayor": 9,
       "target_u23": 3,
@@ -106,10 +117,10 @@
       "name": "Estudiantes",
       "team": "ESTUDIANTES (T)",
       "pct": 0,
-      "coach": "",
+      "coach": "Mario Vildoza",
       "market_status": "abierto",
-      "target_mayor": 7,
-      "target_u23": 4,
+      "target_mayor": 9,
+      "target_u23": 3,
       "order": 10
     },
     {
@@ -215,7 +226,7 @@
       "id": "gimnasia_lp",
       "name": "Gimnasia y Esgrima La Plata",
       "team": "GIMNASIA (LP)",
-      "pct": 8,
+      "pct": 17,
       "coach": "Fernando Calvi",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2546,6 +2557,36 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/valentin-allier.jpg",
       "updated_at": "2026-07-29 12:14:29"
+    },
+    {
+      "id": "p_54259eba-45a2-46f3-8a0d-7b54e28e8e25",
+      "club_id": "gimnasia_lp",
+      "name": "Pedro Pérez Di Salvo",
+      "position": "base",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "36",
+      "height": "1.80",
+      "last_club": "Gimnasia y Esgrima (La Plata)",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Pedro-Perez-Gimnasia-4.jpg",
+      "updated_at": "2026-07-30 14:30:00"
+    },
+    {
+      "id": "p_e999b690-d320-4998-af81-d675095d74b2",
+      "club_id": "pico_fc",
+      "name": "Marco Luchi",
+      "position": "pivote",
+      "ficha_type": "mayor",
+      "status": "pretendido",
+      "confidence": "oficial",
+      "age": "33",
+      "height": "2.00",
+      "last_club": "Deportivo Norte",
+      "source_type": "pnr",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Marco_Luchi.jpg",
+      "updated_at": "2026-07-30 14:35:40"
     }
   ],
   "statuses": {
