@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-31T02:51:04.191088+00:00",
+  "updated_at": "2026-07-31T15:18:47.735168+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -193,7 +193,7 @@
       "id": "la_union_colon",
       "name": "La Unión",
       "team": "LA UNIÓN (C)",
-      "pct": 42,
+      "pct": 50,
       "coach": "Martin Guastavino",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -204,7 +204,7 @@
       "id": "pico_fc",
       "name": "Pico Football Club",
       "team": "PICO F.C.",
-      "pct": 64,
+      "pct": 73,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 7,
@@ -2579,14 +2579,14 @@
       "name": "Marco Luchi",
       "position": "pivote",
       "ficha_type": "mayor",
-      "status": "pretendido",
+      "status": "confirmado",
       "confidence": "oficial",
       "age": "33",
       "height": "2.00",
       "last_club": "Deportivo Norte",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Marco_Luchi.jpg",
-      "updated_at": "2026-07-30 14:35:40"
+      "updated_at": "2026-07-31 10:53:02"
     },
     {
       "id": "p_99badab5-8db2-4672-8f32-5a5419e8f69b",
@@ -2692,6 +2692,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Conrado-Echeverria-Amancay-3.jpg",
       "updated_at": "2026-07-30 20:56:45"
+    },
+    {
+      "id": "p_77775155-5408-4f10-9465-985e99909e73",
+      "club_id": "la_union_colon",
+      "name": "Gianfranco Sinconi",
+      "position": "pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "32",
+      "height": "2.04",
+      "last_club": "Gimnasia y Esgrima (La Plata)",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Gian-Franco-Sinconi-Gimnasia-6.jpg",
+      "updated_at": "2026-07-31 10:48:48"
     }
   ],
   "statuses": {

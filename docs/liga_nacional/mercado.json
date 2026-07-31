@@ -1,12 +1,12 @@
 {
-  "updated_at": "2026-07-31T02:51:05.121529+00:00",
+  "updated_at": "2026-07-31T15:18:48.631936+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
       "id": "argentino_junin",
       "name": "Argentino (J)",
       "team": "ARGENTINO (J)",
-      "pct": 75,
+      "pct": 83,
       "coach": "Adrián Capelli",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2064,14 +2064,14 @@
       "name": "Joaquín Fernández",
       "position": "base",
       "ficha_type": "mayor",
-      "status": "pretendido",
+      "status": "confirmado",
       "confidence": "oficial",
       "age": "22",
       "height": "1.88",
       "last_club": "Colón de Santa Fe",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Joaquin-Fernandez-cara.jpg",
-      "updated_at": "2026-07-03 10:32:09"
+      "updated_at": "2026-07-31 09:47:17"
     },
     {
       "id": "p_9fe5a3d5-88d5-499c-b8c3-aaf8313fe5f1",
