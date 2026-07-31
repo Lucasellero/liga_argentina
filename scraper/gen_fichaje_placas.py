@@ -269,6 +269,17 @@ def slugify(name):
     return s or 'jugador'
 
 
+def write_manifest(out_dir, files):
+    """manifest.json: usado por el frontend para saber cuándo terminó una
+    corrida disparada desde el botón admin del dashboard (polling)."""
+    manifest = {
+        'generated_at': datetime.now(timezone.utc).isoformat(),
+        'files': files,
+    }
+    with open(os.path.join(out_dir, 'manifest.json'), 'w', encoding='utf-8') as f:
+        json.dump(manifest, f, ensure_ascii=False, indent=2)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--liga', default='liga_nacional', choices=list(LIGA_CONFIG.keys()))
@@ -312,12 +323,14 @@ def main():
             if dt >= cutoff:
                 targets.append(p)
 
-    if not targets:
-        print(f'Sin fichajes confirmados en las últimas {args.hours:.0f}hs para {args.liga}.')
-        return
-
     out_dir = args.out or os.path.join(docs_dir, 'placas_mercado')
     os.makedirs(out_dir, exist_ok=True)
+
+    if not targets:
+        print(f'Sin fichajes confirmados en las últimas {args.hours:.0f}hs para {args.liga}.')
+        if not args.player:
+            write_manifest(out_dir, [])
+        return
 
     try:
         from playwright.sync_api import sync_playwright
@@ -343,6 +356,9 @@ def main():
         browser.close()
 
     print(f'\n{len(generated)} placa(s) generada(s) en {out_dir}')
+
+    if not args.player:
+        write_manifest(out_dir, [os.path.basename(p) for p in generated])
 
 
 if __name__ == '__main__':

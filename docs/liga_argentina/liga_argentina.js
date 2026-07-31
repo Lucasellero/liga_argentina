@@ -28,6 +28,11 @@
           el.style.display = 'flex';
         }
       }
+      const ADMIN_EMAILS = ['ramiellero@gmail.com', 'nachodacunda08@gmail.com', 'lucasellero05@gmail.com'];
+      if (user.email && ADMIN_EMAILS.includes(String(user.email).toLowerCase())) {
+        const adminWrap = document.getElementById('mktAdminWrap');
+        if (adminWrap) adminWrap.style.display = 'flex';
+      }
     } catch(e) {}
     const loginEl = document.getElementById('headerLogin');
     if (loginEl) loginEl.style.display = 'none';
@@ -60,6 +65,72 @@ function authLogout() {
   localStorage.removeItem('auth_token');
   localStorage.removeItem('auth_user');
   window.location.replace('../login.html');
+}
+
+// ── Generación de placas de fichajes (admin) ────────────────────────────────
+async function mktGenerarPlacas() {
+  const LIGA = 'liga_argentina';
+  const btn = document.getElementById('mktAdminBtn');
+  const status = document.getElementById('mktAdminStatus');
+  const token = localStorage.getItem('auth_token');
+  if (!token) return;
+
+  btn.disabled = true;
+  status.textContent = 'Generando… puede tardar 1-3 min.';
+
+  let baseline = null;
+  try {
+    const r = await fetch(`placas_mercado/manifest.json?v=${Date.now()}`);
+    if (r.ok) baseline = (await r.json()).generated_at;
+  } catch (e) {}
+
+  try {
+    const res = await fetch('/api/placas/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ liga: LIGA }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      status.textContent = 'Error: ' + (data.error || res.status);
+      btn.disabled = false;
+      return;
+    }
+  } catch (e) {
+    status.textContent = 'No se pudo conectar con el servidor.';
+    btn.disabled = false;
+    return;
+  }
+
+  const startedAt = Date.now();
+  const TIMEOUT_MS = 5 * 60 * 1000;
+  const POLL_MS = 5000;
+
+  (function poll() {
+    if (Date.now() - startedAt > TIMEOUT_MS) {
+      status.innerHTML = 'Está tardando más de lo esperado. Revisá <a href="placas_mercado/" target="_blank">placas_mercado/</a> en unos minutos.';
+      btn.disabled = false;
+      return;
+    }
+    fetch(`placas_mercado/manifest.json?v=${Date.now()}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data && data.generated_at && data.generated_at !== baseline) {
+          btn.disabled = false;
+          if (!data.files || !data.files.length) {
+            status.textContent = 'Listo, sin fichajes nuevos en las últimas 24hs.';
+            return;
+          }
+          const links = data.files
+            .map(f => `<a href="placas_mercado/${f}" target="_blank">${f.replace('.png', '')}</a>`)
+            .join(', ');
+          status.innerHTML = `¡Listo! ${data.files.length} placa(s): ${links}`;
+          return;
+        }
+        setTimeout(poll, POLL_MS);
+      })
+      .catch(() => setTimeout(poll, POLL_MS));
+  })();
 }
 
 // ============================================================

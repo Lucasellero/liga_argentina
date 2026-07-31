@@ -1,0 +1,49 @@
+name: Placas de Fichajes
+
+on:
+  workflow_dispatch:
+    inputs:
+      liga:
+        description: 'Liga'
+        type: choice
+        options:
+          - liga_nacional
+          - liga_argentina
+        default: liga_nacional
+      hours:
+        description: 'Ventana de fichajes recientes (horas)'
+        type: string
+        default: '24'
+
+jobs:
+  generar:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: pip install -r scraper/requirements.txt
+
+      - name: Instalar Chromium (Playwright)
+        run: python -m playwright install --with-deps chromium
+
+      - name: Generar placas
+        run: python scraper/gen_fichaje_placas.py --liga ${{ inputs.liga }} --hours ${{ inputs.hours }}
+
+      - name: Commitear placas generadas
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/${{ inputs.liga }}/placas_mercado/
+          git diff --cached --quiet || git commit -m "data: generar placas de fichajes ${{ inputs.liga }} $(date +'%d-%m-%Y %H:%M')"
+          git push

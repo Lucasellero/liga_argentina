@@ -34,6 +34,17 @@
 .mkt-title{font-size:1.2rem;font-weight:800;color:var(--text-bright);letter-spacing:-.3px;text-align:center;}
 .mkt-insight{font-size:.74rem;color:var(--muted);text-align:center;}
 .mkt-insight b{color:var(--text-bright);font-weight:700;}
+.mkt-admin-wrap{position:absolute;right:0;top:0;display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.mkt-admin-btn{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:700;padding:7px 14px;border-radius:20px;border:1px solid rgba(45,212,191,.4);background:rgba(45,212,191,.12);color:var(--teal-l);cursor:pointer;font-family:inherit;transition:background .15s;white-space:nowrap;}
+.mkt-admin-btn:hover{background:rgba(45,212,191,.22);}
+.mkt-admin-btn:disabled{opacity:.6;cursor:default;}
+.mkt-admin-status{font-size:.68rem;color:var(--muted);text-align:right;max-width:220px;}
+.mkt-admin-status a{color:var(--teal-l);text-decoration:none;}
+.mkt-admin-status a:hover{text-decoration:underline;}
+@media (max-width:640px){
+  .mkt-admin-wrap{position:static;align-items:center;order:99;width:100%;margin-top:6px;}
+  .mkt-admin-status{max-width:none;text-align:center;}
+}
 
 .mkt-progress-wrap{max-width:620px;margin:0 auto 22px;}
 .mkt-progress-bar{display:flex;height:7px;border-radius:5px;overflow:hidden;background:var(--surface2);border:1px solid var(--border2);}
@@ -1507,6 +1518,10 @@
     <div class="mkt-header-center">
       <div class="mkt-title">Mercado de Pases</div>
       <div class="mkt-insight" id="mktInsight"></div>
+    </div>
+    <div class="mkt-admin-wrap" id="mktAdminWrap" style="display:none">
+      <button class="mkt-admin-btn" id="mktAdminBtn" onclick="mktGenerarPlacas()">Generar placas de fichajes</button>
+      <div class="mkt-admin-status" id="mktAdminStatus"></div>
     </div>
   </div>
 
