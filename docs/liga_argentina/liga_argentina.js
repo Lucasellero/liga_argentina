@@ -29,10 +29,6 @@
       }
     } catch(e) {}
   }
-  // Botón de placas visible para todo el público mientras Supabase está caído
-  // (hasta 11/08). Volver a moverlo dentro del bloque isAuthed cuando vuelva.
-  const adminWrap = document.getElementById('mktAdminWrap');
-  if (adminWrap) adminWrap.style.display = 'flex';
   const loginEl = document.getElementById('headerLogin');
   if (loginEl) loginEl.style.display = 'none';
 })();
