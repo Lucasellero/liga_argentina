@@ -193,7 +193,16 @@ liga_argentina/
 
 ## Flujo de actualización automática
 
-El workflow `.github/workflows/scraper.yml` corre todos los días a las **06:00 ART** (cron `0 9 * * *` UTC). También se puede disparar manualmente desde GitHub Actions (`workflow_dispatch`).
+**⚠️ ESTADO ACTUAL (desde agosto 2026): el cron diario está DESACTIVADO.** La temporada regular de Liga Argentina terminó (ver "Incidente: Supabase egress excedido" y el hallazgo de julio 2026 sobre `fixture_upcoming.csv` — último partido 03/06/2026, LANÚS campeón) y faltan ~2 meses para que arranque la próxima. Como no hay partidos nuevos que scrapear, se comentaron las líneas `schedule:` en `.github/workflows/scraper.yml` para no seguir corriendo el workflow en vano todos los días. `workflow_dispatch` (disparo manual desde la pestaña Actions) sigue disponible por si hace falta correrlo antes.
+
+**Por qué se decidió apagarlo (no solo dejarlo correr sin hacer nada):** el 01/08/2026 el workflow falló en el paso "Commitear CSVs actualizados" con `fatal: pathspec 'docs/liga_argentina/recaps.json' did not match any files` — el `git add` intenta agregar un archivo `recaps.json` que no existe, y como el step usa `bash -e`, el error corta todo el script (exit code 128) antes de llegar al `git commit`/`git push`. No se investigó ni se corrigió este bug porque no tiene sentido con la temporada terminada; **queda pendiente para cuando se reactive el workflow** — revisar qué genera (o debería generar) `recaps.json` en cada liga antes de descomentar el cron.
+
+**Para reactivar antes de la próxima temporada:**
+1. Descomentar las 2 líneas `cron:` en `.github/workflows/scraper.yml` (dejan de estar comentadas, `workflow_dispatch:` no se toca).
+2. Investigar y resolver el bug de `recaps.json` (arriba) para que el `git add` no vuelva a fallar.
+3. Correr el workflow una vez a mano (`workflow_dispatch`) antes de confiar en el cron, para confirmar que el paso de commit ya no rompe.
+
+El workflow corre todos los días a las **06:00 ART** (cron `0 9 * * *` UTC) — cuando esté reactivado. También se puede disparar manualmente desde GitHub Actions (`workflow_dispatch`).
 
 **Secuencia completa:**
 1. Scrapers Liga Argentina (stats, shots, PBP)
