@@ -27,13 +27,12 @@
           el.style.display = 'flex';
         }
       }
-      const ADMIN_EMAILS = ['ramiellero@gmail.com', 'nachodacunda08@gmail.com', 'lucasellero05@gmail.com'];
-      if (user.email && ADMIN_EMAILS.includes(String(user.email).toLowerCase())) {
-        const adminWrap = document.getElementById('mktAdminWrap');
-        if (adminWrap) adminWrap.style.display = 'flex';
-      }
     } catch(e) {}
   }
+  // Botón de placas visible para todo el público mientras Supabase está caído
+  // (hasta 11/08). Volver a moverlo dentro del bloque isAuthed cuando vuelva.
+  const adminWrap = document.getElementById('mktAdminWrap');
+  if (adminWrap) adminWrap.style.display = 'flex';
   const loginEl = document.getElementById('headerLogin');
   if (loginEl) loginEl.style.display = 'none';
 })();
@@ -49,8 +48,6 @@ async function mktGenerarPlacas() {
   const LIGA = 'liga_nacional';
   const btn = document.getElementById('mktAdminBtn');
   const status = document.getElementById('mktAdminStatus');
-  const token = localStorage.getItem('auth_token');
-  if (!token) return;
 
   btn.disabled = true;
   status.textContent = 'Generando… puede tardar 1-3 min.';
@@ -64,7 +61,7 @@ async function mktGenerarPlacas() {
   try {
     const res = await fetch('/api/placas/generate', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ liga: LIGA }),
     });
     if (!res.ok) {
