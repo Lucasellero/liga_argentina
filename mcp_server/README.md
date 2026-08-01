@@ -60,11 +60,16 @@ descargar directo del disco.
 
 - Los tools de datos (`buscar_jugador`, `buscar_equipo`, `lideres_liga`) leen y
   agregan en vivo los CSVs públicos de `scouteado.com` (misma lógica de cálculo que
-  el dashboard: PJ = partidos con minutos jugados, promedios = total/PJ). Cachean en
-  memoria 10 minutos para no re-descargar en cada pregunta de una misma sesión.
+  el dashboard: PJ = partidos con minutos jugados, promedios = total/PJ). Cada
+  descarga se revalida por ETag (`If-None-Match`) contra el servidor: si el CSV no
+  cambió desde la última consulta, el servidor responde `304` sin body en vez de
+  reenviar el archivo completo — ahorra ancho de banda sin sacrificar frescura
+  (los datos actualizan una vez al día, así que en la práctica casi siempre es 304).
 - `generar_placa_fichaje` reusa el mismo template HTML que `/fichajes-placas`
-  (`scraper/placa_common.py`), pero trae los assets (logos, foto del jugador) desde
-  `scouteado.com` en vez de leerlos del repo local, porque este servidor corre en tu
-  máquina sin el repo clonado.
+  (`scraper/placa_common.py`), pero trae los assets desde `scouteado.com` en vez de
+  leerlos del repo local, porque este servidor corre en tu máquina sin el repo
+  clonado. Los logos de club se cachean en disco (`mcp_server/.cache/`) la primera
+  vez y no se vuelven a descargar — solo la foto del jugador y el JSON del Mercado
+  de Pases se piden en cada corrida (también revalidado por ETag).
 - Solo hay Mercado de Pases (y por lo tanto placas de fichajes) en Liga Argentina y
   Liga Nacional — Liga Femenina y Liga de Desarrollo no están cubiertas por este MCP.

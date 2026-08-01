@@ -2,21 +2,34 @@
 Fetch + agregación de datos de scouteado.com para el servidor MCP.
 
 Los CSVs se leen en vivo desde https://scouteado.com/<liga>/<archivo> (los mismos
-que sirve Vercel desde docs/), con un cache en memoria de corta duración para no
-re-descargar en cada llamada de una misma sesión. La agregación de stats replica
-la misma lógica que usa el frontend (buildRAW_J / buildRAW_T, documentada en
-CLAUDE.md): PJ = partidos con "Segundos jugados" > 0, promedios = total / PJ.
+que sirve Vercel desde docs/). La agregación de stats replica la misma lógica que
+usa el frontend (buildRAW_J / buildRAW_T, documentada en CLAUDE.md): PJ = partidos
+con "Segundos jugados" > 0, promedios = total / PJ.
+
+Los CSVs se sirven con Cache-Control: no-store (para que el dashboard siempre vea
+datos frescos), pero el origin sí honra pedidos condicionales (ETag/If-None-Match):
+un archivo sin cambios responde 304 con 0 bytes en vez de los ~300KB comprimidos
+(2-4MB sin comprimir) que pesa cada CSV completo. Por eso el cache acá no es por
+tiempo (TTL) sino por revalidación — siempre se pregunta al servidor, pero solo se
+paga el download completo cuando el archivo realmente cambió (una vez al día para
+los CSVs de stats, unas pocas veces al día para mercado.json).
+
+El ETag se persiste en disco (mcp_server/.cache/data/), no solo en memoria: así,
+aunque el community manager cierre y reabra Claude Desktop varias veces en el día
+(cada reinicio = proceso nuevo), sigue revalidando contra el ETag guardado en vez
+de volver a pagar la descarga completa desde cero.
 """
 import io
+import json
+import os
 import re
-import time
 import unicodedata
 
 import pandas as pd
 import requests
 
 BASE_URL = "https://scouteado.com"
-CACHE_TTL_SECONDS = 600  # 10 min
+CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".cache", "data")
 
 LIGAS = {
     "liga_argentina": {"csv": "liga_argentina.csv", "label": "Liga Argentina"},
@@ -38,7 +51,7 @@ CATEGORIAS = {
 
 MIN_PJ_LEADERS = 5  # partidos mínimos para entrar al ranking de líderes
 
-_cache = {}
+_mem_cache = {}  # (liga, filename) -> valor ya parseado, para esta corrida del proceso
 
 
 def _norm(s):
@@ -49,17 +62,51 @@ def _norm(s):
     return re.sub(r"[^a-z0-9]", "", s.lower())
 
 
+def _disk_cache_paths(liga, filename):
+    key = f"{liga}__{filename}".replace("/", "_")
+    return (os.path.join(CACHE_DIR, key + ".etag"), os.path.join(CACHE_DIR, key + ".body"))
+
+
 def _cached_get(liga, filename, parser):
+    """GET con revalidación condicional en dos niveles:
+    1) memoria del proceso — si ya se pidió este archivo en esta sesión, no vuelve
+       a tocar la red.
+    2) ETag persistido en disco — si no hay hit en memoria (proceso recién
+       arrancado), manda el ETag de la última descarga; si el archivo no cambió,
+       el servidor responde 304 sin body y se reusa el texto ya guardado en disco.
+    Solo se paga la descarga completa cuando el archivo realmente cambió.
+    `parser` recibe el texto de la respuesta (str), no el objeto Response.
+    """
     key = (liga, filename)
-    now = time.time()
-    hit = _cache.get(key)
-    if hit and now - hit[0] < CACHE_TTL_SECONDS:
-        return hit[1]
+    if key in _mem_cache:
+        return _mem_cache[key]
+
+    os.makedirs(CACHE_DIR, exist_ok=True)
+    etag_path, body_path = _disk_cache_paths(liga, filename)
+
+    headers = {}
+    if os.path.isfile(etag_path):
+        etag = open(etag_path, encoding="utf-8").read().strip()
+        if etag:
+            headers["If-None-Match"] = etag
+
     url = f"{BASE_URL}/{liga}/{filename}"
-    resp = requests.get(url, timeout=20)
-    resp.raise_for_status()
-    value = parser(resp)
-    _cache[key] = (now, value)
+    resp = requests.get(url, headers=headers, timeout=20)
+
+    if resp.status_code == 304 and os.path.isfile(body_path):
+        text = open(body_path, encoding="utf-8").read()
+    else:
+        resp.raise_for_status()
+        text = resp.text
+        with open(body_path, "w", encoding="utf-8") as f:
+            f.write(text)
+        new_etag = resp.headers.get("ETag")
+        if new_etag:
+            with open(etag_path, "w", encoding="utf-8") as f:
+                f.write(new_etag)
+
+    value = parser(text)
+    _mem_cache[key] = value
     return value
 
 
@@ -70,7 +117,12 @@ def _validate_liga(liga):
 
 def stats_df(liga):
     _validate_liga(liga)
-    return _cached_get(liga, LIGAS[liga]["csv"], lambda r: pd.read_csv(io.StringIO(r.text)))
+    return _cached_get(liga, LIGAS[liga]["csv"], lambda text: pd.read_csv(io.StringIO(text)))
+
+
+def fetch_json(liga, filename):
+    """Fetch de un JSON de scouteado.com con la misma revalidación condicional."""
+    return _cached_get(liga, filename, json.loads)
 
 
 def _round(v, nd=1):
