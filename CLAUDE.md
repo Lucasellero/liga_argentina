@@ -629,6 +629,7 @@ La sección Home tiene dos tabs internos: **Temporada Regular** y **Post Tempora
 - Al hacer clic en una card **de partido jugado** se llama `openPartidoModal(game)`, que setea `_partidoMode=true` y abre el modal de detalle directamente (sin mostrar la lista de juegos del equipo).
 - `GAMES_ALL`: array global de partidos únicos construido en `initApp()` desde los `_gamelog[]` de `TEAMS`. Cada entrada: `{ gameId, fecha, local, visit, ptsLocal, ptsVisit, ganLocal, estadio, sLocal, sVisit }`. Ordenado por fecha ascendente. Se desduplicata por `gameId` usando un `Set`.
 - **Partidos por jugar**: se leen de `docs/fixture_upcoming.csv` (columnas: `fecha,hora,local,visitante,estadio`). En `initApp()` se hace un `fetch` de ese archivo y se fusionan las filas en `GAMES_ALL` usando un Set de claves `fecha|local|visit` para evitar duplicados con partidos ya scrapeados. Las cards de estos partidos muestran hora y estadio en lugar del marcador, no tienen cursor pointer ni abren el modal. Cuando un partido se scrapea, su entrada en el CSV desplaza automáticamente la entrada upcoming (la clave ya existe → se ignora). Si el archivo no existe o falla el fetch, se ignora silenciosamente. **Para actualizar el fixture: reemplazar `fixture_upcoming.csv` sin tocar el HTML.**
+  - **⚠️ Ningún scraper regenera `fixture_upcoming.csv` automáticamente** — es un archivo estático que hay que mantener a mano. El descarte automático por clave (`fecha|local|visit`) solo funciona si el partido efectivamente se jugó. Si una fila corresponde a un "partido de contingencia" (ej. posible partido 3 de una serie best-of-3 que se definió 2-0), **nunca se juega y nunca se descarta solo** — queda como "próximo" para siempre. Encontrado en julio 2026: 3 filas fantasma en `docs/liga_argentina/fixture_upcoming.csv` de series de semifinal ya definidas, eliminadas a mano. Revisar periódicamente (o al cierre de cada fase de playoffs) si quedan filas con fecha pasada que no matchean ningún partido jugado — esas son candidatas a fantasma y hay que borrarlas manualmente.
 - **Predicciones de victoria (Liga Nacional)**: se leen de `predicciones_upcoming.csv` (columnas: `fecha,local,visitante,prob_local,prob_visit`), generado por `liga_argentina/modelo_liga_nacional.py`. En `initApp()` se carga justo después del fixture y se indexa en `PRED_MAP` por clave `"fecha|local|visitante"`. Las cards de partidos próximos muestran una barra dividida: porcentaje violeta (local) a la izquierda y teal (visitante) a la derecha, con leyenda "PROB. VICTORIA" (oculta en mobile). Si el CSV no existe, las cards se muestran sin barra. El CSV se regenera automáticamente cada vez que se ejecuta el modelo.
 - `GAME_PLAYERS_MAP`: `Map<IdPartido → rows[]>` con todas las filas no-TOTALES del CSV, construido en `initApp()` desde `rows`. Usado por `renderBoxScore()` para el box score.
 - `_partidoMode`: flag booleano. `true` cuando el modal fue abierto desde `partidos`. Controla el comportamiento del botón "‹ Volver" (`onTgmBack()`).
@@ -972,6 +973,39 @@ Al descubrirlo, el CSV de Liga Nacional tenía cada partido repetido ~7 veces (u
 Los scrapers `data_scraper_nacional.py` y `shot_map_scraper_nacional.py` fueron corregidos para usar **clave estable `fecha|local|visitante`** en lugar de `IdPartido` tanto para el cache como para el `drop_duplicates` al mergear.
 
 Los mismos scrapers de las otras ligas (`data_scraper.py`, `data_scraper_femenina.py`, `data_scraper_proximo.py`, `shot_map_scraper.py`, etc.) tienen el mismo bug latente y deben aplicar el mismo fix si el sitio cambia el formato de IDs de esa liga también.
+
+### Extensión del fix a todas las ligas + PBP (julio 2026)
+
+El bug de junio 2026 solo se había corregido en `data_scraper_nacional.py` y `shot_map_scraper_nacional.py`. Las otras 3 ligas (Argentina, Femenina, Desarrollo) **y los 4 scrapers de PBP** (`pbp_scraper.py`, `pbp_scraper_nacional.py`, `pbp_scraper_femenina.py`, `pbp_scraper_proximo.py`) seguían cacheando por `IdPartido`, con dos consecuencias:
+
+1. **El workflow diario nunca hacía scraping incremental**: como el `IdPartido` cambia en cada request, el caché nunca coincidía y el scraper de PBP re-scrapeaba literalmente todos los partidos de la temporada en cada corrida. Con miles de partidos "nuevos" cada día, el job de GitHub Actions (límite de 6h) terminaba cancelado (`Error: The operation was canceled.`) casi todos los días — visible en el historial de "Scraper diario" como corridas de ~6h con ⚠️/✗.
+2. **Los CSVs de stats y tiros llevaban meses acumulando duplicados**: cada partido ya jugado se volvía a agregar bajo un `IdPartido` falso distinto en cada corrida exitosa. Se detectó al encontrar que la mitad de los partidos de Liga Argentina, Femenina y Desarrollo estaban repetidos hasta 8 veces en `liga_*.csv`.
+
+**Fix aplicado**: se replicó el patrón de clave estable `fecha|local|visitante` (usando solo la fila `Condicion equipos == 'LOCAL'` para evitar contar el mismo partido dos veces, una por lado) en los 7 scrapers restantes:
+- `data_scraper.py`, `data_scraper_femenina.py`, `data_scraper_proximo.py`
+- `shot_map_scraper.py`, `shot_map_scraper_femenina.py`, `shot_map_scraper_proximo.py`
+- `pbp_scraper.py`, `pbp_scraper_nacional.py`, `pbp_scraper_femenina.py`, `pbp_scraper_proximo.py`
+
+De paso, en `pbp_scraper_nacional.py` y `data_scraper_nacional.py`, `BLOCKED_GAME_IDS` (usado para excluir la Supercopa Boca–Instituto del 05/03/2026) también dependía de un `IdPartido` fijo que nunca iba a volver a coincidir. En `pbp_scraper_nacional.py` se reemplazó por `BLOCKED_GAME_KEYS`, una clave `(fecha, frozenset({equipoA, equipoB}))` que no depende del ID dinámico.
+
+**Limpieza única de los CSVs ya duplicados** (julio 2026):
+
+| Archivo | Filas antes | Filas después | Reducción |
+|---|---|---|---|
+| `liga_argentina.csv` | 136.322 | 15.796 | -88.4% |
+| `liga_argentina_shots.csv` | 725.518 | 80.648 | -88.9% |
+| `liga_femenina.csv` | 80.379 | 9.295 | -88.4% |
+| `liga_femenina_shots.csv` | 416.700 | 46.295 | -88.9% |
+| `liga_proximo.csv` | 65.988 | 7.681 | -88.4% |
+| `liga_proximo_shots.csv` | 413.486 | 45.888 | -88.9% |
+
+Deduplicado con `drop_duplicates(subset=['Fecha','Condicion equipos','Equipo','Nombre completo'], keep='last')` para stats y `subset=['Fecha','Equipo_local','Equipo_visitante','Equipo','Dorsal','Periodo','Tipo','Resultado','Left_pct','Top_pct']` para shots (mismo criterio que usan ahora los scrapers al mergear). Verificado post-limpieza: Check 4 (cobertura shots vs T2I+T3I del box score) dio 100.1–100.5% en las 3 ligas — dentro del umbral ✓ documentado en "Integridad de datos".
+
+**Importante — impacto en stats históricas**: antes de este fix, las estadísticas mostradas en el dashboard de Liga Argentina, Femenina y Desarrollo (PJ, promedios, totales) estaban infladas porque `buildRAW_J`/`buildRAW_T` sumaban cada partido duplicado varias veces. Liga Nacional no se vio afectada porque ya tenía el fix de junio. Después de esta limpieza los números vuelven a ser correctos.
+
+**Pendiente**: los CSVs de PBP (`liga_*_pbp.csv`) viven solo en Supabase Storage (gitignored, no están en este repo) y no se pudieron limpiar en esta pasada porque el proyecto de Supabase está restringido (ver "Incidente: Supabase egress excedido" más abajo). Una vez restaurado el acceso, correr `pbp_scraper_*.py --full` para cada liga regenera el archivo desde cero ya sin duplicados con el scraper corregido — más simple que deduplicar el archivo bloateado in situ.
+
+**Gaps preexistentes encontrados (no relacionados a la duplicación, no corregidos en esta pasada)**: 4 partidos quedaron sin fila `TOTALES` de un lado (mismo patrón que "Bug 2" en la sección de shots CSV, más abajo) — `03/06/2026 LANÚS vs SAN ISIDRO` (Liga Argentina, falta LOCAL) y `03/10/2025 GIMNASIA (CR) vs SAN MARTÍN (C)`, `09/01/2026 REGATAS (C) vs RACING (CH)`, `13/10/2025 OBERA vs UNION (SF)` (Liga Desarrollo, falta LOCAL en los 3). Afecta a 4 de ~2700 partidos — impacto marginal, pendiente de reconstrucción manual si hace falta.
 
 ### Recuperación manual de un CSV duplicado
 Si el CSV ya está duplicado, deduplicarlo con clave estable:

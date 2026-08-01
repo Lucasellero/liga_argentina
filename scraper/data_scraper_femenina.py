@@ -703,15 +703,23 @@ def main():
     session = make_session()
 
     # 1. Load cache from latest existing CSV
-    cached_ids: set[str] = set()
+    # Clave estable: fecha|local|visitante — los IDs del sitio son dinámicos y cambian
+    # en cada request, por lo que no se pueden usar como clave de cache.
+    cached_keys: set[str] = set()
     existing_df: pd.DataFrame | None = None
 
     if not args.full:
         latest_csv = find_latest_csv()
         if latest_csv:
             existing_df = pd.read_csv(latest_csv, encoding="utf-8-sig")
-            cached_ids = set(existing_df["IdPartido"].dropna().astype(str).unique())
-            log.info(f"Cache: {len(cached_ids)} games already in {latest_csv.name}")
+            _totales = existing_df[existing_df["Nombre completo"] == "TOTALES"]
+            for _, _r in _totales.iterrows():
+                if str(_r.get("Condicion equipos", "")) == "LOCAL":
+                    cached_keys.add(f"{_r['Fecha']}|{_r['Equipo']}|{_r['Rival']}")
+            log.info(f"Cache: {len(cached_keys)} games already in {latest_csv.name}")
+
+    def _stable_key(g: dict) -> str:
+        return f"{g.get('date','')}|{g.get('home_team','')}|{g.get('away_team','')}"
 
     # 2. Get fixture game list
     all_fixture_games = fetch_fixture_games(session, debug=args.debug)
@@ -722,32 +730,18 @@ def main():
     if args.dry_run:
         log.info("--- DRY RUN ---")
         for g in all_fixture_games:
-            tag = " [cached]" if g["game_id"] in cached_ids else ""
+            tag = " [cached]" if _stable_key(g) in cached_keys else ""
             log.info(f"  {g['date']}  {g.get('home_team','?')} "
                      f"{g.get('home_score','?')}-{g.get('away_score','?')} "
                      f"{g.get('away_team','?')}{tag}")
         return
 
-    # Filter to only games not yet scraped
-    # A game is considered "played" when it has scores in the fixture
-    # Detectar cambio de formato de IDs (ej: migración del sitio a IDs "v2")
-    if cached_ids and all_fixture_games:
-        _sample_new = all_fixture_games[0]["game_id"]
-        _sample_old = next(iter(cached_ids))
-        if _sample_new[:2] != _sample_old[:2]:
-            log.warning(
-                f"Cambio de formato de IDs detectado "
-                f"('{_sample_old[:8]}...' → '{_sample_new[:8]}...'). "
-                f"Descartando caché para evitar duplicados."
-            )
-            cached_ids = set()
-            existing_df = None
-
+    # Filter to only games not yet scraped (played games only)
     no_score = [g for g in all_fixture_games if g.get("home_score") is None]
-    already_cached = [g for g in all_fixture_games if g["game_id"] in cached_ids]
+    already_cached = [g for g in all_fixture_games if _stable_key(g) in cached_keys]
     new_games = [
         g for g in all_fixture_games
-        if g["game_id"] not in cached_ids
+        if _stable_key(g) not in cached_keys
         and g.get("home_score") is not None   # played games only
     ]
     log.info(f"Fixture total: {len(all_fixture_games)} | Sin resultado: {len(no_score)} | Ya cacheados: {len(already_cached)} | A scrapear: {len(new_games)}")
@@ -791,7 +785,10 @@ def main():
         merged_df = new_df
 
     before_dd = len(merged_df)
-    merged_df = merged_df.drop_duplicates(subset=["IdPartido", "Nombre completo"], keep="last")
+    # Deduplicar por clave estable (no por IdPartido, que es dinámico)
+    merged_df = merged_df.drop_duplicates(
+        subset=["Fecha", "Condicion equipos", "Equipo", "Nombre completo"], keep="last"
+    )
     if len(merged_df) < before_dd:
         log.warning(f"drop_duplicates: eliminadas {before_dd - len(merged_df)} filas duplicadas")
     log.info(f"Total rows: {len(merged_df)} ({len(new_rows)} new + {len(merged_df) - len(new_rows)} cached)")
