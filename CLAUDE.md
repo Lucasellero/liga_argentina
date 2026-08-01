@@ -42,9 +42,11 @@ Cada liga vive como subcarpeta dentro de `docs/`. Pasos:
 
 ### Auth — login compartido entre ligas
 
+**⚠️ ESTADO ACTUAL (desde julio 2026): el auth guard está DESACTIVADO en las 4 ligas.** No hay modal de 5 minutos ni botón `#headerLogin` visible — el sitio es 100% navegable sin login. Ver **"Incidente: Supabase egress excedido"** más abajo para la causa y cómo reactivarlo. Todo lo que sigue en esta sección describe el comportamiento **original/normal** del auth guard, no el estado actual.
+
 El `login.html` y `register.html` viven en `docs/` (raíz) y son compartidos por todas las ligas.
 
-**Flujo de login:**
+**Flujo de login (comportamiento original, actualmente desactivado):**
 1. Cada `docs/<liga>/index.html` tiene un auth guard al inicio del script.
 2. Si el token es válido, muestra el nombre del usuario en el header y oculta el botón `#headerLogin`.
 3. Si no hay token (o está expirado), se muestra el botón **"Iniciar sesión"** (`#headerLogin`) en el header en todo momento. Después de **5 minutos exactos** (`setTimeout` de 300000ms) aparece un modal bloqueante sin botón de cerrar que obliga al login o registro.
@@ -1030,6 +1032,60 @@ print(df[df['Fecha'].isin(excl_dates)][['Fecha','Equipo','Rival']].drop_duplicat
 "
 ```
 Si aparecen filas, ejecutar el script de "Partidos a excluir" actualizado (que usa clave estable).
+
+## Incidente: Supabase egress excedido — login desactivado (julio 2026)
+
+### Síntoma
+Todos los usuarios veían **"Credenciales incorrectas"** al intentar loguearse en `login.html`, sin importar si el email/contraseña eran correctos. El registro (`register.html`) fallaba de la misma forma.
+
+### Causa raíz
+El proyecto de Supabase (`repsndqhmyklxukffovf`) quedó **restringido por exceder la cuota de "Cached Egress"** del plan gratuito (5 GB). `curl` a cualquier endpoint del proyecto (auth, storage) devolvía HTTP 402:
+```json
+{"message":"Service for this project is restricted due to the following violations: exceed_cached_egress_quota. The project owner must upgrade their plan or remove spend caps to restore service."}
+```
+Con el proyecto restringido, **todo** falla (Auth incluido) — no es un problema específico de credenciales. `login.html` (`docs/login.html:427`) cae al mensaje genérico `'Credenciales incorrectas.'` porque el JSON de error de Supabase en este caso trae `message`, no `error_description`/`msg`/`error`, que es lo único que ese `catch` contempla. Por eso el síntoma visible engañaba.
+
+**Qué generó el exceso de egress:** los 4 JS de liga (`liga_argentina.js`, `liga_nacional.js`, `liga_femenina.js`, `liga_proximo.js`) traen el CSV de PBP directamente desde Supabase Storage:
+```js
+const PBP_CSV = 'https://repsndqhmyklxukffovf.supabase.co/storage/v1/object/public/pbp/<liga>_pbp.csv';
+```
+y lo hacían con:
+```js
+const resp = await fetch(PBP_CSV + '?v=' + Date.now(), { cache: 'no-store' });
+```
+El `?v=' + Date.now()` cambia en cada milisegundo y `cache:'no-store'` desactiva el caché del navegador — cada apertura de las pestañas Quintetos/Tríos/Duplas/Conexiones (las 4 llaman `loadPbp()`) forzaba una descarga completa y fresca del CSV desde el origen, sin aprovechar nunca CDN ni caché de navegador. Con solo ~12 usuarios/mes ya se habían acumulado 6.1 GB contra el límite de 5 GB.
+
+### Fix aplicado (código)
+En los 4 archivos, se cambió la key de cache-busting de por-milisegundo a por-día, y se sacó `no-store` para permitir que el navegador honre el `Cache-Control` que mande Supabase:
+```js
+// Antes:
+const resp = await fetch(PBP_CSV + '?v=' + Date.now(), { cache: 'no-store' });
+// Después:
+const resp = await fetch(PBP_CSV + '?v=' + new Date().toISOString().slice(0, 10));
+```
+**Pendiente (cuando el proyecto esté activo de nuevo):** resubir los CSVs del bucket `pbp` con `cacheControl: '86400'` explícito, para no depender del default de Supabase Storage.
+
+### Auth guard desactivado (mientras dure la restricción)
+Como el proyecto sigue restringido hasta que resetee el ciclo de facturación (o se haga upgrade), se desactivó el auth guard completo en los 4 JS de liga para que el sitio quede 100% navegable sin login, sin modal de 5 minutos y sin botón `#headerLogin` visible. El bloque completo (ver sección "Auth — login compartido entre ligas" para el comportamiento original) se reemplazó por:
+```js
+// ── Auth guard (desactivado — navegación libre sin login) ──────────────────────
+(function() {
+  const loginEl = document.getElementById('headerLogin');
+  if (loginEl) loginEl.style.display = 'none';
+})();
+```
+Esto se aplicó en `docs/liga_argentina/liga_argentina.js`, `docs/liga_nacional/liga_nacional.js`, `docs/liga_femenina/liga_femenina.js` y `docs/liga_proximo/liga_proximo.js`.
+
+**No se tocó** `docs/fifa-wc-2026/index.html` — ese gate es distinto (whitelist de usuarios permitidos vía `user_metadata.wc_access` o UID, no el modal de 5 minutos) y es intencional, no relacionado a este incidente.
+
+### Cómo reactivar el login
+1. Confirmar en el dashboard de Supabase (Settings → Billing → Usage) que el proyecto ya no está restringido (o hacer upgrade a Pro si se necesita antes).
+2. Restaurar el bloque de auth guard original en los 4 JS de liga (ver el bloque completo documentado en la sección "Auth — login compartido entre ligas" / historial de git antes de este commit).
+3. Verificar que el fix de cache-busting del PBP (arriba) siga en pie — no revertirlo, es independiente del login y sigue siendo necesario para no volver a exceder la cuota.
+4. Opcional pero recomendado: setear `cacheControl: '86400'` en los objetos del bucket `pbp` de Supabase Storage.
+
+### Ciclo de facturación
+Según el historial de facturas del proyecto, el ciclo renueva el **día 11 de cada mes**. El próximo reset estimado (a la fecha de este incidente, 31/07/2026) sería **11/08/2026** — confirmar la fecha exacta en el dashboard de Supabase, no asumir.
 
 ## Bugs en el shots CSV — documentados (junio 2026)
 
