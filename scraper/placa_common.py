@@ -26,27 +26,64 @@ LIGA_CONFIG = {
     },
 }
 
-# club_id (mercado.json) -> nombre de archivo en docs/<liga>/logos/
+# club_id (mercado.json) -> nombre de archivo en docs/<liga>/logos/, por liga
+# (los club_id no son únicos entre ligas -- ej. distintos "ferro" -- por eso va
+# anidado y no en un único dict global). Regenerar con el script de matching
+# (norm(team/name/id) contra los archivos de logos/) si se agregan clubes nuevos.
 CLUB_LOGO = {
-    'argentino_junin':   'argentino_j.jpeg',
-    'atenas':            'atenas_c.jpeg',
-    'boca':              'boca.jpeg',
-    'ferro':              'ferro.jpeg',
-    'gimnasia_cr':       'gimnasia_cr.jpeg',
-    'independiente_o':   'independiente_o.jpeg',
-    'instituto':          'instituto.jpeg',
-    'la_union':          'la_union_fsa.jpeg',
-    'lanus':              'lanus.jpeg',
-    'obera':              'obera.jpeg',
-    'olimpico':           'olimpico_lb.jpeg',
-    'penarol':            'peñarol_mdp.jpeg',
-    'platense':           'platense.jpeg',
-    'quimsa':             'quimsa.jpeg',
-    'racing_ch':          'racing_ch.jpeg',
-    'regatas':            'regatas_c.jpeg',
-    'san_lorenzo':        'san_lorenzo.jpeg',
-    'san_martin':         'san_martin_c.jpeg',
-    'union_sf':           'union_sf.jpeg',
+    'liga_nacional': {
+        'argentino_junin':   'argentino_j.jpeg',
+        'atenas':            'atenas_c.jpeg',
+        'boca':              'boca.jpeg',
+        'ferro':              'ferro.jpeg',
+        'gimnasia_cr':       'gimnasia_cr.jpeg',
+        'independiente_o':   'independiente_o.jpeg',
+        'instituto':          'instituto.jpeg',
+        'la_union':          'la_union_fsa.jpeg',
+        'lanus':              'lanus.jpeg',
+        'obera':              'obera.jpeg',
+        'olimpico':           'olimpico_lb.jpeg',
+        'penarol':            'peñarol_mdp.jpeg',
+        'platense':           'platense.jpeg',
+        'quimsa':             'quimsa.jpeg',
+        'racing_ch':          'racing_ch.jpeg',
+        'regatas':            'regatas_c.jpeg',
+        'san_lorenzo':        'san_lorenzo.jpeg',
+        'san_martin':         'san_martin_c.jpeg',
+        'union_sf':           'union_sf.jpeg',
+    },
+    'liga_argentina': {
+        'amancay':               'amancay_lr.jpeg',
+        'san_isidro':            'san_isidro.jpeg',
+        'barrio_parque':         'barrio_parque.jpeg',
+        'sportivo_suardi':       'sp_suardi.jpeg',
+        'santa_paula':           'santa_paula_g.jpeg',
+        'comunicaciones':        'comunicaciones.jpeg',
+        'salta_basket':          'salta_basket.jpeg',
+        'jujuy_basquet':         'jujuy_basquet.jpeg',
+        'villa_san_martin':      'villa_san_martin.jpeg',
+        'estudiantes_tucuman':   'estudiantes_t.jpeg',
+        'bochas_sport_club':     'bochas_cc.jpeg',
+        'independiente_bbc':     'independiente_sde.jpeg',
+        'rivadavia_mendoza':     'rivadavia_mza.jpeg',
+        'hindu_club':            'hindu_c.jpeg',
+        'provincial_rosario':    'provincial_r.jpeg',
+        'central_entrerriano':   'central_entrerriano.jpeg',
+        'la_union_colon':        'la_union_c.jpeg',
+        'pico_fc':               'pico_fc.jpeg',
+        'quilmes_mdp':           'quilmes_mdp.jpeg',
+        'gimnasia_lp':           'gimnasia_lp.jpeg',
+        'deportivo_viedma':      'dep_viedma.jpeg',
+        'centenario_vt':         'centenario_vt.jpeg',
+        'racing_avellaneda':     'racing_a.jpeg',
+        'villa_mitre':           'villa_mitre_bb.jpeg',
+        'union_mdp':             'union_mdp.jpeg',
+        'ciclista_juninense':    'ciclista_j.jpeg',
+        'tomas_de_rocamora':     'rocamora.jpeg',
+        'deportivo_norte':       'dep_norte.jpeg',
+        # 'riachuelo' no tiene logo disponible en docs/liga_argentina/logos/ todavía
+        # -- degrada al ícono genérico '◐' en build_card_html, no rompe la placa.
+    },
 }
 
 POSITIONS = {'base': 'Base', 'escolta': 'Escolta', 'alero': 'Alero',
@@ -94,7 +131,8 @@ def load_clubs(club_list):
     return {c['id']: c for c in club_list}
 
 
-def build_card_html(player, dest_club, origin_club, is_renewal, logos_dir, liga_label, scouteado_logo_b64):
+def build_card_html(player, dest_club, origin_club, is_renewal, logos_dir, liga_label, scouteado_logo_b64, liga):
+    club_logo = CLUB_LOGO.get(liga, {})
     name = player['name']
     parts = name.strip().split(' ')
     first = ' '.join(parts[:-1]) if len(parts) > 1 else ''
@@ -108,7 +146,7 @@ def build_card_html(player, dest_club, origin_club, is_renewal, logos_dir, liga_
     photo = player.get('image_url') or ''
 
     dest_name = dest_club['name'] if dest_club else '—'
-    dest_logo = b64_file(os.path.join(logos_dir, CLUB_LOGO.get(player['club_id'], ''))) if dest_club else None
+    dest_logo = b64_file(os.path.join(logos_dir, club_logo.get(player['club_id'], ''))) if dest_club else None
 
     meta_line = position.upper() if position else ''
 
@@ -133,7 +171,7 @@ def build_card_html(player, dest_club, origin_club, is_renewal, logos_dir, liga_
         status_pill = '<div class="s-status-pill renew">🔄 RENOVACIÓN</div>'
     else:
         origin_name = origin_club['name'] if origin_club else (player.get('last_club') or 'Agente libre')
-        origin_logo_path = os.path.join(logos_dir, CLUB_LOGO.get(origin_club['id'], '')) if origin_club else None
+        origin_logo_path = os.path.join(logos_dir, club_logo.get(origin_club['id'], '')) if origin_club else None
         origin_logo = b64_file(origin_logo_path) if origin_logo_path else None
         transfer_block = f'''
         <div class="s-transfer-pair">

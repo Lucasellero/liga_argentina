@@ -11,13 +11,21 @@ Los logos de club (y el logo de Scouteado) se cachean en disco de forma persiste
 en mcp_server/.cache/logos/<liga>/ — no cambian nunca en la práctica, así que una
 vez descargados no se vuelven a pedir. mercado.json se trae vía data.fetch_json,
 que ya revalida por ETag en vez de re-descargar el JSON completo en cada llamada.
+
+Cada placa se guarda a disco en PNG a resolución completa (1080x1920, calidad de
+posteo) en placas_out/. Además se genera un preview JPEG reducido para devolver
+inline en el chat de Claude Desktop -- los clientes MCP tienen un límite de tamaño
+por respuesta de tool (~1MB); el PNG completo en base64 puede superarlo, sobre todo
+si se generan varias placas en una sola llamada.
 """
 import base64
+import io
 import os
 import sys
 from datetime import datetime, timedelta, timezone
 
 import requests
+from PIL import Image as PILImage
 
 SCRAPER_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scraper")
 if SCRAPER_DIR not in sys.path:
@@ -33,6 +41,9 @@ BASE_URL = "https://scouteado.com"
 MCP_DIR = os.path.dirname(os.path.abspath(__file__))
 OUT_DIR = os.path.join(MCP_DIR, "placas_out")
 LOGOS_CACHE_DIR = os.path.join(MCP_DIR, ".cache", "logos")
+
+PREVIEW_MAX_WIDTH = 480  # ~1/2.25 del ancho original (1080px) -> jpeg queda bien liviano
+PREVIEW_JPEG_QUALITY = 82
 
 
 def _download_logo(liga, filename, dest_dir):
@@ -50,6 +61,18 @@ def _download_logo(liga, filename, dest_dir):
             f.write(resp.content)
     except requests.RequestException:
         pass
+
+
+def _make_preview_jpeg(png_path):
+    """Reduce el PNG de 1080x1920 a un JPEG liviano para mandar inline en el chat.
+    El archivo completo (calidad de posteo) queda intacto en disco en png_path."""
+    with PILImage.open(png_path) as img:
+        img = img.convert("RGB")
+        ratio = PREVIEW_MAX_WIDTH / img.width
+        img = img.resize((PREVIEW_MAX_WIDTH, round(img.height * ratio)))
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG", quality=PREVIEW_JPEG_QUALITY, optimize=True)
+        return buf.getvalue()
 
 
 def _select_targets(mercado, jugador, horas):
@@ -80,13 +103,15 @@ def _select_targets(mercado, jugador, horas):
 
 
 def generar_placa_fichaje(liga, jugador=None, horas=24.0):
-    """Genera placa(s) PNG de fichaje. Devuelve lista de {nombre, path, bytes}."""
+    """Genera placa(s) de fichaje. Devuelve lista de:
+    {nombre, path (PNG completo en disco), preview_bytes (JPEG liviano para el chat)}."""
     from playwright.sync_api import sync_playwright
 
     if liga not in LIGA_CONFIG:
         raise ValueError(f'Liga inválida: "{liga}". Usar una de: {list(LIGA_CONFIG)}')
 
     cfg = LIGA_CONFIG[liga]
+    club_logo = CLUB_LOGO.get(liga, {})
     mercado = data_mod.fetch_json(liga, "mercado.json")
     clubs = load_clubs(mercado["clubs"])
     targets = _select_targets(mercado, jugador, horas)
@@ -112,18 +137,20 @@ def generar_placa_fichaje(liga, jugador=None, horas=24.0):
             is_renewal = bool(origin_club and dest_club and origin_club["id"] == dest_club["id"])
 
             if dest_club:
-                _download_logo(liga, CLUB_LOGO.get(p["club_id"], ""), logos_dir)
+                _download_logo(liga, club_logo.get(p["club_id"], ""), logos_dir)
             if origin_club:
-                _download_logo(liga, CLUB_LOGO.get(origin_club["id"], ""), logos_dir)
+                _download_logo(liga, club_logo.get(origin_club["id"], ""), logos_dir)
 
             html = build_card_html(p, dest_club, origin_club, is_renewal, logos_dir,
-                                    cfg["label"], scouteado_logo_b64)
+                                    cfg["label"], scouteado_logo_b64, liga)
             page.set_content(html, wait_until="networkidle")
             out_path = os.path.join(OUT_DIR, f'{slugify(p["name"])}.png')
             page.screenshot(path=out_path)
-            with open(out_path, "rb") as f:
-                png_bytes = f.read()
-            resultados.append({"nombre": p["name"], "path": out_path, "bytes": png_bytes})
+            resultados.append({
+                "nombre": p["name"],
+                "path": out_path,
+                "preview_bytes": _make_preview_jpeg(out_path),
+            })
         browser.close()
 
     return resultados

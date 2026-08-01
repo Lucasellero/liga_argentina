@@ -2,3 +2,4 @@ mcp
 pandas
 requests
 playwright
+Pillow

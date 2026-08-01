@@ -102,7 +102,7 @@ def main():
             origin_club = find_matching_club(p.get('last_club'), data['clubs'])
             is_renewal = bool(origin_club and dest_club and origin_club['id'] == dest_club['id'])
             html = build_card_html(p, dest_club, origin_club, is_renewal, logos_dir,
-                                    cfg['label'], scouteado_logo_b64)
+                                    cfg['label'], scouteado_logo_b64, args.liga)
             page.set_content(html, wait_until='networkidle')
             out_path = os.path.join(out_dir, f'{slugify(p["name"])}.png')
             page.screenshot(path=out_path)
