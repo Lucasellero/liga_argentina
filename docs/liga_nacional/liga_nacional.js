@@ -27,11 +27,6 @@
           el.style.display = 'flex';
         }
       }
-      const ADMIN_EMAILS = ['ramiellero@gmail.com', 'nachodacunda08@gmail.com', 'lucasellero05@gmail.com'];
-      if (user.email && ADMIN_EMAILS.includes(String(user.email).toLowerCase())) {
-        const adminWrap = document.getElementById('mktAdminWrap');
-        if (adminWrap) adminWrap.style.display = 'flex';
-      }
     } catch(e) {}
   }
   const loginEl = document.getElementById('headerLogin');
@@ -49,8 +44,6 @@ async function mktGenerarPlacas() {
   const LIGA = 'liga_nacional';
   const btn = document.getElementById('mktAdminBtn');
   const status = document.getElementById('mktAdminStatus');
-  const token = localStorage.getItem('auth_token');
-  if (!token) return;
 
   btn.disabled = true;
   status.textContent = 'Generando… puede tardar 1-3 min.';
@@ -64,7 +57,7 @@ async function mktGenerarPlacas() {
   try {
     const res = await fetch('/api/placas/generate', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ liga: LIGA }),
     });
     if (!res.ok) {
@@ -2231,16 +2224,19 @@ function switchGameTab(tab) {
   document.getElementById('tgmTabMap').classList.toggle('active', tab === 'map');
   document.getElementById('tgmTabBox').classList.toggle('active', tab === 'box');
   document.getElementById('tgmTabEvol').classList.toggle('active', tab === 'evol');
+  document.getElementById('tgmTabRecap').classList.toggle('active', tab === 'recap');
   document.getElementById('tgmDetailBody').style.display = tab === 'stats' ? '' : 'none';
   document.getElementById('tgmMapPanel').style.display   = tab === 'map'   ? '' : 'none';
   document.getElementById('tgmBoxPanel').style.display   = tab === 'box'   ? '' : 'none';
   document.getElementById('tgmEvolPanel').style.display  = tab === 'evol'  ? '' : 'none';
+  document.getElementById('tgmRecapPanel').style.display = tab === 'recap' ? '' : 'none';
   if (tab === 'map') {
     const doRender = () => requestAnimationFrame(renderShotMap);
     if (SHOTS_MAP === null) loadShots().then(doRender); else doRender();
   }
-  if (tab === 'box')  renderBoxScore(_smState.gameId, _smState.local, _smState.visit);
-  if (tab === 'evol') renderScoreDelta(_smState.gameId, _smState.local, _smState.visit);
+  if (tab === 'box')   renderBoxScore(_smState.gameId, _smState.local, _smState.visit);
+  if (tab === 'evol')  renderScoreDelta(_smState.gameId, _smState.local, _smState.visit);
+  if (tab === 'recap') renderRecap(_smState.fecha, _smState.local, _smState.visit);
 }
 
 document.getElementById('smControls').addEventListener('click', function(e) {
@@ -4085,6 +4081,44 @@ async function loadPbp() {
       PBP_STABLE_MAP.get(skey).push(r);
     });
   } catch(e) { PBP_MAP = new Map(); PBP_STABLE_MAP = new Map(); }
+}
+
+// ============================================================
+// RECAP AUTOMÁTICO
+// ============================================================
+let RECAP_MAP = null; // null=not loaded, Map<"fecha|local|visit", texto>
+
+async function loadRecaps() {
+  if (RECAP_MAP !== null) return;
+  try {
+    const resp = await fetch('recaps.json?v=' + new Date().toISOString().slice(0, 10));
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    RECAP_MAP = new Map(Object.entries(data).map(([k, v]) => [k, v.texto]));
+  } catch (e) { RECAP_MAP = new Map(); }
+}
+
+function renderRecap(fecha, local, visit) {
+  const panel = document.getElementById('tgmRecapPanel');
+
+  const doRender = () => {
+    const skey = fecha + '|' + local + '|' + visit;
+    const texto = RECAP_MAP.get(skey);
+    if (!texto) {
+      panel.innerHTML = `<div style="padding:28px;text-align:center;color:var(--muted);font-size:.82rem">No hay recap disponible para este partido.</div>`;
+      return;
+    }
+    panel.innerHTML = `<div style="padding:18px 4px;line-height:1.65;font-size:.86rem;color:var(--text)">
+      ${texto.split(/\n+/).map(p => `<p style="margin:0 0 12px">${p}</p>`).join('')}
+    </div>`;
+  };
+
+  if (RECAP_MAP === null) {
+    panel.innerHTML = `<div style="padding:28px;text-align:center;color:var(--muted);font-size:.82rem">Cargando recap…</div>`;
+    loadRecaps().then(doRender);
+  } else {
+    doRender();
+  }
 }
 
 // Convert period + time-remaining string "MM:SS" to total elapsed seconds

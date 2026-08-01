@@ -1245,6 +1245,30 @@ python3 scraper/mercado_scraper.py
 python3 scraper/mercado_scraper_nacional.py
 ```
 
+## Recap automático (tab "Recap") — Liga Argentina y Liga Nacional (julio 2026)
+
+5ª pestaña del modal de partido (`#tgmTabRecap` / `#tgmRecapPanel`, junto a Estadísticas/Mapa de tiro/Box Score/Evolución). Muestra una crónica de 2-3 párrafos en español generada automáticamente para cada partido ya jugado. Presente solo en Liga Argentina y Liga Nacional (Femenina y Desarrollo quedaron fuera del alcance inicial).
+
+**Generación (`scraper/recap_generator.py`)**:
+- CLI: `python scraper/recap_generator.py --liga liga_argentina|liga_nacional` (flags `--full` para regenerar todo, `--limit N` para acotar una corrida).
+- **No manda el PBP crudo al LLM.** Primero calcula un JSON de hechos compacto por partido (`build_recap_facts`): marcador final, top 2 goleadores de cada equipo, mayor racha de puntos consecutivos (y cuándo), cantidad de cambios de líder, mayor diferencia alcanzada, y — si el partido terminó con margen ≤ 8 — un resumen de los últimos 2 minutos. Esos hechos (no los eventos PBP) son el único prompt que recibe el modelo.
+- Modelo: **Claude Haiku** (`claude-haiku-4-5-20251001`) vía el SDK `anthropic` (agregado a `scraper/requirements.txt`). Requiere el secret `ANTHROPIC_API_KEY` en GitHub Actions — si no está seteada, o si la API falla (con 1 reintento), el script loguea un warning y sigue sin romper el step; el partido queda pendiente y se reintenta solo. Costo aproximado: backfill inicial de toda la temporada (~1.250 partidos entre las 2 ligas) ≈ US$3-4; uso incremental en temporada ≈ US$0.50-1.50/mes.
+- **Incrementalidad**: misma clave estable `fecha|local|visitante` que usa todo el proyecto (ver "IDs dinámicos del sitio"), NO `IdPartido`. Compara contra las keys ya presentes en el JSON de salida y solo genera las que faltan.
+- **Fallback defensivo**: si no hay filas de PBP para la clave del partido (PBP no disponible, o el bug histórico de `Equipo_local` vacío en datos viejos), genera el recap solo con marcador + goleadores, sin racha/cambios de líder/cierre. Nunca crashea el step.
+
+**Salida — `docs/<liga>/recaps.json`** (git-commiteado, servido estático por Vercel; **no** vive en Supabase, a propósito, para no repetir el incidente de egress):
+```json
+{ "fecha|local|visitante": { "texto": "...", "generado_en": "2026-07-31T04:32:10+00:00" } }
+```
+
+**Workflow (`scraper.yml`)**: step "Recap – Liga Argentina" después de "Jugada a jugada – Liga Argentina"; step "Recap – Liga Nacional" después de la limpieza de Copa Liga Malvinas (para no generar recap de partidos que esa limpieza va a descartar). Ambos steps con `env: ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}`. Los `recaps.json` de ambas ligas están en la lista de `git add` del step final de commit.
+
+**Frontend**: `loadRecaps()` — carga lazy de `recaps.json` (fetch **relativo local**, no Supabase, cache-busting por fecha ISO igual que el fix de `loadPbp()`), arma `RECAP_MAP = Map<"fecha|local|visit", texto>`. `renderRecap(fecha, local, visit)` — mismo patrón que `renderScoreDelta` (lazy-load + empty-state con el mismo idioma que el resto del modal: "No hay recap disponible para este partido."). Implementado en paralelo en `liga_argentina.js`/`index.html` y `liga_nacional.js`/`index.html`.
+
+**Primer despliegue**: como el JSON de cache arranca vacío, la primera corrida genera el backlog completo de la temporada (no solo los partidos de esa noche). Conviene dispararla a mano una vez (`workflow_dispatch`) en vez de dejar que la agarre el cron nocturno sin avisar.
+
+**Nota de estructura**: al escribir este script se confirmó que el repo real difiere del árbol documentado en "Estructura" más arriba — el git root es `/Users/ramiellero/liga_argentina` directamente (no un monorepo padre), los scrapers viven en `scraper/` (minúscula) y **Liga Argentina también vive en su propia subcarpeta `docs/liga_argentina/`** (con `docs/index.html` como stub de redirect a `/liga_argentina/`), igual que las otras 3 ligas. Si algo en "Estructura" no coincide con lo que ves en el filesystem, confiá en el filesystem.
+
 ## Comandos útiles
 ```bash
 # Actualizar stats de jugadores — Liga Argentina

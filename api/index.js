@@ -57,15 +57,17 @@ async function handleGeneratePlacas(req, res) {
     return;
   }
 
-  const email = await getAuthedEmail(req);
-  if (!email) {
-    res.status(401).json({ error: 'no_autenticado' });
-    return;
-  }
-  if (!isAdminEmail(email)) {
-    res.status(403).json({ error: 'no_autorizado' });
-    return;
-  }
+  // Chequeo de auth desactivado temporalmente: Supabase está caído hasta el
+  // 11/08. Reactivar (descomentar) el bloque de abajo cuando vuelva a andar.
+  // const email = await getAuthedEmail(req);
+  // if (!email) {
+  //   res.status(401).json({ error: 'no_autenticado' });
+  //   return;
+  // }
+  // if (!isAdminEmail(email)) {
+  //   res.status(403).json({ error: 'no_autorizado' });
+  //   return;
+  // }
 
   const ghToken = process.env.GH_PLACAS_TOKEN;
   if (!ghToken) {

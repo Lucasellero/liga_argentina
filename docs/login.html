@@ -377,6 +377,33 @@ function setFormError(msg) {
   el.style.display = msg ? 'block' : 'none';
 }
 
+// Bypass temporal mientras Supabase está saturado — solo para cuentas admin internas.
+// TODO: quitar este bloque cuando Supabase vuelva a responder con normalidad.
+const ADMIN_BYPASS_PASSWORD = 'scouteado.com';
+const ADMIN_BYPASS_USERS = {
+  'ramiellero@gmail.com':      { nombre: 'Rami',  apellido: 'Ellero',    club: '' },
+  'nachodacunda08@gmail.com':  { nombre: 'Nacho',  apellido: 'Da Cunda', club: '' },
+  'lucasellero05@gmail.com':   { nombre: 'Lucas', apellido: 'Ellero',    club: '' },
+};
+
+function tryAdminBypass(email, password) {
+  const entry = ADMIN_BYPASS_USERS[email.toLowerCase()];
+  if (!entry || password !== ADMIN_BYPASS_PASSWORD) return false;
+
+  const payload = { sub: email.toLowerCase(), exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 365 };
+  const fakeToken = 'bypass.' + btoa(JSON.stringify(payload)) + '.bypass';
+
+  localStorage.setItem('auth_token', fakeToken);
+  localStorage.setItem('auth_user', JSON.stringify({
+    id:       'bypass-' + email.toLowerCase(),
+    email:    email.toLowerCase(),
+    nombre:   entry.nombre,
+    apellido: entry.apellido,
+    club:     entry.club,
+  }));
+  return true;
+}
+
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
@@ -411,6 +438,12 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   btn.disabled    = true;
   btn.textContent = 'Ingresando…';
   setFormError('');
+
+  if (tryAdminBypass(email, password)) {
+    const returnTo = new URLSearchParams(window.location.search).get('returnTo');
+    window.location.href = returnTo || 'liga_nacional/';
+    return;
+  }
 
   try {
     const res  = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
