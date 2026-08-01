@@ -47,6 +47,11 @@ jobs:
       - name: Jugada a jugada – Liga Argentina
         run: python scraper/pbp_scraper.py
 
+      - name: Recap – Liga Argentina
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scraper/recap_generator.py --liga liga_argentina
+
       # ── Liga Nacional ───────────────────────────────────────────────────────
       - name: Stats – Liga Nacional
         run: python scraper/data_scraper_nacional.py
@@ -68,6 +73,11 @@ jobs:
               df = df[~df['IdPartido'].isin(IDS)]; df.to_csv(f, index=False)
               print(f'{f}: {before - len(df)} filas eliminadas')
           "
+
+      - name: Recap – Liga Nacional
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scraper/recap_generator.py --liga liga_nacional
 
       # ── Modelo Liga Nacional ────────────────────────────────────────────────
       - name: Reentrenar modelo de probabilidad – Liga Nacional
@@ -149,9 +159,11 @@ jobs:
           git add \
             docs/liga_argentina/liga_argentina.csv \
             docs/liga_argentina/liga_argentina_shots.csv \
+            docs/liga_argentina/recaps.json \
             docs/liga_nacional/liga_nacional.csv \
             docs/liga_nacional/liga_nacional_shots.csv \
             docs/liga_nacional/predicciones_upcoming.csv \
+            docs/liga_nacional/recaps.json \
             docs/liga_femenina/liga_femenina.csv \
             docs/liga_femenina/liga_femenina_shots.csv \
             docs/liga_proximo/liga_proximo.csv \
