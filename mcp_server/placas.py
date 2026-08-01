@@ -2,7 +2,7 @@
 Variante remota de scraper/gen_fichaje_placas.py para el servidor MCP.
 
 Reusa exactamente el mismo template (placa_common.build_card_html) y las mismas
-constantes (LIGA_CONFIG, CLUB_LOGO, etc.) que el CLI de /fichajes-placas — la única
+constantes (LIGA_CONFIG, CLUB_LOGO, etc.) que scraper/gen_fichaje_placas.py — la única
 diferencia es que los assets (mercado.json, logos, foto del jugador) se traen de
 https://scouteado.com/... en vez de leerse del repo local, porque el servidor MCP
 corre en la máquina del community manager, que no tiene el repo clonado.
@@ -110,7 +110,6 @@ def generar_placa_fichaje(liga, jugador=None, horas=24.0):
     if liga not in LIGA_CONFIG:
         raise ValueError(f'Liga inválida: "{liga}". Usar una de: {list(LIGA_CONFIG)}')
 
-    cfg = LIGA_CONFIG[liga]
     club_logo = CLUB_LOGO.get(liga, {})
     mercado = data_mod.fetch_json(liga, "mercado.json")
     clubs = load_clubs(mercado["clubs"])
@@ -141,8 +140,7 @@ def generar_placa_fichaje(liga, jugador=None, horas=24.0):
             if origin_club:
                 _download_logo(liga, club_logo.get(origin_club["id"], ""), logos_dir)
 
-            html = build_card_html(p, dest_club, origin_club, is_renewal, logos_dir,
-                                    cfg["label"], scouteado_logo_b64, liga)
+            html = build_card_html(p, dest_club, origin_club, is_renewal, logos_dir, scouteado_logo_b64, liga)
             page.set_content(html, wait_until="networkidle")
             out_path = os.path.join(OUT_DIR, f'{slugify(p["name"])}.png')
             page.screenshot(path=out_path)

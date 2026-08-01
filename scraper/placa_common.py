@@ -11,7 +11,6 @@ import base64
 import os
 import re
 import unicodedata
-from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -88,11 +87,6 @@ CLUB_LOGO = {
 
 POSITIONS = {'base': 'Base', 'escolta': 'Escolta', 'alero': 'Alero',
              'ala_pivote': 'Ala-pivote', 'pivote': 'Pivote'}
-FICHA_TYPES = {'mayor': 'Ficha mayor', 'u21': 'Ficha U21',
-               'juvenil': 'Ficha juvenil', 'staff': 'Cuerpo técnico'}
-CONFIDENCE = {'oficial': 'OFICIAL', 'arreglo_verbal': 'ARREGLO VERBAL',
-              'muy_avanzado': 'MUY AVANZADO', 'interes': 'INTERÉS / RUMOR',
-              'en_duda': 'EN DUDA', 'se_cayo': 'SE CAYÓ'}
 
 
 def norm(s):
@@ -131,63 +125,59 @@ def load_clubs(club_list):
     return {c['id']: c for c in club_list}
 
 
-def build_card_html(player, dest_club, origin_club, is_renewal, logos_dir, liga_label, scouteado_logo_b64, liga):
+def format_height(height):
+    h = str(height).strip()
+    if not h:
+        return None
+    return h.replace('.', ',')
+
+
+def build_card_html(player, dest_club, origin_club, is_renewal, logos_dir, scouteado_logo_b64, liga):
     club_logo = CLUB_LOGO.get(liga, {})
+    liga_label = liga.replace('_', ' ').upper()
+
     name = player['name']
     parts = name.strip().split(' ')
     first = ' '.join(parts[:-1]) if len(parts) > 1 else ''
     last = parts[-1] if parts else name
 
     position = POSITIONS.get(player.get('position'), player.get('position', '') or '')
-    ficha = FICHA_TYPES.get(player.get('ficha_type'), '')
     age = player.get('age')
-    height = player.get('height')
-    confidence = CONFIDENCE.get(player.get('confidence'), '')
+    height = format_height(player.get('height'))
     photo = player.get('image_url') or ''
 
     dest_name = dest_club['name'] if dest_club else '—'
     dest_logo = b64_file(os.path.join(logos_dir, club_logo.get(player['club_id'], ''))) if dest_club else None
 
-    meta_line = position.upper() if position else ''
-
-    stat_defs = [
-        ('EDAD', f'{age}' if age else '—', 'purple'),
-        ('ALTURA', f'{height} m' if height else '—', 'teal'),
-        ('FICHA', ficha.replace('Ficha ', '').upper() if ficha else '—', ''),
-    ]
-    stats_row = ''.join(
-        f'<div class="s-stat-card {cls}"><div class="s-stat-value {cls}">{val}</div>'
-        f'<div class="s-stat-label">{lbl}</div></div>'
-        for lbl, val, cls in stat_defs
-    )
+    meta_parts = []
+    if age:
+        meta_parts.append(f'{age} años')
+    if height:
+        meta_parts.append(f'{height} m')
+    meta_line = ' · '.join(meta_parts)
 
     if is_renewal:
+        status_text = 'RENUEVA CONTRATO'
         transfer_block = f'''
-        <div class="s-transfer-single">
-          <div class="s-club-circle">{f'<img src="{dest_logo}">' if dest_logo else ''}</div>
-          <div class="s-renew-label">RENUEVA CONTRATO</div>
-          <div class="s-club-name">{dest_name}</div>
+        <div class="ph-transfer-single">
+          <div class="ph-club-logo">{f'<img src="{dest_logo}">' if dest_logo else ''}</div>
+          <div class="ph-club-name">{dest_name}</div>
         </div>'''
-        status_pill = '<div class="s-status-pill renew">🔄 RENOVACIÓN</div>'
     else:
+        status_text = 'FICHAJE CONFIRMADO'
         origin_name = origin_club['name'] if origin_club else (player.get('last_club') or 'Agente libre')
         origin_logo_path = os.path.join(logos_dir, club_logo.get(origin_club['id'], '')) if origin_club else None
         origin_logo = b64_file(origin_logo_path) if origin_logo_path else None
         transfer_block = f'''
-        <div class="s-transfer-pair">
-          <div class="s-transfer-side">
-            <div class="s-club-circle small">{f'<img src="{origin_logo}">' if origin_logo else '<span class="s-club-fallback">◐</span>'}</div>
-            <div class="s-club-name small">{origin_name}</div>
-          </div>
-          <div class="s-transfer-arrow">→</div>
-          <div class="s-transfer-side">
-            <div class="s-club-circle">{f'<img src="{dest_logo}">' if dest_logo else ''}</div>
-            <div class="s-club-name">{dest_name}</div>
-          </div>
+        <div class="ph-club">
+          <div class="ph-club-logo">{f'<img src="{origin_logo}">' if origin_logo else '<span class="ph-club-fallback">◐</span>'}</div>
+          <div class="ph-club-name origin">{origin_name}</div>
+        </div>
+        <div class="ph-arrow">→</div>
+        <div class="ph-club">
+          <div class="ph-club-logo">{f'<img src="{dest_logo}">' if dest_logo else ''}</div>
+          <div class="ph-club-name">{dest_name}</div>
         </div>'''
-        status_pill = '<div class="s-status-pill">✅ FICHAJE CONFIRMADO</div>'
-
-    today = datetime.now().strftime('%d · %m · %Y')
 
     return f'''<!DOCTYPE html>
 <html lang="es"><head><meta charset="UTF-8">
@@ -197,9 +187,9 @@ def build_card_html(player, dest_club, origin_club, is_renewal, logos_dir, liga_
 <style>
 * {{ margin:0; padding:0; box-sizing:border-box; }}
 :root {{
-  --bg:#0b0b16; --surface:#18182e; --border:rgba(139,92,246,.22); --border2:rgba(255,255,255,.07);
+  --bg:#0b0b16; --surface:#18182e; --border:rgba(139,92,246,.22); --border2:rgba(255,255,255,.09);
   --purple:#8b5cf6; --purple-d:#6d28d9; --purple-l:#a78bfa; --teal:#2dd4bf; --teal-l:#5eead4;
-  --text:#e2e8f0; --text-bright:#f8fafc; --muted:#64748b; --muted2:#475569;
+  --sky:#38bdf8; --text:#e2e8f0; --text-bright:#f8fafc; --muted:#94a3b8; --muted2:#64748b;
 }}
 html,body {{ width:1080px; height:1920px; background:var(--bg); font-family:'Inter',sans-serif; color:var(--text); overflow:hidden; }}
 .story {{
@@ -208,89 +198,70 @@ html,body {{ width:1080px; height:1920px; background:var(--bg); font-family:'Int
     radial-gradient(ellipse 110% 40% at 50% -2%, rgba(139,92,246,.4) 0%, transparent 55%),
     radial-gradient(ellipse 60% 35% at 88% 92%, rgba(45,212,191,.12) 0%, transparent 55%);
 }}
-.s-main {{ flex:1; display:flex; flex-direction:column; justify-content:center; }}
-.s-header {{ display:flex; align-items:center; justify-content:space-between; padding:54px 64px 0; }}
-.s-logo {{ display:flex; align-items:center; gap:14px; }}
-.s-logo img {{ width:52px; height:52px; object-fit:contain; }}
-.s-logo-text {{ font-size:1.5rem; font-weight:800; letter-spacing:-.02em; color:var(--text-bright); }}
-.s-badge-liga {{ font-size:.85rem; font-weight:600; color:var(--teal-l); background:rgba(45,212,191,.12);
-  border:1px solid rgba(45,212,191,.3); border-radius:20px; padding:8px 22px; letter-spacing:.04em; }}
+.ph-header {{ display:flex; align-items:center; justify-content:space-between; padding:54px 64px 0; }}
+.ph-logo img {{ width:78px; height:78px; object-fit:contain; display:block; }}
+.ph-badge-live {{ font-size:.85rem; font-weight:800; color:var(--text); background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.16); border-radius:30px; padding:14px 30px; letter-spacing:.06em; }}
 
-.s-status-row {{ display:flex; justify-content:center; margin-top:48px; }}
-.s-status-pill {{ font-size:1.05rem; font-weight:800; letter-spacing:.06em; color:var(--teal-l);
-  background:rgba(45,212,191,.12); border:1.5px solid rgba(45,212,191,.4); border-radius:30px; padding:14px 34px; }}
-.s-status-pill.renew {{ color:var(--purple-l); background:rgba(139,92,246,.14); border-color:rgba(139,92,246,.45); }}
-.s-confidence {{ text-align:center; margin-top:14px; font-size:.85rem; font-weight:700; letter-spacing:.12em; color:var(--muted); }}
+.ph-liga-label {{ margin-top:44px; text-align:center; font-size:1.05rem; font-weight:800; letter-spacing:.16em;
+  color:var(--teal-l); text-transform:uppercase; }}
+.ph-eyebrow {{ margin-top:14px; text-align:center; font-size:1.3rem; font-weight:700; letter-spacing:.14em;
+  color:var(--muted); text-transform:uppercase; }}
 
-.s-hero {{ display:flex; flex-direction:column; align-items:center; padding:44px 64px 0; }}
-.s-player-avatar {{ width:340px; height:340px; border-radius:50%; border:5px solid rgba(139,92,246,.5);
-  background:var(--surface) center/cover no-repeat; box-shadow:0 20px 60px rgba(139,92,246,.25); }}
-.s-player-name {{ margin-top:34px; font-size:3.4rem; font-weight:900; letter-spacing:-.03em; text-align:center;
-  color:var(--text-bright); line-height:1.05; }}
-.s-player-name b {{ color:var(--purple-l); }}
-.s-player-meta {{ margin-top:12px; font-size:1.05rem; font-weight:500; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }}
+.ph-hero {{ display:flex; flex-direction:column; align-items:center; padding:40px 64px 0; }}
+.ph-photo {{ width:500px; height:480px; border-radius:36px; background:#fff center top/cover no-repeat;
+  box-shadow:0 30px 70px rgba(0,0,0,.35); }}
+.ph-name-block {{ width:100%; text-align:center; box-sizing:border-box; }}
+.ph-name {{ margin-top:34px; font-size:3.6rem; font-weight:900; letter-spacing:-.03em; color:var(--text-bright); line-height:1.06; }}
+.ph-position {{ margin-top:12px; font-size:1.5rem; font-weight:800; letter-spacing:.08em; color:var(--sky); text-transform:uppercase; }}
+.ph-meta {{ margin-top:6px; font-size:1.2rem; font-weight:500; color:var(--muted); }}
 
-.s-stats-row {{ display:flex; justify-content:center; gap:16px; padding:38px 64px 0; }}
-.s-stat-card {{ background:var(--surface); border:1px solid var(--border); border-radius:18px;
-  padding:20px 34px; text-align:center; position:relative; overflow:hidden; }}
-.s-stat-card::before {{ content:''; position:absolute; top:0; left:0; right:0; height:2px;
-  background:linear-gradient(90deg, var(--purple-d), var(--purple)); opacity:.6; }}
-.s-stat-card.teal::before {{ background:linear-gradient(90deg, #0d9488, var(--teal)); }}
-.s-stat-value {{ font-size:1.7rem; font-weight:900; color:var(--text-bright); letter-spacing:-.03em; line-height:1; margin-bottom:6px; }}
-.s-stat-value.purple {{ color:var(--purple-l); }}
-.s-stat-value.teal {{ color:var(--teal-l); }}
-.s-stat-label {{ font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }}
+.ph-transfer-box {{ margin:56px 64px 0; background:var(--surface); border:1px solid var(--border2); border-radius:28px;
+  padding:36px 44px; display:flex; align-items:center; justify-content:center; gap:44px; }}
+.ph-club {{ display:flex; flex-direction:column; align-items:center; gap:14px; width:230px; }}
+.ph-club-logo {{ width:120px; height:120px; border-radius:26px; background:var(--bg); border:1px solid var(--border2);
+  display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; }}
+.ph-club-logo img {{ width:100%; height:100%; object-fit:contain; padding:14px; }}
+.ph-club-fallback {{ font-size:2.2rem; color:var(--muted2); }}
+.ph-club-name {{ font-size:1.15rem; font-weight:700; color:var(--text-bright); text-align:center; letter-spacing:-.01em; }}
+.ph-club-name.origin {{ font-weight:500; color:var(--muted); }}
+.ph-arrow {{ font-size:1.9rem; color:var(--purple-l); }}
+.ph-transfer-single {{ display:flex; flex-direction:column; align-items:center; gap:14px; }}
 
-.s-divider {{ height:1px; margin:40px 64px 0; background:linear-gradient(90deg, transparent, var(--border), transparent); }}
+.ph-status-pill {{ margin:44px auto 0; width:fit-content; font-size:1.05rem; font-weight:800; letter-spacing:.06em;
+  color:var(--purple-l); background:rgba(139,92,246,.14); border:1.5px solid rgba(139,92,246,.45);
+  border-radius:40px; padding:18px 40px; }}
 
-.s-transfer-pair {{ display:flex; align-items:center; justify-content:center; gap:40px; padding:44px 64px 0; }}
-.s-transfer-side {{ display:flex; flex-direction:column; align-items:center; gap:16px; width:280px; }}
-.s-club-circle {{ width:150px; height:150px; border-radius:50%; background:var(--surface); border:2px solid var(--border2);
-  display:flex; align-items:center; justify-content:center; overflow:hidden; }}
-.s-club-circle.small {{ width:110px; height:110px; }}
-.s-club-circle img {{ width:100%; height:100%; object-fit:contain; padding:14px; }}
-.s-club-fallback {{ font-size:2.4rem; color:var(--muted2); }}
-.s-club-name {{ font-size:1.3rem; font-weight:800; color:var(--text-bright); text-align:center; letter-spacing:-.01em; }}
-.s-club-name.small {{ font-size:1.05rem; font-weight:600; color:var(--muted); }}
-.s-transfer-arrow {{ font-size:2.6rem; font-weight:900; color:var(--teal-l); }}
-
-.s-transfer-single {{ display:flex; flex-direction:column; align-items:center; gap:16px; padding:44px 64px 0; }}
-.s-renew-label {{ font-size:1.15rem; font-weight:800; letter-spacing:.1em; color:var(--purple-l); margin-top:6px; }}
-
-.s-footer {{ margin-top:auto; padding:24px 64px 48px; display:flex; align-items:center; justify-content:space-between;
-  border-top:1px solid rgba(255,255,255,.05); }}
-.s-footer-brand {{ font-size:.95rem; font-weight:600; color:var(--muted2); }}
-.s-footer-brand span {{ background:linear-gradient(90deg, var(--purple-l), var(--teal-l)); -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent; font-weight:800; }}
-.s-footer-date {{ font-size:.9rem; color:var(--muted2); }}
+.ph-footer {{ margin-top:auto; padding:0 64px 90px; text-align:center; }}
+.ph-footer-line1 {{ font-size:1.05rem; font-weight:500; color:var(--muted); }}
+.ph-footer-line2 {{ margin-top:8px; font-size:1.8rem; font-weight:800; letter-spacing:-.01em; color:var(--text-bright); }}
 </style></head>
 <body>
 <div class="story">
-  <div class="s-header">
-    <div class="s-logo">{f'<img src="{scouteado_logo_b64}">' if scouteado_logo_b64 else ''}<div class="s-logo-text">Scouteado</div></div>
-    <div class="s-badge-liga">{liga_label}</div>
+  <div class="ph-header">
+    <div class="ph-logo">{f'<img src="{scouteado_logo_b64}">' if scouteado_logo_b64 else ''}</div>
+    <div class="ph-badge-live">MERCADO EN VIVO</div>
   </div>
 
-  <div class="s-main">
-  <div class="s-status-row">{status_pill}</div>
-  {f'<div class="s-confidence">{confidence}</div>' if confidence else ''}
+  {f'<div class="ph-liga-label">{liga_label}</div>' if liga_label else ''}
+  <div class="ph-eyebrow">{status_text}</div>
 
-  <div class="s-hero">
-    <div class="s-player-avatar" style="{f"background-image:url('{photo}');" if photo else ''}"></div>
-    <div class="s-player-name">{first.upper()}<br><b>{last.upper()}</b></div>
-    <div class="s-player-meta">{meta_line}</div>
+  <div class="ph-hero">
+    <div class="ph-photo" style="{f"background-image:url('{photo}');" if photo else ''}"></div>
+    <div class="ph-name-block">
+      <div class="ph-name">{first.upper()}<br>{last.upper()}</div>
+      {f'<div class="ph-position">{position.upper()}</div>' if position else ''}
+      {f'<div class="ph-meta">{meta_line}</div>' if meta_line else ''}
+    </div>
   </div>
 
-  <div class="s-stats-row">{stats_row}</div>
+  <div class="ph-transfer-box">{transfer_block}</div>
 
-  <div class="s-divider"></div>
+  <div class="ph-status-pill">{status_text}</div>
 
-  {transfer_block}
-  </div>
-
-  <div class="s-footer">
-    <div class="s-footer-brand">análisis por <span>Scouteado</span></div>
-    <div class="s-footer-date">{today}</div>
+  <div class="ph-footer">
+    <div class="ph-footer-line1">Seguí el mercado completo en</div>
+    <div class="ph-footer-line2">scouteado.com</div>
   </div>
 </div>
 </body></html>'''
