@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-01T20:41:32.852540+00:00",
+  "updated_at": "2026-08-02T02:48:39.903735+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -259,7 +259,7 @@
       "id": "racing_avellaneda",
       "name": "Racing Club",
       "team": "RACING (A)",
-      "pct": 64,
+      "pct": 73,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 7,
@@ -2707,6 +2707,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Gian-Franco-Sinconi-Gimnasia-6.jpg",
       "updated_at": "2026-07-31 10:48:48"
+    },
+    {
+      "id": "p_5f0511d4-6eec-4f6f-8580-fbbd9beb52ce",
+      "club_id": "racing_avellaneda",
+      "name": "Luciano Silva",
+      "position": "alero",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "29",
+      "height": "1.89",
+      "last_club": "Racing Club",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/lucho-silva.jpg",
+      "updated_at": "2026-08-01 20:01:41"
     }
   ],
   "statuses": {
