@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-02T02:48:40.894471+00:00",
+  "updated_at": "2026-08-02T14:28:13.728623+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -94,7 +94,7 @@
       "id": "lanus",
       "name": "Lanús",
       "team": "LANUS",
-      "pct": 8,
+      "pct": 50,
       "coach": "Manuel Anglese",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -519,14 +519,14 @@
       "name": "Juan Brussino",
       "position": "base",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "35",
       "height": "1,85",
       "last_club": "Obras Basket",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Brussino-J-Lanus-N.jpg",
-      "updated_at": "2026-07-04 18:42:52"
+      "updated_at": "2026-08-02 11:22:29"
     },
     {
       "id": "p_7c2b77f9-1157-4c2f-8646-76089169ebcc",
@@ -534,14 +534,14 @@
       "name": "Lucas Andujar",
       "position": "base",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "29",
       "height": "1,87",
       "last_club": "Oberá TC",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Andujar-L-Lanus-N.jpg",
-      "updated_at": "2026-07-04 18:44:34"
+      "updated_at": "2026-08-02 11:24:32"
     },
     {
       "id": "p_84eeaeac-3d1b-48ce-8f7e-9615d53eeabc",
@@ -549,14 +549,14 @@
       "name": "Alejo Sacchi",
       "position": "alero",
       "ficha_type": "u21",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "22",
       "height": "1,92",
       "last_club": "Lanús",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Sacchi-A-Lanus-10.jpg",
-      "updated_at": "2026-07-04 18:45:53"
+      "updated_at": "2026-08-02 11:25:11"
     },
     {
       "id": "p_f9e8d886-559e-4b28-93f1-8b1a82d7fbbf",
@@ -564,14 +564,14 @@
       "name": "Fabián Ramírez Barrios",
       "position": "ala_pivote",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "36",
       "height": "1,96",
       "last_club": "Regatas",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Ramirez-Barrios-F-Lanus-N.jpg",
-      "updated_at": "2026-07-04 18:43:22"
+      "updated_at": "2026-08-02 11:23:00"
     },
     {
       "id": "p_4533e4cc-bd13-4e4d-a40f-9b3fe48561cb",
@@ -1285,13 +1285,13 @@
       "position": "pivote",
       "ficha_type": "mayor",
       "status": "confirmado",
-      "confidence": "muy_avanzado",
+      "confidence": "oficial",
       "age": "27",
       "height": "2,06",
       "last_club": "La Unión",
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Alorda-F-La-Union-17.jpg",
-      "updated_at": "2026-07-04 17:38:44"
+      "updated_at": "2026-08-02 11:26:16"
     },
     {
       "id": "p_30a11e6b-a87f-4bdd-99f9-642aa0938d99",
@@ -2469,14 +2469,14 @@
       "name": "Jared Ruiz",
       "position": "escolta",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "33",
       "height": "1.89",
       "last_club": "Real Estelí",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/jared-ruiz.jpg",
-      "updated_at": "2026-07-13 11:27:21"
+      "updated_at": "2026-08-02 11:24:03"
     },
     {
       "id": "p_de712627-bbd3-4eb5-a81c-e88d6d49ce6b",
