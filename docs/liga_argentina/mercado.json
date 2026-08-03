@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-02T20:43:53.761581+00:00",
+  "updated_at": "2026-08-03T02:49:55.623733+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -226,7 +226,7 @@
       "id": "gimnasia_lp",
       "name": "Gimnasia y Esgrima La Plata",
       "team": "GIMNASIA (LP)",
-      "pct": 17,
+      "pct": 33,
       "coach": "Fernando Calvi",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -314,7 +314,7 @@
       "id": "deportivo_norte",
       "name": "Deportivo Norte",
       "team": "DEP. NORTE",
-      "pct": 45,
+      "pct": 55,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 7,
@@ -1632,7 +1632,7 @@
       "id": "p_d876be38-773b-4d9c-8263-82c2f574482e",
       "club_id": "deportivo_norte",
       "name": "Favio Vieta",
-      "position": "escolta",
+      "position": "base",
       "ficha_type": "mayor",
       "status": "confirmado",
       "confidence": "oficial",
@@ -1641,7 +1641,7 @@
       "last_club": "Villa San Martín",
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Favio-Vieta-Villa-SM.jpg",
-      "updated_at": "2026-07-20 10:37:40"
+      "updated_at": "2026-08-02 18:56:23"
     },
     {
       "id": "p_8bf00e20-1e68-404c-ba2c-fd2fe8a77d79",
@@ -2722,6 +2722,81 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/lucho-silva.jpg",
       "updated_at": "2026-08-01 20:01:41"
+    },
+    {
+      "id": "p_88b5b4e8-9ed8-43f1-899d-189e191d2a71",
+      "club_id": "centenario_vt",
+      "name": "Gonzalo Lozicki",
+      "position": "ala_pivote",
+      "ficha_type": "juvenil",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "18",
+      "height": "1.94",
+      "last_club": "Club Sanjustino",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Gonzalo-Lozicki.jpg",
+      "updated_at": "2026-08-02 18:43:31"
+    },
+    {
+      "id": "p_c9f4a408-ebfa-4835-8447-aef6f5e79929",
+      "club_id": "gimnasia_lp",
+      "name": "Facundo Ferraro",
+      "position": "escolta",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "21",
+      "height": "",
+      "last_club": "Atenas de La Plata",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/facundo-ferraro.jpg",
+      "updated_at": "2026-08-02 18:51:40"
+    },
+    {
+      "id": "p_c550a803-6bf9-4f94-b92d-b87f473d278b",
+      "club_id": "gimnasia_lp",
+      "name": "Facundo Ferraro",
+      "position": "escolta",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "21",
+      "height": "",
+      "last_club": "Atenas de La Plata",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/facundo-ferraro.jpg",
+      "updated_at": "2026-08-02 18:51:40"
+    },
+    {
+      "id": "p_2d8336f4-082a-4b65-a2f1-7d40eed84ff2",
+      "club_id": "deportivo_norte",
+      "name": "Matías Felcaro",
+      "position": "base",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "25",
+      "height": "",
+      "last_club": "Almagro (Esperanza)",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Matias-Felcaro.jpg",
+      "updated_at": "2026-08-02 18:58:41"
+    },
+    {
+      "id": "p_5d632119-474a-4ab0-baa9-0026fd5534b0",
+      "club_id": "deportivo_norte",
+      "name": "Mateo Rojas",
+      "position": "ala_pivote",
+      "ficha_type": "juvenil",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "17",
+      "height": "",
+      "last_club": "Deportivo Norte",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Mateo-Rojas.jpg",
+      "updated_at": "2026-08-02 19:02:45"
     }
   ],
   "statuses": {
