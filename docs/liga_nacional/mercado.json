@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-04T02:33:05.862441+00:00",
+  "updated_at": "2026-08-04T15:23:53.843883+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -182,7 +182,7 @@
       "id": "san_lorenzo",
       "name": "San Lorenzo",
       "team": "SAN LORENZO",
-      "pct": 0,
+      "pct": 17,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -1809,14 +1809,14 @@
       "name": "Nicolás Aguirre",
       "position": "base",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "38",
       "height": "1,89",
       "last_club": "Regatas",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Aguirre-N-San-Lorenzo-N.jpg",
-      "updated_at": "2026-07-05 21:08:25"
+      "updated_at": "2026-08-04 11:48:24"
     },
     {
       "id": "p_710db7b7-ff03-4afe-8e14-90fa1f6c4ad2",
@@ -1824,14 +1824,14 @@
       "name": "Marcos Mata",
       "position": "alero",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "39",
       "height": "2,01",
       "last_club": "Obras Basket",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Mata-M-San-LorenzoN.jpg",
-      "updated_at": "2026-07-05 21:09:06"
+      "updated_at": "2026-08-04 11:48:00"
     },
     {
       "id": "p_6316b0a1-fd64-40c8-940b-9a13d0ddb317",
