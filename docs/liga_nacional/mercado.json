@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-03T20:56:31.759287+00:00",
+  "updated_at": "2026-08-04T02:33:05.862441+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -50,7 +50,7 @@
       "id": "gimnasia_cr",
       "name": "Gimnasia (CR)",
       "team": "GIMNASIA (CR)",
-      "pct": 75,
+      "pct": 83,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2657,6 +2657,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Dylan-smith.jpg",
       "updated_at": "2026-07-30 14:18:20"
+    },
+    {
+      "id": "p_0ac71d42-641b-40b8-b580-257f69fc926b",
+      "club_id": "gimnasia_cr",
+      "name": "Valentin Forestier",
+      "position": "alero",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "23",
+      "height": "1.96",
+      "last_club": "Olímpico La banda",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Valentina-Forestier.jpg",
+      "updated_at": "2026-08-03 20:44:21"
     }
   ],
   "statuses": {
