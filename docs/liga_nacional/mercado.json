@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-05T15:12:32.242613+00:00",
+  "updated_at": "2026-08-05T17:22:00.963376+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -171,7 +171,7 @@
       "id": "regatas",
       "name": "Regatas",
       "team": "REGATAS (C)",
-      "pct": 50,
+      "pct": 58,
       "coach": "Martín Villagrán",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2574,14 +2574,14 @@
       "name": "Elián Centeno",
       "position": "pivote",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "25",
       "height": "2.02",
       "last_club": "Villa San Martín",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Elian-Centeno-Villa-San-Martin.jpg",
-      "updated_at": "2026-07-25 09:19:15"
+      "updated_at": "2026-08-05 12:18:25"
     },
     {
       "id": "p_76a0ea15-5419-4c3b-94e6-56ede3bc112b",
