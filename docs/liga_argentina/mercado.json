@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-05T17:22:00.174019+00:00",
+  "updated_at": "2026-08-05T20:58:39.062322+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -215,7 +215,7 @@
       "id": "quilmes_mdp",
       "name": "Quilmes",
       "team": "QUILMES (MDP)",
-      "pct": 50,
+      "pct": 58,
       "coach": "Sebastián Saborido",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -226,7 +226,7 @@
       "id": "gimnasia_lp",
       "name": "Gimnasia y Esgrima La Plata",
       "team": "GIMNASIA (LP)",
-      "pct": 33,
+      "pct": 42,
       "coach": "Fernando Calvi",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -1439,14 +1439,14 @@
       "name": "Rafael Alberton Rodrigues",
       "position": "pivote",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "interes",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "25",
       "height": "2.15",
       "last_club": "Fortaleza BC",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Rafael-Alberton-Rodrigues-Quilmes.jpg",
-      "updated_at": "2026-07-19 11:18:18"
+      "updated_at": "2026-08-05 16:14:48"
     },
     {
       "id": "p_2d61f4eb-3fb0-4a66-84fe-d0f420d7a9f2",
@@ -2812,6 +2812,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Nicolas-Rizzotti.jpg",
       "updated_at": "2026-08-05 08:30:25"
+    },
+    {
+      "id": "p_bc995444-c09e-46e0-9f97-d595e09594f0",
+      "club_id": "gimnasia_lp",
+      "name": "Juan Francisco Bofelli",
+      "position": "alero",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "27",
+      "height": "1.95",
+      "last_club": "Gimnasia y Esgrima (La Plata)",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Juan-Boffelli-Gimnasia-7.jpg",
+      "updated_at": "2026-08-05 16:22:31"
     }
   ],
   "statuses": {
