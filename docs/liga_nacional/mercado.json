@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-05T02:32:46.898245+00:00",
+  "updated_at": "2026-08-05T15:12:32.242613+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -17,7 +17,7 @@
       "id": "atenas",
       "name": "Atenas",
       "team": "ATENAS (C)",
-      "pct": 75,
+      "pct": 83,
       "coach": "Leonardo Gutiérrez",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2672,6 +2672,36 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Valentina-Forestier.jpg",
       "updated_at": "2026-08-03 20:44:21"
+    },
+    {
+      "id": "p_c4949d96-9ad3-41c8-af20-84d9c902855b",
+      "club_id": "atenas",
+      "name": "Benjamin Imaz",
+      "position": "escolta",
+      "ficha_type": "juvenil",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "18",
+      "height": "1.80",
+      "last_club": "Atenas",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/benjamin-imaz.jpg",
+      "updated_at": "2026-08-05 09:25:01"
+    },
+    {
+      "id": "p_4aaffdfb-65e5-4496-ba22-2e5b6b628a60",
+      "club_id": "atenas",
+      "name": "Germán Misetich",
+      "position": "ala_pivote",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "21",
+      "height": "1.96",
+      "last_club": "Atenas",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/German-Misetich.jpg",
+      "updated_at": "2026-08-05 09:27:10"
     }
   ],
   "statuses": {

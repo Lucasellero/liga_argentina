@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-05T02:32:46.116631+00:00",
+  "updated_at": "2026-08-05T15:12:31.416724+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -94,7 +94,7 @@
       "id": "jujuy_basquet",
       "name": "Jujuy Básquet",
       "team": "JUJUY BASQUET",
-      "pct": 0,
+      "pct": 8,
       "coach": "Guillermo Tasso",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -105,7 +105,7 @@
       "id": "villa_san_martin",
       "name": "Villa San Martín",
       "team": "VILLA SAN MARTIN",
-      "pct": 25,
+      "pct": 42,
       "coach": "Eduardo \"Chiche\" Japez",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -193,7 +193,7 @@
       "id": "la_union_colon",
       "name": "La Unión",
       "team": "LA UNIÓN (C)",
-      "pct": 50,
+      "pct": 58,
       "coach": "Martin Guastavino",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -1694,14 +1694,14 @@
       "name": "Ramiro Stehli",
       "position": "escolta",
       "ficha_type": "mayor",
-      "status": "pretendido",
+      "status": "confirmado",
       "confidence": "oficial",
       "age": "24",
       "height": "1.92",
       "last_club": "Jujuy Basket",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Ramiro-Steheli-Jujuy-6-1.jpg",
-      "updated_at": "2026-07-18 10:17:40"
+      "updated_at": "2026-08-05 08:43:32"
     },
     {
       "id": "p_d7346911-8e61-4901-9f60-23846290b72b",
@@ -1739,14 +1739,14 @@
       "name": "Mauro Araujo",
       "position": "base",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "32",
       "height": "1.86",
       "last_club": "Amancay",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Mauro-Araujo-Amancay-44.jpg",
-      "updated_at": "2026-07-17 12:24:27"
+      "updated_at": "2026-08-05 08:13:05"
     },
     {
       "id": "p_57b79047-d9d3-4dd9-8fb9-a99a3bde3311",
@@ -1754,14 +1754,14 @@
       "name": "Benjamin Marchiaro",
       "position": "alero",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "22",
       "height": "1.96",
       "last_club": "Huracán LH",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Benjamin-Marchiaro-Huracan-10.jpg",
-      "updated_at": "2026-07-19 16:06:29"
+      "updated_at": "2026-08-05 08:13:25"
     },
     {
       "id": "p_205f397b-a07d-4510-a8e7-10f371bd7f4b",
@@ -2069,14 +2069,14 @@
       "name": "Tiziano Prome",
       "position": "ala_pivote",
       "ficha_type": "u21",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "21",
       "height": "2.01",
       "last_club": "Lanús",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Tiziano-Prome-Lanus-28.jpg",
-      "updated_at": "2026-07-22 11:17:42"
+      "updated_at": "2026-08-05 08:08:46"
     },
     {
       "id": "p_b12d7468-f65a-4363-9912-bd1378db4227",
@@ -2797,6 +2797,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Mateo-Rojas.jpg",
       "updated_at": "2026-08-02 19:02:45"
+    },
+    {
+      "id": "p_6ea8869e-5552-44a8-be6b-bf4c8eae3651",
+      "club_id": "amancay",
+      "name": "Nicolás Rizzotti",
+      "position": "base",
+      "ficha_type": "juvenil",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "18",
+      "height": "1.80",
+      "last_club": "",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Nicolas-Rizzotti.jpg",
+      "updated_at": "2026-08-05 08:30:25"
     }
   ],
   "statuses": {
