@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-06T02:34:59.894678+00:00",
+  "updated_at": "2026-08-07T00:50:46.764325+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -83,7 +83,7 @@
       "id": "salta_basket",
       "name": "Salta Basket",
       "team": "SALTA BASKET",
-      "pct": 33,
+      "pct": 42,
       "coach": "Ariel Rearte",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -94,7 +94,7 @@
       "id": "jujuy_basquet",
       "name": "Jujuy Básquet",
       "team": "JUJUY BASQUET",
-      "pct": 8,
+      "pct": 17,
       "coach": "Guillermo Tasso",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -226,7 +226,7 @@
       "id": "gimnasia_lp",
       "name": "Gimnasia y Esgrima La Plata",
       "team": "GIMNASIA (LP)",
-      "pct": 42,
+      "pct": 33,
       "coach": "Fernando Calvi",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2754,21 +2754,6 @@
       "updated_at": "2026-08-02 18:51:40"
     },
     {
-      "id": "p_c550a803-6bf9-4f94-b92d-b87f473d278b",
-      "club_id": "gimnasia_lp",
-      "name": "Facundo Ferraro",
-      "position": "escolta",
-      "ficha_type": "u21",
-      "status": "confirmado",
-      "confidence": "oficial",
-      "age": "21",
-      "height": "",
-      "last_club": "Atenas de La Plata",
-      "source_type": "club_oficial",
-      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/facundo-ferraro.jpg",
-      "updated_at": "2026-08-02 18:51:40"
-    },
-    {
       "id": "p_2d8336f4-082a-4b65-a2f1-7d40eed84ff2",
       "club_id": "deportivo_norte",
       "name": "Matías Felcaro",
@@ -2827,6 +2812,36 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Juan-Boffelli-Gimnasia-7.jpg",
       "updated_at": "2026-08-05 16:22:31"
+    },
+    {
+      "id": "p_fb826893-7246-464c-8781-1506f023f1f7",
+      "club_id": "jujuy_basquet",
+      "name": "Santiago Ballarena",
+      "position": "alero",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "20",
+      "height": "2.00",
+      "last_club": "Independiente de La Pampa",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/santiago-ballarena.jpg",
+      "updated_at": "2026-08-06 13:21:44"
+    },
+    {
+      "id": "p_af312632-af0e-464f-bfc8-6839e943dccd",
+      "club_id": "salta_basket",
+      "name": "Federico Gobetti",
+      "position": "escolta",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "26",
+      "height": "1.92",
+      "last_club": "Provincial Rosario",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Federico-Gobetti.jpg",
+      "updated_at": "2026-08-06 19:26:51"
     }
   ],
   "statuses": {
