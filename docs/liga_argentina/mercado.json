@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-07T02:40:44.728800+00:00",
+  "updated_at": "2026-08-07T14:12:25.527606+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -193,7 +193,7 @@
       "id": "la_union_colon",
       "name": "La Unión",
       "team": "LA UNIÓN (C)",
-      "pct": 58,
+      "pct": 67,
       "coach": "Martin Guastavino",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -226,7 +226,7 @@
       "id": "gimnasia_lp",
       "name": "Gimnasia y Esgrima La Plata",
       "team": "GIMNASIA (LP)",
-      "pct": 33,
+      "pct": 50,
       "coach": "Fernando Calvi",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2811,7 +2811,7 @@
       "last_club": "Gimnasia y Esgrima (La Plata)",
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Juan-Boffelli-Gimnasia-7.jpg",
-      "updated_at": "2026-08-05 16:22:31"
+      "updated_at": "2026-08-07 10:25:08"
     },
     {
       "id": "p_fb826893-7246-464c-8781-1506f023f1f7",
@@ -2842,6 +2842,51 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Federico-Gobetti.jpg",
       "updated_at": "2026-08-06 19:26:51"
+    },
+    {
+      "id": "p_94b94cf0-8676-4782-abf8-6fefe9df3c25",
+      "club_id": "la_union_colon",
+      "name": "Mirko Kozar",
+      "position": "escolta",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "21",
+      "height": "1.94",
+      "last_club": "Sp. Suardi",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Mirko-Kozar.jpg",
+      "updated_at": "2026-08-07 09:13:59"
+    },
+    {
+      "id": "p_d496ae5d-56a4-4083-af5b-dfbbe7b7105c",
+      "club_id": "gimnasia_lp",
+      "name": "Matías Cueva",
+      "position": "escolta",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "29",
+      "height": "1.83",
+      "last_club": "El Talar",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Matias-cueva.jpg",
+      "updated_at": "2026-08-07 10:09:04"
+    },
+    {
+      "id": "p_bff3512e-1a26-4c2b-bd64-f667d0bd3ade",
+      "club_id": "gimnasia_lp",
+      "name": "Joan Gutierrez Conde",
+      "position": "alero",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "23",
+      "height": "1.92",
+      "last_club": "Gimnasia y Esgrima (La Plata)",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Joan-Gutierrez-Conde.jpg",
+      "updated_at": "2026-08-07 10:24:52"
     }
   ],
   "statuses": {

@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-07T02:40:45.743645+00:00",
+  "updated_at": "2026-08-07T14:12:26.445431+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -127,7 +127,7 @@
       "id": "penarol",
       "name": "Peñarol",
       "team": "PEÑAROL (MDP)",
-      "pct": 75,
+      "pct": 83,
       "coach": "Leandro Ramella",
       "market_status": "avanzado",
       "target_mayor": 9,
@@ -369,14 +369,14 @@
       "name": "Al Thornton",
       "position": "ala_pivote",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "42",
       "height": "2,03",
       "last_club": "Peñarol",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Thornton-A-Penarol-1.jpg",
-      "updated_at": "2026-07-05 13:35:27"
+      "updated_at": "2026-08-07 11:02:52"
     },
     {
       "id": "p_e740725a-e0ca-4762-9659-2d92e866c773",
