@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-08T16:22:24.937150+00:00",
+  "updated_at": "2026-08-08T20:18:45.408632+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -193,7 +193,7 @@
       "id": "san_martin",
       "name": "San Martín",
       "team": "SAN MARTÍN (C)",
-      "pct": 8,
+      "pct": 17,
       "coach": "Gabriel Revidatti",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -1989,14 +1989,14 @@
       "name": "Sebastián Lugo",
       "position": "alero",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "28",
       "height": "1,97",
       "last_club": "Regatas",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Lugo-S-San-Martin-16.jpg",
-      "updated_at": "2026-07-05 21:48:07"
+      "updated_at": "2026-08-08 14:32:41"
     },
     {
       "id": "p_484693a7-f0e5-433e-a212-0ef6b5c1e6f9",
