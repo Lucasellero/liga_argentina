@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-07T20:31:54.191626+00:00",
+  "updated_at": "2026-08-08T01:39:57.360585+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -215,10 +215,10 @@
       "id": "quilmes_mdp",
       "name": "Quilmes",
       "team": "QUILMES (MDP)",
-      "pct": 58,
-      "coach": "Sebastián Saborido",
+      "pct": 90,
+      "coach": "",
       "market_status": "abierto",
-      "target_mayor": 9,
+      "target_mayor": 7,
       "target_u23": 3,
       "order": 21
     },
@@ -2887,6 +2887,51 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Joan-Gutierrez-Conde.jpg",
       "updated_at": "2026-08-07 10:24:52"
+    },
+    {
+      "id": "p_fa7c3c7f-ba36-4b00-8550-a9057d879590",
+      "club_id": "quilmes_mdp",
+      "name": "Santiago Aman",
+      "position": "alero",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "21",
+      "height": "1.93",
+      "last_club": "Atenas de La Plata",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/santiago-aman.jpg",
+      "updated_at": "2026-08-07 21:38:25"
+    },
+    {
+      "id": "p_37f2d7eb-38fe-4aea-92e4-4d01bd0f9fcf",
+      "club_id": "quilmes_mdp",
+      "name": "Leonel Luna",
+      "position": "base",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "20",
+      "height": "1.84",
+      "last_club": "Quilmes",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Leonel-Luna.jpg",
+      "updated_at": "2026-08-07 21:41:50"
+    },
+    {
+      "id": "p_64756817-b75a-46f6-9fc9-93cc7fdf60d5",
+      "club_id": "quilmes_mdp",
+      "name": "Matías Dominé",
+      "position": "escolta",
+      "ficha_type": "juvenil",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "19",
+      "height": "1.87",
+      "last_club": "Quilmes",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/matias-domine.jpg",
+      "updated_at": "2026-08-07 21:46:15"
     }
   ],
   "statuses": {
