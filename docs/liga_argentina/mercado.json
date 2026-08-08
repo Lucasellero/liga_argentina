@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-08T13:44:04.728018+00:00",
+  "updated_at": "2026-08-08T16:22:24.313737+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -226,7 +226,7 @@
       "id": "gimnasia_lp",
       "name": "Gimnasia y Esgrima La Plata",
       "team": "GIMNASIA (LP)",
-      "pct": 50,
+      "pct": 58,
       "coach": "Fernando Calvi",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2932,6 +2932,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/matias-domine.jpg",
       "updated_at": "2026-08-07 21:46:15"
+    },
+    {
+      "id": "p_76aa23f9-eb32-4b35-b3ec-a07df9f5ffd2",
+      "club_id": "gimnasia_lp",
+      "name": "Facundo Sanz",
+      "position": "ala_pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "29",
+      "height": "1.98",
+      "last_club": "El Talar",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/facundo-sanz.jpg",
+      "updated_at": "2026-08-08 13:00:14"
     }
   ],
   "statuses": {
