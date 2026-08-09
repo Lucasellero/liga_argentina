@@ -1,0 +1,13 @@
+{
+  "name": "liga-argentina-dashboard",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/minify.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}

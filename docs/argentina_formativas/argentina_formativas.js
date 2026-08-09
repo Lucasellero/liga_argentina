@@ -1632,7 +1632,7 @@ document.addEventListener('click',function(e){if(!e.target.closest('.fsb-custom-
 async function loadShots() {
   if (SHOTS_MAP !== null) return;
   try {
-    const resp = await fetch(SHOTS_CSV + '?v=' + Date.now(), { cache: 'no-store' });
+    const resp = await fetch(SHOTS_CSV + '?v=' + new Date().toISOString().slice(0, 10));
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const text = await resp.text();
     const rows = parseCSV(text);
@@ -2372,7 +2372,7 @@ function closeTeamGames(e) {
 async function initApp() {
   document.getElementById('loadingOverlay').style.display = 'flex';
   try {
-    const resp = await fetch(CSV_PATH + '?v=' + Date.now(), { cache: 'no-store' });
+    const resp = await fetch(CSV_PATH + '?v=' + new Date().toISOString().slice(0, 10));
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const text = await resp.text();
     const rows = parseCSV(text);
@@ -2636,7 +2636,7 @@ async function initApp() {
     // Merge upcoming fixture from CSV (skip any game already played/scraped)
     const _playedKeys = new Set(GAMES_ALL.map(g => `${g.fecha}|${g.local}|${g.visit}`));
     try {
-      const upResp = await fetch('fixture_upcoming.csv?v=' + Date.now(), { cache: 'no-store' });
+      const upResp = await fetch('fixture_upcoming.csv?v=' + new Date().toISOString().slice(0, 10));
       if (upResp.ok) {
         const upRows = parseCSV(await upResp.text());
         upRows.forEach(u => {
@@ -2655,7 +2655,7 @@ async function initApp() {
 
     // Cargar predicciones del modelo
     try {
-      const prResp = await fetch('predicciones_upcoming.csv?v=' + Date.now(), { cache: 'no-store' });
+      const prResp = await fetch('predicciones_upcoming.csv?v=' + new Date().toISOString().slice(0, 10));
       if (prResp.ok) {
         const prRows = parseCSV(await prResp.text());
         prRows.forEach(r => {
@@ -3284,7 +3284,7 @@ let qntSort = 'min', qntDir = 'desc';
 async function loadPbp() {
   if (PBP_MAP !== null) return;
   try {
-    const resp = await fetch(PBP_CSV + '?v=' + Date.now(), { cache: 'no-store' });
+    const resp = await fetch(PBP_CSV + '?v=' + new Date().toISOString().slice(0, 10));
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const text = await resp.text();
     const rows = parseCSV(text);
