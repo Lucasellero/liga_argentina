@@ -1137,6 +1137,33 @@ Esto se aplicó en `docs/liga_argentina/liga_argentina.js`, `docs/liga_nacional/
 ### Ciclo de facturación
 Según el historial de facturas del proyecto, el ciclo renueva el **día 11 de cada mes**. El próximo reset estimado (a la fecha de este incidente, 31/07/2026) sería **11/08/2026** — confirmar la fecha exacta en el dashboard de Supabase, no asumir.
 
+## Cache de CSVs servidos por Vercel (agosto 2026)
+
+El fix de cache-busting aplicado al PBP en el incidente de Supabase (arriba) nunca se había extendido a los CSVs que sirve **Vercel** (no Supabase): `liga_*.csv`, `liga_*_shots.csv`, `players_dob.csv`, `fixture_upcoming.csv`, `predicciones_upcoming.csv`. Estos fetches seguían con el mismo patrón agresivo:
+```js
+fetch(SHOTS_CSV + '?v=' + Date.now(), { cache: 'no-store' })   // shots: hasta 10MB por liga
+```
+Y `vercel.json` reforzaba esto a nivel de header, forzando `no-store` para **todos** los `.csv` sin excepción:
+```json
+{ "source": "/(.*)\\.csv", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
+```
+Resultado: cada carga de página, y cada apertura de las pestañas Tiro/Quintetos/Mercado, volvía a bajar el CSV completo sin ninguna posibilidad de caché (ni siquiera revalidación condicional vía ETag, que `no-store` también bloquea). No causó un incidente como el de Supabase porque el bandwidth de Vercel es más laxo, pero es el mismo patrón y escala mal a medida que los CSVs crecen temporada tras temporada.
+
+**Fix aplicado**: mismo criterio que el de PBP/recaps, extendido a los 5 JS de liga (`liga_argentina.js`, `liga_nacional.js`, `liga_femenina.js`, `liga_proximo.js`, `argentina_formativas.js`) y a los 22 fetches de stats/shots/DOB/fixture/predicciones:
+```js
+// Antes:
+fetch(CSV_PATH + '?v=' + Date.now(), { cache: 'no-store' })
+// Después:
+fetch(CSV_PATH + '?v=' + new Date().toISOString().slice(0, 10))
+```
+Y en `vercel.json`:
+```json
+{ "source": "/(.*)\\.csv", "headers": [{ "key": "Cache-Control", "value": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400" }] }
+```
+La app sigue invalidando el query param una vez por día (mismo comportamiento percibido por el usuario), pero ahora dentro de ese día el navegador y el edge de Vercel pueden servir el CSV desde caché en vez de re-transferirlo entero en cada tab switch.
+
+**Regla al agregar un nuevo fetch de CSV**: nunca usar `cache:'no-store'` ni `Date.now()` como cache-buster — usar `new Date().toISOString().slice(0, 10)` (bust diario) y dejar que el header de `vercel.json` maneje el resto.
+
 ## Bugs en el shots CSV — documentados (junio 2026)
 
 ### Bug 1: `Equipo` y `Equipo_local` NaN para tiros del equipo local
@@ -1245,6 +1272,36 @@ python3 scraper/mercado_scraper.py
 # Actualizar Mercado de Pases en vivo — Liga Nacional
 python3 scraper/mercado_scraper_nacional.py
 ```
+
+## Backend serverless (`api/`) — Vercel Functions
+
+`vercel.json` tiene `rewrites: [{ source: "/api/:path*", destination: "/api/index" }]` — todo
+request a `/api/*` entra a la función única **`api/index.js`** (Node.js, no Python), que rutea
+a mano según `req.url`. Lógica pesada separada en `api/lib/*.js` (requerida desde `index.js`),
+no todo apilado en el mismo archivo.
+
+**Endpoints actuales**:
+| Ruta | Qué hace | Auth |
+|---|---|---|
+| `POST /api/placas/generate` | Dispara el workflow `placas.yml` de GitHub Actions (genera placas de fichajes) | Admin (chequeo comentado temporalmente, ver comentario en el código — Supabase restringido) |
+| `POST /api/mercado/chat` | Chat de IA del tab Mercado (ver `docs/liga_argentina/CLAUDE_MERCADO.md`) | Cualquier usuario logueado |
+
+**Auth compartida** (`api/lib/auth.js`, función `getAuthedEmail(req)`): lee el header
+`Authorization: Bearer <token>` y devuelve el email si es válido, `null` si no. Soporta dos
+formatos de token:
+1. JWT real de Supabase — se valida pegándole a `${SUPABASE_URL}/auth/v1/user`.
+2. Token "bypass" temporal (`bypass.<base64 json>.bypass`) que emite `login.html` para las 3
+   cuentas admin mientras Supabase sigue restringido (ver "Incidente: Supabase egress
+   excedido") — se decodifica y valida el `exp` sin pegarle a Supabase.
+
+**Env vars requeridas** (Vercel → Project Settings → Environment Variables, marcar Production +
+Preview + Development):
+- `SUPABASE_URL`, `SUPABASE_ANON_KEY` — mismas que usa `login.html`.
+- `ADMIN_EMAILS` — emails admin separados por coma (para `/api/placas/generate`).
+- `GH_PLACAS_TOKEN` — GitHub PAT fine-grained, permiso "Actions: Read and write" sobre este repo.
+- `ANTHROPIC_API_KEY` — key de console.anthropic.com, para `/api/mercado/chat`. **Distinta** del
+  secret homónimo de GitHub Actions que usa `recap_generator.py` (ese vive en GitHub, no en
+  Vercel) — hay que cargarla en los dos lugares por separado si se rota.
 
 ## Recap automático (tab "Recap") — Liga Argentina y Liga Nacional (julio 2026)
 
