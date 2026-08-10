@@ -9,6 +9,7 @@ Desplegado en **Vercel** desde `docs/` (configurado en `vercel.json`).
 - **Plataforma**: Vercel. El repo es `Lucasellero/liga_argentina` en GitHub. Vercel deploya automáticamente al hacer push a `main`.
 - **Root servido**: `docs/` (definido en `vercel.json` → `outputDirectory: "docs"`).
 - **URL base**: `https://<proyecto>.vercel.app/` → sirve `docs/index.html`.
+- **Build step (agosto 2026)**: `vercel.json` tiene `"buildCommand": "npm run build"`, que corre `scripts/minify.js` (usa `esbuild`) para minificar los 5 JS de liga (`liga_argentina.js`, `liga_nacional.js`, `liga_femenina.js`, `liga_proximo.js`, `argentina_formativas.js`) **solo en el contenedor de build de Vercel**. El código fuente en el repo (`docs/*/​*.js`) queda sin minificar y se sigue editando directo, como siempre — nunca correr `npm run build` sobre el checkout local si vas a commitear después, porque sobreescribe esos archivos in place. `esbuild` no renombra identificadores de scope global en modo transform (sin `bundle`), así que las funciones invocadas desde `onclick="..."` en los HTML sobreviven intactas — verificado antes de mergear este cambio.
 
 ### Cómo agregar una nueva liga
 Cada liga vive como subcarpeta dentro de `docs/`. Pasos:
@@ -308,7 +309,7 @@ Columnas: `IdPartido, Fecha, Equipo_local, Equipo_visitante, Local, Equipo, Dors
 - Tiros convertidos en la web: `CANASTA-2P` / `CANASTA-3P` (no `TIRO2-CONVERTIDO`)
 
 ## index.html — Arquitectura
-SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades puntuales, el sistema de diseño es CSS custom con variables `--bg`, `--purple`, `--teal`, etc.
+SPA pura, sin build para desarrollo/edición — el JS se sigue editando directo en `docs/*/*.js` sin paso intermedio. Vercel sí corre un build de minificación al desplegar (ver "Deployment" arriba), pero es transparente para el flujo de edición. Todo en un archivo por liga. Usa Tailwind CDN sólo para utilidades puntuales, el sistema de diseño es CSS custom con variables `--bg`, `--purple`, `--teal`, etc.
 
 **Navegación (estructura actual):**
 
@@ -1233,7 +1234,7 @@ Los scripts listos para copiar-pegar están en `Skill.md`. Correr siempre desde 
 
 Tab presente en Liga Argentina y Liga Nacional (primer botón del `.main-tabs`, sección `mercado`; no existe en Femenina ni Desarrollo — Pick and Roll no las trackea). Re-empaqueta el feed en vivo de pickandroll.com.ar con el mismo lenguaje visual del dashboard: KPIs, sidebar de clubes con % de plantel armado, y un tablero por club con las 5 posiciones (titulares confirmados / vacantes).
 
-Documentación técnica completa (fuente de datos, esquema de `mercado.json`, mapeo de clubes, arquitectura del frontend, limitaciones conocidas): **`docs/liga_argentina/CLAUDE_MERCADO.md`** (cubre ambas ligas).
+Documentación técnica completa (fuente de datos, esquema de `mercado.json`, mapeo de clubes, arquitectura del frontend, limitaciones conocidas): **`docs/liga_argentina/CLAUDE_MERCADO.md`** (cubre ambas ligas). Ese mismo archivo documenta también el **chat de IA** del tab (agosto 2026) — pregunta libre sobre altas/bajas/vacantes, solo para usuarios logueados.
 
 Se actualiza automáticamente **4 veces al día** vía `.github/workflows/mercado.yml` (10:00, 13:00, 17:00 y 21:00 ART) — workflow independiente del scraper diario de stats (`scraper.yml`), para no bloquearlo si pickandroll cambia de estructura.
 
@@ -1337,3 +1338,21 @@ python3 scraper/mercado_scraper.py
 # Actualizar Mercado de Pases en vivo — Liga Nacional (tab "Mercado")
 python3 scraper/mercado_scraper_nacional.py
 ```
+## Skill routing
+
+When the user's request matches an available skill, invoke it via the Skill tool. When in doubt, invoke the skill.
+
+Key routing rules:
+- Product ideas/brainstorming → invoke /office-hours
+- Strategy/scope → invoke /plan-ceo-review
+- Architecture → invoke /plan-eng-review
+- Design system/plan review → invoke /design-consultation or /plan-design-review
+- Full review pipeline → invoke /autoplan
+- Bugs/errors → invoke /investigate
+- QA/testing site behavior → invoke /qa or /qa-only
+- Code review/diff check → invoke /review
+- Visual polish → invoke /design-review
+- Ship/deploy/PR → invoke /ship or /land-and-deploy
+- Save progress → invoke /context-save
+- Resume context → invoke /context-restore
+- Author a backlog-ready spec/issue → invoke /spec
