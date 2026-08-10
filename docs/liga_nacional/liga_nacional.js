@@ -2183,6 +2183,109 @@ function fcsSelect(id,value,name,sub){
   if(sel.onchange)sel.onchange();
 }
 document.addEventListener('click',function(e){if(!e.target.closest('.fsb-custom-select')){document.querySelectorAll('.fcs-dropdown.open').forEach(d=>{d.classList.remove('open');d.closest('.fsb-custom-select').querySelector('.fcs-trigger').classList.remove('open');});}});
+
+// ── Chat del Mercado (IA) ────────────────────────────────────
+const MKT_CHAT_LIGA = 'liga_nacional';
+const MKT_CHAT_MAX_HISTORIAL = 12;
+let mktChatHistory = [];
+let mktChatBusy = false;
+
+function mktChatToggle() {
+  document.getElementById('mktChatWrap').classList.toggle('open');
+}
+
+function mktChatAppendMsg(role, text) {
+  const log = document.getElementById('mktChatLog');
+  const empty = document.getElementById('mktChatEmpty');
+  if (empty) empty.remove();
+  const div = document.createElement('div');
+  div.className = 'mktchat-msg ' + role;
+  div.textContent = text;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+  return div;
+}
+
+function mktChatAppendLoginPrompt() {
+  const log = document.getElementById('mktChatLog');
+  const empty = document.getElementById('mktChatEmpty');
+  if (empty) empty.remove();
+  const div = document.createElement('div');
+  div.className = 'mktchat-msg error';
+  div.textContent = 'Iniciá sesión para usar el asistente. ';
+  const link = document.createElement('a');
+  link.href = '../login.html?returnTo=' + MKT_CHAT_LIGA + '/';
+  link.textContent = 'Iniciar sesión →';
+  link.style.color = 'inherit';
+  link.style.fontWeight = '700';
+  link.style.textDecoration = 'underline';
+  div.appendChild(link);
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+function mktChatSubmit(event) {
+  event.preventDefault();
+  if (mktChatBusy) return false;
+  const input = document.getElementById('mktChatInput');
+  const pregunta = input.value.trim();
+  if (!pregunta) return false;
+
+  if (!localStorage.getItem('auth_token')) {
+    mktChatAppendLoginPrompt();
+    return false;
+  }
+
+  input.value = '';
+  mktChatSend(pregunta);
+  return false;
+}
+
+async function mktChatSend(pregunta) {
+  mktChatBusy = true;
+  document.getElementById('mktChatSend').disabled = true;
+  document.getElementById('mktChatInput').disabled = true;
+  mktChatAppendMsg('user', pregunta);
+  const pendingEl = mktChatAppendMsg('pending', 'Pensando…');
+
+  try {
+    const token = localStorage.getItem('auth_token');
+    const resp = await fetch('/api/mercado/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: 'Bearer ' + token } : {}),
+      },
+      body: JSON.stringify({ liga: MKT_CHAT_LIGA, pregunta, historial: mktChatHistory }),
+    });
+    const data = await resp.json().catch(() => ({}));
+    pendingEl.remove();
+    if (resp.status === 401) {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
+      mktChatAppendLoginPrompt();
+      return;
+    }
+    if (!resp.ok || !data.respuesta) {
+      mktChatAppendMsg('error', 'No pude responder esa pregunta. Probá de nuevo en un momento.');
+      return;
+    }
+    mktChatAppendMsg('assistant', data.respuesta);
+    mktChatHistory.push({ role: 'user', content: pregunta });
+    mktChatHistory.push({ role: 'assistant', content: data.respuesta });
+    if (mktChatHistory.length > MKT_CHAT_MAX_HISTORIAL) {
+      mktChatHistory = mktChatHistory.slice(-MKT_CHAT_MAX_HISTORIAL);
+    }
+  } catch (e) {
+    pendingEl.remove();
+    mktChatAppendMsg('error', 'No pude conectar con el asistente. Revisá tu conexión e intentá de nuevo.');
+  } finally {
+    mktChatBusy = false;
+    document.getElementById('mktChatSend').disabled = false;
+    document.getElementById('mktChatInput').disabled = false;
+    document.getElementById('mktChatInput').focus();
+  }
+}
 // ============================================================
 // SHOT MAP
 // ============================================================
