@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-10T01:49:10.115773+00:00",
+  "updated_at": "2026-08-10T14:19:25.471440+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -94,7 +94,7 @@
       "id": "jujuy_basquet",
       "name": "Jujuy Básquet",
       "team": "JUJUY BASQUET",
-      "pct": 17,
+      "pct": 25,
       "coach": "Guillermo Tasso",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -226,7 +226,7 @@
       "id": "gimnasia_lp",
       "name": "Gimnasia y Esgrima La Plata",
       "team": "GIMNASIA (LP)",
-      "pct": 58,
+      "pct": 67,
       "coach": "Fernando Calvi",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2877,7 +2877,7 @@
       "id": "p_bff3512e-1a26-4c2b-bd64-f667d0bd3ade",
       "club_id": "gimnasia_lp",
       "name": "Joan Gutierrez Conde",
-      "position": "alero",
+      "position": "ala_pivote",
       "ficha_type": "u21",
       "status": "confirmado",
       "confidence": "oficial",
@@ -2886,7 +2886,7 @@
       "last_club": "Gimnasia y Esgrima (La Plata)",
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Joan-Gutierrez-Conde.jpg",
-      "updated_at": "2026-08-07 10:24:52"
+      "updated_at": "2026-08-10 09:55:25"
     },
     {
       "id": "p_fa7c3c7f-ba36-4b00-8550-a9057d879590",
@@ -2937,7 +2937,7 @@
       "id": "p_76aa23f9-eb32-4b35-b3ec-a07df9f5ffd2",
       "club_id": "gimnasia_lp",
       "name": "Facundo Sanz",
-      "position": "ala_pivote",
+      "position": "pivote",
       "ficha_type": "mayor",
       "status": "confirmado",
       "confidence": "oficial",
@@ -2946,7 +2946,37 @@
       "last_club": "El Talar",
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/facundo-sanz.jpg",
-      "updated_at": "2026-08-08 13:00:14"
+      "updated_at": "2026-08-10 09:54:28"
+    },
+    {
+      "id": "p_2ef10f0c-8f07-43bf-9c64-a43e8045884a",
+      "club_id": "jujuy_basquet",
+      "name": "Juan Cruz Kusnier",
+      "position": "alero",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "21",
+      "height": "1.95",
+      "last_club": "Centenario",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Juan-Kusnier-Centenario-12.jpg",
+      "updated_at": "2026-08-10 09:14:18"
+    },
+    {
+      "id": "p_d9719b1a-5fc8-47da-9290-9f78d27e3bd0",
+      "club_id": "gimnasia_lp",
+      "name": "Lucio Castellani",
+      "position": "ala_pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "31",
+      "height": "1.96",
+      "last_club": "Centenario",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Lucio-Castelani-Centenario-24.jpg",
+      "updated_at": "2026-08-10 09:28:17"
     }
   ],
   "statuses": {
