@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-10T20:32:53.066386+00:00",
+  "updated_at": "2026-08-11T01:45:43.670178+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -94,7 +94,7 @@
       "id": "jujuy_basquet",
       "name": "Jujuy Básquet",
       "team": "JUJUY BASQUET",
-      "pct": 25,
+      "pct": 33,
       "coach": "Guillermo Tasso",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2977,6 +2977,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Lucio-Castelani-Centenario-24.jpg",
       "updated_at": "2026-08-10 09:28:17"
+    },
+    {
+      "id": "p_09139214-8755-47fe-b8ad-36e514f43aa4",
+      "club_id": "jujuy_basquet",
+      "name": "Mateo Beigier",
+      "position": "escolta",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "25",
+      "height": "1.89",
+      "last_club": "Fusión Riojana",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Mateo-Beigier-Fusion-14.jpg",
+      "updated_at": "2026-08-10 22:27:42"
     }
   ],
   "statuses": {
