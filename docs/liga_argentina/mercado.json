@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-12T16:47:58.834208+00:00",
+  "updated_at": "2026-08-12T20:34:31.132858+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -94,7 +94,7 @@
       "id": "jujuy_basquet",
       "name": "Jujuy Básquet",
       "team": "JUJUY BASQUET",
-      "pct": 33,
+      "pct": 50,
       "coach": "Guillermo Tasso",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -1709,14 +1709,14 @@
       "name": "Bruno Conti",
       "position": "base",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "26",
       "height": "1.83",
       "last_club": "",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Bruno-Conti-Jujuy-10-1.jpg",
-      "updated_at": "2026-07-18 10:18:22"
+      "updated_at": "2026-08-12 13:51:58"
     },
     {
       "id": "p_4d8598b4-3495-4ee5-bd42-dff240d61c36",
@@ -3007,6 +3007,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Nicolas-Rodriguez.jpg",
       "updated_at": "2026-08-11 18:14:08"
+    },
+    {
+      "id": "p_9e001f63-8193-4c24-9617-6848faa831b5",
+      "club_id": "jujuy_basquet",
+      "name": "Lucas Di Muccio",
+      "position": "base",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "23",
+      "height": "1.93",
+      "last_club": "Lanús",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Lucas-Di-Muccio.jpg",
+      "updated_at": "2026-08-12 13:51:11"
     }
   ],
   "statuses": {
