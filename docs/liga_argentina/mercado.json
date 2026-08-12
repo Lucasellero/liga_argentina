@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-11T20:35:38.399865+00:00",
+  "updated_at": "2026-08-12T01:57:48.139878+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -314,7 +314,7 @@
       "id": "deportivo_norte",
       "name": "Deportivo Norte",
       "team": "DEP. NORTE",
-      "pct": 55,
+      "pct": 64,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 7,
@@ -2992,6 +2992,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Mateo-Beigier-Fusion-14.jpg",
       "updated_at": "2026-08-10 22:27:42"
+    },
+    {
+      "id": "p_9cbbc362-8615-4fb8-ba7d-bf530decf708",
+      "club_id": "deportivo_norte",
+      "name": "Nicolás Rodríguez",
+      "position": "alero",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "23",
+      "height": "1.91",
+      "last_club": "Pergamino",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Nicolas-Rodriguez.jpg",
+      "updated_at": "2026-08-11 18:14:08"
     }
   ],
   "statuses": {
