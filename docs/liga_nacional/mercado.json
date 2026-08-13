@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-13T16:46:12.966296+00:00",
+  "updated_at": "2026-08-13T20:32:42.156832+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -193,7 +193,7 @@
       "id": "san_martin",
       "name": "San Martín",
       "team": "SAN MARTÍN (C)",
-      "pct": 25,
+      "pct": 33,
       "coach": "Gabriel Revidatti",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -1959,14 +1959,14 @@
       "name": "Daniel Moreira",
       "position": "pivote",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "23",
       "height": "2,06",
       "last_club": "San Martín",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Moreira-D-San-Martin-7.jpg",
-      "updated_at": "2026-07-05 21:49:48"
+      "updated_at": "2026-08-13 17:30:02"
     },
     {
       "id": "p_f86611a8-d3d6-4e81-8fca-c615f44ca891",
