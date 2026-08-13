@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-13T01:59:31.815198+00:00",
+  "updated_at": "2026-08-13T14:21:46.949880+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -50,7 +50,7 @@
       "id": "sportivo_suardi",
       "name": "Sportivo Suardi",
       "team": "SP. SUARDI",
-      "pct": 0,
+      "pct": 36,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 7,
@@ -3067,6 +3067,66 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Samuel-villa-toro.jpg",
       "updated_at": "2026-08-12 20:28:32"
+    },
+    {
+      "id": "p_35e7bb02-08d9-4fec-8cf0-915018c78cfe",
+      "club_id": "sportivo_suardi",
+      "name": "Sebastián Braida",
+      "position": "alero",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "25",
+      "height": "1.94",
+      "last_club": "Sportivo Suardi",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/sebastian-braida.jpg",
+      "updated_at": "2026-08-13 09:43:13"
+    },
+    {
+      "id": "p_f40553f6-9aea-4ca9-acf2-6d1cf3079aaf",
+      "club_id": "sportivo_suardi",
+      "name": "Nahuel Fino",
+      "position": "escolta",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "25",
+      "height": "1.88",
+      "last_club": "Sportivo Suardi",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/nahuel-fino.jpg",
+      "updated_at": "2026-08-13 09:45:49"
+    },
+    {
+      "id": "p_ac69a9b8-9166-4326-9eab-72ba71702b87",
+      "club_id": "sportivo_suardi",
+      "name": "Jorge Díaz Jimenez",
+      "position": "base",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "19",
+      "height": "1.88",
+      "last_club": "Lanús",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Diaz-J-Independiente-4.jpg",
+      "updated_at": "2026-08-13 09:48:14"
+    },
+    {
+      "id": "p_a8a1d76b-b38b-4df9-8ce9-7fe8ade1dae0",
+      "club_id": "sportivo_suardi",
+      "name": "Pablo Martínez",
+      "position": "pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "35",
+      "height": "2.00",
+      "last_club": "Sportivo Suardi",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/pablo-martinez.jpg",
+      "updated_at": "2026-08-13 09:51:09"
     }
   ],
   "statuses": {
