@@ -1386,7 +1386,7 @@ document.addEventListener('click',function(e){if(!e.target.closest('.fsb-custom-
 async function loadShots() {
   if (SHOTS_MAP !== null) return;
   try {
-    const resp = await fetch(SHOTS_CSV + '?v=' + Date.now(), { cache: 'no-store' });
+    const resp = await fetch(SHOTS_CSV + '?v=' + new Date().toISOString().slice(0, 10));
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const text = await resp.text();
     const rows = parseCSV(text);
@@ -2288,8 +2288,8 @@ async function initApp() {
   document.getElementById('loadingOverlay').style.display = 'flex';
   try {
     const [resp, dobResp] = await Promise.all([
-      fetch(CSV_PATH + '?v=' + Date.now(), { cache: 'no-store' }),
-      fetch(DOB_PATH + '?v=' + Date.now(), { cache: 'no-store' }).catch(()=>null)
+      fetch(CSV_PATH + '?v=' + new Date().toISOString().slice(0, 10)),
+      fetch(DOB_PATH + '?v=' + new Date().toISOString().slice(0, 10)).catch(()=>null)
     ]);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const text = await resp.text();
@@ -2539,7 +2539,7 @@ async function initApp() {
     // Merge upcoming fixture from CSV (skip any game already played/scraped)
     const _playedKeys = new Set(GAMES_ALL.map(g => `${g.fecha}|${g.local}|${g.visit}`));
     try {
-      const upResp = await fetch('fixture_upcoming.csv?v=' + Date.now(), { cache: 'no-store' });
+      const upResp = await fetch('fixture_upcoming.csv?v=' + new Date().toISOString().slice(0, 10));
       if (upResp.ok) {
         const upRows = parseCSV(await upResp.text());
         upRows.forEach(u => {

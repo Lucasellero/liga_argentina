@@ -9,6 +9,7 @@ Desplegado en **Vercel** desde `docs/` (configurado en `vercel.json`).
 - **Plataforma**: Vercel. El repo es `Lucasellero/liga_argentina` en GitHub. Vercel deploya automáticamente al hacer push a `main`.
 - **Root servido**: `docs/` (definido en `vercel.json` → `outputDirectory: "docs"`).
 - **URL base**: `https://<proyecto>.vercel.app/` → sirve `docs/index.html`.
+- **Build step (agosto 2026)**: `vercel.json` tiene `"buildCommand": "npm run build"`, que corre `scripts/minify.js` (usa `esbuild`) para minificar los 5 JS de liga (`liga_argentina.js`, `liga_nacional.js`, `liga_femenina.js`, `liga_proximo.js`, `argentina_formativas.js`) **solo en el contenedor de build de Vercel**. El código fuente en el repo (`docs/*/​*.js`) queda sin minificar y se sigue editando directo, como siempre — nunca correr `npm run build` sobre el checkout local si vas a commitear después, porque sobreescribe esos archivos in place. `esbuild` no renombra identificadores de scope global en modo transform (sin `bundle`), así que las funciones invocadas desde `onclick="..."` en los HTML sobreviven intactas — verificado antes de mergear este cambio.
 
 ### Cómo agregar una nueva liga
 Cada liga vive como subcarpeta dentro de `docs/`. Pasos:
@@ -308,7 +309,7 @@ Columnas: `IdPartido, Fecha, Equipo_local, Equipo_visitante, Local, Equipo, Dors
 - Tiros convertidos en la web: `CANASTA-2P` / `CANASTA-3P` (no `TIRO2-CONVERTIDO`)
 
 ## index.html — Arquitectura
-SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades puntuales, el sistema de diseño es CSS custom con variables `--bg`, `--purple`, `--teal`, etc.
+SPA pura, sin build para desarrollo/edición — el JS se sigue editando directo en `docs/*/*.js` sin paso intermedio. Vercel sí corre un build de minificación al desplegar (ver "Deployment" arriba), pero es transparente para el flujo de edición. Todo en un archivo por liga. Usa Tailwind CDN sólo para utilidades puntuales, el sistema de diseño es CSS custom con variables `--bg`, `--purple`, `--teal`, etc.
 
 **Navegación (estructura actual):**
 
@@ -1148,6 +1149,33 @@ Esto se aplicó en `docs/liga_argentina/liga_argentina.js`, `docs/liga_nacional/
 ### Ciclo de facturación
 Según el historial de facturas del proyecto, el ciclo renueva el **día 11 de cada mes**. El próximo reset estimado (a la fecha de este incidente, 31/07/2026) sería **11/08/2026** — confirmar la fecha exacta en el dashboard de Supabase, no asumir.
 
+## Cache de CSVs servidos por Vercel (agosto 2026)
+
+El fix de cache-busting aplicado al PBP en el incidente de Supabase (arriba) nunca se había extendido a los CSVs que sirve **Vercel** (no Supabase): `liga_*.csv`, `liga_*_shots.csv`, `players_dob.csv`, `fixture_upcoming.csv`, `predicciones_upcoming.csv`. Estos fetches seguían con el mismo patrón agresivo:
+```js
+fetch(SHOTS_CSV + '?v=' + Date.now(), { cache: 'no-store' })   // shots: hasta 10MB por liga
+```
+Y `vercel.json` reforzaba esto a nivel de header, forzando `no-store` para **todos** los `.csv` sin excepción:
+```json
+{ "source": "/(.*)\\.csv", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
+```
+Resultado: cada carga de página, y cada apertura de las pestañas Tiro/Quintetos/Mercado, volvía a bajar el CSV completo sin ninguna posibilidad de caché (ni siquiera revalidación condicional vía ETag, que `no-store` también bloquea). No causó un incidente como el de Supabase porque el bandwidth de Vercel es más laxo, pero es el mismo patrón y escala mal a medida que los CSVs crecen temporada tras temporada.
+
+**Fix aplicado**: mismo criterio que el de PBP/recaps, extendido a los 5 JS de liga (`liga_argentina.js`, `liga_nacional.js`, `liga_femenina.js`, `liga_proximo.js`, `argentina_formativas.js`) y a los 22 fetches de stats/shots/DOB/fixture/predicciones:
+```js
+// Antes:
+fetch(CSV_PATH + '?v=' + Date.now(), { cache: 'no-store' })
+// Después:
+fetch(CSV_PATH + '?v=' + new Date().toISOString().slice(0, 10))
+```
+Y en `vercel.json`:
+```json
+{ "source": "/(.*)\\.csv", "headers": [{ "key": "Cache-Control", "value": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400" }] }
+```
+La app sigue invalidando el query param una vez por día (mismo comportamiento percibido por el usuario), pero ahora dentro de ese día el navegador y el edge de Vercel pueden servir el CSV desde caché en vez de re-transferirlo entero en cada tab switch.
+
+**Regla al agregar un nuevo fetch de CSV**: nunca usar `cache:'no-store'` ni `Date.now()` como cache-buster — usar `new Date().toISOString().slice(0, 10)` (bust diario) y dejar que el header de `vercel.json` maneje el resto.
+
 ## Bugs en el shots CSV — documentados (junio 2026)
 
 ### Bug 1: `Equipo` y `Equipo_local` NaN para tiros del equipo local
@@ -1245,7 +1273,7 @@ Los scripts listos para copiar-pegar están en `Skill.md`. Correr siempre desde 
 
 Tab presente en Liga Argentina y Liga Nacional (primer botón del `.main-tabs`, sección `mercado`; no existe en Femenina ni Desarrollo — Pick and Roll no las trackea). Re-empaqueta el feed en vivo de pickandroll.com.ar con el mismo lenguaje visual del dashboard: KPIs, sidebar de clubes con % de plantel armado, y un tablero por club con las 5 posiciones (titulares confirmados / vacantes).
 
-Documentación técnica completa (fuente de datos, esquema de `mercado.json`, mapeo de clubes, arquitectura del frontend, limitaciones conocidas): **`docs/liga_argentina/CLAUDE_MERCADO.md`** (cubre ambas ligas).
+Documentación técnica completa (fuente de datos, esquema de `mercado.json`, mapeo de clubes, arquitectura del frontend, limitaciones conocidas): **`docs/liga_argentina/CLAUDE_MERCADO.md`** (cubre ambas ligas). Ese mismo archivo documenta también el **chat de IA** del tab (agosto 2026) — pregunta libre sobre altas/bajas/vacantes, solo para usuarios logueados.
 
 Se actualiza automáticamente **4 veces al día** vía `.github/workflows/mercado.yml` (10:00, 13:00, 17:00 y 21:00 ART) — workflow independiente del scraper diario de stats (`scraper.yml`), para no bloquearlo si pickandroll cambia de estructura.
 
@@ -1256,6 +1284,36 @@ python3 scraper/mercado_scraper.py
 # Actualizar Mercado de Pases en vivo — Liga Nacional
 python3 scraper/mercado_scraper_nacional.py
 ```
+
+## Backend serverless (`api/`) — Vercel Functions
+
+`vercel.json` tiene `rewrites: [{ source: "/api/:path*", destination: "/api/index" }]` — todo
+request a `/api/*` entra a la función única **`api/index.js`** (Node.js, no Python), que rutea
+a mano según `req.url`. Lógica pesada separada en `api/lib/*.js` (requerida desde `index.js`),
+no todo apilado en el mismo archivo.
+
+**Endpoints actuales**:
+| Ruta | Qué hace | Auth |
+|---|---|---|
+| `POST /api/placas/generate` | Dispara el workflow `placas.yml` de GitHub Actions (genera placas de fichajes) | Admin (chequeo comentado temporalmente, ver comentario en el código — Supabase restringido) |
+| `POST /api/mercado/chat` | Chat de IA del tab Mercado (ver `docs/liga_argentina/CLAUDE_MERCADO.md`) | Cualquier usuario logueado |
+
+**Auth compartida** (`api/lib/auth.js`, función `getAuthedEmail(req)`): lee el header
+`Authorization: Bearer <token>` y devuelve el email si es válido, `null` si no. Soporta dos
+formatos de token:
+1. JWT real de Supabase — se valida pegándole a `${SUPABASE_URL}/auth/v1/user`.
+2. Token "bypass" temporal (`bypass.<base64 json>.bypass`) que emite `login.html` para las 3
+   cuentas admin mientras Supabase sigue restringido (ver "Incidente: Supabase egress
+   excedido") — se decodifica y valida el `exp` sin pegarle a Supabase.
+
+**Env vars requeridas** (Vercel → Project Settings → Environment Variables, marcar Production +
+Preview + Development):
+- `SUPABASE_URL`, `SUPABASE_ANON_KEY` — mismas que usa `login.html`.
+- `ADMIN_EMAILS` — emails admin separados por coma (para `/api/placas/generate`).
+- `GH_PLACAS_TOKEN` — GitHub PAT fine-grained, permiso "Actions: Read and write" sobre este repo.
+- `ANTHROPIC_API_KEY` — key de console.anthropic.com, para `/api/mercado/chat`. **Distinta** del
+  secret homónimo de GitHub Actions que usa `recap_generator.py` (ese vive en GitHub, no en
+  Vercel) — hay que cargarla en los dos lugares por separado si se rota.
 
 ## Recap automático (tab "Recap") — Liga Argentina y Liga Nacional (julio 2026)
 
@@ -1349,3 +1407,21 @@ python3 scraper/mercado_scraper.py
 # Actualizar Mercado de Pases en vivo — Liga Nacional (tab "Mercado")
 python3 scraper/mercado_scraper_nacional.py
 ```
+## Skill routing
+
+When the user's request matches an available skill, invoke it via the Skill tool. When in doubt, invoke the skill.
+
+Key routing rules:
+- Product ideas/brainstorming → invoke /office-hours
+- Strategy/scope → invoke /plan-ceo-review
+- Architecture → invoke /plan-eng-review
+- Design system/plan review → invoke /design-consultation or /plan-design-review
+- Full review pipeline → invoke /autoplan
+- Bugs/errors → invoke /investigate
+- QA/testing site behavior → invoke /qa or /qa-only
+- Code review/diff check → invoke /review
+- Visual polish → invoke /design-review
+- Ship/deploy/PR → invoke /ship or /land-and-deploy
+- Save progress → invoke /context-save
+- Resume context → invoke /context-restore
+- Author a backlog-ready spec/issue → invoke /spec
