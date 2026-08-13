@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-12T20:34:31.957772+00:00",
+  "updated_at": "2026-08-13T01:59:32.429858+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -171,7 +171,7 @@
       "id": "regatas",
       "name": "Regatas",
       "team": "REGATAS (C)",
-      "pct": 58,
+      "pct": 67,
       "coach": "Martín Villagrán",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2732,6 +2732,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Augusto-Moresco.jpg",
       "updated_at": "2026-08-10 19:12:46"
+    },
+    {
+      "id": "p_2c66e118-dafa-468a-8eb7-aa16101b68c8",
+      "club_id": "regatas",
+      "name": "Keith Stone",
+      "position": "ala_pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "28",
+      "height": "2.03",
+      "last_club": "CSU Sibiu (Rumania)",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Keith-Stone.jpg",
+      "updated_at": "2026-08-12 20:15:28"
     }
   ],
   "statuses": {

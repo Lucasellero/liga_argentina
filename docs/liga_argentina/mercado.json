@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-12T20:34:31.132858+00:00",
+  "updated_at": "2026-08-13T01:59:31.815198+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -237,10 +237,10 @@
       "id": "deportivo_viedma",
       "name": "Deportivo Viedma",
       "team": "DEP. VIEDMA",
-      "pct": 58,
+      "pct": 80,
       "coach": "Guillermo Bogliacino",
       "market_status": "abierto",
-      "target_mayor": 9,
+      "target_mayor": 7,
       "target_u23": 3,
       "order": 23
     },
@@ -292,7 +292,7 @@
       "id": "ciclista_juninense",
       "name": "Ciclista Juninense",
       "team": "CICLISTA (J)",
-      "pct": 42,
+      "pct": 50,
       "coach": "Leandro Genovese",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -314,11 +314,11 @@
       "id": "deportivo_norte",
       "name": "Deportivo Norte",
       "team": "DEP. NORTE",
-      "pct": 64,
-      "coach": "",
+      "pct": 70,
+      "coach": "Alejandro Cupulutti",
       "market_status": "abierto",
       "target_mayor": 7,
-      "target_u23": 4,
+      "target_u23": 3,
       "order": 31
     }
   ],
@@ -3022,6 +3022,51 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Lucas-Di-Muccio.jpg",
       "updated_at": "2026-08-12 13:51:11"
+    },
+    {
+      "id": "p_317fba01-2c6d-48a1-8b28-7ed534e1778f",
+      "club_id": "deportivo_viedma",
+      "name": "Mateo Macrini",
+      "position": "alero",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "23",
+      "height": "1.96",
+      "last_club": "Unión de Mar del Plata",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/mateo-macrini.jpg",
+      "updated_at": "2026-08-12 19:47:43"
+    },
+    {
+      "id": "p_bd312b26-7101-45a7-9b9d-487170d6e6e4",
+      "club_id": "deportivo_norte",
+      "name": "Augusto Rodríguez",
+      "position": "base",
+      "ficha_type": "juvenil",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "19",
+      "height": "1.77",
+      "last_club": "Deportivo Norte",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/augusto-rodriguez.jpg",
+      "updated_at": "2026-08-12 20:04:54"
+    },
+    {
+      "id": "p_219eb864-5967-4a4d-95b3-ec09f785b927",
+      "club_id": "ciclista_juninense",
+      "name": "Samuel Villa Toro",
+      "position": "pivote",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "22",
+      "height": "2.00",
+      "last_club": "Ciclista Juninense",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Samuel-villa-toro.jpg",
+      "updated_at": "2026-08-12 20:28:32"
     }
   ],
   "statuses": {
