@@ -1,0 +1,78 @@
+name: PBP upload desde artifact (manual)
+
+# Toma los CSVs ya generados por "PBP full re-scrape" (un run_id existente,
+# sin volver a scrapear el sitio) y los sube a Supabase Storage,
+# reemplazando el archivo bloateado actual. A diferencia del filtro que usa
+# scraper.yml, este SÍ conserva la columna Fecha (necesaria para
+# PBP_STABLE_MAP en el frontend — ver CLAUDE.md).
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'Run ID de "PBP full re-scrape" del que bajar los artifacts'
+        required: true
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Descargar artifacts del run indicado
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*_pbp_clean'
+          path: pbp_artifacts
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.inputs.run_id }}
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar pandas
+        run: pip install pandas
+
+      - name: Filtrar y subir a Supabase (conservando Fecha)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          python -c "
+          import pandas as pd, os, subprocess
+
+          KEEP = {
+              'CAMBIO-JUGADOR-ENTRA','CAMBIO-JUGADOR-SALE',
+              'CANASTA-1P','CANASTA-2P','CANASTA-3P',
+              'TIRO1-FALLADO','TIRO2-FALLADO','TIRO3-FALLADO',
+              'REBOTE-DEFENSIVO','REBOTE-OFENSIVO',
+              'ASISTENCIA','PERDIDA','RECUPERACION',
+              'INICIO-PARTIDO','FINAL-PARTIDO',
+              'INICIO-PERIODO','FINAL-PERIODO',
+          }
+
+          leagues = ['liga_argentina', 'liga_nacional', 'liga_femenina', 'liga_proximo']
+          url = os.environ['SUPABASE_URL']
+          key = os.environ['SUPABASE_SERVICE_KEY']
+
+          for league in leagues:
+              path = f'pbp_artifacts/{league}_pbp_clean/{league}_pbp.csv'
+              df = pd.read_csv(path)
+              web = df[df['Tipo'].isin(KEEP)]  # conserva Fecha a propósito
+              tmp = f'/tmp/{league}_pbp_web.csv'
+              web.to_csv(tmp, index=False)
+              mb = os.path.getsize(tmp) / 1024 / 1024
+              print(f'{league}: {len(df)} -> {len(web)} filas ({mb:.1f} MB)')
+              r = subprocess.run([
+                  'curl','-s','-o','/dev/null','-w','%{http_code}',
+                  '-X','PUT',
+                  f'{url}/storage/v1/object/pbp/{league}_pbp.csv',
+                  '-H',f'Authorization: Bearer {key}',
+                  '-H','Content-Type: text/csv',
+                  '-H','x-upsert: true',
+                  '--max-time','300','-T',tmp,
+              ], capture_output=True, text=True)
+              print(f'{league} upload: HTTP {r.stdout}')
+          "
