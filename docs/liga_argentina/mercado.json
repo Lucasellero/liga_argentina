@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-13T20:32:41.141543+00:00",
+  "updated_at": "2026-08-14T01:57:20.996880+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -105,7 +105,7 @@
       "id": "villa_san_martin",
       "name": "Villa San Martín",
       "team": "VILLA SAN MARTIN",
-      "pct": 42,
+      "pct": 50,
       "coach": "Eduardo \"Chiche\" Japez",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -3127,6 +3127,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/pablo-martinez.jpg",
       "updated_at": "2026-08-13 09:51:09"
+    },
+    {
+      "id": "p_f741170f-6286-4e39-9141-bbf86e832ca2",
+      "club_id": "villa_san_martin",
+      "name": "ᴀᴠᴇʀʏ ᴅɪɢɢꜱ",
+      "position": "pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "28",
+      "height": "2.10",
+      "last_club": "",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Avery-Diggs.jpg",
+      "updated_at": "2026-08-13 21:16:01"
     }
   ],
   "statuses": {
