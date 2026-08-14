@@ -1,6 +1,7 @@
-// ── Auth guard (modal de 5 min y botón de login desactivados; el panel admin
-//    sigue funcionando para sesiones ya logueadas, no depende de Supabase) ──────
+// ── Auth guard ────────────────────────────────────────────────────────────────
 (function() {
+  const LOGIN_URL    = '../login.html';
+  const REGISTER_URL = '../register.html';
   const token = localStorage.getItem('auth_token');
   let isAuthed = false;
   if (token) {
@@ -27,10 +28,37 @@
           el.style.display = 'flex';
         }
       }
+      const ADMIN_EMAILS = ['ramiellero@gmail.com', 'nachodacunda08@gmail.com', 'lucasellero05@gmail.com'];
+      if (user.email && ADMIN_EMAILS.includes(String(user.email).toLowerCase())) {
+        const adminWrap = document.getElementById('mktAdminWrap');
+        if (adminWrap) adminWrap.style.display = 'flex';
+      }
     } catch(e) {}
+    const loginEl = document.getElementById('headerLogin');
+    if (loginEl) loginEl.style.display = 'none';
+  } else {
+    const delay = 300000; // 5 min
+    const SK = 'scouteado_session_start';
+    if (!sessionStorage.getItem(SK)) sessionStorage.setItem(SK, Date.now());
+    const elapsed = Date.now() - parseInt(sessionStorage.getItem(SK));
+    const remaining = Math.max(0, delay - elapsed);
+    setTimeout(function() {
+      const ov = document.createElement('div');
+      ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(11,11,22,.93);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:16px;';
+      ov.innerHTML = '<div style="background:#18182e;border:1px solid rgba(139,92,246,.25);border-radius:18px;padding:40px 36px;width:100%;max-width:400px;text-align:center;box-shadow:0 8px 48px rgba(0,0,0,.65);">'
+        + '<div style="width:80px;height:80px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;"><img src="logos/scouteado_logo.png" alt="Scouteado" style="width:130px;height:130px;object-fit:contain;"></div>'
+        + '<h2 style="color:#f8fafc;font-size:1.3rem;font-weight:700;margin-bottom:8px;">¡Seguí explorando!</h2>'
+        + '<p style="color:#64748b;font-size:.88rem;margin-bottom:28px;line-height:1.55;">Creá tu cuenta gratis para continuar navegando las estadísticas de la liga.</p>'
+        + '<a href="' + LOGIN_URL + '" style="display:block;padding:13px;background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff;font-weight:600;font-size:.92rem;border-radius:10px;text-decoration:none;margin-bottom:12px;box-shadow:0 4px 18px rgba(139,92,246,.4);">Iniciar sesión</a>'
+        + '<a href="' + REGISTER_URL + '" style="display:block;padding:13px;background:transparent;color:#a78bfa;font-weight:600;font-size:.92rem;border-radius:10px;text-decoration:none;border:1.5px solid rgba(139,92,246,.38);">Registrarme gratis</a>'
+        + '<div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;gap:18px;">'
+        + '<a href="mailto:scoutea2@gmail.com" style="color:#64748b;text-decoration:none;font-size:.76rem;display:inline-flex;align-items:center;gap:5px;transition:color .2s;" onmouseover="this.style.color=\'#a78bfa\'" onmouseout="this.style.color=\'#64748b\'">✉ scoutea2@gmail.com</a>'
+        + '<a href="https://instagram.com/scouteado" target="_blank" rel="noopener noreferrer" style="color:#64748b;text-decoration:none;font-size:.76rem;display:inline-flex;align-items:center;gap:5px;transition:color .2s;" onmouseover="this.style.color=\'#5eead4\'" onmouseout="this.style.color=\'#64748b\'"><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><rect x=\'2\' y=\'2\' width=\'20\' height=\'20\' rx=\'5\' ry=\'5\'/><circle cx=\'12\' cy=\'12\' r=\'4.5\'/><circle cx=\'17.5\' cy=\'6.5\' r=\'1\' fill=\'currentColor\' stroke=\'none\'/></svg> @scouteado</a>'
+        + '</div>'
+        + '</div>';
+      document.body.appendChild(ov);
+    }, remaining);
   }
-  const loginEl = document.getElementById('headerLogin');
-  if (loginEl) loginEl.style.display = 'none';
 })();
 
 function authLogout() {

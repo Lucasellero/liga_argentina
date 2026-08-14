@@ -43,11 +43,13 @@ Cada liga vive como subcarpeta dentro de `docs/`. Pasos:
 
 ### Auth — login compartido entre ligas
 
-**⚠️ ESTADO ACTUAL (desde julio 2026): el auth guard está DESACTIVADO en las 4 ligas.** No hay modal de 5 minutos ni botón `#headerLogin` visible — el sitio es 100% navegable sin login. Ver **"Incidente: Supabase egress excedido"** más abajo para la causa y cómo reactivarlo. Todo lo que sigue en esta sección describe el comportamiento **original/normal** del auth guard, no el estado actual.
+**Estado (agosto 2026): reactivado.** Estuvo desactivado entre julio y agosto 2026 mientras Supabase estaba restringido por exceder la cuota de egress (ver "Incidente: Supabase egress excedido" más abajo) — el modal de 5 min y el botón `#headerLogin` se sacaron por completo en las 4 ligas. Una vez confirmado que Supabase volvió a estar sano (`HTTP 200` en `/auth/v1/settings`, sin restricción), se restauró el comportamiento original completo descrito abajo, verificado por navegador headless en las 4 ligas antes de pushear.
+
+**Nota sobre el panel admin (Mercado de Pases):** en el camino de ida y vuelta del login, `docs/liga_argentina/liga_argentina.js` y `docs/liga_nacional/liga_nacional.js` habían perdido por completo la lógica que muestra `#mktAdminWrap` (chequeo de `ADMIN_EMAILS` dentro del bloque `isAuthed`) — quedó `display:none` fijo sin ningún código que lo revirtiera, dejando el botón de generar placas inalcanzable para cualquiera. Se restauró junto con el resto del auth guard.
 
 El `login.html` y `register.html` viven en `docs/` (raíz) y son compartidos por todas las ligas.
 
-**Flujo de login (comportamiento original, actualmente desactivado):**
+**Flujo de login:**
 1. Cada `docs/<liga>/index.html` tiene un auth guard al inicio del script.
 2. Si el token es válido, muestra el nombre del usuario en el header y oculta el botón `#headerLogin`.
 3. Si no hay token (o está expirado), se muestra el botón **"Iniciar sesión"** (`#headerLogin`) en el header en todo momento. Después de **5 minutos exactos** (`setTimeout` de 300000ms) aparece un modal bloqueante sin botón de cerrar que obliga al login o registro.
