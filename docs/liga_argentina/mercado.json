@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-15T13:28:34.994220+00:00",
+  "updated_at": "2026-08-15T16:14:00.537390+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -50,7 +50,7 @@
       "id": "sportivo_suardi",
       "name": "Sportivo Suardi",
       "team": "SP. SUARDI",
-      "pct": 36,
+      "pct": 64,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 7,
@@ -182,10 +182,10 @@
       "id": "central_entrerriano",
       "name": "Central Entrerriano",
       "team": "CENTRAL ENTRERRIANO",
-      "pct": 50,
+      "pct": 80,
       "coach": "Martín Pascal",
       "market_status": "abierto",
-      "target_mayor": 9,
+      "target_mayor": 7,
       "target_u23": 3,
       "order": 18
     },
@@ -2054,14 +2054,14 @@
       "name": "Ignacio Ortega",
       "position": "pivote",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "22",
       "height": "2.05",
       "last_club": "Regatas Corrientes",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Ortega-N-Regatas-15.jpg",
-      "updated_at": "2026-07-22 11:15:01"
+      "updated_at": "2026-08-15 11:11:39"
     },
     {
       "id": "p_6ed8bf39-dd50-4fff-bcb3-9a7c75a4d042",
@@ -3142,6 +3142,66 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Avery-Diggs.jpg",
       "updated_at": "2026-08-13 21:16:01"
+    },
+    {
+      "id": "p_9e96c8d6-c70e-4f04-a393-c8758269048c",
+      "club_id": "sportivo_suardi",
+      "name": "Sahir Abdala",
+      "position": "escolta",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "22",
+      "height": "1.85",
+      "last_club": "Salta Basket",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/sahir-abdala.jpg",
+      "updated_at": "2026-08-15 10:42:33"
+    },
+    {
+      "id": "p_ac02c11a-8806-40c8-ac6f-dc4c64934e00",
+      "club_id": "sportivo_suardi",
+      "name": "Gabriel Prado",
+      "position": "pivote",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "20",
+      "height": "2.06",
+      "last_club": "",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/gabriel-prado.jpg",
+      "updated_at": "2026-08-15 10:47:33"
+    },
+    {
+      "id": "p_8f0c0ba0-e4b7-4383-8f3f-da525485521e",
+      "club_id": "sportivo_suardi",
+      "name": "Horacio Rigada",
+      "position": "ala_pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "36",
+      "height": "1.90",
+      "last_club": "Sportivo Suardi",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/horacio-rigada.jpg",
+      "updated_at": "2026-08-15 10:49:03"
+    },
+    {
+      "id": "p_417ac4dd-2278-47b3-83b6-d608e2608b88",
+      "club_id": "central_entrerriano",
+      "name": "Damian Pineda",
+      "position": "ala_pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "37",
+      "height": "1.93",
+      "last_club": "Comunicaciones",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Damian-Pineda-Comunicaciones-12.jpg",
+      "updated_at": "2026-08-15 10:51:11"
     }
   ],
   "statuses": {
