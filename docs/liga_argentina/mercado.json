@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-16T13:29:38.682189+00:00",
+  "updated_at": "2026-08-16T16:14:35.184602+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -94,7 +94,7 @@
       "id": "jujuy_basquet",
       "name": "Jujuy Básquet",
       "team": "JUJUY BASQUET",
-      "pct": 50,
+      "pct": 58,
       "coach": "Guillermo Tasso",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -3202,6 +3202,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Damian-Pineda-Comunicaciones-12.jpg",
       "updated_at": "2026-08-15 10:51:11"
+    },
+    {
+      "id": "p_44b60ecd-0d58-4aac-8c9e-3d1f1116fd1b",
+      "club_id": "jujuy_basquet",
+      "name": "Alexander López Allebrandt",
+      "position": "pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "26",
+      "height": "2.03",
+      "last_club": "Racing Club",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Nestor-Lopez-Allebrandt.jpg",
+      "updated_at": "2026-08-16 10:57:08"
     }
   ],
   "statuses": {
