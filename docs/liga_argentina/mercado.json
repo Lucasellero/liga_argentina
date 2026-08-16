@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-16T16:14:35.184602+00:00",
+  "updated_at": "2026-08-16T20:11:59.320383+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -50,7 +50,7 @@
       "id": "sportivo_suardi",
       "name": "Sportivo Suardi",
       "team": "SP. SUARDI",
-      "pct": 64,
+      "pct": 73,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 7,
@@ -94,10 +94,10 @@
       "id": "jujuy_basquet",
       "name": "Jujuy Básquet",
       "team": "JUJUY BASQUET",
-      "pct": 58,
+      "pct": 80,
       "coach": "Guillermo Tasso",
       "market_status": "abierto",
-      "target_mayor": 9,
+      "target_mayor": 7,
       "target_u23": 3,
       "order": 8
     },
@@ -3217,6 +3217,36 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Nestor-Lopez-Allebrandt.jpg",
       "updated_at": "2026-08-16 10:57:08"
+    },
+    {
+      "id": "p_88574333-d6b3-4522-a843-ea19d5aa2e9d",
+      "club_id": "sportivo_suardi",
+      "name": "Milton Vittar",
+      "position": "base",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "35",
+      "height": "1.85",
+      "last_club": "Sportivo Suardi",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/milton-vittar.jpg",
+      "updated_at": "2026-08-16 13:28:41"
+    },
+    {
+      "id": "p_fb605ca6-4230-4991-b47f-7755c077e427",
+      "club_id": "jujuy_basquet",
+      "name": "Luciano Tambucci",
+      "position": "ala_pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "27",
+      "height": "1.94",
+      "last_club": "Villa Mitre",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/luiano-tambucci.jpg",
+      "updated_at": "2026-08-16 13:31:41"
     }
   ],
   "statuses": {
