@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-18T20:13:55.970777+00:00",
+  "updated_at": "2026-08-19T01:14:48.934770+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -182,7 +182,7 @@
       "id": "san_lorenzo",
       "name": "San Lorenzo",
       "team": "SAN LORENZO",
-      "pct": 17,
+      "pct": 58,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -1839,29 +1839,14 @@
       "name": "Eric Flor",
       "position": "escolta",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "33",
       "height": "1,9",
       "last_club": "Platense",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Flor-E-San-Lorenzo-N.jpg",
-      "updated_at": "2026-07-05 21:10:17"
-    },
-    {
-      "id": "p_cff9c8c0-6034-478e-858f-9b6d34233319",
-      "club_id": "san_lorenzo",
-      "name": "Facundo Rutenberg",
-      "position": "alero",
-      "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "en_duda",
-      "age": "25",
-      "height": "1,95",
-      "last_club": "San Lorenzo",
-      "source_type": "pnr",
-      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Rutemberg-F-San-Lorenzo-12.jpg",
-      "updated_at": "2026-07-07 20:03:59"
+      "updated_at": "2026-08-18 17:27:51"
     },
     {
       "id": "p_36934785-0992-4acc-8aeb-f76e4b5935a5",
@@ -1869,14 +1854,14 @@
       "name": "Santiago Calderon",
       "position": "base",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "muy_avanzado",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "24",
       "height": "1,88",
       "last_club": "Sp. Suardi",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Calderon-San-Lorenzo-N.jpg",
-      "updated_at": "2026-07-05 21:10:58"
+      "updated_at": "2026-08-18 20:39:39"
     },
     {
       "id": "p_ffad4157-596d-4a14-9371-fa307460d714",
@@ -2334,14 +2319,14 @@
       "name": "Leonel Schattmann",
       "position": "escolta",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "muy_avanzado",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "39",
       "height": "1.94",
       "last_club": "Instituto",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Schatmman-L-Lanus-N.jpg",
-      "updated_at": "2026-07-07 20:05:49"
+      "updated_at": "2026-08-18 17:27:29"
     },
     {
       "id": "p_9498d3ef-0190-4a75-9c3f-b94a3ca7f50b",
@@ -2747,6 +2732,36 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Keith-Stone.jpg",
       "updated_at": "2026-08-12 20:15:28"
+    },
+    {
+      "id": "p_5801c932-e286-4447-b971-dd1f8018c056",
+      "club_id": "san_lorenzo",
+      "name": "Lucas Gargallo",
+      "position": "alero",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "31",
+      "height": "1.95",
+      "last_club": "San Martin",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/lucas-gargallo.jpg",
+      "updated_at": "2026-08-18 17:33:23"
+    },
+    {
+      "id": "p_7aaaef50-f550-4034-8bb7-275f8beb164e",
+      "club_id": "san_lorenzo",
+      "name": "Cli’Ron Hornbeak",
+      "position": "pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "22",
+      "height": "2.06",
+      "last_club": "KKS-Resovia-Rzeszow (Polinia)",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/CliRon-Hornbeak.jpg",
+      "updated_at": "2026-08-18 18:53:14"
     }
   ],
   "statuses": {

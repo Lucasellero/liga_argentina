@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-18T20:13:55.244971+00:00",
+  "updated_at": "2026-08-19T01:14:47.922621+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -83,7 +83,7 @@
       "id": "salta_basket",
       "name": "Salta Basket",
       "team": "SALTA BASKET",
-      "pct": 42,
+      "pct": 50,
       "coach": "Ariel Rearte",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -3247,6 +3247,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/luiano-tambucci.jpg",
       "updated_at": "2026-08-16 13:31:41"
+    },
+    {
+      "id": "p_0f0af03d-9f37-4257-b6f2-97da0aee1b7b",
+      "club_id": "salta_basket",
+      "name": "Adrián Lange",
+      "position": "alero",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "21",
+      "height": "1.89",
+      "last_club": "Tokio de Misiones",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Adrian-Lange.jpg",
+      "updated_at": "2026-08-18 17:38:11"
     }
   ],
   "statuses": {
