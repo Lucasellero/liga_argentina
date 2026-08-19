@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-19T16:20:43.561349+00:00",
+  "updated_at": "2026-08-19T20:17:13.395709+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -182,7 +182,7 @@
       "id": "san_lorenzo",
       "name": "San Lorenzo",
       "team": "SAN LORENZO",
-      "pct": 67,
+      "pct": 92,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -1822,7 +1822,7 @@
       "id": "p_710db7b7-ff03-4afe-8e14-90fa1f6c4ad2",
       "club_id": "san_lorenzo",
       "name": "Marcos Mata",
-      "position": "alero",
+      "position": "ala_pivote",
       "ficha_type": "mayor",
       "status": "confirmado",
       "confidence": "oficial",
@@ -1831,7 +1831,7 @@
       "last_club": "Obras Basket",
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Mata-M-San-LorenzoN.jpg",
-      "updated_at": "2026-08-04 11:48:00"
+      "updated_at": "2026-08-19 15:52:26"
     },
     {
       "id": "p_6316b0a1-fd64-40c8-940b-9a13d0ddb317",
@@ -2776,7 +2776,67 @@
       "last_club": "Jujuy Basket",
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/thiago-roca.jpg",
-      "updated_at": "2026-08-19 10:44:02"
+      "updated_at": "2026-08-19 15:41:30"
+    },
+    {
+      "id": "p_73e240f9-fa00-4205-b78a-14b794fce039",
+      "club_id": "san_lorenzo",
+      "name": "Valentino Nesci",
+      "position": "ala_pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "22",
+      "height": "2.02",
+      "last_club": "San Lorenzo",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/valentino-nesci.jpg",
+      "updated_at": "2026-08-19 15:43:34"
+    },
+    {
+      "id": "p_9451b4cd-eadb-45e4-a45e-7db9242aa0b3",
+      "club_id": "san_lorenzo",
+      "name": "Joaquin Actis",
+      "position": "base",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "20",
+      "height": "1.85",
+      "last_club": "San Lorenzo",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/joaquin-actis.jpg",
+      "updated_at": "2026-08-19 15:49:51"
+    },
+    {
+      "id": "p_db0dc12a-d39c-45d7-b566-fec4eda2814a",
+      "club_id": "san_lorenzo",
+      "name": "Santiago Tallade",
+      "position": "alero",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "21",
+      "height": "1.94",
+      "last_club": "San Lorenzo",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/santiago-tallade.jpg",
+      "updated_at": "2026-08-19 15:53:36"
+    },
+    {
+      "id": "p_ad70a5e8-4e74-4a3f-853b-1eeaf5ae559b",
+      "club_id": "san_lorenzo",
+      "name": "Felipe Fernández",
+      "position": "ala_pivote",
+      "ficha_type": "juvenil",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "19",
+      "height": "1.96",
+      "last_club": "San Lorenzo",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/felipe-fernandez.jpg",
+      "updated_at": "2026-08-19 15:58:16"
     }
   ],
   "statuses": {
