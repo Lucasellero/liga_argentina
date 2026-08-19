@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-19T01:14:47.922621+00:00",
+  "updated_at": "2026-08-19T13:42:26.159272+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -50,7 +50,7 @@
       "id": "sportivo_suardi",
       "name": "Sportivo Suardi",
       "team": "SP. SUARDI",
-      "pct": 73,
+      "pct": 82,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 7,
@@ -94,7 +94,7 @@
       "id": "jujuy_basquet",
       "name": "Jujuy Básquet",
       "team": "JUJUY BASQUET",
-      "pct": 80,
+      "pct": 90,
       "coach": "Guillermo Tasso",
       "market_status": "abierto",
       "target_mayor": 7,
@@ -3262,6 +3262,36 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Adrian-Lange.jpg",
       "updated_at": "2026-08-18 17:38:11"
+    },
+    {
+      "id": "p_1488c8e2-b4c6-4da4-a239-f742c1b1c754",
+      "club_id": "jujuy_basquet",
+      "name": "Jerson Caicedo Valdes",
+      "position": "pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "21",
+      "height": "2.04",
+      "last_club": "Instituto Cba",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Jerson-Caicedo-Valdes.jpg",
+      "updated_at": "2026-08-19 10:27:41"
+    },
+    {
+      "id": "p_c9c08a24-bb72-4702-a0a7-26a90b40263c",
+      "club_id": "sportivo_suardi",
+      "name": "Luciano Lizárraga",
+      "position": "alero",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "35",
+      "height": "1.85",
+      "last_club": "Sportivo Suardi",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Luciano-lizarraga.jpg",
+      "updated_at": "2026-08-19 10:39:47"
     }
   ],
   "statuses": {
