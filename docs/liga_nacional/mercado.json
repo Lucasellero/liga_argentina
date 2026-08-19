@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-19T13:42:27.104823+00:00",
+  "updated_at": "2026-08-19T16:20:43.561349+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -182,7 +182,7 @@
       "id": "san_lorenzo",
       "name": "San Lorenzo",
       "team": "SAN LORENZO",
-      "pct": 58,
+      "pct": 67,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2762,6 +2762,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/CliRon-Hornbeak.jpg",
       "updated_at": "2026-08-18 18:53:14"
+    },
+    {
+      "id": "p_9bfab352-1d2f-4fd0-8272-4d4378745d8a",
+      "club_id": "san_lorenzo",
+      "name": "Thiago Roca",
+      "position": "alero",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "21",
+      "height": "22",
+      "last_club": "Jujuy Basket",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/thiago-roca.jpg",
+      "updated_at": "2026-08-19 10:44:02"
     }
   ],
   "statuses": {
