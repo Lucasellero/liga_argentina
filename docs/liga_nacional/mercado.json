@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-20T16:24:03.954127+00:00",
+  "updated_at": "2026-08-20T20:18:45.068343+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -94,7 +94,7 @@
       "id": "lanus",
       "name": "Lanús",
       "team": "LANUS",
-      "pct": 50,
+      "pct": 58,
       "coach": "Manuel Anglese",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -105,7 +105,7 @@
       "id": "obera",
       "name": "Oberá Tenis Club",
       "team": "OBERÁ",
-      "pct": 67,
+      "pct": 75,
       "coach": "Fabio Demti",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2837,6 +2837,36 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/felipe-fernandez.jpg",
       "updated_at": "2026-08-19 15:58:16"
+    },
+    {
+      "id": "p_1883fe36-f5d9-4428-89c9-1af62046f42f",
+      "club_id": "obera",
+      "name": "Ty Prince",
+      "position": "ala_pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "25",
+      "height": "1.98",
+      "last_club": "",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Ty-Prince_obera.jpg",
+      "updated_at": "2026-08-20 13:36:22"
+    },
+    {
+      "id": "p_ba1798d1-4128-4b88-8d70-f5eba378063b",
+      "club_id": "lanus",
+      "name": "Lazar Nekic",
+      "position": "pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "27",
+      "height": "2.13",
+      "last_club": "",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Lazar-Nekic.jpg",
+      "updated_at": "2026-08-20 17:12:41"
     }
   ],
   "statuses": {
