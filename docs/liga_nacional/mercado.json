@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-20T20:18:45.068343+00:00",
+  "updated_at": "2026-08-21T01:17:44.627307+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -94,7 +94,7 @@
       "id": "lanus",
       "name": "Lanús",
       "team": "LANUS",
-      "pct": 58,
+      "pct": 75,
       "coach": "Manuel Anglese",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -579,14 +579,14 @@
       "name": "Edgard Merchant",
       "position": "ala_pivote",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "23",
       "height": "1,95",
       "last_club": "Lanús",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Merchant-E-Lanus-9.jpg",
-      "updated_at": "2026-07-04 18:46:47"
+      "updated_at": "2026-08-20 17:31:30"
     },
     {
       "id": "p_a6ca686c-fc37-4e56-a123-f8714e6b41a6",
@@ -595,13 +595,13 @@
       "position": "pivote",
       "ficha_type": "mayor",
       "status": "confirmado",
-      "confidence": "arreglo_verbal",
+      "confidence": "oficial",
       "age": "32",
       "height": "2,01",
       "last_club": "Lanús",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Franchino-M-Lanus-7.jpg",
-      "updated_at": "2026-07-04 18:47:15"
+      "updated_at": "2026-08-20 17:33:39"
     },
     {
       "id": "p_704beab0-fde4-4e46-821e-8c0297ca78f8",
@@ -1067,21 +1067,6 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/JUan-Martin-guerrero1.jpg",
       "updated_at": "2026-07-04 10:58:44"
-    },
-    {
-      "id": "p_b86ee60b-356d-4e3c-8fee-7d77baa07617",
-      "club_id": "independiente_o",
-      "name": "Jorge Díaz Giménez (J)",
-      "position": "base",
-      "ficha_type": "u21",
-      "status": "se_va",
-      "confidence": "oficial",
-      "age": "19",
-      "height": "1,9",
-      "last_club": "lanus",
-      "source_type": "club_oficial",
-      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Diaz-J-Independiente-4.jpg",
-      "updated_at": "2026-07-04 12:59:57"
     },
     {
       "id": "p_6827d7bd-6322-4940-87cf-4853ef2e1542",
@@ -2449,21 +2434,6 @@
       "updated_at": "2026-07-10 12:41:57"
     },
     {
-      "id": "p_3521ca8e-18f3-40bc-a57b-6191aa0f05ba",
-      "club_id": "lanus",
-      "name": "Jared Ruiz",
-      "position": "escolta",
-      "ficha_type": "mayor",
-      "status": "confirmado",
-      "confidence": "oficial",
-      "age": "33",
-      "height": "1.89",
-      "last_club": "Real Estelí",
-      "source_type": "club_oficial",
-      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/jared-ruiz.jpg",
-      "updated_at": "2026-08-02 11:24:03"
-    },
-    {
       "id": "p_de712627-bbd3-4eb5-a81c-e88d6d49ce6b",
       "club_id": "san_martin",
       "name": "Franco Mendez",
@@ -2867,6 +2837,51 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Lazar-Nekic.jpg",
       "updated_at": "2026-08-20 17:12:41"
+    },
+    {
+      "id": "p_f4f9a149-9dd0-4e7e-be9f-290ab26b1a64",
+      "club_id": "lanus",
+      "name": "Brandon Robinson",
+      "position": "escolta",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "37",
+      "height": "1.98",
+      "last_club": "",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/brandon-robinson.jpg",
+      "updated_at": "2026-08-20 17:20:40"
+    },
+    {
+      "id": "p_b19fb33a-0097-4d65-ae92-563fda6d6fd2",
+      "club_id": "lanus",
+      "name": "Robert Whitfield",
+      "position": "escolta",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "29",
+      "height": "1.90",
+      "last_club": "Lanus",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/WhatsApp-Image-2026-08-20-at-17.31.43.jpeg",
+      "updated_at": "2026-08-20 17:33:02"
+    },
+    {
+      "id": "p_c0f85f24-8a69-40bd-a5c1-541f14ff866f",
+      "club_id": "lanus",
+      "name": "Chris Clarke",
+      "position": "alero",
+      "ficha_type": "mayor",
+      "status": "pretendido",
+      "confidence": "arreglo_verbal",
+      "age": "30",
+      "height": "1.98",
+      "last_club": "MKS Start Lublin (Polonia)",
+      "source_type": "pnr",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Cris-Clarke.jpg",
+      "updated_at": "2026-08-20 17:45:09"
     }
   ],
   "statuses": {
