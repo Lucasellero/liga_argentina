@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-21T01:17:43.746473+00:00",
+  "updated_at": "2026-08-21T13:43:35.227776+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -248,7 +248,7 @@
       "id": "centenario_vt",
       "name": "Centenario",
       "team": "CENTENARIO (VT)",
-      "pct": 42,
+      "pct": 50,
       "coach": "Victor Daitch",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -314,7 +314,7 @@
       "id": "deportivo_norte",
       "name": "Deportivo Norte",
       "team": "DEP. NORTE",
-      "pct": 70,
+      "pct": 80,
       "coach": "Alejandro Cupulutti",
       "market_status": "abierto",
       "target_mayor": 7,
@@ -3292,6 +3292,36 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Luciano-lizarraga.jpg",
       "updated_at": "2026-08-19 10:39:47"
+    },
+    {
+      "id": "p_2c58b7eb-ed98-4868-b720-2182dad765e1",
+      "club_id": "deportivo_norte",
+      "name": "Celestino Cupulutti",
+      "position": "escolta",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "31",
+      "height": "1.84",
+      "last_club": "Deportivo Norte",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/celestino-cupuluti.jpg",
+      "updated_at": "2026-08-21 10:29:45"
+    },
+    {
+      "id": "p_10909569-a18c-429b-ae9d-b7f8fa3b11e4",
+      "club_id": "centenario_vt",
+      "name": "Jacob Tryon",
+      "position": "pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "27",
+      "height": "2.11",
+      "last_club": "Froya Basket (Noruega)",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Jacob-Tryon.jpg",
+      "updated_at": "2026-08-21 10:33:49"
     }
   ],
   "statuses": {
