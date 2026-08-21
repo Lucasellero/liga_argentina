@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-21T16:22:06.175105+00:00",
+  "updated_at": "2026-08-21T20:15:59.772715+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -171,7 +171,7 @@
       "id": "regatas",
       "name": "Regatas",
       "team": "REGATAS (C)",
-      "pct": 67,
+      "pct": 75,
       "coach": "Martín Villagrán",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2289,14 +2289,14 @@
       "name": "José Montero",
       "position": "escolta",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "muy_avanzado",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "31",
       "height": "1.94",
       "last_club": "Olímpico",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/jose-montero.jpg",
-      "updated_at": "2026-07-07 19:19:29"
+      "updated_at": "2026-08-21 16:11:19"
     },
     {
       "id": "p_3f7ea1bf-02da-4f23-aa3a-68f77fbce52b",

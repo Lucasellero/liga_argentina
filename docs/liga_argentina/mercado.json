@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-21T16:22:05.153248+00:00",
+  "updated_at": "2026-08-21T20:15:58.810554+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -83,7 +83,7 @@
       "id": "salta_basket",
       "name": "Salta Basket",
       "team": "SALTA BASKET",
-      "pct": 50,
+      "pct": 58,
       "coach": "Ariel Rearte",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -3322,6 +3322,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Jacob-Tryon.jpg",
       "updated_at": "2026-08-21 10:33:49"
+    },
+    {
+      "id": "p_cb7bb7a3-3087-4e4e-8d26-de34295c3e45",
+      "club_id": "salta_basket",
+      "name": "Samme Givens",
+      "position": "ala_pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "37",
+      "height": "1.98",
+      "last_club": "Kauhajoen Karhu (Finlandia)",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/samme-givens.jpg",
+      "updated_at": "2026-08-21 16:10:32"
     }
   ],
   "statuses": {
