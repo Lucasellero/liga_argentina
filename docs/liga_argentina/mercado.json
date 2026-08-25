@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-24T20:19:50.302949+00:00",
+  "updated_at": "2026-08-25T01:15:45.663787+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -17,7 +17,7 @@
       "id": "amancay",
       "name": "Amancay Club",
       "team": "AMANCAY (LR)",
-      "pct": 42,
+      "pct": 50,
       "coach": "José Gabriel Albornoz",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -72,11 +72,11 @@
       "id": "comunicaciones",
       "name": "Comunicaciones",
       "team": "COMUNICACIONES",
-      "pct": 42,
+      "pct": 91,
       "coach": "Ignacio Barsanti",
       "market_status": "abierto",
-      "target_mayor": 9,
-      "target_u23": 3,
+      "target_mayor": 7,
+      "target_u23": 4,
       "order": 6
     },
     {
@@ -204,7 +204,7 @@
       "id": "pico_fc",
       "name": "Pico Football Club",
       "team": "PICO F.C.",
-      "pct": 73,
+      "pct": 82,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 7,
@@ -764,14 +764,14 @@
       "name": "Tail Gómez Quinteros",
       "position": "base",
       "ficha_type": "mayor",
-      "status": "pretendido",
+      "status": "confirmado",
       "confidence": "oficial",
       "age": "27",
       "height": "1,85",
       "last_club": "Santa Paula",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Tail-Gomez-Santa-Paula-11.jpg",
-      "updated_at": "2026-07-30 20:54:04"
+      "updated_at": "2026-08-24 20:50:37"
     },
     {
       "id": "p_44d39268-d3ad-4355-a7a1-f0f010cfa1be",
@@ -1117,21 +1117,6 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Agustin-Jara-Salta-4.jpg",
       "updated_at": "2026-07-19 11:22:50"
-    },
-    {
-      "id": "p_e2ff86e6-9d43-407a-83d3-f0acddb0b8ad",
-      "club_id": "central_entrerriano",
-      "name": "Aquiles Montani Wortzel",
-      "position": "alero",
-      "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "interes",
-      "age": "31",
-      "height": "1.93",
-      "last_club": "Central Entrerriano",
-      "source_type": "pnr",
-      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Aquiles-Montani-Central-9.jpg",
-      "updated_at": "2026-07-16 18:36:25"
     },
     {
       "id": "p_ea03a0c9-40bb-4a9d-a787-e7673d6f6d03",
@@ -2112,7 +2097,7 @@
       "id": "p_80b15cd2-bb14-4e9f-bb0f-e1c1b8998b7c",
       "club_id": "comunicaciones",
       "name": "Tobías Franchela",
-      "position": "base",
+      "position": "escolta",
       "ficha_type": "mayor",
       "status": "confirmado",
       "confidence": "oficial",
@@ -2121,7 +2106,7 @@
       "last_club": "Platense",
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/tobias-francehla.jpg",
-      "updated_at": "2026-07-23 09:12:31"
+      "updated_at": "2026-08-24 19:51:40"
     },
     {
       "id": "p_e3eeb21a-2f40-4239-bc16-b90bb039350a",
@@ -3337,6 +3322,96 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/samme-givens.jpg",
       "updated_at": "2026-08-21 16:10:32"
+    },
+    {
+      "id": "p_bf5a87a7-be2f-4085-b484-1f5356962e5c",
+      "club_id": "comunicaciones",
+      "name": "Aquiles Montani Wortzel",
+      "position": "ala_pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "31",
+      "height": "1.93",
+      "last_club": "Central Entrerriano",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Aquiles-Montani-Central-9.jpg",
+      "updated_at": "2026-08-24 19:16:50"
+    },
+    {
+      "id": "p_83d3234a-441e-4e06-9d37-6c633aaede6b",
+      "club_id": "comunicaciones",
+      "name": "Lautaro Pividori",
+      "position": "base",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "25",
+      "height": "1.83",
+      "last_club": "Central Entrerriano",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Lautaro-Pividori-Central-5.jpg",
+      "updated_at": "2026-08-24 19:52:10"
+    },
+    {
+      "id": "p_51bc13a2-0ebb-49ae-b582-2819a18d4a6f",
+      "club_id": "comunicaciones",
+      "name": "Nicolás Quiroga",
+      "position": "alero",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "23",
+      "height": "1.92",
+      "last_club": "Oberá TC",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/nicolas-quiroga.jpg",
+      "updated_at": "2026-08-24 19:28:35"
+    },
+    {
+      "id": "p_e4db4788-fda0-477f-8fa1-1d43523103b5",
+      "club_id": "comunicaciones",
+      "name": "Edwin Niebles",
+      "position": "pivote",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "21",
+      "height": "2.06",
+      "last_club": "Oberá TC",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Edwin-Niebles.jpg",
+      "updated_at": "2026-08-24 19:31:28"
+    },
+    {
+      "id": "p_c6a773ef-9cc3-48ff-9af7-db3b1feff66e",
+      "club_id": "comunicaciones",
+      "name": "Tomás Nally",
+      "position": "pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "23",
+      "height": "2.03",
+      "last_club": "Quilmes",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/tomas-nally.jpg",
+      "updated_at": "2026-08-24 19:36:35"
+    },
+    {
+      "id": "p_ef6d8159-bef2-4c4e-85f3-7a7098b4f0ad",
+      "club_id": "pico_fc",
+      "name": "Fabricio Diaz",
+      "position": "pivote",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "20",
+      "height": "2.02",
+      "last_club": "Fusión Riojana",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Fabricio-Diaz-Fusion-20.jpg",
+      "updated_at": "2026-08-24 20:14:43"
     }
   ],
   "statuses": {

@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-24T20:19:51.159378+00:00",
+  "updated_at": "2026-08-25T01:15:46.523477+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -193,7 +193,7 @@
       "id": "san_martin",
       "name": "San Martín",
       "team": "SAN MARTÍN (C)",
-      "pct": 33,
+      "pct": 58,
       "coach": "Gabriel Revidatti",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -1505,9 +1505,9 @@
     },
     {
       "id": "p_6bf98ea3-5589-4fc2-a9ab-924748b7a2aa",
-      "club_id": "quimsa",
+      "club_id": "san_martin",
       "name": "Diego Colomb",
-      "position": "base",
+      "position": "escolta",
       "ficha_type": "u21",
       "status": "confirmado",
       "confidence": "oficial",
@@ -1516,7 +1516,7 @@
       "last_club": "Quimsa",
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Collomb-D-Quimsa-22.jpg",
-      "updated_at": "2026-07-13 13:06:14"
+      "updated_at": "2026-08-24 20:41:02"
     },
     {
       "id": "p_17f2a53f-f95b-49e1-9239-503790077d5b",
@@ -1869,14 +1869,14 @@
       "name": "Gastón García",
       "position": "base",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "27",
       "height": "1,88",
       "last_club": "San Martín",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Garcia-G-San-Martin-5.jpg",
-      "updated_at": "2026-07-05 21:48:37"
+      "updated_at": "2026-08-24 20:43:32"
     },
     {
       "id": "p_0db60508-7b57-456b-b2bf-5e836dd0bb13",
@@ -1884,14 +1884,14 @@
       "name": "Mateo Rearte",
       "position": "escolta",
       "ficha_type": "u21",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "22",
       "height": "1,83",
       "last_club": "San Martín",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Rearte-M-San-Martin-17.jpg",
-      "updated_at": "2026-07-05 21:49:03"
+      "updated_at": "2026-08-24 20:43:06"
     },
     {
       "id": "p_9e2110b4-e26e-467d-bcfc-e51df416ed56",
@@ -2435,9 +2435,9 @@
     },
     {
       "id": "p_de712627-bbd3-4eb5-a81c-e88d6d49ce6b",
-      "club_id": "san_martin",
+      "club_id": "quimsa",
       "name": "Franco Mendez",
-      "position": "escolta",
+      "position": "alero",
       "ficha_type": "mayor",
       "status": "confirmado",
       "confidence": "oficial",
@@ -2446,7 +2446,7 @@
       "last_club": "San Martin",
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Mendez-F-San-Martin-12.jpg",
-      "updated_at": "2026-07-30 14:12:52"
+      "updated_at": "2026-08-24 20:10:02"
     },
     {
       "id": "p_e67d9d04-22d9-4b26-a943-b5279d50acbc",
@@ -2454,14 +2454,14 @@
       "name": "Juan Sebastián Gorosito",
       "position": "base",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "",
       "height": "",
       "last_club": "San Diego Toreros",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/juanse-Gorosito-1.jpg",
-      "updated_at": "2026-07-13 12:26:13"
+      "updated_at": "2026-08-24 20:42:24"
     },
     {
       "id": "p_8634289b-1171-46f2-93ad-5c863414e37e",
