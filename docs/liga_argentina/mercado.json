@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-28T09:56:37.734849+00:00",
+  "updated_at": "2026-08-28T22:53:20.347455+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -182,7 +182,7 @@
       "id": "central_entrerriano",
       "name": "Central Entrerriano",
       "team": "CENTRAL ENTRERRIANO",
-      "pct": 80,
+      "pct": 90,
       "coach": "Martín Pascal",
       "market_status": "abierto",
       "target_mayor": 7,
@@ -1043,7 +1043,7 @@
       "id": "p_8755a74d-b450-4c6f-8fd5-ae4b43d26ffc",
       "club_id": "central_entrerriano",
       "name": "Cristian Pérez",
-      "position": "escolta",
+      "position": "base",
       "ficha_type": "mayor",
       "status": "confirmado",
       "confidence": "oficial",
@@ -1052,13 +1052,13 @@
       "last_club": "Central Entrerriano",
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Agustin-Perez-Central-4.jpg",
-      "updated_at": "2026-07-16 18:29:02"
+      "updated_at": "2026-08-28 11:29:46"
     },
     {
       "id": "p_4b00b539-6710-4ed0-ab0c-ba9106d7da20",
       "club_id": "central_entrerriano",
       "name": "Johu Castillo",
-      "position": "ala_pivote",
+      "position": "pivote",
       "ficha_type": "mayor",
       "status": "confirmado",
       "confidence": "oficial",
@@ -1067,7 +1067,7 @@
       "last_club": "Central Entrerriano",
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Johu-Castillo-Central-10.jpg",
-      "updated_at": "2026-07-16 18:35:43"
+      "updated_at": "2026-08-28 11:31:30"
     },
     {
       "id": "p_592562b7-ed2b-4f2c-a4dc-4254872b7250",
@@ -1118,16 +1118,16 @@
       "id": "p_ea03a0c9-40bb-4a9d-a787-e7673d6f6d03",
       "club_id": "central_entrerriano",
       "name": "Justo Catalín",
-      "position": "base",
+      "position": "escolta",
       "ficha_type": "mayor",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "26",
       "height": "1.80",
       "last_club": "Central Entrerriano",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Justo-Catalin-Central.jpg",
-      "updated_at": "2026-07-16 18:41:15"
+      "updated_at": "2026-08-28 11:33:07"
     },
     {
       "id": "p_99b52d6a-f92c-4c74-83b1-94df71bda120",
@@ -2468,7 +2468,7 @@
       "id": "p_70aef90c-1463-49d1-b602-fb4487d63258",
       "club_id": "central_entrerriano",
       "name": "Fausto Moussa",
-      "position": "escolta",
+      "position": "alero",
       "ficha_type": "mayor",
       "status": "confirmado",
       "confidence": "oficial",
@@ -2477,7 +2477,7 @@
       "last_club": "Instituto Cba",
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/fausto-moussa.jpg",
-      "updated_at": "2026-07-28 10:23:04"
+      "updated_at": "2026-08-28 11:30:36"
     },
     {
       "id": "p_3726cf54-d32a-422c-a936-1c7c252a003e",

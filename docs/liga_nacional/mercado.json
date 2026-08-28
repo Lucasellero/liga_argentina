@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-28T09:56:38.632526+00:00",
+  "updated_at": "2026-08-28T22:53:21.168709+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -182,7 +182,7 @@
       "id": "san_lorenzo",
       "name": "San Lorenzo",
       "team": "SAN LORENZO",
-      "pct": 92,
+      "pct": 100,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2738,7 +2738,7 @@
       "club_id": "san_lorenzo",
       "name": "Thiago Roca",
       "position": "alero",
-      "ficha_type": "mayor",
+      "ficha_type": "u21",
       "status": "confirmado",
       "confidence": "oficial",
       "age": "21",
@@ -2746,14 +2746,14 @@
       "last_club": "Jujuy Basket",
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/thiago-roca.jpg",
-      "updated_at": "2026-08-19 15:41:30"
+      "updated_at": "2026-08-28 11:41:01"
     },
     {
       "id": "p_73e240f9-fa00-4205-b78a-14b794fce039",
       "club_id": "san_lorenzo",
       "name": "Valentino Nesci",
       "position": "ala_pivote",
-      "ficha_type": "mayor",
+      "ficha_type": "u21",
       "status": "confirmado",
       "confidence": "oficial",
       "age": "22",
@@ -2761,14 +2761,14 @@
       "last_club": "San Lorenzo",
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/valentino-nesci.jpg",
-      "updated_at": "2026-08-19 15:43:34"
+      "updated_at": "2026-08-28 11:47:14"
     },
     {
       "id": "p_9451b4cd-eadb-45e4-a45e-7db9242aa0b3",
       "club_id": "san_lorenzo",
       "name": "Joaquin Actis",
       "position": "base",
-      "ficha_type": "u21",
+      "ficha_type": "juvenil",
       "status": "confirmado",
       "confidence": "oficial",
       "age": "20",
@@ -2776,7 +2776,7 @@
       "last_club": "San Lorenzo",
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/joaquin-actis.jpg",
-      "updated_at": "2026-08-19 15:49:51"
+      "updated_at": "2026-08-28 11:42:24"
     },
     {
       "id": "p_db0dc12a-d39c-45d7-b566-fec4eda2814a",
@@ -2882,6 +2882,36 @@
       "source_type": "pnr",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Cris-Clarke.jpg",
       "updated_at": "2026-08-20 17:45:09"
+    },
+    {
+      "id": "p_f8591f1e-8059-4519-bae5-3119781c5d54",
+      "club_id": "san_lorenzo",
+      "name": "Raynere Thorton",
+      "position": "ala_pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "30",
+      "height": "1.98",
+      "last_club": "Slovan Bratislava (Eslovaquia)",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Raynere-Thorton.png",
+      "updated_at": "2026-08-28 11:46:15"
+    },
+    {
+      "id": "p_7e909b5e-a62f-4708-a2c8-81e617242d77",
+      "club_id": "san_lorenzo",
+      "name": "Antun Maricevic",
+      "position": "pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "29",
+      "height": "2.06",
+      "last_club": "KK Marsonia (Croacia)",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Antun-Maricevic.jpg",
+      "updated_at": "2026-08-28 11:49:52"
     }
   ],
   "statuses": {
