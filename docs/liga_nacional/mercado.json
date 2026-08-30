@@ -1,12 +1,12 @@
 {
-  "updated_at": "2026-08-29T22:08:14.133437+00:00",
+  "updated_at": "2026-08-30T04:00:16.420262+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
       "id": "argentino_junin",
       "name": "Argentino (J)",
       "team": "ARGENTINO (J)",
-      "pct": 83,
+      "pct": 92,
       "coach": "Adrián Capelli",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2912,6 +2912,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Antun-Maricevic.jpg",
       "updated_at": "2026-08-28 11:49:52"
+    },
+    {
+      "id": "p_4cc212d4-36c5-4c63-a7ec-8c003825b4fc",
+      "club_id": "argentino_junin",
+      "name": "Zion Patterson",
+      "position": "alero",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "26",
+      "height": "2.00",
+      "last_club": "EN Baskets Schwelm (ProB - Alemania)",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/ZION-PATTERSON.jpg",
+      "updated_at": "2026-08-29 23:56:28"
     }
   ],
   "statuses": {
