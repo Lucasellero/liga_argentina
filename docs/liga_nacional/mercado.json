@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-30T18:56:52.242285+00:00",
+  "updated_at": "2026-08-30T22:15:10.929416+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -149,7 +149,7 @@
       "id": "quimsa",
       "name": "Quimsa",
       "team": "QUIMSA",
-      "pct": 67,
+      "pct": 75,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2927,6 +2927,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/ZION-PATTERSON.jpg",
       "updated_at": "2026-08-29 23:56:28"
+    },
+    {
+      "id": "p_60dd5209-676d-4311-af2b-d4b4ecc777ed",
+      "club_id": "quimsa",
+      "name": "Facundo Rutenberg",
+      "position": "alero",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "25",
+      "height": "1.95",
+      "last_club": "San Lorenzo",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/facundo-rutenberg.jpg",
+      "updated_at": "2026-08-30 17:23:55"
     }
   ],
   "statuses": {
