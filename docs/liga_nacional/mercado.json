@@ -1,12 +1,12 @@
 {
-  "updated_at": "2026-09-01T03:54:39.237217+00:00",
+  "updated_at": "2026-09-01T17:09:28.645089+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
       "id": "argentino_junin",
       "name": "Argentino (J)",
       "team": "ARGENTINO (J)",
-      "pct": 92,
+      "pct": 100,
       "coach": "Adrián Capelli",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -1973,7 +1973,7 @@
       "club_id": "argentino_junin",
       "name": "Piero Di Prinzio",
       "position": "base",
-      "ficha_type": "mayor",
+      "ficha_type": "u21",
       "status": "confirmado",
       "confidence": "oficial",
       "age": "20",
@@ -1981,7 +1981,7 @@
       "last_club": "Argentino",
       "source_type": "pnr",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Piero-Di-Prinzio-Argentino.jpg",
-      "updated_at": "2026-07-25 09:14:14"
+      "updated_at": "2026-09-01 13:35:29"
     },
     {
       "id": "p_17f1fd34-c535-4f65-9c6f-99aa36048d17",
@@ -2942,6 +2942,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/facundo-rutenberg.jpg",
       "updated_at": "2026-08-30 17:23:55"
+    },
+    {
+      "id": "p_e9c9973f-1c6d-4fe1-85e3-fd596f6d66af",
+      "club_id": "argentino_junin",
+      "name": "Seth Pinkney",
+      "position": "pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "26",
+      "height": "2.15",
+      "last_club": "Vëllaznimi Gjakova de Kosovo",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/seth-pinkney.jpg",
+      "updated_at": "2026-09-01 13:34:35"
     }
   ],
   "statuses": {

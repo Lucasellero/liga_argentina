@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-01T03:54:38.307857+00:00",
+  "updated_at": "2026-09-01T17:09:27.661921+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -17,7 +17,7 @@
       "id": "el_ceibo",
       "name": "El Ceibo",
       "team": null,
-      "pct": 90,
+      "pct": 100,
       "coach": "Eduardo Blengini",
       "market_status": "abierto",
       "target_mayor": 7,
@@ -248,7 +248,7 @@
       "id": "deportivo_viedma",
       "name": "Deportivo Viedma",
       "team": "DEP. VIEDMA",
-      "pct": 80,
+      "pct": 90,
       "coach": "Guillermo Bogliacino",
       "market_status": "abierto",
       "target_mayor": 7,
@@ -3658,7 +3658,7 @@
       "last_club": "El Ciebo",
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/pablo-grosso.jpg",
-      "updated_at": "2026-08-30 11:36:11"
+      "updated_at": "2026-09-01 13:31:02"
     },
     {
       "id": "p_7721a7f6-e6bc-42ce-acdd-f5e38452eecf",
@@ -3739,7 +3739,7 @@
       "id": "p_e94ab58b-9e47-4681-90d4-fe74a0704005",
       "club_id": "el_ceibo",
       "name": "Tobias Cravero",
-      "position": "pivote",
+      "position": "ala_pivote",
       "ficha_type": "mayor",
       "status": "confirmado",
       "confidence": "oficial",
@@ -3748,7 +3748,7 @@
       "last_club": "Rivadavia Mendoza",
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/tobias-cravero.jpg",
-      "updated_at": "2026-08-30 11:53:29"
+      "updated_at": "2026-09-01 13:30:37"
     },
     {
       "id": "p_6b6b200d-a18c-4e7d-b04b-e9ffda2d2e5c",
@@ -3989,6 +3989,36 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/08/Matias-Acosta.jpg",
       "updated_at": "2026-08-31 10:51:13"
+    },
+    {
+      "id": "p_2c801857-54bf-4fe7-9c21-60e2711b33be",
+      "club_id": "deportivo_viedma",
+      "name": "Marcelo Pérez",
+      "position": "alero",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "27",
+      "height": "1.96",
+      "last_club": "Puerto Varas (Chlle)",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/marcelo-perez.jpg",
+      "updated_at": "2026-09-01 13:12:55"
+    },
+    {
+      "id": "p_0eacb07b-d119-4f7e-aebb-388a553f904b",
+      "club_id": "el_ceibo",
+      "name": "Esteban Caffaro",
+      "position": "pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "23",
+      "height": "2.00",
+      "last_club": "Bochas SC",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/esteba-caffaro.jpg",
+      "updated_at": "2026-09-01 13:29:20"
     }
   ],
   "statuses": {
