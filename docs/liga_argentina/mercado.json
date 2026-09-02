@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-01T22:13:14.595957+00:00",
+  "updated_at": "2026-09-02T03:13:58.551919+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -50,7 +50,7 @@
       "id": "amancay",
       "name": "Amancay Club",
       "team": "AMANCAY (LR)",
-      "pct": 58,
+      "pct": 67,
       "coach": "José Gabriel Albornoz",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -4019,6 +4019,36 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/esteba-caffaro.jpg",
       "updated_at": "2026-09-01 13:29:20"
+    },
+    {
+      "id": "p_e1f1378f-7e1d-41db-b4ab-b6c4e501ff59",
+      "club_id": "amancay",
+      "name": "Joaquín Fuentes Foddis",
+      "position": "base",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "21",
+      "height": "1.73",
+      "last_club": "Amancay",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/joaquin-fuentes-foddis.jpg",
+      "updated_at": "2026-09-01 21:23:06"
+    },
+    {
+      "id": "p_8f1ecfcf-41d9-4381-a5b1-dc54bcfe705f",
+      "club_id": "amancay",
+      "name": "Angel Azucar",
+      "position": "ala_pivote",
+      "ficha_type": "juvenil",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "",
+      "height": "1.98",
+      "last_club": "Comunicaciones",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/angel-azucar.jpg",
+      "updated_at": "2026-09-01 21:28:29"
     }
   ],
   "statuses": {
