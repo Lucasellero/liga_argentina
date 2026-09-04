@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-04T03:14:26.509826+00:00",
+  "updated_at": "2026-09-04T16:44:07.390487+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -116,7 +116,7 @@
       "id": "olimpico",
       "name": "Olímpico",
       "team": "OLÍMPICO (LB)",
-      "pct": 83,
+      "pct": 92,
       "coach": "Leonardo Costa",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2942,6 +2942,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/Christian-James.jpg",
       "updated_at": "2026-09-03 09:39:12"
+    },
+    {
+      "id": "p_1ddfe621-8bf4-468e-b2f0-302d1e65be1a",
+      "club_id": "olimpico",
+      "name": "Kobe Julien",
+      "position": "alero",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "26",
+      "height": "1.98",
+      "last_club": "Independiente BBC",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/kobe-julien.jpg",
+      "updated_at": "2026-09-04 09:25:12"
     }
   ],
   "statuses": {
