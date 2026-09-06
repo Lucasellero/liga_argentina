@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-05T21:48:42.838542+00:00",
+  "updated_at": "2026-09-06T03:17:10.656022+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -94,7 +94,7 @@
       "id": "lanus",
       "name": "Lanús",
       "team": "LANUS",
-      "pct": 75,
+      "pct": 83,
       "coach": "Manuel Anglese",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -2957,6 +2957,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/kobe-julien.jpg",
       "updated_at": "2026-09-04 09:25:12"
+    },
+    {
+      "id": "p_41b138e8-10ec-4e0f-abf3-f693c87bfe39",
+      "club_id": "lanus",
+      "name": "Melvin Johson",
+      "position": "escolta",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "33",
+      "height": "1.95",
+      "last_club": "Unifacisa de Brasil",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/melvin-johnson.jpg",
+      "updated_at": "2026-09-05 20:21:07"
     }
   ],
   "statuses": {
