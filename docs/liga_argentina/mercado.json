@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-06T17:54:32.867985+00:00",
+  "updated_at": "2026-09-06T21:52:08.440028+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -160,7 +160,7 @@
       "id": "independiente_bbc",
       "name": "Independiente BBC",
       "team": "INDEPENDIENTE (SDE)",
-      "pct": 50,
+      "pct": 75,
       "coach": "Fabián Daverio",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -4229,6 +4229,51 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/javier-bollo.jpg",
       "updated_at": "2026-09-02 10:49:10"
+    },
+    {
+      "id": "p_a7e0d350-7418-471b-8176-21b080af10d4",
+      "club_id": "independiente_bbc",
+      "name": "Jonatan Machuca",
+      "position": "base",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "37",
+      "height": "1.85",
+      "last_club": "Comunicaciones",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/jonatan-machuca.jpg",
+      "updated_at": "2026-09-06 15:06:29"
+    },
+    {
+      "id": "p_73da0a0a-8076-4737-b8cf-3f773a19b26f",
+      "club_id": "independiente_bbc",
+      "name": "Matias Stanic",
+      "position": "escolta",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "20",
+      "height": "1.86",
+      "last_club": "Pacífico Neuquén",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/matias-stanic.jpg",
+      "updated_at": "2026-09-06 15:09:50"
+    },
+    {
+      "id": "p_2b056640-9075-4fcf-9871-421e4cce7df6",
+      "club_id": "independiente_bbc",
+      "name": "Fabio Gauto",
+      "position": "escolta",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "24",
+      "height": "1.93",
+      "last_club": "Félix Pérez Cardozo (Paraguay)",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/fabio-gauto.jpg",
+      "updated_at": "2026-09-06 15:12:16"
     }
   ],
   "statuses": {
