@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-08T19:09:33.153006+00:00",
+  "updated_at": "2026-09-08T22:12:13.790377+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -50,10 +50,10 @@
       "id": "riachuelo",
       "name": "Riachuelo",
       "team": null,
-      "pct": 25,
+      "pct": 30,
       "coach": "Pablo Pereyro",
       "market_status": "abierto",
-      "target_mayor": 9,
+      "target_mayor": 7,
       "target_u23": 3,
       "order": 0
     },
