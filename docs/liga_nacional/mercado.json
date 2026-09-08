@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-08T03:23:04.647801+00:00",
+  "updated_at": "2026-09-08T17:04:57.413736+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -72,7 +72,7 @@
       "id": "instituto",
       "name": "Instituto",
       "team": "INSTITUTO",
-      "pct": 58,
+      "pct": 67,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -195,17 +195,6 @@
       "team": "SAN MARTÍN (C)",
       "pct": 58,
       "coach": "Gabriel Revidatti",
-      "market_status": "abierto",
-      "target_mayor": 9,
-      "target_u23": 3,
-      "order": 0
-    },
-    {
-      "id": "union_sf",
-      "name": "Unión (SF)",
-      "team": "UNION (SF)",
-      "pct": 0,
-      "coach": "",
       "market_status": "abierto",
       "target_mayor": 9,
       "target_u23": 3,
@@ -2972,6 +2961,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/melvin-johnson.jpg",
       "updated_at": "2026-09-05 20:21:07"
+    },
+    {
+      "id": "p_60842493-6643-4610-802d-1b0dde62d351",
+      "club_id": "instituto",
+      "name": "Kadir Pomare",
+      "position": "escolta",
+      "ficha_type": "u21",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "23",
+      "height": "1.91",
+      "last_club": "Instituto",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/kadir-pomare.jpg",
+      "updated_at": "2026-09-08 09:21:04"
     }
   ],
   "statuses": {

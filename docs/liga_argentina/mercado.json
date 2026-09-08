@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-08T03:23:03.812694+00:00",
+  "updated_at": "2026-09-08T17:04:56.456517+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo-liga-argentina/",
   "clubs": [
     {
@@ -19,6 +19,17 @@
       "team": null,
       "pct": 100,
       "coach": "Eduardo Blengini",
+      "market_status": "abierto",
+      "target_mayor": 7,
+      "target_u23": 3,
+      "order": 0
+    },
+    {
+      "id": "mitre_posadas",
+      "name": "Mitre (Posadas)",
+      "team": null,
+      "pct": 0,
+      "coach": "",
       "market_status": "abierto",
       "target_mayor": 7,
       "target_u23": 3,
@@ -51,6 +62,17 @@
       "name": "River Plate",
       "team": null,
       "pct": 80,
+      "coach": "",
+      "market_status": "abierto",
+      "target_mayor": 7,
+      "target_u23": 3,
+      "order": 0
+    },
+    {
+      "id": "union_sf",
+      "name": "Unión (SF)",
+      "team": null,
+      "pct": 0,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 7,
@@ -248,7 +270,7 @@
       "id": "gimnasia_lp",
       "name": "Gimnasia y Esgrima La Plata",
       "team": "GIMNASIA (LP)",
-      "pct": 67,
+      "pct": 75,
       "coach": "Fernando Calvi",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -4450,6 +4472,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/Franco-Luis-Penacino.jpg",
       "updated_at": "2026-09-07 10:56:55"
+    },
+    {
+      "id": "p_6d60f2aa-4654-44e9-a6a6-2abc1ceaee3f",
+      "club_id": "gimnasia_lp",
+      "name": "Bradley Cimperman",
+      "position": "alero",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "24",
+      "height": "1.93",
+      "last_club": "Clube dos Galitos de la liga de Portugal",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/Bradley-Cimperman.jpg",
+      "updated_at": "2026-09-08 09:56:23"
     }
   ],
   "statuses": {
