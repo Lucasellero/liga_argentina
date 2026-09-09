@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-08T22:12:14.821876+00:00",
+  "updated_at": "2026-09-09T03:26:32.940821+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -149,7 +149,7 @@
       "id": "quimsa",
       "name": "Quimsa",
       "team": "QUIMSA",
-      "pct": 75,
+      "pct": 83,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -193,7 +193,7 @@
       "id": "san_martin",
       "name": "San Martín",
       "team": "SAN MARTÍN (C)",
-      "pct": 58,
+      "pct": 67,
       "coach": "Gabriel Revidatti",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -1888,14 +1888,14 @@
       "name": "Gerónimo Ramallo",
       "position": "alero",
       "ficha_type": "u21",
-      "status": "pretendido",
-      "confidence": "arreglo_verbal",
+      "status": "confirmado",
+      "confidence": "oficial",
       "age": "21",
       "height": "2",
       "last_club": "San Martín",
-      "source_type": "pnr",
+      "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/07/Ramallo-G-San-Martin-8.jpg",
-      "updated_at": "2026-07-05 21:49:26"
+      "updated_at": "2026-09-08 19:43:49"
     },
     {
       "id": "p_548fb9e1-0daa-431a-945f-34485d293455",
@@ -2976,6 +2976,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/kadir-pomare.jpg",
       "updated_at": "2026-09-08 09:21:04"
+    },
+    {
+      "id": "p_6b04c13a-1465-49e5-b129-a60080527eee",
+      "club_id": "quimsa",
+      "name": "Ryren Johnson",
+      "position": "ala_pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "38",
+      "height": "2.03",
+      "last_club": "Quimsa",
+      "source_type": "club_oficial",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/Tyren-Johnson.jpg",
+      "updated_at": "2026-09-08 19:41:35"
     }
   ],
   "statuses": {
