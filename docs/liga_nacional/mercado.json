@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-20T22:03:38.455542+00:00",
+  "updated_at": "2026-09-21T03:40:55.838315+00:00",
   "source_url": "https://pickandroll.com.ar/mercado-vivo/",
   "clubs": [
     {
@@ -50,7 +50,7 @@
       "id": "gimnasia_cr",
       "name": "Gimnasia (CR)",
       "team": "GIMNASIA (CR)",
-      "pct": 83,
+      "pct": 92,
       "coach": "",
       "market_status": "abierto",
       "target_mayor": 9,
@@ -3021,6 +3021,21 @@
       "source_type": "club_oficial",
       "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/erik-copes.jpg",
       "updated_at": "2026-09-16 20:15:06"
+    },
+    {
+      "id": "p_88152f9b-9ab1-456e-9d29-e4490df33cd3",
+      "club_id": "gimnasia_cr",
+      "name": "Benjamín Kirkwood Stevens",
+      "position": "pivote",
+      "ficha_type": "mayor",
+      "status": "confirmado",
+      "confidence": "oficial",
+      "age": "27",
+      "height": "2.08",
+      "last_club": "NH Ostrava (República Checa)",
+      "source_type": "pnr",
+      "image_url": "https://pickandroll.com.ar/wp-content/uploads/2026/09/283220.png",
+      "updated_at": "2026-09-20 19:16:48"
     }
   ],
   "statuses": {
