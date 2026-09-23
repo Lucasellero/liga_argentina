@@ -96,7 +96,6 @@ const DOB_PATH = '../shared/players_dob.csv';
   if (sub) sub.textContent = 'Liga Nacional · ' + (SEASON === '2025-26' ? 'Temporada 2025/26 (archivada)' : 'Temporada Regular 2026/2027');
 })();
 let DOB_MAP = {};
-let DOB_ROWS_ALL = []; // todas las ligas, sin filtrar — usado por el buscador de stats del tab Mercado
 let TEAM_MAP = {}, PLAYERS = [], TEAMS = [];
 let GAMES_ALL = [];        // all unique games (deduplicated)
 
@@ -786,7 +785,6 @@ const LOGOS = {
   'RACING (CH)':    'logos/racing_ch.jpeg',
   'SAN LORENZO':    'logos/san_lorenzo.jpeg',
   'UNION (SF)':     'logos/union_sf.jpeg',
-  // Clubes fuera de la tabla de Liga Nacional pero presentes en Mercado de Pases
   'LANUS':          'logos/lanus.jpeg',
 };
 
@@ -1255,7 +1253,6 @@ async function initApp() {
     const text = await resp.text();
     if (dobResp && dobResp.ok) {
       const dobRows = parseCSV(await dobResp.text());
-      DOB_ROWS_ALL = dobRows;
       dobRows.forEach(r => { if (r.liga === 'Liga Nacional') DOB_MAP[r.nombre_abreviado] = r.fecha_nacimiento; });
     }
     const rows = parseCSV(text);
