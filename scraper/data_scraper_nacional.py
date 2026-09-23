@@ -28,7 +28,7 @@ import pandas as pd
 # ---------------------------------------------------------------------------
 BASE_URL = "https://www.laliganacional.com.ar"
 LEAGUE_PATH = "/laliga"
-FIXTURE_START_DATE = "23/09/2025"  # Fixed season start
+FIXTURE_START_DATE = "28/09/2026"  # Fixed season start (temporada 2026/27)
 
 # Partidos excluidos explícitamente (ej. supercopa, partido amistoso fuera de la competencia)
 BLOCKED_GAME_IDS: set[str] = {

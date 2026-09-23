@@ -30,7 +30,7 @@ import pandas as pd
 # ---------------------------------------------------------------------------
 BASE_URL = "https://www.laliganacional.com.ar"
 LEAGUE_PATH = "/ligaproximo"
-FIXTURE_START_DATE = "22/09/2025"  # Fixed season start
+FIXTURE_START_DATE = "27/09/2026"  # Fixed season start (temporada 2026/27)
 
 OUTPUT_DIR = Path(__file__).parent.parent / "docs" / "liga_proximo"
 DEBUG_DIR = Path(__file__).parent / "debug_html"
