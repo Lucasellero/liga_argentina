@@ -200,6 +200,66 @@ Colores de estado (reservados, no reutilizar para otra cosa):
 | `se_va` | `--red` |
 | `vacante` | `--muted` |
 
+## Chat del Mercado (IA) — agosto 2026
+
+Widget colapsable "Preguntale a la IA sobre el mercado" dentro del tab, entre el header y la
+barra de progreso (`#mktChatWrap`, presente en Liga Argentina y Liga Nacional). Permite preguntas
+libres en lenguaje natural sobre `mercado.json` de ambas ligas (altas, bajas, pretendidos,
+vacantes, comparaciones entre clubes/ligas). Pensado como producto pago para asistentes de
+equipo — prototipado y validado primero en `scraper/prototipo_agente_mercado.py` antes de portar
+a producción (ese script documenta el razonamiento completo, incluidos los bugs encontrados
+durante la validación).
+
+**Arquitectura**: nada de contexto crudo — el modelo (`claude-haiku-4-5-20251001`) no recibe el
+JSON completo, solo tiene 3 tools de filtrado exacto (`buscar_jugadores`, `buscar_clubes`,
+`resumen_liga`, definidas en `api/lib/mercado-chat.js`) sobre una clase `Mercado`
+(`api/lib/mercado.js`) que hace el filtrado en JS puro. Motivo: se probó en el prototipo que un
+modelo chico se equivoca en conteos/listados si tiene que "leer" el JSON a ojo (contó mal por
+decenas de jugadores, e incluso alucinó un campo directo) — con tools de filtrado exacto, las
+10 preguntas de validación dieron 100% correctas contra la data real.
+
+- **`buscar_jugadores`** devuelve, además de la lista, `total`, y el desglose `renovaciones`/
+  `nuevos` **ya precalculado** (cada jugador trae `es_renovacion`). Esto no es opcional: se probó
+  que aunque el system prompt le pida explícitamente usar ese desglose, un modelo chico a veces
+  igual intenta contarlo "a mano" sobre una lista ya traída y se equivoca — por eso el cálculo
+  vive en el código, no depende de que el modelo lo pida bien.
+- `es_renovacion` compara `last_club` (tal cual lo escribe la fuente) contra el nombre **crudo**
+  del club (`clubs[].name`), no contra la abreviatura resuelta de `LOGOS` (`clubs[].team`) — si se
+  compara contra la abreviatura, casos como "Hindú Club" vs "HINDU (C)" no matchean y se cuentan
+  como fichaje nuevo cuando en realidad es una renovación (bug encontrado y corregido durante la
+  validación).
+- El system prompt instruye explícitamente **no mencionar el nombre de la fuente** (pickandroll)
+  en las respuestas — se refiere a la data como "nuestra base de datos del mercado".
+- `MAX_TOOL_ROUNDS = 5` en el backend, tope de idas y vueltas de tool-calling por pregunta (evita
+  loops largos en preguntas raras).
+
+**Endpoint**: `POST /api/mercado/chat` (`api/lib/mercado-chat.js`, ruteado desde `api/index.js`).
+Body: `{ liga: 'liga_argentina'|'liga_nacional'|'ambas', pregunta: string, historial?: [{role,
+content}] }` — el frontend manda hasta 12 mensajes de historial para permitir preguntas de
+seguimiento. Trae `mercado.json` de ambas ligas **en vivo por HTTP** desde el propio dominio
+(`https://${req.headers.host}/liga_*/mercado.json`), no de un archivo bundleado — así nunca
+queda desactualizado respecto al último scrape, sin necesitar redeploy.
+
+**Auth — solo usuarios logueados**: el widget es visible para cualquiera, pero
+`handleMercadoChat` exige un `Authorization: Bearer <token>` válido (`api/lib/auth.js`, ver
+sección "Backend serverless" del `CLAUDE.md` raíz) antes de gastar ni un token de la API de
+Claude — la protección real es server-side, el frontend solo evita mandar el request si ya sabe
+que no hay sesión (`localStorage.auth_token`). Sin token: el widget muestra "Iniciá sesión para
+usar el asistente" con link a `login.html?returnTo=<liga>/` en vez de llamar al endpoint. Si el
+backend devuelve 401 (token vencido), limpia la sesión local y muestra el mismo prompt.
+
+**Costo**: validado en el prototipo a ~$0.006-0.008/pregunta con Haiku (2 llamadas a la API por
+pregunta: una para decidir qué tool llamar, otra para redactar la respuesta final).
+
+**Archivos**: `api/lib/mercado.js` (filtrado, sin dependencias), `api/lib/mercado-chat.js`
+(system prompt, tools, loop de tool-calling), `api/lib/auth.js` (compartido con
+`/api/placas/generate`). Frontend: bloque `// Chat del Mercado (IA)` al final de
+`liga_argentina.js`/`liga_nacional.js` (funciones `mktChat*`), widget HTML en `sec-mercado` de
+cada `index.html`, CSS `.mktchat-*` junto al resto de `.mkt-*`.
+
+**Portabilidad a otra liga**: no aplica hoy — el chat depende de `mercado.json`, que solo existe
+en Liga Argentina y Liga Nacional (mismo alcance que el resto del tab Mercado).
+
 ## Limitaciones conocidas
 
 - Datos de un tercero (Pick and Roll): pueden estar desactualizados según cuándo se corrió el scraper (no hay refresh automático — ver timestamp `#mktUpdated`). Se linkea la fuente explícitamente en el header del tab por transparencia.

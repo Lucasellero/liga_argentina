@@ -11,3 +11,4 @@ docs/liga_proximo/liga_proximo_pbp.csv
 .gstack/
 .claude/
 scraper/cache/
+node_modules/

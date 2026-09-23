@@ -8,6 +8,10 @@
 //   ADMIN_EMAILS     - emails admin separados por coma
 //   GH_PLACAS_TOKEN  - GitHub PAT fine-grained, permiso "Actions: Read and write"
 //                      sobre el repo Lucasellero/liga_argentina únicamente
+//   ANTHROPIC_API_KEY- key de console.anthropic.com, para el chat del tab Mercado
+//                      (ver api/lib/mercado-chat.js)
+
+const { handleMercadoChat } = require('./lib/mercado-chat');
 
 const GITHUB_OWNER = 'Lucasellero';
 const GITHUB_REPO = 'liga_argentina';
@@ -107,6 +111,11 @@ module.exports = async (req, res) => {
     } catch (err) {
       res.status(500).json({ error: 'internal_error', detail: String(err && err.message || err) });
     }
+    return;
+  }
+
+  if (path === '/api/mercado/chat') {
+    await handleMercadoChat(req, res);
     return;
   }
 

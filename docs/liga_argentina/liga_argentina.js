@@ -1,6 +1,7 @@
-// ── Auth guard (modal de 5 min y botón de login desactivados; el panel admin
-//    sigue funcionando para sesiones ya logueadas, no depende de Supabase) ──────
+// ── Auth guard ────────────────────────────────────────────────────────────────
 (function() {
+  const LOGIN_URL    = '../login.html';
+  const REGISTER_URL = '../register.html';
   const token = localStorage.getItem('auth_token');
   let isAuthed = false;
   if (token) {
@@ -27,10 +28,37 @@
           el.style.display = 'flex';
         }
       }
+      const ADMIN_EMAILS = ['ramiellero@gmail.com', 'nachodacunda08@gmail.com', 'lucasellero05@gmail.com'];
+      if (user.email && ADMIN_EMAILS.includes(String(user.email).toLowerCase())) {
+        const adminWrap = document.getElementById('mktAdminWrap');
+        if (adminWrap) adminWrap.style.display = 'flex';
+      }
     } catch(e) {}
+    const loginEl = document.getElementById('headerLogin');
+    if (loginEl) loginEl.style.display = 'none';
+  } else {
+    const delay = 300000; // 5 min
+    const SK = 'scouteado_session_start';
+    if (!sessionStorage.getItem(SK)) sessionStorage.setItem(SK, Date.now());
+    const elapsed = Date.now() - parseInt(sessionStorage.getItem(SK));
+    const remaining = Math.max(0, delay - elapsed);
+    setTimeout(function() {
+      const ov = document.createElement('div');
+      ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(11,11,22,.93);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:16px;';
+      ov.innerHTML = '<div style="background:#18182e;border:1px solid rgba(139,92,246,.25);border-radius:18px;padding:40px 36px;width:100%;max-width:400px;text-align:center;box-shadow:0 8px 48px rgba(0,0,0,.65);">'
+        + '<div style="width:80px;height:80px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;"><img src="logos/scouteado_logo.png" alt="Scouteado" style="width:130px;height:130px;object-fit:contain;"></div>'
+        + '<h2 style="color:#f8fafc;font-size:1.3rem;font-weight:700;margin-bottom:8px;">¡Seguí explorando!</h2>'
+        + '<p style="color:#64748b;font-size:.88rem;margin-bottom:28px;line-height:1.55;">Creá tu cuenta gratis para continuar navegando las estadísticas de la liga.</p>'
+        + '<a href="' + LOGIN_URL + '" style="display:block;padding:13px;background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff;font-weight:600;font-size:.92rem;border-radius:10px;text-decoration:none;margin-bottom:12px;box-shadow:0 4px 18px rgba(139,92,246,.4);">Iniciar sesión</a>'
+        + '<a href="' + REGISTER_URL + '" style="display:block;padding:13px;background:transparent;color:#a78bfa;font-weight:600;font-size:.92rem;border-radius:10px;text-decoration:none;border:1.5px solid rgba(139,92,246,.38);">Registrarme gratis</a>'
+        + '<div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(139,92,246,.15);display:flex;align-items:center;justify-content:center;gap:18px;">'
+        + '<a href="mailto:scoutea2@gmail.com" style="color:#64748b;text-decoration:none;font-size:.76rem;display:inline-flex;align-items:center;gap:5px;transition:color .2s;" onmouseover="this.style.color=\'#a78bfa\'" onmouseout="this.style.color=\'#64748b\'">✉ scoutea2@gmail.com</a>'
+        + '<a href="https://instagram.com/scouteado" target="_blank" rel="noopener noreferrer" style="color:#64748b;text-decoration:none;font-size:.76rem;display:inline-flex;align-items:center;gap:5px;transition:color .2s;" onmouseover="this.style.color=\'#5eead4\'" onmouseout="this.style.color=\'#64748b\'"><svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><rect x=\'2\' y=\'2\' width=\'20\' height=\'20\' rx=\'5\' ry=\'5\'/><circle cx=\'12\' cy=\'12\' r=\'4.5\'/><circle cx=\'17.5\' cy=\'6.5\' r=\'1\' fill=\'currentColor\' stroke=\'none\'/></svg> @scouteado</a>'
+        + '</div>'
+        + '</div>';
+      document.body.appendChild(ov);
+    }, remaining);
   }
-  const loginEl = document.getElementById('headerLogin');
-  if (loginEl) loginEl.style.display = 'none';
 })();
 
 function authLogout() {
@@ -1489,14 +1517,263 @@ function teamLogoHtml(teamName, size) {
   return '<img src="' + src + '" style="width:' + size + 'px;height:' + size + 'px;object-fit:contain;vertical-align:middle;flex-shrink:0" alt="" onerror="this.style.display=\'none\'">';
 }
 
-// ============================================================
+
+function renderStandings() {
+  function fillTable(tbodyId, confSet) {
+    // Compute stats from regular season games only (before PLAYOFF_DATE)
+    const statsMap = {};
+    TEAMS.filter(t => confSet.has(t.Equipo)).forEach(t => {
+      let PJ=0,G=0,P=0,ptsFor=0,ptsAgainst=0,localG=0,localP=0,visitG=0,visitP=0;
+      const results=[];
+      (t._gamelog||[]).forEach(g => {
+        const [fd,fm,fy]=g.fecha.split('/');
+        if (new Date(+fy,+fm-1,+fd) >= PLAYOFF_DATE) return;
+        PJ++; ptsFor+=g.ptsFor||0; ptsAgainst+=g.ptsAgainst||0;
+        if (g.ganado) { G++; if(g.condicion==='LOCAL') localG++; else visitG++; }
+        else          { P++; if(g.condicion==='LOCAL') localP++; else visitP++; }
+        results.push(g.ganado);
+      });
+      statsMap[t.Equipo]={Equipo:t.Equipo,PJ,G,P,ptsFor,ptsAgainst,localG,localP,visitG,visitP,last5:results.slice(-5)};
+    });
+    const rows = Object.values(statsMap).sort((a,b) => {
+      const wa=a.PJ?a.G/a.PJ:0, wb=b.PJ?b.G/b.PJ:0;
+      if(wb!==wa) return wb-wa;
+      if(b.PJ!==a.PJ) return b.PJ-a.PJ;
+      return (b.PJ?b.ptsFor/b.PJ:0)-(a.PJ?a.ptsFor/a.PJ:0);
+    });
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    const cutoff = Math.ceil(rows.length / 2);
+    rows.forEach((t, i) => {
+      const pos = i + 1;
+      const wpct = t.PJ ? t.G/t.PJ*100 : 0;
+      const ptspg = t.PJ ? t.ptsFor/t.PJ : 0;
+      const ptsapg = t.PJ ? t.ptsAgainst/t.PJ : 0;
+      const dif = ptspg - ptsapg;
+      const wc = wpct >= 60 ? 'win-rate-high' : wpct >= 40 ? 'win-rate-mid' : 'win-rate-low';
+      const difClass = dif >= 0 ? 'pos-diff-pos' : 'pos-diff-neg';
+      const topClass = pos <= cutoff ? ' pos-top8' : '';
+      const logoSrc = LOGOS[t.Equipo];
+      const logoHtml = logoSrc
+        ? `<img src="${logoSrc}" class="pos-logo" alt="" onerror="this.style.visibility='hidden'">`
+        : '<span class="pos-logo-ph"></span>';
+      tbody.innerHTML += `<tr class="${topClass}" onclick="showTeamGames('${t.Equipo.replace(/'/g,"\\'")}')">
+        <td>${pos}</td>
+        <td>${logoHtml}${t.Equipo}</td>
+        <td>${t.PJ}</td>
+        <td style="color:var(--green);font-weight:700">${t.G}</td>
+        <td style="color:var(--red)">${t.P}</td>
+        <td class="${wc}">${wpct.toFixed(1)}%</td>
+        <td class="pos-pts-f">${ptspg.toFixed(1)}</td>
+        <td class="pos-pts-a">${ptsapg.toFixed(1)}</td>
+        <td class="${difClass}">${(dif>=0?'+':'')+dif.toFixed(1)}</td>
+        <td style="color:var(--muted);font-size:.78rem">${t.localG}-${t.localP}</td>
+        <td style="color:var(--muted);font-size:.78rem">${t.visitG}-${t.visitP}</td>
+        <td style="text-align:center">${t.last5.map(g=>g
+          ? `<span style="color:var(--green);font-weight:700;font-size:.72rem">V</span>`
+          : `<span style="color:var(--red);font-weight:700;font-size:.72rem">D</span>`
+        ).join('<span style="color:var(--muted);opacity:.3;margin:0 1px">·</span>')}</td>
+        <td class="pos-row-chevron">›</td>
+      </tr>`;
+    });
+  }
+  fillTable('posNorteTbody', CONF_NORTE);
+  fillTable('posSurTbody',   CONF_SUR);
+}
+
+function switchPosTab(tab) {
+  const isReg = tab === 'regular';
+  document.getElementById('posTabReg').classList.toggle('active', isReg);
+  document.getElementById('posTabPost').classList.toggle('active', !isReg);
+  document.getElementById('posRegPanel').style.display = isReg ? '' : 'none';
+  document.getElementById('posPostPanel').style.display = isReg ? 'none' : '';
+  if (!isReg && !document.getElementById('playoffContent').innerHTML.trim()) {
+    renderPostSeason();
+  }
+}
+
+function renderPostSeason() {
+  const postGames = GAMES_ALL.filter(g => {
+    const [d,m,y]=g.fecha.split('/');
+    return new Date(+y,+m-1,+d) >= PLAYOFF_DATE;
+  }).sort((a,b)=>{
+    const [ad,am,ay]=a.fecha.split('/'); const [bd,bm,by]=b.fecha.split('/');
+    return new Date(+ay,+am-1,+ad)-new Date(+by,+bm-1,+bd);
+  });
+
+  if (!postGames.length) {
+    document.getElementById('playoffContent').innerHTML =
+      '<div style="text-align:center;color:var(--muted);padding:40px 20px">No hay partidos de post temporada disponibles aún.</div>';
+    return;
+  }
+
+  // Group games into series by team pair (key = alphabetically sorted teams)
+  const seriesMap = new Map();
+  postGames.forEach(g => {
+    const key = [g.local, g.visit].sort().join('|');
+    if (!seriesMap.has(key)) {
+      // teamA = local of first game encountered for this pair
+      seriesMap.set(key, { teamA: g.local, teamB: g.visit, games: [] });
+    }
+    seriesMap.get(key).games.push(g);
+  });
+
+  // Compute series wins
+  seriesMap.forEach(s => {
+    s.winsA = 0; s.winsB = 0;
+    s.games.forEach(g => {
+      if (g.upcoming || g.ganLocal === null) return;
+      const aIsLocal = g.local === s.teamA;
+      if ((aIsLocal && g.ganLocal) || (!aIsLocal && !g.ganLocal)) s.winsA++;
+      else s.winsB++;
+    });
+  });
+
+  // Separate into conferences
+  const northSeries=[], southSeries=[];
+  seriesMap.forEach(s => {
+    (CONF_NORTE.has(s.teamA)||CONF_NORTE.has(s.teamB) ? northSeries : southSeries).push(s);
+  });
+
+  function seriesCard(s, phase) {
+    const logoA = LOGOS[s.teamA]?`<img src="${LOGOS[s.teamA]}" style="width:38px;height:38px;object-fit:contain">`:'<span style="width:38px;height:38px;display:block"></span>';
+    const logoB = LOGOS[s.teamB]?`<img src="${LOGOS[s.teamB]}" style="width:38px;height:38px;object-fit:contain">`:'<span style="width:38px;height:38px;display:block"></span>';
+    const aLeads = s.winsA > s.winsB, bLeads = s.winsB > s.winsA;
+    const gamesPlayed = s.games.filter(g => !g.upcoming).length;
+
+    // Series score or "vs" if not started
+    const scoreHtml = gamesPlayed === 0
+      ? `<div class="series-score-vs">VS</div>`
+      : `<div class="series-score">${s.winsA}<span style="color:var(--muted2);font-weight:400;font-size:1.2rem;margin:0 4px">–</span>${s.winsB}</div>`;
+
+    // Status line
+    let statusHtml = '';
+    if (gamesPlayed === 0) {
+      statusHtml = `<div class="series-status">Serie al mejor de ${phase==='cuartos'?'5':'3'}</div>`;
+    } else if (aLeads) {
+      statusHtml = `<div class="series-status">Gana <span class="lead-name">${s.teamA}</span></div>`;
+    } else if (bLeads) {
+      statusHtml = `<div class="series-status">Gana <span class="lead-name">${s.teamB}</span></div>`;
+    } else {
+      statusHtml = `<div class="series-status">Serie igualada</div>`;
+    }
+
+    const gamesHtml = s.games.map((g, idx) => {
+      if (g.upcoming) {
+        return `<div class="series-game sg-next">
+          <span class="sg-label">J${idx+1}</span>
+          <span class="sg-hora">${g.hora} hs</span>
+          <span class="sg-date">${g.fecha}</span>
+          <span class="sg-next-pill">Próximo</span>
+        </div>`;
+      }
+      const aIsLocal = g.local === s.teamA;
+      const aScore = aIsLocal ? g.ptsLocal : g.ptsVisit;
+      const bScore = aIsLocal ? g.ptsVisit : g.ptsLocal;
+      const aWin = (aIsLocal && g.ganLocal) || (!aIsLocal && !g.ganLocal);
+      const safeId = (g.gameId||'').replace(/'/g, "\\'");
+      return `<div class="series-game sg-played">
+        <span class="sg-label">J${idx+1}</span>
+        <div class="sg-scores">
+          <span class="sg-pts${aWin?' w':''}">${aScore}</span>
+          <span class="sg-sep">–</span>
+          <span class="sg-pts${aWin?'':' w'}">${bScore}</span>
+        </div>
+        <span class="sg-date">${g.fecha}</span>
+        <button class="sg-stats-btn" onclick="openPartidoModal(GAMES_ALL.find(x=>x.gameId==='${safeId}'))">Stats</button>
+      </div>`;
+    }).join('');
+
+    return `<div class="series-card">
+      <div class="series-card-top">
+        <div class="series-header">
+          <div class="series-team">${logoA}<div class="series-team-name${aLeads?' lead':''}">${s.teamA}</div></div>
+          <div class="series-score-wrap">${scoreHtml}</div>
+          <div class="series-team">${logoB}<div class="series-team-name${bLeads?' lead':''}">${s.teamB}</div></div>
+        </div>
+        ${statusHtml}
+      </div>
+      <div class="series-games">${gamesHtml}</div>
+    </div>`;
+  }
+
+  // Split series into three phases by date of first game
+  function seriesPhase(s) {
+    const [d,m,y] = s.games[0].fecha.split('/');
+    const d0 = new Date(+y,+m-1,+d);
+    if (d0 >= CUARTOS_DATE) return 'cuartos';
+    if (d0 >= PLAYOFF2_DATE) return 'octavos';
+    return 'playin';
+  }
+
+  // Renders a phase with Norte/Sur split
+  function renderPhaseSplit(phase, phaseTitle) {
+    const north = northSeries.filter(s => seriesPhase(s) === phase);
+    const south = southSeries.filter(s => seriesPhase(s) === phase);
+    if (!north.length && !south.length) return '';
+    let h = `<div class="playoff-phase-block">`;
+    h += `<div class="playoff-phase-title">${phaseTitle}</div>`;
+    if (north.length) {
+      h += `<div class="playoff-conf-title">Conferencia Norte</div><div class="playoff-grid">`;
+      north.forEach(s => { h += seriesCard(s, phase); });
+      h += `</div>`;
+    }
+    if (south.length) {
+      h += `<div class="playoff-conf-title">Conferencia Sur</div><div class="playoff-grid">`;
+      south.forEach(s => { h += seriesCard(s, phase); });
+      h += `</div>`;
+    }
+    h += `</div>`;
+    return h;
+  }
+
+  // Renders a phase without Norte/Sur split (unified grid)
+  function renderPhaseUnified(phase, phaseTitle) {
+    const all = [...northSeries, ...southSeries].filter(s => seriesPhase(s) === phase);
+    if (!all.length) return '';
+    let h = `<div class="playoff-phase-block">`;
+    h += `<div class="playoff-phase-title">${phaseTitle}</div>`;
+    h += `<div class="playoff-grid">`;
+    all.forEach(s => { h += seriesCard(s, phase); });
+    h += `</div></div>`;
+    return h;
+  }
+
+  let html = '';
+  html += renderPhaseUnified('cuartos', 'Cuartos de Final');
+  html += renderPhaseSplit('octavos', 'Octavos de Final');
+  html += renderPhaseSplit('playin', 'Play-in');
+  document.getElementById('playoffContent').innerHTML = html;
+}
+
+function fcsToggle(id){
+  const wrap=document.getElementById(id);
+  const trigger=wrap.querySelector('.fcs-trigger');
+  const dd=wrap.querySelector('.fcs-dropdown');
+  const isOpen=dd.classList.contains('open');
+  document.querySelectorAll('.fcs-dropdown.open').forEach(d=>{d.classList.remove('open');d.closest('.fsb-custom-select').querySelector('.fcs-trigger').classList.remove('open');});
+  if(!isOpen){dd.classList.add('open');trigger.classList.add('open');}
+}
+function fcsSelect(id,value,name,sub){
+  const wrap=document.getElementById(id);
+  wrap.querySelector('.fcs-selected .fcs-name').textContent=name;
+  wrap.querySelector('.fcs-selected .fcs-sub').textContent=sub;
+  wrap.querySelectorAll('.fcs-option').forEach(o=>o.classList.toggle('selected',o.dataset.value===value));
+  wrap.querySelector('.fcs-trigger').classList.remove('open');
+  wrap.querySelector('.fcs-dropdown').classList.remove('open');
+  const sel=document.getElementById(wrap.dataset.select);
+  sel.value=value;
+  if(sel.onchange)sel.onchange();
+}
+document.addEventListener('click',function(e){if(!e.target.closest('.fsb-custom-select')){document.querySelectorAll('.fcs-dropdown.open').forEach(d=>{d.classList.remove('open');d.closest('.fsb-custom-select').querySelector('.fcs-trigger').classList.remove('open');});}});
 // SHOT MAP
 // ============================================================
 
 async function loadShots() {
   if (SHOTS_MAP !== null) return;
   try {
-    const resp = await fetch(SHOTS_CSV + '?v=' + Date.now(), { cache: 'no-store' });
+    const resp = await fetch(SHOTS_CSV + '?v=' + new Date().toISOString().slice(0, 10));
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const text = await resp.text();
     const rows = parseCSV(text);
@@ -2409,8 +2686,8 @@ async function initApp() {
   document.getElementById('loadingOverlay').style.display = 'flex';
   try {
     const [resp, dobResp] = await Promise.all([
-      fetch(CSV_PATH + '?v=' + Date.now(), { cache: 'no-store' }),
-      fetch(DOB_PATH + '?v=' + Date.now(), { cache: 'no-store' }).catch(()=>null)
+      fetch(CSV_PATH + '?v=' + new Date().toISOString().slice(0, 10)),
+      fetch(DOB_PATH + '?v=' + new Date().toISOString().slice(0, 10)).catch(()=>null)
     ]);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const text = await resp.text();
@@ -2678,7 +2955,7 @@ async function initApp() {
     // Merge upcoming fixture from CSV (skip any game already played/scraped)
     const _playedKeys = new Set(GAMES_ALL.map(g => `${g.fecha}|${g.local}|${g.visit}`));
     try {
-      const upResp = await fetch('fixture_upcoming.csv?v=' + Date.now(), { cache: 'no-store' });
+      const upResp = await fetch('fixture_upcoming.csv?v=' + new Date().toISOString().slice(0, 10));
       if (upResp.ok) {
         const upRows = parseCSV(await upResp.text());
         upRows.forEach(u => {

@@ -9,6 +9,7 @@ Desplegado en **Vercel** desde `docs/` (configurado en `vercel.json`).
 - **Plataforma**: Vercel. El repo es `Lucasellero/liga_argentina` en GitHub. Vercel deploya automáticamente al hacer push a `main`.
 - **Root servido**: `docs/` (definido en `vercel.json` → `outputDirectory: "docs"`).
 - **URL base**: `https://<proyecto>.vercel.app/` → sirve `docs/index.html`.
+- **Build step (agosto 2026)**: `vercel.json` tiene `"buildCommand": "npm run build"`, que corre `scripts/minify.js` (usa `esbuild`) para minificar los 5 JS de liga (`liga_argentina.js`, `liga_nacional.js`, `liga_femenina.js`, `liga_proximo.js`, `argentina_formativas.js`) **solo en el contenedor de build de Vercel**. El código fuente en el repo (`docs/*/​*.js`) queda sin minificar y se sigue editando directo, como siempre — nunca correr `npm run build` sobre el checkout local si vas a commitear después, porque sobreescribe esos archivos in place. `esbuild` no renombra identificadores de scope global en modo transform (sin `bundle`), así que las funciones invocadas desde `onclick="..."` en los HTML sobreviven intactas — verificado antes de mergear este cambio.
 
 ### Cómo agregar una nueva liga
 Cada liga vive como subcarpeta dentro de `docs/`. Pasos:
@@ -42,11 +43,13 @@ Cada liga vive como subcarpeta dentro de `docs/`. Pasos:
 
 ### Auth — login compartido entre ligas
 
-**⚠️ ESTADO ACTUAL (desde julio 2026): el auth guard está DESACTIVADO en las 4 ligas.** No hay modal de 5 minutos ni botón `#headerLogin` visible — el sitio es 100% navegable sin login. Ver **"Incidente: Supabase egress excedido"** más abajo para la causa y cómo reactivarlo. Todo lo que sigue en esta sección describe el comportamiento **original/normal** del auth guard, no el estado actual.
+**Estado (agosto 2026): reactivado.** Estuvo desactivado entre julio y agosto 2026 mientras Supabase estaba restringido por exceder la cuota de egress (ver "Incidente: Supabase egress excedido" más abajo) — el modal de 5 min y el botón `#headerLogin` se sacaron por completo en las 4 ligas. Una vez confirmado que Supabase volvió a estar sano (`HTTP 200` en `/auth/v1/settings`, sin restricción), se restauró el comportamiento original completo descrito abajo, verificado por navegador headless en las 4 ligas antes de pushear.
+
+**Nota sobre el panel admin (Mercado de Pases):** en el camino de ida y vuelta del login, `docs/liga_argentina/liga_argentina.js` y `docs/liga_nacional/liga_nacional.js` habían perdido por completo la lógica que muestra `#mktAdminWrap` (chequeo de `ADMIN_EMAILS` dentro del bloque `isAuthed`) — quedó `display:none` fijo sin ningún código que lo revirtiera, dejando el botón de generar placas inalcanzable para cualquiera. Se restauró junto con el resto del auth guard.
 
 El `login.html` y `register.html` viven en `docs/` (raíz) y son compartidos por todas las ligas.
 
-**Flujo de login (comportamiento original, actualmente desactivado):**
+**Flujo de login:**
 1. Cada `docs/<liga>/index.html` tiene un auth guard al inicio del script.
 2. Si el token es válido, muestra el nombre del usuario en el header y oculta el botón `#headerLogin`.
 3. Si no hay token (o está expirado), se muestra el botón **"Iniciar sesión"** (`#headerLogin`) en el header en todo momento. Después de **5 minutos exactos** (`setTimeout` de 300000ms) aparece un modal bloqueante sin botón de cerrar que obliga al login o registro.
@@ -308,7 +311,7 @@ Columnas: `IdPartido, Fecha, Equipo_local, Equipo_visitante, Local, Equipo, Dors
 - Tiros convertidos en la web: `CANASTA-2P` / `CANASTA-3P` (no `TIRO2-CONVERTIDO`)
 
 ## index.html — Arquitectura
-SPA pura, sin build. Todo en un archivo. Usa Tailwind CDN sólo para utilidades puntuales, el sistema de diseño es CSS custom con variables `--bg`, `--purple`, `--teal`, etc.
+SPA pura, sin build para desarrollo/edición — el JS se sigue editando directo en `docs/*/*.js` sin paso intermedio. Vercel sí corre un build de minificación al desplegar (ver "Deployment" arriba), pero es transparente para el flujo de edición. Todo en un archivo por liga. Usa Tailwind CDN sólo para utilidades puntuales, el sistema de diseño es CSS custom con variables `--bg`, `--purple`, `--teal`, etc.
 
 **Navegación (estructura actual):**
 
@@ -1012,7 +1015,19 @@ Deduplicado con `drop_duplicates(subset=['Fecha','Condicion equipos','Equipo','N
 
 **Importante — impacto en stats históricas**: antes de este fix, las estadísticas mostradas en el dashboard de Liga Argentina, Femenina y Desarrollo (PJ, promedios, totales) estaban infladas porque `buildRAW_J`/`buildRAW_T` sumaban cada partido duplicado varias veces. Liga Nacional no se vio afectada porque ya tenía el fix de junio. Después de esta limpieza los números vuelven a ser correctos.
 
-**Pendiente**: los CSVs de PBP (`liga_*_pbp.csv`) viven solo en Supabase Storage (gitignored, no están en este repo) y no se pudieron limpiar en esta pasada porque el proyecto de Supabase está restringido (ver "Incidente: Supabase egress excedido" más abajo). Una vez restaurado el acceso, correr `pbp_scraper_*.py --full` para cada liga regenera el archivo desde cero ya sin duplicados con el scraper corregido — más simple que deduplicar el archivo bloateado in situ.
+**Pendiente (agosto 2026, sigue sin resolver)**: los CSVs de PBP (`liga_*_pbp.csv`) viven solo en Supabase Storage (gitignored, no están en este repo) y siguen bloateados — ~170MB combinados entre las 4 ligas al 13/08/2026 (Argentina 37.9MB, Nacional 46.1MB, Femenina 44.6MB, Desarrollo 41.0MB), con el mismo patrón de duplicación que los CSVs de stats/shots que sí se limpiaron.
+
+**Por qué no se pudo deduplicar in situ (a diferencia de stats/shots)**: el archivo que sube el workflow a Supabase (`Subir PBP a Supabase` en `scraper.yml`) le saca la columna `Fecha` para aliviar peso, y `Equipo_local` ya viene vacío en el scraper crudo (bug documentado más abajo, "Equipo_local siempre vacío"). Sin fecha y sin equipo local confiable no hay clave estable para deduplicar con confianza — se probó agrupar por huella de contenido (secuencia completa de jugadas por `IdPartido`) y dio 728 sesiones para ~364 partidos reales de Liga Femenina (2x, no una sesión repetida N veces), pero ninguna huella matcheaba exacta entre pares — probablemente porque el lado LOCAL/VISITANTE queda invertido entre las dos copias del mismo partido. Deduplicar a ciegas ahí arriesgaba borrar partidos reales por error.
+
+**Intento de re-scrape local (13/08/2026) — abortado**: correr los 4 `pbp_scraper_*.py --full` en paralelo en la notebook local falló en 2 de 4 ligas (Femenina, Desarrollo) con `TimeoutError` al leer su propio CSV de stats de entrada — sospecha de contención de I/O local (la carpeta del repo vive bajo `~/Desktop`, posible sync de iCloud interfiriendo con lecturas concurrentes). Se abortó todo el intento (incluidas Argentina y Nacional, que sí venían progresando bien) a pedido del usuario, para no seguir pegándole al sitio en vano mientras se evaluaba una alternativa.
+
+**Solución elegida: workflow manual separado, sin tocar producción.** `.github/workflows/pbp_full_rescrape.yml` — disparo manual únicamente (`workflow_dispatch`, sin cron), corre los 4 `pbp_scraper_*.py --full` en paralelo (matrix de jobs, uno por liga, sin la contención de correr todo en una sola máquina local) y sube el resultado como **artifact descargable de la corrida** (`actions/upload-artifact`, retención 30 días) — no pisa el archivo de Supabase Storage ni hace commit a git. Diseño intencional: el archivo en producción sigue siendo el viejo hasta que alguien revise el artifact y decida subirlo a mano reemplazando el de Supabase.
+
+**Para completar la limpieza cuando se decida:**
+1. Actions → "PBP full re-scrape (manual, artifact only)" → Run workflow.
+2. Esperar los 4 jobs del matrix (paralelos, deberían tardar bastante menos que corriendo secuencial/local).
+3. Descargar los 4 artifacts (`<liga>_pbp_clean`), revisar tamaño y conteo de partidos.
+4. Subir cada uno a mano al bucket `pbp` de Supabase Storage (Dashboard → Storage → pbp → reemplazar archivo), o pedir que se automatice el upload una vez validado el resultado.
 
 **Gaps preexistentes encontrados (no relacionados a la duplicación, no corregidos en esta pasada)**: 4 partidos quedaron sin fila `TOTALES` de un lado (mismo patrón que "Bug 2" en la sección de shots CSV, más abajo) — `03/06/2026 LANÚS vs SAN ISIDRO` (Liga Argentina, falta LOCAL) y `03/10/2025 GIMNASIA (CR) vs SAN MARTÍN (C)`, `09/01/2026 REGATAS (C) vs RACING (CH)`, `13/10/2025 OBERA vs UNION (SF)` (Liga Desarrollo, falta LOCAL en los 3). Afecta a 4 de ~2700 partidos — impacto marginal, pendiente de reconstrucción manual si hace falta.
 
@@ -1136,6 +1151,33 @@ Esto se aplicó en `docs/liga_argentina/liga_argentina.js`, `docs/liga_nacional/
 ### Ciclo de facturación
 Según el historial de facturas del proyecto, el ciclo renueva el **día 11 de cada mes**. El próximo reset estimado (a la fecha de este incidente, 31/07/2026) sería **11/08/2026** — confirmar la fecha exacta en el dashboard de Supabase, no asumir.
 
+## Cache de CSVs servidos por Vercel (agosto 2026)
+
+El fix de cache-busting aplicado al PBP en el incidente de Supabase (arriba) nunca se había extendido a los CSVs que sirve **Vercel** (no Supabase): `liga_*.csv`, `liga_*_shots.csv`, `players_dob.csv`, `fixture_upcoming.csv`, `predicciones_upcoming.csv`. Estos fetches seguían con el mismo patrón agresivo:
+```js
+fetch(SHOTS_CSV + '?v=' + Date.now(), { cache: 'no-store' })   // shots: hasta 10MB por liga
+```
+Y `vercel.json` reforzaba esto a nivel de header, forzando `no-store` para **todos** los `.csv` sin excepción:
+```json
+{ "source": "/(.*)\\.csv", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
+```
+Resultado: cada carga de página, y cada apertura de las pestañas Tiro/Quintetos/Mercado, volvía a bajar el CSV completo sin ninguna posibilidad de caché (ni siquiera revalidación condicional vía ETag, que `no-store` también bloquea). No causó un incidente como el de Supabase porque el bandwidth de Vercel es más laxo, pero es el mismo patrón y escala mal a medida que los CSVs crecen temporada tras temporada.
+
+**Fix aplicado**: mismo criterio que el de PBP/recaps, extendido a los 5 JS de liga (`liga_argentina.js`, `liga_nacional.js`, `liga_femenina.js`, `liga_proximo.js`, `argentina_formativas.js`) y a los 22 fetches de stats/shots/DOB/fixture/predicciones:
+```js
+// Antes:
+fetch(CSV_PATH + '?v=' + Date.now(), { cache: 'no-store' })
+// Después:
+fetch(CSV_PATH + '?v=' + new Date().toISOString().slice(0, 10))
+```
+Y en `vercel.json`:
+```json
+{ "source": "/(.*)\\.csv", "headers": [{ "key": "Cache-Control", "value": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400" }] }
+```
+La app sigue invalidando el query param una vez por día (mismo comportamiento percibido por el usuario), pero ahora dentro de ese día el navegador y el edge de Vercel pueden servir el CSV desde caché en vez de re-transferirlo entero en cada tab switch.
+
+**Regla al agregar un nuevo fetch de CSV**: nunca usar `cache:'no-store'` ni `Date.now()` como cache-buster — usar `new Date().toISOString().slice(0, 10)` (bust diario) y dejar que el header de `vercel.json` maneje el resto.
+
 ## Bugs en el shots CSV — documentados (junio 2026)
 
 ### Bug 1: `Equipo` y `Equipo_local` NaN para tiros del equipo local
@@ -1233,7 +1275,7 @@ Los scripts listos para copiar-pegar están en `Skill.md`. Correr siempre desde 
 
 Tab presente en Liga Argentina y Liga Nacional (primer botón del `.main-tabs`, sección `mercado`; no existe en Femenina ni Desarrollo — Pick and Roll no las trackea). Re-empaqueta el feed en vivo de pickandroll.com.ar con el mismo lenguaje visual del dashboard: KPIs, sidebar de clubes con % de plantel armado, y un tablero por club con las 5 posiciones (titulares confirmados / vacantes).
 
-Documentación técnica completa (fuente de datos, esquema de `mercado.json`, mapeo de clubes, arquitectura del frontend, limitaciones conocidas): **`docs/liga_argentina/CLAUDE_MERCADO.md`** (cubre ambas ligas).
+Documentación técnica completa (fuente de datos, esquema de `mercado.json`, mapeo de clubes, arquitectura del frontend, limitaciones conocidas): **`docs/liga_argentina/CLAUDE_MERCADO.md`** (cubre ambas ligas). Ese mismo archivo documenta también el **chat de IA** del tab (agosto 2026) — pregunta libre sobre altas/bajas/vacantes, solo para usuarios logueados.
 
 Se actualiza automáticamente **4 veces al día** vía `.github/workflows/mercado.yml` (10:00, 13:00, 17:00 y 21:00 ART) — workflow independiente del scraper diario de stats (`scraper.yml`), para no bloquearlo si pickandroll cambia de estructura.
 
@@ -1244,6 +1286,36 @@ python3 scraper/mercado_scraper.py
 # Actualizar Mercado de Pases en vivo — Liga Nacional
 python3 scraper/mercado_scraper_nacional.py
 ```
+
+## Backend serverless (`api/`) — Vercel Functions
+
+`vercel.json` tiene `rewrites: [{ source: "/api/:path*", destination: "/api/index" }]` — todo
+request a `/api/*` entra a la función única **`api/index.js`** (Node.js, no Python), que rutea
+a mano según `req.url`. Lógica pesada separada en `api/lib/*.js` (requerida desde `index.js`),
+no todo apilado en el mismo archivo.
+
+**Endpoints actuales**:
+| Ruta | Qué hace | Auth |
+|---|---|---|
+| `POST /api/placas/generate` | Dispara el workflow `placas.yml` de GitHub Actions (genera placas de fichajes) | Admin (chequeo comentado temporalmente, ver comentario en el código — Supabase restringido) |
+| `POST /api/mercado/chat` | Chat de IA del tab Mercado (ver `docs/liga_argentina/CLAUDE_MERCADO.md`) | Cualquier usuario logueado |
+
+**Auth compartida** (`api/lib/auth.js`, función `getAuthedEmail(req)`): lee el header
+`Authorization: Bearer <token>` y devuelve el email si es válido, `null` si no. Soporta dos
+formatos de token:
+1. JWT real de Supabase — se valida pegándole a `${SUPABASE_URL}/auth/v1/user`.
+2. Token "bypass" temporal (`bypass.<base64 json>.bypass`) que emite `login.html` para las 3
+   cuentas admin mientras Supabase sigue restringido (ver "Incidente: Supabase egress
+   excedido") — se decodifica y valida el `exp` sin pegarle a Supabase.
+
+**Env vars requeridas** (Vercel → Project Settings → Environment Variables, marcar Production +
+Preview + Development):
+- `SUPABASE_URL`, `SUPABASE_ANON_KEY` — mismas que usa `login.html`.
+- `ADMIN_EMAILS` — emails admin separados por coma (para `/api/placas/generate`).
+- `GH_PLACAS_TOKEN` — GitHub PAT fine-grained, permiso "Actions: Read and write" sobre este repo.
+- `ANTHROPIC_API_KEY` — key de console.anthropic.com, para `/api/mercado/chat`. **Distinta** del
+  secret homónimo de GitHub Actions que usa `recap_generator.py` (ese vive en GitHub, no en
+  Vercel) — hay que cargarla en los dos lugares por separado si se rota.
 
 ## Recap automático (tab "Recap") — Liga Argentina y Liga Nacional (julio 2026)
 
@@ -1337,3 +1409,21 @@ python3 scraper/mercado_scraper.py
 # Actualizar Mercado de Pases en vivo — Liga Nacional (tab "Mercado")
 python3 scraper/mercado_scraper_nacional.py
 ```
+## Skill routing
+
+When the user's request matches an available skill, invoke it via the Skill tool. When in doubt, invoke the skill.
+
+Key routing rules:
+- Product ideas/brainstorming → invoke /office-hours
+- Strategy/scope → invoke /plan-ceo-review
+- Architecture → invoke /plan-eng-review
+- Design system/plan review → invoke /design-consultation or /plan-design-review
+- Full review pipeline → invoke /autoplan
+- Bugs/errors → invoke /investigate
+- QA/testing site behavior → invoke /qa or /qa-only
+- Code review/diff check → invoke /review
+- Visual polish → invoke /design-review
+- Ship/deploy/PR → invoke /ship or /land-and-deploy
+- Save progress → invoke /context-save
+- Resume context → invoke /context-restore
+- Author a backlog-ready spec/issue → invoke /spec

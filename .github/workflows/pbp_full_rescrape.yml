@@ -1,0 +1,47 @@
+name: PBP full re-scrape (manual, artifact only)
+
+# Disparo manual únicamente. No toca Supabase ni hace commit — el resultado
+# queda solo como artifact descargable de la corrida para revisión manual.
+# Uso: cuando el PBP_pbp.csv de Supabase Storage está bloateado con
+# duplicados históricos (ver CLAUDE.md "IDs dinámicos del sitio") y se
+# quiere regenerar limpio sin pisar lo que ya está en producción.
+on:
+  workflow_dispatch:
+
+jobs:
+  rescrape:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - liga: liga_argentina
+            script: pbp_scraper.py
+          - liga: liga_nacional
+            script: pbp_scraper_nacional.py
+          - liga: liga_femenina
+            script: pbp_scraper_femenina.py
+          - liga: liga_proximo
+            script: pbp_scraper_proximo.py
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: pip install -r scraper/requirements.txt
+
+      - name: Full re-scrape PBP – ${{ matrix.liga }}
+        run: python scraper/${{ matrix.script }} --full
+
+      - name: Subir resultado como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.liga }}_pbp_clean
+          path: docs/${{ matrix.liga }}/${{ matrix.liga }}_pbp.csv
+          retention-days: 30

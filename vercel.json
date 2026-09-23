@@ -1,5 +1,6 @@
 {
   "outputDirectory": "docs",
+  "buildCommand": "npm run build",
   "redirects": [
     { "source": "/", "destination": "/liga_nacional/", "permanent": false }
   ],
@@ -10,7 +11,7 @@
     {
       "source": "/(.*)\\.csv",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store" }
+        { "key": "Cache-Control", "value": "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400" }
       ]
     },
     {
