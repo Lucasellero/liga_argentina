@@ -1,11 +1,15 @@
 name: Mercado de Pases
 
 on:
-  schedule:
-    - cron: '0 13 * * *'   # 10:00 ART (UTC-3)
-    - cron: '0 16 * * *'   # 13:00 ART (UTC-3)
-    - cron: '0 20 * * *'   # 17:00 ART (UTC-3)
-    - cron: '0 0 * * *'    # 21:00 ART (UTC-3)
+  # ⚠️ Cron desactivado (septiembre 2026): el Mercado de Pases cerró junto con el
+  # fin de la temporada regular. Reactivar (descomentar) cuando reabra la ventana
+  # de pases de la próxima temporada. workflow_dispatch queda disponible para
+  # corridas manuales mientras tanto.
+  # schedule:
+  #   - cron: '0 13 * * *'   # 10:00 ART (UTC-3)
+  #   - cron: '0 16 * * *'   # 13:00 ART (UTC-3)
+  #   - cron: '0 20 * * *'   # 17:00 ART (UTC-3)
+  #   - cron: '0 0 * * *'    # 21:00 ART (UTC-3)
   workflow_dispatch:
 
 jobs:
