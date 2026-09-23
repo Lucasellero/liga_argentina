@@ -66,8 +66,30 @@ function authLogout() {
 // ============================================================
 // DATA — loaded dynamically from CSV
 // ============================================================
-const CSV_PATH = 'liga_proximo.csv';
+const SEASON = new URLSearchParams(location.search).get('season') === '2025-26' ? '2025-26' : 'live';
+const SEASON_DIR = SEASON === '2025-26' ? 'archive/2025-26/' : '';
+const CSV_PATH = SEASON_DIR + 'liga_proximo.csv';
 const DOB_PATH = '../shared/players_dob.csv';
+
+(function renderSeasonToggle() {
+  const pillBase = 'display:inline-flex;align-items:center;justify-content:center;gap:5px;font-size:0.68rem;font-weight:700;padding:3px 10px;border-radius:20px;min-width:120px;';
+  const activeStyle = pillBase + 'color:var(--teal-l,#5eead4);border:1.5px solid rgba(45,212,191,.7);background:rgba(45,212,191,.22);cursor:default;';
+  const linkStyle = pillBase + 'font-weight:600;color:var(--purple-l,#a78bfa);text-decoration:none;border:1px solid rgba(139,92,246,.3);background:rgba(139,92,246,.08);';
+  const seasons = [
+    { key: 'live', label: 'Temporada 2026/27' },
+    { key: '2025-26', label: 'Temporada 2025/26' },
+  ];
+  const html = seasons.map(s => {
+    const isActive = s.key === SEASON;
+    if (isActive) return '<span style="' + activeStyle + '">' + s.label + '</span>';
+    const href = s.key === 'live' ? location.pathname : location.pathname + '?season=' + s.key;
+    return '<a href="' + href + '" style="' + linkStyle + '" onmouseover="this.style.background=\'rgba(139,92,246,.18)\'" onmouseout="this.style.background=\'rgba(139,92,246,.08)\'">' + s.label + '</a>';
+  }).join('');
+  const el = document.getElementById('seasonToggle');
+  if (el) el.innerHTML = html;
+  const sub = document.getElementById('seasonSubtitle');
+  if (sub) sub.textContent = 'Liga de Desarrollo · ' + (SEASON === '2025-26' ? 'Temporada 2025/26 (archivada)' : 'Temporada Regular 2026/2027');
+})();
 let DOB_MAP = {};
 function calcAge(dob) {
   if (!dob) return null;
@@ -336,7 +358,7 @@ let jPts=[], tPts=[];
 let jHov=-1, jPin=new Set(), tHov=-1, tPin=-1;
 
 // ── SHOTS DATA ──────────────────────────────────────
-const SHOTS_CSV = 'liga_proximo_shots.csv';
+const SHOTS_CSV = SEASON_DIR + 'liga_proximo_shots.csv';
 let SHOTS_MAP = null;        // null=not loaded, Map keyed by shots CSV IdPartido
 let SHOTS_STABLE_MAP = null; // Map keyed by "fecha|local|visit" (cross-CSV stable key)
 let SHOTS_BY_PLAYER = null; // Map keyed by "Equipo||Dorsal"
@@ -2571,6 +2593,8 @@ async function initApp() {
     });
 
     // Merge upcoming fixture from CSV (skip any game already played/scraped)
+    // Temporadas archivadas no tienen partidos "próximos".
+    if (SEASON !== '2025-26') {
     const _playedKeys = new Set(GAMES_ALL.map(g => `${g.fecha}|${g.local}|${g.visit}`));
     try {
       const upResp = await fetch('fixture_upcoming.csv?v=' + new Date().toISOString().slice(0, 10));
@@ -2589,6 +2613,7 @@ async function initApp() {
         });
       }
     } catch(e) { /* fixture_upcoming.csv no disponible, se ignora */ }
+    }
     GAMES_ALL.sort((a,b)=>{
       const [ad,am,ay]=a.fecha.split('/'); const [bd,bm,by]=b.fecha.split('/');
       return new Date(+ay,+am-1,+ad)-new Date(+by,+bm-1,+bd);
@@ -3157,7 +3182,9 @@ document.getElementById('tzcLoading').style.display = 'none';
 // ============================================================
 // QUINTETOS
 // ============================================================
-const PBP_CSV = 'https://repsndqhmyklxukffovf.supabase.co/storage/v1/object/public/pbp/liga_proximo_pbp.csv';
+const PBP_CSV = SEASON === '2025-26'
+  ? SEASON_DIR + 'liga_proximo_pbp.csv'
+  : 'https://repsndqhmyklxukffovf.supabase.co/storage/v1/object/public/pbp/liga_proximo_pbp.csv';
 let PBP_MAP = null;        // null=not loaded, Map<gameId, rows[]> keyed by PBP CSV IdPartido
 let PBP_STABLE_MAP = null; // Map keyed by "fecha|local|visit" (cross-CSV stable key)
 let LINEUP_DATA = null; // Map<teamName, Map<lineupKey, {players,secs,pf,pa,games}>>
