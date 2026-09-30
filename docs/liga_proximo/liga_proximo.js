@@ -89,6 +89,14 @@ const DOB_PATH = '../shared/players_dob.csv';
   if (el) el.innerHTML = html;
   const sub = document.getElementById('seasonSubtitle');
   if (sub) sub.textContent = 'Liga de Desarrollo · ' + (SEASON === '2025-26' ? 'Temporada 2025/26 (archivada)' : 'Temporada Regular 2026/2027');
+
+  // Propagar la temporada elegida a los botones de navegación cruzada entre
+  // ligas — si no, al cambiar de liga siempre vuelve a la temporada "live".
+  if (SEASON === '2025-26') {
+    document.querySelectorAll('.header-left a[href^="../liga_"]').forEach(a => {
+      a.setAttribute('href', a.getAttribute('href') + '?season=2025-26');
+    });
+  }
 })();
 let DOB_MAP = {};
 let TEAM_MAP = {}, PLAYERS = [], TEAMS = [];

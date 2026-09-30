@@ -95,6 +95,14 @@ const DOB_PATH = '../shared/players_dob.csv';
   if (el) el.innerHTML = html;
   const sub = document.getElementById('seasonSubtitle');
   if (sub) sub.textContent = 'Liga Argentina · ' + (SEASON === '2025-26' ? 'Temporada 2025/26 (archivada)' : 'Temporada Regular 2026/2027');
+
+  // Propagar la temporada elegida a los botones de navegación cruzada entre
+  // ligas — si no, al cambiar de liga siempre vuelve a la temporada "live".
+  if (SEASON === '2025-26') {
+    document.querySelectorAll('.header-left a[href^="../liga_"]').forEach(a => {
+      a.setAttribute('href', a.getAttribute('href') + '?season=2025-26');
+    });
+  }
 })();
 let DOB_MAP = {};
 let TEAM_MAP = {}, PLAYERS = [], TEAMS = [];
@@ -862,16 +870,16 @@ function isPostSeason(fechaStr) {
 }
 
 const CONF_NORTE = new Set([
-  'AMANCAY (LR)','BARRIO PARQUE','BOCHAS (CC)','COLON (SF)','COMUNICACIONES',
-  'ESTUDIANTES (T)','FUSION RIOJANA','HINDU (C)','HURACAN (LH)',
-  'INDEPENDIENTE (SDE)','JUJUY BASQUET','RIVADAVIA (MZA)','SALTA BASKET',
+  'AMANCAY (LR)','BARRIO PARQUE','BOCHAS (CC)','COMUNICACIONES',
+  'HINDU (C)',
+  'INDEPENDIENTE (SDE)','JUJUY BASQUET','SALTA BASKET',
   'SAN ISIDRO','SANTA PAULA (G)','SP. SUARDI','VILLA SAN MARTIN'
 ]);
 const CONF_SUR = new Set([
   'CENTENARIO (VT)','CENTRAL ENTRERRIANO','CICLISTA (J)','DEP. NORTE',
-  'DEP. VIEDMA','EL TALAR','GIMNASIA (LP)','LANÚS','LA UNIÓN (C)',
+  'DEP. VIEDMA','GIMNASIA (LP)','LA UNIÓN (C)',
   'PERGAMINO BASQUET','PICO F.C.','PROVINCIAL (R)','QUILMES (MDP)',
-  'RACING (A)','ROCAMORA','UNION (MDP)','VILLA MITRE (BB)'
+  'ROCAMORA','UNION (MDP)','VILLA MITRE (BB)'
 ]);
 
 const LOGOS = {
