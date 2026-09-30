@@ -277,6 +277,7 @@ function buildRAW_T(rows) {
     };
     t.last5 = t._games.sort(sortByFecha).slice(-5).map(g => g.ganado);
     t._gamelog.sort(sortByFecha);
+    t.KM = computeTeamTravelKm(t);
   });
   return Object.values(map);
 }

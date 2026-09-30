@@ -346,6 +346,7 @@ tbody td:nth-child(2){text-align:left;color:var(--muted);font-size:.76rem;}
 .pts-cell{color:var(--purple-l);font-weight:700;}
 .val-pos{color:var(--green);font-weight:600;}
 .val-neg{color:var(--red);font-weight:600;}
+.km-cell{color:var(--teal-l);font-weight:600;}
 .pct-hi{color:var(--teal-l);font-weight:600;}
 .top1 td:first-child::before{content:'🥇 ';}
 .top2 td:first-child::before{content:'🥈 ';}
@@ -612,6 +613,31 @@ canvas{display:block;width:100%;cursor:crosshair;}
 #teamGamesModal .tgm-box-table tbody tr:hover td:nth-child(6){color:var(--text);}
 #teamGamesModal tbody tr:hover td:nth-child(6){opacity:1;color:var(--purple-l);}
 #teamGamesModal tbody tr:hover{background:rgba(139,92,246,.06);}
+.team-name-link{cursor:pointer;}
+.team-name-link:hover{color:var(--purple-l);text-decoration:underline;}
+#teamGamesModal .tgm-standing{
+  padding:7px 20px;font-size:.72rem;font-weight:600;color:var(--purple-l);
+  background:var(--bg2);border-bottom:1px solid var(--border2);flex-shrink:0;
+}
+#teamGamesModal .tgm-standing:empty{display:none;}
+#tgmGamesPanel{display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;}
+#tgmUpcoming{flex-shrink:0;}
+.tgm-upcoming-row{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:9px 20px;border-bottom:1px solid var(--border2);
+  background:rgba(139,92,246,.06);font-size:.76rem;
+}
+.tgm-upcoming-label{font-weight:700;color:var(--purple-l);text-transform:uppercase;font-size:.62rem;letter-spacing:.4px;}
+.tgm-upcoming-vs{display:flex;align-items:center;gap:5px;color:var(--text);font-weight:600;}
+.tgm-upcoming-date{color:var(--muted);margin-left:auto;font-size:.72rem;}
+#teamGamesModal .tgm-roster-table{table-layout:auto;}
+#teamGamesModal .tgm-roster-table thead th{text-align:center;width:auto;}
+#teamGamesModal .tgm-roster-table thead th:first-child{width:auto;min-width:34px;text-align:center;}
+#teamGamesModal .tgm-roster-table thead th:nth-child(2){width:auto;min-width:160px;text-align:left;padding-left:14px;}
+#teamGamesModal .tgm-roster-table tbody td:first-child{text-align:center;}
+#teamGamesModal .tgm-roster-table tbody td:nth-child(2){text-align:left;padding-left:14px;}
+#teamGamesModal .tgm-roster-table tbody td:nth-child(6){color:var(--text);opacity:1;transition:none;}
+#teamGamesModal .tgm-roster-table tbody tr:hover td:nth-child(6){color:var(--text);}
 .tgm-win{color:var(--green);font-weight:700;}
 .tgm-loss{color:var(--red);font-weight:700;}
 .tgm-cond{font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:4px;}
@@ -1219,3 +1245,31 @@ canvas{display:block;width:100%;cursor:crosshair;}
 }
 .leaders-select:hover { border-color: rgba(139,92,246,.5); background-color: var(--surface3); }
 .leaders-select option { background: var(--surface2); color: var(--text); }
+
+/* ── Home insights ────────────────────────────────────────────────────────── */
+.home-insights{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:900px;margin:16px auto 0;padding:0 20px;}
+.insight-card{background:var(--surface);border:1px solid rgba(139,92,246,.18);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;}
+.insight-card-label{font-size:.64rem;font-weight:700;color:var(--purple-l);letter-spacing:.08em;text-transform:uppercase;}
+.insight-card-sub{font-size:.72rem;color:var(--muted);}
+.insight-matchup{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 0;}
+.insight-team{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.72rem;color:var(--text);text-align:center;flex:1;min-width:0;}
+.insight-team span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;}
+.insight-team-logo{width:28px;height:28px;object-fit:contain;}
+.insight-vs{font-size:.66rem;color:var(--muted2);font-weight:700;flex-shrink:0;}
+.insight-big-name{font-size:.92rem;font-weight:700;color:var(--text-bright);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.insight-big-val{font-size:1.5rem;font-weight:800;color:var(--text-bright);line-height:1;margin-top:2px;}
+.insight-unit{font-size:.6rem;font-weight:700;color:var(--muted);letter-spacing:.05em;}
+@media (max-width:640px){
+  .home-insights{grid-template-columns:1fr;padding:0 14px;}
+}
+
+/* ── Radar: tercer jugador + evolución ───────────────────────────────────── */
+.radar-trend-section{margin-top:24px;}
+.radar-trend-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px;}
+.radar-trend-title{font-size:.68rem;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+.radar-trend-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:8px;}
+.radar-trend-legend-item{display:flex;align-items:center;gap:6px;font-size:.74rem;color:var(--text);}
+.radar-trend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+@media (max-width:640px){
+  .radar-trend-header{flex-direction:column;align-items:flex-start;}
+}

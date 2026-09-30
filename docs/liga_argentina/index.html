@@ -55,14 +55,6 @@
         Liga Argentina
         <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
       </span>
-      <a href="../liga_femenina/" style="display:inline-flex;align-items:center;justify-content:center;gap:5px;margin-top:5px;font-size:0.68rem;font-weight:600;color:var(--purple-l,#a78bfa);text-decoration:none;padding:3px 10px;border-radius:20px;border:1px solid rgba(139,92,246,.3);background:rgba(139,92,246,.08);transition:background .15s;min-width:120px;" onmouseover="this.style.background='rgba(139,92,246,.18)'" onmouseout="this.style.background='rgba(139,92,246,.08)'">
-        Liga Femenina
-        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-      </a>
-      <a href="../liga_proximo/" style="display:inline-flex;align-items:center;justify-content:center;gap:5px;margin-top:5px;font-size:0.68rem;font-weight:600;color:var(--purple-l,#a78bfa);text-decoration:none;padding:3px 10px;border-radius:20px;border:1px solid rgba(139,92,246,.3);background:rgba(139,92,246,.08);transition:background .15s;min-width:120px;" onmouseover="this.style.background='rgba(139,92,246,.18)'" onmouseout="this.style.background='rgba(139,92,246,.08)'">
-        Liga Desarrollo
-        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-      </a>
     </div>
   </div>
   <div style="margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;gap:8px;">
@@ -1087,6 +1079,7 @@
           <th data-c="PERPG" data-d="desc" data-tip="Pérdidas/partido">PÉR</th>
           <th data-c="TAPPG" data-d="desc" data-tip="Tapones/partido">TAP</th>
           <th data-c="VALPG" data-d="desc" data-tip="Valoración/partido">VAL</th>
+          <th data-c="KM" data-d="desc" data-tip="Kilómetros recorridos en la temporada, siguiendo el fixture real (contempla giras: no suma ida y vuelta a la sede entre partidos de visitante seguidos)">KM</th>
         </tr></thead>
         <tbody id="tTbody"></tbody>
       </table>
@@ -1296,13 +1289,34 @@
       <span class="tgm-record" id="tgmRecord"></span>
       <button class="tgm-close" onclick="closeTeamGames()">✕</button>
     </div>
-    <div class="tgm-body" id="tgmBody">
-      <table>
+    <div class="tgm-standing" id="tgmStanding"></div>
+    <div class="tgm-detail-tabs" id="tgmMainTabs">
+      <button class="tgm-tab active" id="tgmMainTabGames" onclick="switchTeamMainTab('games')">Partidos</button>
+      <button class="tgm-tab" id="tgmMainTabRoster" onclick="switchTeamMainTab('roster')">Plantel</button>
+    </div>
+    <div id="tgmGamesPanel">
+      <div id="tgmUpcoming"></div>
+      <div class="tgm-body" id="tgmBody">
+        <table>
+          <thead><tr>
+            <th>Fecha</th><th>Cond.</th><th>Rival</th>
+            <th>Score</th><th>Res.</th><th></th>
+          </tr></thead>
+          <tbody id="tgmTbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="tgmRosterPanel" class="tgm-body" style="display:none">
+      <table class="tgm-roster-table">
         <thead><tr>
-          <th>Fecha</th><th>Cond.</th><th>Rival</th>
-          <th>Score</th><th>Res.</th><th></th>
+          <th>#</th><th>Jugador</th><th>Edad</th><th>PJ</th>
+          <th data-tip="Puntos por partido">PTS/P</th>
+          <th data-tip="Rebotes por partido">REB/P</th>
+          <th data-tip="Asistencias por partido">AST/P</th>
+          <th data-tip="Recuperos por partido">REC/P</th>
+          <th data-tip="Tapones por partido">TAP/P</th>
         </tr></thead>
-        <tbody id="tgmTbody"></tbody>
+        <tbody id="tgmRosterTbody"></tbody>
       </table>
     </div>
     <div id="tgmDetail">
@@ -1384,6 +1398,7 @@
 
   <!-- Regular season panel -->
   <div id="posRegPanel">
+    <div class="home-insights" id="homeInsights"></div>
     <div class="pos-outer">
       <div class="pos-conf-block">
         <div class="pos-conf-title">Conferencia Norte</div>
@@ -1534,6 +1549,17 @@
           <div class="radar-autocomplete" id="radarAcB"></div>
         </div>
       </div>
+      <label class="radar-cmp-toggle" id="radarCmpToggle2" style="display:none">
+        <input type="checkbox" id="radarCmpCheck2" onchange="radarToggleCmp2()">
+        Agregar un tercer jugador
+      </label>
+      <div class="radar-search-group" id="radarSearchC" style="display:none">
+        <label style="color:#f59e0b">Jugador C</label>
+        <div class="radar-search-wrap">
+          <input class="radar-search-input" id="radarInputC" type="text" placeholder="Buscar jugador..." autocomplete="off" oninput="radarAcInput('C')" onkeydown="radarAcKey(event,'C')" onfocus="radarAcOpen('C')" onblur="setTimeout(()=>radarAcClose('C'),180)">
+          <div class="radar-autocomplete" id="radarAcC"></div>
+        </div>
+      </div>
     </div>
     <div id="radarEmpty" class="radar-empty">Seleccioná un jugador para ver su perfil estadístico</div>
     <div id="radarContent" style="display:none">
@@ -1545,6 +1571,19 @@
         <div class="radar-similar-col" id="radarSimilar"></div>
       </div>
       <div class="radar-axis-defs" id="radarAxisDefs"></div>
+      <div class="radar-trend-section">
+        <div class="radar-trend-header">
+          <span class="radar-trend-title">Evolución</span>
+          <div class="tbl-toggle">
+            <button class="radar-trend-btn active" data-stat="PTS" onclick="radarSetTrendStat('PTS')">Puntos</button>
+            <button class="radar-trend-btn" data-stat="VAL" onclick="radarSetTrendStat('VAL')">Valoración</button>
+            <button class="radar-trend-btn" data-stat="REB" onclick="radarSetTrendStat('REB')">Rebotes</button>
+            <button class="radar-trend-btn" data-stat="AST" onclick="radarSetTrendStat('AST')">Asistencias</button>
+          </div>
+        </div>
+        <div class="radar-trend-legend" id="radarTrendLegend"></div>
+        <div id="radarTrendSvgWrap"></div>
+      </div>
     </div>
   </div>
 </div>

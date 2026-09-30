@@ -3,6 +3,17 @@
 Guía para generar scouting reports al nivel de un asistente de la NBA para series de playoffs de la Liga Argentina.
 Cada informe se entrega como archivo **Word (.docx)** con gráficos embebidos generados con matplotlib.
 
+> **Nota (agosto 2026):** el reporte de un solo equipo para Liga Argentina / Liga Nacional (secciones I,
+> II, III, V, VII, VIII, IX, X, XI de las 12 de abajo) ya no se genera reescribiendo Python inline en
+> cada invocación — vive como script real en `scouting/gen_team_scouting.py`, con toda la lógica
+> reutilizable (fórmulas, shot chart, quintetos, clutch, dorsal→jugador, helpers de `.docx`) en
+> `scouting/scouting_common.py`. Invocarlo vía `/scouting-liga EQUIPO [liga]`. Esta guía sigue siendo
+> la referencia de fórmulas y el punto de partida para lo que **todavía no está automatizado**: matchup
+> completo entre 2 equipos (secciones IV, VI), análisis defensivo detallado, radar por jugador, y los
+> patrones de "tendencia pre/post" (cambio de técnico, temporada regular→playoffs) que hoy siguen
+> siendo scripts ad-hoc (`boca_scouting.py`, `oreb_analysis.py`) — candidatos a sumarse a
+> `scouting_common.py` el día que se conviertan en su propia skill.
+
 ---
 
 ## Archivos de datos

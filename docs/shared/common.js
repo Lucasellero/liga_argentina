@@ -377,8 +377,9 @@ function renderTTable() {
   if(document.getElementById('tCardAdv')&&document.getElementById('tCardAdv').style.display!=='none'){renderTAdvTable();}
   let rows=[...tFiltered];
   rows.sort((a,b)=>{
-    const ad=getTeamData(a),bd=getTeamData(b);
-    let av=ad[tSort],bv=bd[tSort];
+    let av,bv;
+    if(tSort==='KM'){av=a.KM==null?-1:a.KM;bv=b.KM==null?-1:b.KM;}
+    else{const ad=getTeamData(a),bd=getTeamData(b);av=ad[tSort];bv=bd[tSort];}
     return tDir==='desc'?(bv>av?1:bv<av?-1:0):(av>bv?1:av<bv?-1:0);
   });
   const tbody=document.getElementById('tTbody'); tbody.innerHTML='';
@@ -394,7 +395,7 @@ function renderTTable() {
     tr.addEventListener('click', ()=>toggleTeamSelection(t.Equipo));
     const indicator = selIdx >= 0 ? `<span class="team-sel-indicator" style="background:${CMP_COLORS[selIdx]}">${selIdx+1}</span>` : '';
     const wc=d['W%']>=60?'win-rate-high':d['W%']>=40?'win-rate-mid':'win-rate-low';
-    tr.innerHTML=`<td class="rank-cell">${i+1}</td><td style="background:var(--bg)"><span style="display:flex;align-items:center;gap:5px">${indicator}${teamLogoHtml(t.Equipo)}${t.Equipo}</span></td>
+    tr.innerHTML=`<td class="rank-cell">${i+1}</td><td style="background:var(--bg)"><span style="display:flex;align-items:center;gap:5px">${indicator}${teamLogoHtml(t.Equipo)}<span class="team-name-link" onclick="event.stopPropagation();showTeamGames('${t.Equipo.replace(/'/g,"\\'")}')">${t.Equipo}</span></span></td>
       <td>${d.PJ}</td>
       <td style="color:var(--green);font-weight:700">${d.Ganados}</td>
       <td style="color:var(--red)">${d.Perdidos}</td>
@@ -408,7 +409,8 @@ function renderTTable() {
       <td class="pts-cell">${f1(d['T1%'])}%</td>
       <td>${f2(d.RDPG)}</td><td>${f2(d.ROPG)}</td><td class="pts-cell">${f2(d.RTPG)}</td>
       <td>${f2(d.ASTPG)}</td><td>${f2(d.RECPG)}</td><td>${f2(d.PERPG)}</td><td>${f2(d.TAPPG)}</td>
-      <td class="${d.VALPG>=0?'val-pos':'val-neg'}">${f2(d.VALPG)}</td>`;
+      <td class="${d.VALPG>=0?'val-pos':'val-neg'}">${f2(d.VALPG)}</td>
+      <td class="km-cell">${t.KM!=null?t.KM.toLocaleString('es-AR'):'—'}</td>`;
     tbody.appendChild(tr);
   });
   document.querySelectorAll('#tCardBasic thead th').forEach(th=>{
@@ -442,7 +444,7 @@ function renderTAdvTable() {
     const indicator = selIdx >= 0 ? `<span class="team-sel-indicator" style="background:${CMP_COLORS[selIdx]}">${selIdx+1}</span>` : '';
     const wc=d['W%']>=60?'win-rate-high':d['W%']>=40?'win-rate-mid':'win-rate-low';
     const nc=d.NetRtg>=0?'netrtg-pos':'netrtg-neg';
-    tr.innerHTML=`<td class="rank-cell">${i+1}</td><td style="background:var(--bg)"><span style="display:flex;align-items:center;gap:5px">${indicator}${teamLogoHtml(t.Equipo)}${t.Equipo}</span></td>
+    tr.innerHTML=`<td class="rank-cell">${i+1}</td><td style="background:var(--bg)"><span style="display:flex;align-items:center;gap:5px">${indicator}${teamLogoHtml(t.Equipo)}<span class="team-name-link" onclick="event.stopPropagation();showTeamGames('${t.Equipo.replace(/'/g,"\\'")}')">${t.Equipo}</span></span></td>
       <td>${d.PJ}</td>
       <td style="color:var(--green);font-weight:700">${d.Ganados}</td>
       <td class="${wc}">${d['W%'].toFixed(1)}%</td>
@@ -757,6 +759,58 @@ function remeasureScroll(wrapId) {
   if (w > 0) p.inner.style.width = w + 'px';
 }
 
+// ── KM recorridos (giras) ──────────────────────────────────
+// CITY_COORDS y CITY_DIST_KM viven en cada liga_*.js (dataset de ciudades
+// distinto por liga). getRouteKm usa la matriz de distancia real por ruta
+// (CITY_DIST_KM) cuando el par de ciudades está cargado, y cae a línea recta
+// (Haversine) * factor de sinuosidad cuando no — para no romper si aparece
+// un equipo nuevo sin distancia de ruta precomputada.
+const _ROUTE_CIRCUITY_FACTOR = 1.3;
+
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1), dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function getRouteKm(cityA, cityB) {
+  if (!cityA || !cityB || cityA === cityB) return 0;
+  const dist = (typeof CITY_DIST_KM !== 'undefined') ? CITY_DIST_KM : null;
+  const coords = (typeof CITY_COORDS !== 'undefined') ? CITY_COORDS : null;
+  if (dist) {
+    const key = [cityA, cityB].sort().join('|');
+    if (dist[key] != null) return dist[key];
+  }
+  if (coords && coords[cityA] && coords[cityB]) {
+    const a = coords[cityA], b = coords[cityB];
+    return haversineKm(a.lat, a.lon, b.lat, b.lon) * _ROUTE_CIRCUITY_FACTOR;
+  }
+  return null;
+}
+
+// Recorrido secuencial real: sigue el fixture jugado en orden cronológico
+// (t._gamelog ya viene ordenado) en vez de asumir ida-y-vuelta a la sede en
+// cada partido de visitante — así una gira (varios partidos de visitante
+// seguidos sin volver a la sede) suma ciudad→ciudad→ciudad, no
+// sede→ciudad→sede→ciudad→sede.
+function computeTeamTravelKm(team) {
+  const teamCity = (typeof TEAM_CITY !== 'undefined') ? TEAM_CITY : null;
+  if (!teamCity) return null;
+  const homeCity = teamCity[team.Equipo];
+  if (!homeCity) return null;
+  let km = 0, currentCity = homeCity, hasAny = false;
+  (team._gamelog || []).forEach(g => {
+    const gameCity = g.condicion === 'LOCAL' ? homeCity : teamCity[g.rival];
+    if (!gameCity) return; // rival sin ciudad mapeada: se ignora ese tramo, no rompe el total
+    const d = getRouteKm(currentCity, gameCity);
+    if (d != null) { km += d; hasAny = true; }
+    currentCity = gameCity;
+  });
+  return hasAny ? Math.round(km) : null;
+}
+
 function teamLogoHtml(teamName, size) {
   size = size || 20;
   const src = LOGOS[teamName];
@@ -1045,7 +1099,10 @@ function openPartidoModal(game) {
   ];
   document.getElementById('tgmDetailBody').innerHTML = groups.map(g=>`<div class="tgm-stat-section"><div class="tgm-stat-group-title">${g.title}</div>${g.rows.join('')}</div>`).join('');
   // Show detail directly (skip game list)
-  document.getElementById('tgmBody').style.display = 'none';
+  document.getElementById('tgmMainTabs').style.display = 'none';
+  document.getElementById('tgmStanding').style.display = 'none';
+  document.getElementById('tgmGamesPanel').style.display = 'none';
+  document.getElementById('tgmRosterPanel').style.display = 'none';
   document.getElementById('tgmDetail').classList.add('visible');
   document.getElementById('teamGamesBackdrop').classList.add('open');
 }
@@ -1266,6 +1323,73 @@ function _formatFechaLarga(s) {
 
 function fmtTeamName(name){return TEAM_NAME_BREAKS[name]||name;}
 
+let _teamModalTab = 'games';
+
+function switchTeamMainTab(tab) {
+  _teamModalTab = tab;
+  const tabGames = document.getElementById('tgmMainTabGames');
+  const tabRoster = document.getElementById('tgmMainTabRoster');
+  if (tabGames) tabGames.classList.toggle('active', tab === 'games');
+  if (tabRoster) tabRoster.classList.toggle('active', tab === 'roster');
+  const panelGames = document.getElementById('tgmGamesPanel');
+  const panelRoster = document.getElementById('tgmRosterPanel');
+  if (panelGames) panelGames.style.display = tab === 'games' ? '' : 'none';
+  if (panelRoster) panelRoster.style.display = tab === 'roster' ? '' : 'none';
+}
+
+function renderTeamStanding(teamName) {
+  const el = document.getElementById('tgmStanding');
+  if (!el) return;
+  el.textContent = typeof getTeamStandingLabel === 'function' ? (getTeamStandingLabel(teamName) || '') : '';
+}
+
+function renderTeamUpcoming(teamName) {
+  const el = document.getElementById('tgmUpcoming');
+  if (!el) return;
+  const next = (typeof GAMES_ALL !== 'undefined' ? GAMES_ALL : [])
+    .filter(g => g.upcoming && (g.local === teamName || g.visit === teamName))
+    .sort((a, b) => _partidoFechaToDate(a.fecha) - _partidoFechaToDate(b.fecha))
+    .slice(0, 2);
+  if (!next.length) { el.innerHTML = ''; return; }
+  el.innerHTML = next.map(g => {
+    const rival = g.local === teamName ? g.visit : g.local;
+    const cond = g.local === teamName ? 'Local' : 'Visitante';
+    return `<div class="tgm-upcoming-row">
+      <span class="tgm-upcoming-label">Próximo · ${cond}</span>
+      <span class="tgm-upcoming-vs">${teamLogoHtml(rival, 16)}vs ${rival}</span>
+      <span class="tgm-upcoming-date">${g.fecha}${g.hora ? ' · ' + g.hora : ''}${g.estadio ? ' · ' + g.estadio : ''}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderTeamRoster(teamName) {
+  const tbody = document.getElementById('tgmRosterTbody');
+  if (!tbody) return;
+  const roster = (typeof PLAYERS !== 'undefined' ? PLAYERS : [])
+    .filter(p => p.Equipo === teamName)
+    .slice()
+    .sort((a, b) => (b.PPG || 0) - (a.PPG || 0));
+  if (!roster.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px">Sin datos de plantel disponibles.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = roster.map(p => {
+    const dorsal = p.DORSAL != null && p.DORSAL !== '' && !isNaN(parseFloat(p.DORSAL)) ? '#' + Math.round(parseFloat(p.DORSAL)) : '—';
+    const edad = p.Edad != null ? p.Edad : '—';
+    return `<tr>
+      <td>${dorsal}</td>
+      <td style="text-align:left;color:var(--text-bright)">${p['Nombre completo']}</td>
+      <td>${edad}</td>
+      <td>${p.PJ || 0}</td>
+      <td>${(p.PPG || 0).toFixed(1)}</td>
+      <td>${(p.RPG || 0).toFixed(1)}</td>
+      <td>${(p.APG || 0).toFixed(1)}</td>
+      <td>${(p.SPG || 0).toFixed(1)}</td>
+      <td>${(p.BPG || 0).toFixed(1)}</td>
+    </tr>`;
+  }).join('');
+}
+
 function showTeamGames(teamName) {
   const t = TEAMS.find(t => t.Equipo === teamName);
   if (!t) return;
@@ -1276,6 +1400,10 @@ function showTeamGames(teamName) {
   logo.src = logoSrc || ''; logo.style.display = logoSrc ? '' : 'none';
   document.getElementById('tgmTitle').textContent = teamName;
   document.getElementById('tgmRecord').textContent = `${t.Ganados}G - ${t.Perdidos}P`;
+  renderTeamStanding(teamName);
+  renderTeamUpcoming(teamName);
+  renderTeamRoster(teamName);
+  switchTeamMainTab('games');
   const tbody = document.getElementById('tgmTbody');
   tbody.innerHTML = '';
   (t._gamelog || []).slice().reverse().forEach((g, idx) => {
@@ -1401,7 +1529,10 @@ function showGameDetail(g, teamName) {
     </div>`
   ).join('');
 
-  document.getElementById('tgmBody').style.display = 'none';
+  document.getElementById('tgmMainTabs').style.display = 'none';
+  document.getElementById('tgmStanding').style.display = 'none';
+  document.getElementById('tgmGamesPanel').style.display = 'none';
+  document.getElementById('tgmRosterPanel').style.display = 'none';
   document.getElementById('tgmDetail').classList.add('visible');
 }
 
@@ -1417,7 +1548,9 @@ function onTgmBack() {
 
 function closeGameDetail() {
   document.getElementById('tgmDetail').classList.remove('visible');
-  document.getElementById('tgmBody').style.display = '';
+  document.getElementById('tgmMainTabs').style.display = '';
+  document.getElementById('tgmStanding').style.display = '';
+  switchTeamMainTab(_teamModalTab || 'games');
 }
 
 function closeTeamGames(e) {

@@ -72,8 +72,8 @@ El `login.html` y `register.html` viven en `docs/` (raíz) y son compartidos por
 3. Ambos campos son requeridos. Si el usuario intenta registrarse sin seleccionarlos, aparecen los mensajes de error `ligaErr` / `clubErr`.
 
 **Equipos por liga (objeto `TEAMS_BY_LIGA` en el script de `register.html`):**
-- `liga_argentina` (34 equipos): AMANCAY (LR), BARRIO PARQUE, BOCHAS (CC), CENTENARIO (VT), CENTRAL ENTRERRIANO, CICLISTA (J), COLON (SF), COMUNICACIONES, DEP. NORTE, DEP. VIEDMA, EL TALAR, ESTUDIANTES (T), FUSION RIOJANA, GIMNASIA (LP), HINDU (C), HURACAN (LH), INDEPENDIENTE (SDE), JUJUY BASQUET, LA UNION (C), LANUS, PERGAMINO BASQUET, PICO F.C., PROVINCIAL (R), QUILMES (MDP), RACING (A), RIVADAVIA (MZA), ROCAMORA, SALTA BASKET, SAN ISIDRO, SANTA PAULA (G), SP. SUARDI, UNION (MDP), VILLA MITRE (BB), VILLA SAN MARTIN
-- `liga_nacional` (19 equipos): ARGENTINO (J), ATENAS (C), BOCA, FERRO, GIMNASIA (CR), INDEPENDIENTE (O), INSTITUTO, LA UNION FSA., OBERA, OBRAS, OLIMPICO (LB), PEÑAROL (MDP), PLATENSE, QUIMSA, RACING (CH), REGATAS (C), SAN LORENZO, SAN MARTIN (C), UNION (SF)
+- `liga_argentina` (26 equipos, temporada 2026/27): AMANCAY (LR), BARRIO PARQUE, BOCHAS (CC), CENTENARIO (VT), CENTRAL ENTRERRIANO, CICLISTA (J), COMUNICACIONES, DEP. NORTE, DEP. VIEDMA, GIMNASIA (LP), HINDU (C), INDEPENDIENTE (SDE), JUJUY BASQUET, LA UNION (C), PERGAMINO BASQUET, PICO F.C., PROVINCIAL (R), QUILMES (MDP), ROCAMORA, SALTA BASKET, SAN ISIDRO, SANTA PAULA (G), SP. SUARDI, UNION (MDP), VILLA MITRE (BB), VILLA SAN MARTIN. **8 equipos salieron de la categoría para 2026/27** (descenso/baja, salvo LANÚS que ascendió a Liga Nacional — ver abajo): COLON (SF), EL TALAR, ESTUDIANTES (T), FUSION RIOJANA, HURACAN (LH), LANÚS, RACING (A), RIVADAVIA (MZA).
+- `liga_nacional` (18 equipos, temporada 2026/27): ARGENTINO (J), ATENAS (C), BOCA, FERRO, GIMNASIA (CR), INDEPENDIENTE (O), INSTITUTO, LA UNION FSA., LANUS, OBERA, OLIMPICO (LB), PEÑAROL (MDP), PLATENSE, QUIMSA, RACING (CH), REGATAS (C), SAN LORENZO, SAN MARTIN (C). **LANÚS ascendió** desde Liga Argentina. **OBRAS y UNION (SF) salieron de la categoría** (descenso/baja) y ya no compiten en Liga Nacional 2026/27.
 - `liga_femenina` (18 equipos): BOCHAS (CC), CHAÑARES, DEP. BERAZATEGUI, EL BIGUA (NQN), EL TALAR, FERRO, FUSION RIOJANA, GORRIONES (RIO IV), HINDU (C), INDEPENDIENTE (NQN), INSTITUTO, LANUS, NAUTICO (R), OBRAS, QUIMSA, ROCAMORA, SAN JOSE (MENDOZA), UNION FLORIDA
 - `liga_proximo` (19 equipos): ARGENTINO (J), ATENAS (C), BOCA, FERRO, GIMNASIA (CR), INDEPENDIENTE (O), INSTITUTO, LA UNION FSA., OBERA, OBRAS, OLIMPICO (LB), PEÑAROL (MDP), PLATENSE, QUIMSA, RACING (CH), REGATAS (C), SAN LORENZO, SAN MARTÍN (C), UNION (SF)
 
@@ -86,7 +86,12 @@ El campo `liga` usa el valor del `<option value="">` (snake_case), no el label v
 **Al agregar un nuevo equipo a una liga:** actualizar el array correspondiente en `TEAMS_BY_LIGA` dentro de `register.html`.
 
 ### Botones de navegación entre ligas (header)
-Cada página tiene **4 botones** de navegación cruzada en el header, uno por cada liga. Orden fijo: **Liga Nacional → Liga Argentina → Liga Femenina → Liga Desarrollo**.
+
+**⚠️ ESTADO ACTUAL (desde septiembre 2026): Liga Femenina y Liga Desarrollo están ocultas de la navegación.** Los headers de `docs/liga_argentina/index.html` y `docs/liga_nacional/index.html` solo muestran botones hacia **Liga Nacional ↔ Liga Argentina**; los `<a href="../liga_femenina/">` y `<a href="../liga_proximo/">` fueron eliminados de ambos. Decisión de producto: esas dos ligas no arrancaron su temporada 2026/27 (ver "Flujo de actualización automática") y no se quería que el usuario navegara a un dashboard sin datos nuevos. Las páginas `docs/liga_femenina/index.html` y `docs/liga_proximo/index.html` **siguen desplegadas** (accesibles por URL directa o por quien tenga el link, y su propio header interno sigue linkeando a las demás ligas sin cambios) — esto es solo una desconexión de la navegación visible, no un unpublish. `register.html` tampoco se tocó: `TEAMS_BY_LIGA` sigue ofreciendo `liga_femenina` y `liga_proximo` como opción de registro.
+
+**Para reactivar los botones** (cuando esas ligas retomen temporada): restaurar los dos `<a href="../liga_femenina/">…</a>` y `<a href="../liga_proximo/">…</a>` en el header de `docs/liga_argentina/index.html` y `docs/liga_nacional/index.html` — ver el bloque "Botones de las otras ligas" más abajo para el markup exacto (mismo estilo violeta, mismo orden).
+
+Cuando las 4 ligas están activas en la navegación, cada página tiene **4 botones** de navegación cruzada en el header, uno por cada liga. Orden fijo: **Liga Nacional → Liga Argentina → Liga Femenina → Liga Desarrollo**.
 
 **Botón de la liga activa (página actual):**
 - Renderizado como `<span>` (no `<a>`, no es clickeable)
@@ -103,7 +108,7 @@ Cada página tiene **4 botones** de navegación cruzada en el header, uno por ca
 - `display:inline-flex; align-items:center; justify-content:center; gap:5px; min-width:120px`
 - `padding:3px 10px; border-radius:20px; font-size:0.68rem`
 - Ícono `›` **siempre a la derecha** del texto (nunca a la izquierda)
-- Al agregar una nueva liga: añadir su botón activo en la nueva página y su botón link (violeta) en las 4 páginas existentes, respetando el orden
+- Al agregar una nueva liga: añadir su botón activo en la nueva página y su botón link (violeta) en las páginas activas, respetando el orden
 
 ### Actualizar CSVs de una liga desplegada
 Reemplazar los archivos en `docs/<nombre-liga>/` y pushear. Vercel re-deploya automáticamente.
@@ -290,7 +295,13 @@ Columnas: `IdPartido, Fecha, Equipo_local, Equipo_visitante, Local, Equipo, Dors
 - Tiros convertidos en la web: `CANASTA-2P` / `CANASTA-3P` (no `TIRO2-CONVERTIDO`)
 
 ## index.html — Arquitectura
-SPA pura, sin build para desarrollo/edición — el JS se sigue editando directo en `docs/*/*.js` sin paso intermedio. Vercel sí corre un build de minificación al desplegar (ver "Deployment" arriba), pero es transparente para el flujo de edición. Todo en un archivo por liga. Usa Tailwind CDN sólo para utilidades puntuales, el sistema de diseño es CSS custom con variables `--bg`, `--purple`, `--teal`, etc.
+SPA pura, sin build para desarrollo/edición — el JS se sigue editando directo en `docs/*/*.js` sin paso intermedio. Vercel sí corre un build de minificación al desplegar (ver "Deployment" arriba), pero es transparente para el flujo de edición. Usa Tailwind CDN sólo para utilidades puntuales, el sistema de diseño es CSS custom con variables `--bg`, `--purple`, `--teal`, etc.
+
+**`docs/shared/` — CSS y JS compartidos entre las 5 ligas (encontrado/documentado septiembre 2026, refactor previo no documentado en su momento):**
+- `docs/shared/common.css` — todos los estilos (`.pos-*`, `.leader-card`, `.radar-*`, `.szc-*`, `.home-insights`, etc.). Cada `docs/<liga>/index.html` lo linkea con `<link rel="stylesheet" href="../shared/common.css">`. Un cambio acá aplica a las 5 ligas a la vez — no hace falta copiar CSS liga por liga como sugieren notas de portabilidad más viejas en este archivo.
+- `docs/shared/common.js` — lógica compartida cargada **antes** del JS propio de cada liga (`<script src="../shared/common.js"></script>` seguido de `<script src="liga_X.js"></script>`). Incluye al menos `buildRAW_J`, `renderBoxScore`, `drawConnections`, `onTCnxTeamChange`, `teamLogoHtml`, `renderTTable`/`renderTAdvTable`, `toggleTeamSelection`, y todo el modal de equipo/partido (`showTeamGames`, `showGameDetail`, `openPartidoModal`, `switchGameTab`, `switchTeamMainTab`, `renderTeamStanding`, `renderTeamUpcoming`, `renderTeamRoster`, `closeGameDetail`, `closeTeamGames`, `onTgmBack`) — confirmado por grep; puede haber más funciones movidas ahí que este documento todavía no relevó función por función.
+- Cada liga sigue teniendo su **propio** `liga_<nombre>.js` con estado y funciones que no son compartidas (`PLAYERS`, `TEAMS`, `GAMES_ALL`, `buildRAW_T`, todo el bloque `radar*`, `buildHomeInsights`, etc.) — por eso funciones nuevas como el radar multi-jugador o Home Insights (ver más abajo) se implementaron por ahora solo en `liga_argentina.js` y quedan pendientes de portar a las demás.
+- **Si algo parece "no estar definido" al leer un `liga_<nombre>.js` de punta a punta** (ej. se llama `buildRAW_J(rows)` pero no aparece `function buildRAW_J`), buscarlo en `docs/shared/common.js` antes de asumir que es un bug — es la causa más probable.
 
 **Navegación (estructura actual):**
 
@@ -373,14 +384,21 @@ La tabla `j-tabla` tiene un toggle adicional: **Todos / Local / Visitante**.
   | `player._last10Visit` | Últimos 10 partidos como visitante |
 - Si el jugador no tiene partidos en esa condición, la propiedad es `null` y `getPlayerData` cae al objeto completo.
 
-**Modal de partido** (`#teamGamesBackdrop`):
-- Se abre al hacer clic en una fila de equipo (desde `t-tabla`) o en una card de partido (desde `partidos`)
-- Tab "Estadísticas": stats head-to-head del partido
-- Tab "Mapa de tiro": canvas con tiros, filtros equipo/tipo/resultado
-- Tab "Box Score": tabla por equipo con todos los jugadores del partido. Columnas: #dorsal, Min, PTS, Dobles (M/I), Triples (M/I), TL (M/I), REB, RD, RO, AST, REC, PER, TAP, VAL. Titulares marcados con ●. DNP atenuados.
-- Botón "‹ Volver": si fue abierto desde `partidos` (`_partidoMode=true`) cierra el modal; si fue desde `t-tabla` vuelve a la lista de juegos del equipo (`closeGameDetail`)
-- `switchGameTab(tab)` maneja los 3 tabs (`'stats'|'map'|'box'`); al activar `'box'` llama `renderBoxScore(_smState.gameId, _smState.local, _smState.visit)`
+**Modal de equipo / partido** (`#teamGamesBackdrop`) — lógica en `docs/shared/common.js` (**compartida por las 5 ligas**, no por-liga; ver "`docs/shared/`" más arriba):
+- Se abre al hacer clic en una fila de la tabla de Posiciones, en el **nombre** del equipo dentro de `Equipos > Tabla` (`.team-name-link`, ver más abajo — el resto de la fila sigue siendo el comparador de equipos), o en una card de partido (desde `partidos`, entra directo al detalle vía `openPartidoModal`).
+- **Vista de equipo** (`showTeamGames(teamName)`): header con logo/récord, línea de posición (`#tgmStanding`, ver "Ficha de equipo" abajo), y dos tabs — **Partidos** (`#tgmGamesPanel`) y **Plantel** (`#tgmRosterPanel`).
+- **Vista de detalle de partido** (`tgmDetail`, se abre al clickear una fila del tab Partidos): tabs "Estadísticas" (stats head-to-head), "Mapa de tiro" (canvas con filtros equipo/tipo/resultado), "Box Score" (tabla por equipo, columnas #dorsal/Min/PTS/Dobles/Triples/TL/REB/RD/RO/AST/REC/PER/TAP/VAL, titulares con ●, DNP atenuados), "Evolución" (gráfico de diferencia de marcador) y "Recap" (crónica generada por IA, ver sección "Recap automático").
+- Botón "‹ Volver" (`onTgmBack`): si fue abierto desde `partidos` (`_partidoMode=true`) cierra el modal entero; si fue desde la ficha de equipo, vuelve a esa ficha (`closeGameDetail`) restaurando el tab (Partidos/Plantel) en el que estaba antes de entrar al detalle (`_teamModalTab`).
+- `switchGameTab(tab)` maneja los tabs de detalle (`'stats'|'map'|'box'|'evol'|'recap'`); al activar `'box'` llama `renderBoxScore(_smState.gameId, _smState.local, _smState.visit)`.
 - **Scroll horizontal del Box Score**: `.tgm-box-table-wrap` tiene `overflow-x:auto`. El selector `#teamGamesModal table{table-layout:fixed}` aplica a todas las tablas del modal y causaría que el box score recortara columnas en lugar de crear scroll. Se sobreescribe con `#teamGamesModal .tgm-box-table{table-layout:auto;}` (mayor especificidad: ID+clase > ID+elemento). **Al agregar una nueva liga, incluir esta regla CSS.**
+
+**Ficha de equipo (tabs Partidos/Plantel del modal, septiembre 2026):**
+- **Tab Partidos** (`#tgmGamesPanel`, activo por defecto): además del historial de partidos jugados (`#tgmTbody`, igual que antes), muestra hasta 2 próximos partidos del equipo (`renderTeamUpcoming`, en `#tgmUpcoming`) filtrando `GAMES_ALL` por `g.upcoming && (g.local===teamName||g.visit===teamName)`, ordenados por fecha con `_partidoFechaToDate`.
+- **Tab Plantel** (`#tgmRosterPanel`, `renderTeamRoster`): filtra `PLAYERS` por `p.Equipo===teamName`, ordena por `PPG` desc, y muestra Dorsal (`p.DORSAL`), Nombre, Edad (`p.Edad`), PJ, PTS/P, REB/P, AST/P, REC/P, TAP/P. `switchTeamMainTab('games'|'roster')` alterna los paneles y clases `.active` de `#tgmMainTabGames`/`#tgmMainTabRoster`; se resetea a `'games'` cada vez que se abre `showTeamGames` para un equipo nuevo.
+- **Línea de posición** (`#tgmStanding`, `renderTeamStanding`): delega en `getTeamStandingLabel(teamName)`, una función **no compartida** (definida en cada `liga_*.js`, no en `common.js`) porque el criterio de posición difiere por liga — Liga Argentina calcula rango dentro de `CONF_NORTE`/`CONF_SUR` ("1° en Conferencia Norte · N equipos"), Liga Nacional en la tabla general única ("1° en la tabla general · N equipos"). Devuelve `''` (oculta la línea, `:empty{display:none}`) si ningún equipo de la liga tiene partidos jugados todavía (temporada sin arrancar) o si el equipo no pertenece a ninguna conferencia conocida. Replica el mismo cálculo de récord/orden que `renderStandings()` de esa liga (duplicación deliberada y acotada, evita depender de que `renderStandings` ya se haya ejecutado).
+- **Al abrir el detalle de un partido** (`showGameDetail`/`openPartidoModal`), se ocultan `#tgmMainTabs`, `#tgmStanding`, `#tgmGamesPanel` y `#tgmRosterPanel` enteros (no solo `#tgmBody` como antes) para que no queden visibles detrás del detalle; `closeGameDetail` los restaura y llama `switchTeamMainTab(_teamModalTab)`.
+- **Acceso desde `Equipos > Tabla`**: el nombre del equipo en la celda (`renderTTable`/`renderTAdvTable`, en `common.js`) es un `<span class="team-name-link" onclick="event.stopPropagation();showTeamGames(...)">` — el `stopPropagation` evita que también dispare `toggleTeamSelection` (el click en el resto de la fila sigue seleccionando el equipo para el comparador de hasta 4).
+- **Al portar a una liga nueva**: copiar el bloque HTML de `#tgmStanding`/`#tgmMainTabs`/`#tgmGamesPanel`/`#tgmRosterPanel` dentro de `#teamGamesModal` (toda la lógica JS ya es compartida vía `common.js`), y definir `getTeamStandingLabel(teamName)` en el `liga_*.js` de esa liga.
 
 **Sección "Tiro" (`j-tiro`):**
 - Media cancha coloreada por zonas de eficiencia vs promedio de liga
@@ -593,6 +611,12 @@ La sección Home tiene dos tabs internos: **Temporada Regular** y **Post Tempora
 - Tabs en HTML: `#posTabReg` / `#posTabPost` (clase `.pos-tab`, activo con `.active`).
 
 **Tab "Temporada Regular" (`#posRegPanel`):**
+- **Home Insights** (`#homeInsights`, septiembre 2026 — solo Liga Argentina por ahora): fila de hasta 3 tarjetas (`.insight-card`) arriba de las tablas de posiciones, generadas por `buildHomeInsights()` y llamadas al final de `renderStandings()`. Sin fetch ni CSV nuevo — usa datos que ya están en memoria (`GAMES_ALL`, `PLAYERS`, `TEAMS`):
+  - **Próximo partido**: primer `GAMES_ALL.filter(g=>g.upcoming)` ordenado por fecha. Logos + fecha/hora/estadio.
+  - **Goleador · Últ. 5 partidos**: jugador con mayor `_last5.PPG` (fallback a `PPG` de temporada completa si nadie tiene 5 partidos jugados todavía, ej. arranque de temporada).
+  - **Mejor Net Rating**: equipo con mayor `TEAMS[].NetRtg` de la temporada (con `PJ>=1`).
+  - Cada tarjeta se omite individualmente si no hay datos (ej. liga sin partidos jugados todavía solo muestra "Próximo partido"); el contenedor se oculta del todo si no hay ninguna. CSS en `docs/shared/common.css` (`.home-insights`, `.insight-card*`) — compartido por las 5 ligas, pero la función JS todavía solo existe en `liga_argentina.js`.
+  - **Pendiente de portar**: Liga Nacional, Femenina y Desarrollo no tienen `buildHomeInsights()` en su JS ni el `<div id="homeInsights">` en su HTML.
 - Tablas de posiciones Norte y Sur (`posNorteTbody` / `posSurTbody`).
 - `renderStandings()` recalcula stats directamente desde `t._gamelog[]` filtrando por fecha `< PLAYOFF_DATE`. **No usa los totales acumulados de `TEAMS`** (que incluirían playoffs una vez scrapeados). Stats por juego: PJ, G, P, ptsFor, ptsAgainst, localG/P, visitG/P, last5. Ordenamiento: W% → PJ → PTS/P.
 
@@ -865,7 +889,7 @@ Al seleccionar un equipo en Tríos o Duplas, la tabla renderizaba sin la columna
 **Sección "Radar de Jugador" (`j-radar`) — Liga Nacional y Liga Argentina:**
 - Visualización tipo radar hexagonal (estilo FIFA) con 6 ejes expresados en percentil 0–100.
 - **Criterio mínimo**: jugadores con ≥ 200 minutos jugados en la temporada (`RADAR_MIN_SEG = 12000` segundos). Los percentiles y la similitud se calculan solo dentro de ese conjunto.
-- **Búsqueda con autocomplete**: mismo patrón que `j-tiro`. Dos inputs: jugador A (obligatorio) y jugador B (opcional, se activa con el checkbox "Comparar con otro jugador").
+- **Búsqueda con autocomplete**: mismo patrón que `j-tiro`. Hasta 3 inputs: jugador A (obligatorio), jugador B (opcional, checkbox "Comparar con otro jugador") y jugador C (opcional, solo visible si B está activo, checkbox "Agregar un tercer jugador"). **Soporte para 3 jugadores agregado en septiembre 2026, solo en Liga Argentina** — ver "Comparación multi-jugador (A/B/C)" más abajo.
 - **Implementación SVG pura**, sin librerías externas. El SVG se genera dinámicamente via `radarBuildSvg()` con `viewBox="0 0 460 460"` (cx=cy=230, R=148) y es responsive (`width:100%;height:auto`). El viewBox de 460×460 da margen suficiente para que los labels de los ejes no queden recortados.
 
 **6 ejes y su composición:**
@@ -917,24 +941,42 @@ Orden de ejes en el radar (sentido horario desde arriba): SCORING → SHOOTING �
 - `radarGetRaw(p)` — extrae valores crudos (per-40, ratios, %) desde el objeto `p` de `PLAYERS`. Para `ast_tov`: si `PER === 0` y `AST > 0`, retorna 10 (máximo implícito); si `AST === 0`, retorna 0. Incluye `ft_pct` y `fta_rate`.
 - `radarPercentile(feat, val)` — búsqueda binaria en el array ordenado de la feature; retorna percentil 0–100.
 - `radarGetScores(p)` — retorna objeto `{ SCORING, SHOOTING, DEFENSE, REBOUNDING, PLAYMAKING, EFFICIENCY }` (0–100 enteros). Para REBOUNDING: si `ORB%` o `DRB%` son null, se excluyen del promedio sin penalizar. Para SHOOTING: si 0 intentos de triple, `t3p_pct` es null y se usa `t3pa_rate` dos veces.
-- `radarBuildSvg(scoresA, nameA, scoresB, nameB)` — genera el SVG completo. Incluye: anillos de referencia (20/40/60/80/100) con dashes, líneas de eje, polígono del jugador A (violeta), polígono del jugador B si presente (teal), dots en cada eje, labels de eje con nombre y valor.
+- `radarBuildSvg(entries)` — genera el SVG completo. `entries` es un array `[{ scores, color }, ...]` (1 a 3 elementos, `entries[0]` es el jugador A). Incluye: anillos de referencia (20/40/60/80/100) con dashes, líneas de eje, un polígono por entry (dibujados de atrás hacia adelante para que A quede arriba), dots en cada eje, y por cada eje un label con el nombre del eje + un valor apilado por jugador (blanco/bold para A, coloreado para el resto). **Antes de septiembre 2026 la firma era `radarBuildSvg(scoresA, nameA, scoresB, nameB)`, fija a 2 jugadores** — se generalizó a N para soportar el jugador C.
 - `radarBuildSimVectors()` — construye vectores z-score ponderados para el pool de jugadores calificados. Cachea en `_radarSim`.
 - `radarGetSimilar(pA, n=5)` — similitud coseno sobre `_radarSim`; retorna top-n similares al jugador A.
-- `radarRender()` — orquesta: valida `_radarIdxA`, llama `radarGetScores()`, inyecta SVG en `#radarSvgWrap`, construye cartas en `#radarCards`, similares en `#radarSimilar`, composición de ejes en `#radarAxisDefs`.
-- `radarAcInput(side)` / `radarAcSelect(side, idx, name)` / `radarAcKey(event, side)` / `radarAcOpen(side)` / `radarAcClose(side)` — autocomplete; `side` es `'A'` o `'B'`. Guarda índice en `_radarIdxA` / `_radarIdxB`.
-- `radarToggleCmp()` — muestra/oculta el bloque `#radarSearchB` y limpia jugador B al desactivar.
+- `radarRender()` — orquesta: valida `_radarIdxA`, arma el array `entries` (A + B/C si están seleccionados y tienen scores válidos), llama `radarGetScores()`, inyecta SVG en `#radarSvgWrap`, construye cartas multi-valor en `#radarCards`, similares en `#radarSimilar` (siempre basado en A), composición de ejes en `#radarAxisDefs` (basado en A), y termina llamando a `radarRenderTrend()`.
+- `radarAcInput(side)` / `radarAcSelect(side, idx, name)` / `radarAcKey(event, side)` / `radarAcOpen(side)` / `radarAcClose(side)` — autocomplete; `side` es `'A'`, `'B'` o `'C'`. Guarda índice en `_radarIdxA` / `_radarIdxB` / `_radarIdxC`.
+- `radarToggleCmp()` — muestra/oculta `#radarSearchB` y el checkbox `#radarCmpToggle2` (jugador C). Al desactivar, limpia B **y** C (no tiene sentido tener C sin B).
+- `radarToggleCmp2()` — muestra/oculta `#radarSearchC`. Al desactivar, limpia solo `_radarIdxC`.
+
+**Comparación multi-jugador (A/B/C) — agregado septiembre 2026, solo Liga Argentina:**
+- Pasó de comparar 2 jugadores a hasta 3. El checkbox "Agregar un tercer jugador" (`#radarCmpToggle2` / `#radarCmpCheck2`) solo es visible cuando B ya está activo.
+- Jugador C usa el color ámbar `#f59e0b` (`RADAR_COLORS.C`), consistente con el resto de la paleta (A violeta, B teal).
+- Las cartas de percentiles (`#radarCards`) y los labels de cada eje en el SVG apilan hasta 3 valores en vez de 2; "Jugadores similares" y "Composición de ejes" siguen calculándose solo sobre el jugador A (no tendría sentido mostrar similares de 3 jugadores a la vez).
+- **Pendiente de portar a Liga Nacional** (que tiene su propia sección `j-radar` con el código viejo de 2 jugadores).
 
 **Estado global:**
 - `_radarPct` — objeto con arrays ordenados por feature; `null` hasta primer uso.
-- `_radarIdxA` / `_radarIdxB` — índices en `PLAYERS`; `null` si no hay jugador seleccionado.
-- `_radarAcFocusIdx` — `{ A: -1, B: -1 }` para navegación teclado en el dropdown.
+- `_radarIdxA` / `_radarIdxB` / `_radarIdxC` — índices en `PLAYERS`; `null` si no hay jugador seleccionado en ese slot.
+- `_radarAcFocusIdx` — `{ A: -1, B: -1, C: -1 }` para navegación teclado en el dropdown.
 - `_radarSim` — array de `{ p, i, raw, vec }` con los vectores ponderados; `null` hasta primer uso.
 
 **Constantes:**
 - `RADAR_MIN_SEG = 12000` — mínimo de segundos jugados para entrar al cálculo de percentiles y similitud.
 - `RADAR_AXES` — array de 6 objetos `{ key, label, metrics[], desc }` que define ejes, sus métricas componentes y descripción en español. **Sin emojis** — el diseño es deliberadamente sobrio y profesional.
-- `RADAR_COLORS` — `{ A: { fill, stroke }, B: { fill, stroke } }`. A = violeta (`#8b5cf6`), B = teal (`#2dd4bf`).
+- `RADAR_COLORS` — `{ A: { fill, stroke }, B: { fill, stroke }, C: { fill, stroke } }`. A = violeta (`#8b5cf6`), B = teal (`#2dd4bf`), C = ámbar (`#f59e0b`).
 - `_SIM_FEATS` — array de 15 objetos `{ k, w }` con las features y pesos del modelo de similitud.
+
+**Evolución (time series) — agregado septiembre 2026, solo Liga Argentina:**
+- Sección nueva debajo de "Composición de ejes" (`.radar-trend-section` → `#radarTrendSvgWrap` + `#radarTrendLegend`), muestra un gráfico de líneas SVG con la evolución partido a partido de A (y B/C si están seleccionados) en los últimos `RADAR_TREND_N = 10` partidos.
+- **Sin CSV nuevo**: usa `player._games` (filas crudas del CSV de stats, ya ordenadas cronológicamente por `initApp()`), no requiere ningún fetch adicional.
+- Toggle de métrica (`.radar-trend-btn`, reutiliza el estilo `.tbl-toggle`): Puntos / Valoración / Rebotes / Asistencias → `RADAR_TREND_STATS` mapea cada botón a su columna del CSV (`Puntos`, `Valoracion`, `TReb`, `Asistencias`).
+- `radarSetTrendStat(key)` — cambia `_radarTrendStat` y re-renderiza.
+- `radarTrendSeries(player)` — devuelve los últimos N partidos del jugador como `{ val, fecha, rival }` para la métrica activa.
+- `radarBuildTrendSvg(entries)` — dibuja el SVG (gridlines horizontales, una polyline por jugador, dots con `<title>` nativo como tooltip mostrando jugador/fecha/rival/valor). Los jugadores se posicionan por índice de recencia (últim@ partido a la derecha), no por fecha absoluta — si dos jugadores tienen distinta cantidad de partidos jugados, sus líneas no necesariamente están alineadas por fecha real.
+- `radarRenderTrend()` — arma las series de A/B/C presentes y llama a `radarBuildTrendSvg`; si nadie tiene partidos, muestra el empty state "Sin partidos suficientes para mostrar evolución".
+- CSS: `.radar-trend-section`, `.radar-trend-header`, `.radar-trend-title`, `.radar-trend-legend`, `.radar-trend-legend-item`, `.radar-trend-dot` en `docs/shared/common.css`.
+- **Pendiente de portar** a Liga Nacional.
 
 **Jugador por defecto**: al abrir `j-radar` por primera vez (`_radarIdxA === null`), se busca CAFFARO en `PLAYERS` y se carga automáticamente. Mismo patrón que BARRALES en `j-tiro`. Si el usuario ya eligió otro jugador antes, no lo pisa.
 
@@ -949,7 +991,7 @@ Orden de ejes en el radar (sentido horario desde arriba): SCORING → SHOOTING �
 
 **Jugador por defecto por liga**: Liga Nacional → CAFFARO; Liga Argentina → OSORES. Si el usuario ya eligió otro jugador antes, no lo pisa.
 
-**Nota de portabilidad**: esta sección existe en `docs/liga_nacional/index.html` y `docs/index.html` (Liga Argentina). Si se porta a otras ligas, copiar el bloque CSS `.radar-*`, el HTML `sec-j-radar`, las funciones `radar*` y añadir `'j-radar':'jugadores'` a `_SUB_GROUP` y `'j-radar':4` a `_SUB_IDX`.
+**Nota de portabilidad**: esta sección existe en `docs/liga_nacional/index.html` y `docs/liga_argentina/index.html`. Si se porta a otras ligas, copiar el bloque CSS `.radar-*` (en `docs/shared/common.css`), el HTML `sec-j-radar`, las funciones `radar*` y añadir `'j-radar':'jugadores'` a `_SUB_GROUP` y `'j-radar':4` a `_SUB_IDX`. **Ojo**: el jugador C, la generalización de `radarBuildSvg` a N jugadores, y la sección "Evolución" (ver arriba) solo están hechos en `liga_argentina.js` — Liga Nacional todavía tiene la versión vieja de 2 jugadores sin Evolución.
 
 ## IDs dinámicos del sitio — bug documentado (junio 2026)
 
