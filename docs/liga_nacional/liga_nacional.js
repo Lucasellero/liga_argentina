@@ -798,6 +798,29 @@ const LOGOS = {
   'LANUS':          'logos/lanus.jpeg',
 };
 
+const TEAM_CITY = {
+  'ARGENTINO (J)': 'Junín',
+  'ATENAS (C)': 'Córdoba',
+  'GIMNASIA (CR)': 'Comodoro Rivadavia',
+  'INDEPENDIENTE (O)': 'Oliva',
+  'INSTITUTO': 'Córdoba',
+  'LA UNION FSA.': 'Formosa',
+  'OBERÁ': 'Oberá',
+  'QUIMSA': 'Santiago del Estero',
+  'REGATAS (C)': 'Corrientes',
+  'SAN MARTÍN (C)': 'Corrientes',
+  'BOCA': 'Buenos Aires (CABA)',
+  'FERRO': 'Buenos Aires (CABA)',
+  'OLÍMPICO (LB)': 'La Banda',
+  'OBRAS': 'Buenos Aires (CABA)',
+  'PEÑAROL (MDP)': 'Mar del Plata',
+  'PLATENSE': 'Vicente López',
+  'RACING (CH)': 'Chivilcoy',
+  'SAN LORENZO': 'Buenos Aires (CABA)',
+  'UNION (SF)': 'Santa Fe',
+  'LANÚS': 'Lanús',
+};
+
 
 // ============================================================
 

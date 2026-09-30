@@ -922,6 +922,43 @@ const LOGOS = {
   'VILLA SAN MARTIN':   'logos/villa_san_martin.jpeg',
 };
 
+const TEAM_CITY = {
+  'AMANCAY (LR)': 'La Rioja',
+  'BARRIO PARQUE': 'Córdoba',
+  'BOCHAS (CC)': 'Colonia Caroya',
+  'COLON (SF)': 'Santa Fe',
+  'COMUNICACIONES': 'Mercedes',
+  'ESTUDIANTES (T)': 'San Miguel de Tucumán',
+  'FUSION RIOJANA': 'La Rioja',
+  'HINDU (C)': 'Córdoba',
+  'HURACAN (LH)': 'Las Heras',
+  'INDEPENDIENTE (SDE)': 'Santiago del Estero',
+  'JUJUY BASQUET': 'San Salvador de Jujuy',
+  'RIVADAVIA (MZA)': 'Rivadavia',
+  'SALTA BASKET': 'Salta',
+  'SAN ISIDRO': 'San Francisco',
+  'SANTA PAULA (G)': 'Gálvez',
+  'SP. SUARDI': 'Suardi',
+  'VILLA SAN MARTIN': 'Resistencia',
+  'CENTENARIO (VT)': 'Venado Tuerto',
+  'CENTRAL ENTRERRIANO': 'Gualeguaychú',
+  'CICLISTA (J)': 'Junín',
+  'DEP. NORTE': 'Armstrong',
+  'DEP. VIEDMA': 'Viedma',
+  'EL TALAR': 'El Talar (Tigre)',
+  'GIMNASIA (LP)': 'La Plata',
+  'LANÚS': 'Lanús',
+  'LA UNIÓN (C)': 'Colón',
+  'PERGAMINO BASQUET': 'Pergamino',
+  'PICO F.C.': 'General Pico',
+  'PROVINCIAL (R)': 'Rosario',
+  'QUILMES (MDP)': 'Mar del Plata',
+  'RACING (A)': 'Avellaneda',
+  'ROCAMORA': 'Concepción del Uruguay',
+  'UNION (MDP)': 'Mar del Plata',
+  'VILLA MITRE (BB)': 'Bahía Blanca',
+};
+
 
 
 function getTeamStandingLabel(teamName) {

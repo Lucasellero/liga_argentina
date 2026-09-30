@@ -482,6 +482,40 @@ Versión consolidada de `j-tiro` para un equipo completo. Misma lógica de zonas
 - Canvas ratio fijo: `H = W * 15/28` (cancha FIBA 28×15m)
 - Usa `ctx.translate(PL,0) + ctx.scale(mx/my, 1)` para dibujar en espacio uniforme de metros
 
+## KM recorridos — columna "KM" en Equipos > Tabla (septiembre 2026)
+
+Muestra los kilómetros que cada equipo recorrió en la temporada para jugar sus partidos de visitante, siguiendo el fixture real. **Liga Argentina y Liga Nacional únicamente** (Femenina y Desarrollo no tienen la columna ni los datos de ciudad todavía).
+
+**Criterio de cálculo — gira-aware por diseño, sin lógica especial de "gira":**
+- `computeTeamTravelKm(team)` (en `docs/shared/common.js`) recorre `team._gamelog` (ya viene ordenado cronológicamente) arrancando en la ciudad sede del equipo, y por cada partido suma la distancia entre la ciudad **actual** y la ciudad del partido (la sede propia si jugó de local, la sede del rival si jugó de visitante) — y la ciudad actual pasa a ser esa.
+- Esto hace que una gira (varios partidos de visitante seguidos sin volver a la sede) sume ciudad→ciudad→ciudad en vez de sede→ciudad→sede→ciudad→sede: **no hace falta detectar la gira explícitamente**, sale solo de seguir la secuencia real del fixture en vez de asumir ida-y-vuelta después de cada partido.
+- Solo cuenta partidos ya jugados (`_gamelog`), no el fixture de próximos partidos — es un acumulado de temporada, como PTS o REB, no una proyección.
+- Si el rival de algún partido no tiene ciudad mapeada en `TEAM_CITY`, ese tramo se saltea (no rompe el resto del cálculo); si el equipo no tiene NINGÚN tramo resoluble, `t.KM` queda en `null` y la tabla muestra `—`.
+
+**Datos — todo estático, sin llamadas a APIs en tiempo real (el cliente no puede pegarle a un servicio de ruteo en cada carga de página):**
+- `CITY_COORDS` (40 ciudades) y `CITY_DIST_KM` (matriz de distancia **real por ruta**, no línea recta, ~780 pares) viven en `docs/shared/common.js`, compartidos por ambas ligas porque varias ciudades se repiten entre ellas (Córdoba, Santa Fe, Mar del Plata, Santiago del Estero, Junín...).
+- La matriz se generó UNA vez con una sola consulta al **OSRM Table Service** público (`router.project-osrm.org/table/v1/driving/...`, perfil `driving`) pasando las 40 coordenadas juntas — no se recalcula en cada carga ni pega a la API desde el navegador del usuario. Si hace falta regenerarla (ciudad nueva, corrección de coordenadas), armar la URL con todas las coordenadas `lon,lat` separadas por `;` y pedir `?annotations=distance`; la respuesta trae la matriz NxN completa en metros.
+- `getRouteKm(cityA, cityB)` usa `CITY_DIST_KM` cuando el par está cargado, y cae a Haversine × `_ROUTE_CIRCUITY_FACTOR` (1.3, factor de sinuosidad típico de ruta terrestre en llanura) cuando no — red de seguridad para que un equipo/ciudad nuevo sin distancia precomputada no deje el cálculo en `null` de entrada si al menos tiene coordenadas.
+- `TEAM_CITY` (equipo → nombre de ciudad) **sí es por liga** (cada `liga_*.js` define el suyo, ubicado justo después de su objeto `LOGOS`) porque el plantel de equipos difiere entre ligas.
+
+**Casos de ciudad ambiguos, resueltos con investigación dirigida (ver también anotaciones inline donde aplica):**
+- `BOCHAS (CC)` = Colonia Caroya, Córdoba (no "Carlos Casares")
+- `CICLISTA (J)` = Junín, Buenos Aires
+- `SAN ISIDRO` (Liga Argentina) = San Francisco, Córdoba (**no** el San Isidro de Buenos Aires)
+- `HURACAN (LH)` = Las Heras, Mendoza
+- `LA UNIÓN (C)` = Colón, Entre Ríos (distinto de `COLON (SF)` = ciudad de Santa Fe, y de `LA UNION FSA.` = Formosa)
+- `REGATAS (C)` y `SAN MARTÍN (C)` (Liga Nacional) = Corrientes, **no** Córdoba (acá el patrón "(C)=Córdoba" que sí aplica a `ATENAS (C)`/`INSTITUTO` se rompe)
+- `RACING (CH)` = Chivilcoy, Buenos Aires, **no** Chaco
+- `INDEPENDIENTE (O)` = Oliva, Córdoba — entidad distinta de `OBERÁ` (Misiones)
+- `GIMNASIA (CR)` = Comodoro Rivadavia, Chubut
+- `EL TALAR` — única con confianza "media": la mayoría de las fuentes ubican al club en el barrio El Talar de Tigre (Buenos Aires), pero no se descarta del todo Agronomía (CABA). Si en algún momento se nota una distancia rara para ese equipo, es el primer sospechoso a re-verificar.
+
+**⚠️ Roster de equipos en transición (encontrado al implementar este feature, no relacionado a él):** al momento de este cambio, `CONF_NORTE`/`CONF_SUR` de `liga_argentina.js` y `liga_nacional.js` estaban con una edición a mitad de camino (commit `c76d7dd "chore: WIP en curso (logos, nav de ligas, scouting, KM viajado)"`) — varios equipos habían sido sacados de esos Sets (`COLON (SF)`, `ESTUDIANTES (T)`, `FUSION RIOJANA`, `HURACAN (LH)`, `RIVADAVIA (MZA)`, `EL TALAR`, `LANÚS`, `RACING (A)` en Liga Argentina; `OBRAS`, `UNION (SF)` en Liga Nacional) sin haber agregado todavía los reemplazos de la temporada 2026/27 (posible roster real: entran Barrio Jardín (T), El Ceibo (SF), Riachuelo (LR), Mitre (Posadas), River Plate — sin confirmar, pendiente de que se termine esa edición). `LOGOS` no fue tocado (los 34/19 equipos originales siguen ahí) y `TEAM_CITY` de este feature se armó sobre esos 34+19 equipos "viejos". Un dato ya confirmado en el fixture real: **Lanús ascendió a Liga Nacional** esta temporada (aparece en el CSV scrapeado con tilde, `LANÚS`) — se le agregó su entrada a `TEAM_CITY` de `liga_nacional.js` reutilizando la ciudad ya cargada para la Liga Argentina. Si se termina la edición del roster con clubes nuevos que no están en la lista de ciudades de arriba, van a mostrar `—` en la columna KM hasta que se les agregue `TEAM_CITY` (y, si hace falta, `CITY_COORDS`/`CITY_DIST_KM`).
+
+**Columna en la tabla:** `<th data-c="KM" data-d="desc">` en `tCardBasic` de cada `index.html` (Liga Argentina y Liga Nacional) — el binding de sort por click en headers ya es genérico (lee `th.dataset.c`), no hizo falta JS nuevo para eso. En `renderTTable` (`common.js`), el sort de la columna KM es un caso especial (`a.KM`/`b.KM` directo, no pasa por `getTeamData()`) porque KM es un acumulado de temporada fijo, no varía con los toggles de período (Temporada/Últ.5/Últ.10) ni Local/Visitante — la celda siempre muestra el mismo valor sin importar esos filtros. Formato: `t.KM.toLocaleString('es-AR')` (separador de miles con punto). Clase CSS `.km-cell` (teal).
+
+**Al portar a Liga Femenina / Liga de Desarrollo:** hace falta (1) relevar ciudad de cada equipo nuevo y agregarlas a `CITY_COORDS`/`CITY_DIST_KM` en `common.js` (algunas ya van a estar si comparten equipo con Liga Nacional, ej. Ferro/Obras/Instituto), (2) crear el `TEAM_CITY` de esa liga en su `liga_*.js`, (3) agregar el `<th data-c="KM">` a su `tCardBasic`.
+
 ## Responsive
 El frontend debe funcionar y verse bien tanto en celular como en computadora. Cualquier cambio de UI debe considerar ambos contextos.
 
