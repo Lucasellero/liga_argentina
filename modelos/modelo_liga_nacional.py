@@ -1011,6 +1011,24 @@ if __name__ == "__main__":
         .transform(lambda s: s.shift(1).rolling(5, min_periods=1).mean())
     )
 
+    # Guard para arranque de temporada: con muy pocos partidos jugados, casi todas
+    # las filas todavía tienen NaN en las rolling features (recién arrancó el
+    # historial por equipo) y el split train/test queda vacío — StandardScaler
+    # explota con 0 muestras. En vez de romper el step del workflow (y con él el
+    # commit de CSVs del día), se omite el reentrenamiento hasta que haya
+    # suficiente historial, dejando el .pkl existente sin tocar.
+    MIN_TRAINING_ROWS = 10
+    valid_rows = feat[FEATURE_COLS_PREGAME + ["win"]].dropna()
+    if len(valid_rows) < MIN_TRAINING_ROWS:
+        print(
+            f"\nSolo {len(valid_rows)} partidos con features completas "
+            f"(se necesitan >= {MIN_TRAINING_ROWS}) — temporada recién arrancando, "
+            "todavía no hay suficiente historial por equipo. Se omite el "
+            "reentrenamiento de esta corrida; el modelo existente (si lo hay) "
+            "queda sin tocar."
+        )
+        raise SystemExit(0)
+
     # 4a. Modelo completo (in-game + rolling) — análisis retrospectivo
     print("\n== MODO ANÁLISIS (in-game + rolling) ==")
     model_full, scaler_full, fc_full, Xt_full, yt_full, df_clean, _ = train_model(feat, feature_cols=FEATURE_COLS)

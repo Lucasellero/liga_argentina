@@ -28,7 +28,7 @@ import pandas as pd
 # ---------------------------------------------------------------------------
 BASE_URL = "https://www.laliganacional.com.ar"
 LEAGUE_PATH = "/laligaargentina"
-FIXTURE_START_DATE = "30/10/2025"  # Fixed season start
+FIXTURE_START_DATE = "15/09/2026"  # Fixed season start (temporada 2026/27)
 
 OUTPUT_DIR = Path(__file__).parent.parent / "docs" / "liga_argentina"
 DEBUG_DIR = Path(__file__).parent / "debug_html"
@@ -722,8 +722,8 @@ def main():
     # 2. Get fixture game list
     all_fixture_games = fetch_fixture_games(session, debug=args.debug)
     if not all_fixture_games:
-        log.error("No games found.")
-        sys.exit(1)
+        log.warning("No hay partidos en el rango de fechas (temporada sin arrancar todavía o sin novedades). Nada que hacer.")
+        sys.exit(0)
 
     if args.dry_run:
         log.info("--- DRY RUN ---")

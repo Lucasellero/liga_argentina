@@ -30,10 +30,14 @@ BASE_URL = "https://www.laliganacional.com.ar"
 LEAGUE_PATH = "/laliga"
 FIXTURE_START_DATE = "28/09/2026"  # Fixed season start (temporada 2026/27)
 
-# Partidos excluidos explícitamente (ej. supercopa, partido amistoso fuera de la competencia)
-BLOCKED_GAME_IDS: set[str] = {
-    "7HOd8ZYdbHXIjwhorMzAnQ==",  # Supercopa Boca vs Instituto 05/03/2026
-}
+# Partidos excluidos explícitamente (ej. supercopa, partido amistoso fuera de la competencia).
+# Clave estable (fecha, {equipoA, equipoB}) — el IdPartido es dinámico y cambia en
+# cada request, así que no sirve como identificador persistente entre corridas.
+BLOCKED_GAME_KEYS: set[tuple[str, frozenset[str]]] = set()
+
+
+def _is_blocked(fecha: str, local: str, visitante: str) -> bool:
+    return (fecha, frozenset({local, visitante})) in BLOCKED_GAME_KEYS
 
 OUTPUT_DIR = Path(__file__).parent.parent / "docs" / "liga_nacional"
 DEBUG_DIR = Path(__file__).parent / "debug_html_nacional"
@@ -727,8 +731,8 @@ def main():
     # 2. Get fixture game list
     all_fixture_games = fetch_fixture_games(session, debug=args.debug)
     if not all_fixture_games:
-        log.error("No games found.")
-        sys.exit(1)
+        log.warning("No hay partidos en el rango de fechas (temporada sin arrancar todavía o sin novedades). Nada que hacer.")
+        sys.exit(0)
 
     if args.dry_run:
         log.info("--- DRY RUN ---")
@@ -745,7 +749,7 @@ def main():
     new_games = [
         g for g in all_fixture_games
         if _stable_key(g) not in cached_keys
-        and g["game_id"] not in BLOCKED_GAME_IDS
+        and not _is_blocked(g.get("date", ""), g.get("home_team", ""), g.get("away_team", ""))
         and g.get("home_score") is not None   # played games only
     ]
     log.info(f"Fixture total: {len(all_fixture_games)} | Sin resultado: {len(no_score)} | Ya cacheados: {len(already_cached)} | A scrapear: {len(new_games)}")

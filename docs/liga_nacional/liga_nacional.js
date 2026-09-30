@@ -753,7 +753,8 @@ function buildLeaders() {
 // POSICIONES
 // ============================================================
 
-const PLAYOFF_DATE = new Date(2026, 3, 23); // 23 de abril de 2026
+// Placeholder temporada 2026/27 — ajustar cuando se sepa la fecha real de playoffs
+const PLAYOFF_DATE = new Date(2027, 3, 23); // 23 de abril de 2027 (placeholder)
 function isPostSeason(fechaStr) {
   if (!fechaStr) return false;
   const [d,m,y] = fechaStr.split('/');
@@ -791,6 +792,28 @@ const LOGOS = {
 
 // ============================================================
 
+
+function getTeamStandingLabel(teamName) {
+  const rows = TEAMS.map(t => {
+    let PJ = 0, G = 0, ptsFor = 0;
+    (t._gamelog || []).forEach(g => {
+      const [fd, fm, fy] = g.fecha.split('/');
+      if (new Date(+fy, +fm - 1, +fd) >= PLAYOFF_DATE) return;
+      PJ++; ptsFor += g.ptsFor || 0;
+      if (g.ganado) G++;
+    });
+    return { Equipo: t.Equipo, PJ, G, ptsFor };
+  }).sort((a, b) => {
+    const wa = a.PJ ? a.G / a.PJ : 0, wb = b.PJ ? b.G / b.PJ : 0;
+    if (wb !== wa) return wb - wa;
+    if (b.PJ !== a.PJ) return b.PJ - a.PJ;
+    return (b.PJ ? b.ptsFor / b.PJ : 0) - (a.PJ ? a.ptsFor / a.PJ : 0);
+  });
+  if (!rows.some(r => r.PJ > 0)) return '';
+  const idx = rows.findIndex(r => r.Equipo === teamName);
+  if (idx < 0) return '';
+  return `${idx + 1}° en la tabla general · ${rows.length} equipos`;
+}
 
 function renderStandings() {
   const statsMap = {};

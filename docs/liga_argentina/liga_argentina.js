@@ -784,11 +784,77 @@ function buildLeaders() {
 }
 
 // ============================================================
+// HOME INSIGHTS
+// ============================================================
+function buildHomeInsights() {
+  const wrap = document.getElementById('homeInsights');
+  if (!wrap) return;
+  const cards = [];
+
+  // 1. Próximo partido
+  const upcoming = GAMES_ALL.filter(g => g.upcoming).sort((a, b) => {
+    const [ad, am, ay] = a.fecha.split('/'); const [bd, bm, by] = b.fecha.split('/');
+    return new Date(+ay, +am - 1, +ad) - new Date(+by, +bm - 1, +bd);
+  })[0];
+  if (upcoming) {
+    const logoL = LOGOS[upcoming.local] ? `<img src="${LOGOS[upcoming.local]}" class="insight-team-logo" alt="" onerror="this.style.visibility='hidden'">` : '';
+    const logoV = LOGOS[upcoming.visit] ? `<img src="${LOGOS[upcoming.visit]}" class="insight-team-logo" alt="" onerror="this.style.visibility='hidden'">` : '';
+    cards.push(`<div class="insight-card">
+      <div class="insight-card-label">Próximo partido</div>
+      <div class="insight-matchup">
+        <div class="insight-team">${logoL}<span>${upcoming.local}</span></div>
+        <span class="insight-vs">vs</span>
+        <div class="insight-team">${logoV}<span>${upcoming.visit}</span></div>
+      </div>
+      <div class="insight-card-sub">${upcoming.fecha}${upcoming.hora ? ' · ' + upcoming.hora : ''}${upcoming.estadio ? ' · ' + upcoming.estadio : ''}</div>
+    </div>`);
+  }
+
+  // 2. Goleador reciente (últ. 5 partidos, con fallback a temporada completa)
+  let topScorer = null, periodLabel = 'Últ. 5 partidos', ppg = null;
+  const withLast5 = PLAYERS.filter(p => p._last5 && p._last5.PJ >= 1 && p._last5.PPG != null);
+  if (withLast5.length) {
+    topScorer = withLast5.reduce((a, b) => (b._last5.PPG > a._last5.PPG ? b : a));
+    ppg = topScorer._last5.PPG;
+  } else {
+    const withSeason = PLAYERS.filter(p => (p.PJ || 0) >= 1 && p.PPG != null);
+    if (withSeason.length) {
+      topScorer = withSeason.reduce((a, b) => (b.PPG > a.PPG ? b : a));
+      periodLabel = 'Temporada';
+      ppg = topScorer.PPG;
+    }
+  }
+  if (topScorer) {
+    cards.push(`<div class="insight-card">
+      <div class="insight-card-label">Goleador · ${periodLabel}</div>
+      <div class="insight-big-name">${topScorer['Nombre completo']}</div>
+      <div class="insight-card-sub" style="display:flex;align-items:center;gap:5px">${teamLogoHtml(topScorer.Equipo, 14)}${topScorer.Equipo}</div>
+      <div class="insight-big-val">${ppg.toFixed(1)} <span class="insight-unit">PTS/P</span></div>
+    </div>`);
+  }
+
+  // 3. Mejor Net Rating de la temporada
+  const withNet = TEAMS.filter(t => (t.PJ || 0) >= 1 && t.NetRtg != null);
+  if (withNet.length) {
+    const best = withNet.reduce((a, b) => (b.NetRtg > a.NetRtg ? b : a));
+    cards.push(`<div class="insight-card">
+      <div class="insight-card-label">Mejor Net Rating</div>
+      <div class="insight-big-name" style="display:flex;align-items:center;gap:6px">${teamLogoHtml(best.Equipo, 20)}${best.Equipo}</div>
+      <div class="insight-big-val" style="color:${best.NetRtg >= 0 ? 'var(--green)' : 'var(--red)'}">${best.NetRtg >= 0 ? '+' : ''}${best.NetRtg.toFixed(1)}</div>
+    </div>`);
+  }
+
+  wrap.innerHTML = cards.join('');
+  wrap.style.display = cards.length ? '' : 'none';
+}
+
+// ============================================================
 // POSICIONES POR CONFERENCIA
 // ============================================================
-const PLAYOFF_DATE = new Date(2026, 3, 1);  // 1 de abril de 2026
-const PLAYOFF2_DATE = new Date(2026, 3, 15); // 15 de abril de 2026 — inicio Octavos
-const CUARTOS_DATE  = new Date(2026, 3, 30); // 30 de abril de 2026 — inicio Cuartos
+// Placeholder temporada 2026/27 — ajustar cuando se sepa la fecha real de playoffs
+const PLAYOFF_DATE = new Date(2027, 3, 1);  // 1 de abril de 2027 (placeholder)
+const PLAYOFF2_DATE = new Date(2027, 3, 15); // 15 de abril de 2027 — inicio Octavos (placeholder)
+const CUARTOS_DATE  = new Date(2027, 3, 30); // 30 de abril de 2027 — inicio Cuartos (placeholder)
 function isPostSeason(fechaStr) {
   if (!fechaStr) return false;
   const [d,m,y] = fechaStr.split('/');
@@ -848,6 +914,32 @@ const LOGOS = {
 };
 
 
+
+function getTeamStandingLabel(teamName) {
+  const isNorte = CONF_NORTE.has(teamName), isSur = CONF_SUR.has(teamName);
+  if (!isNorte && !isSur) return '';
+  const confSet = isNorte ? CONF_NORTE : CONF_SUR;
+  const confName = isNorte ? 'Conferencia Norte' : 'Conferencia Sur';
+  const rows = TEAMS.filter(t => confSet.has(t.Equipo)).map(t => {
+    let PJ = 0, G = 0, ptsFor = 0;
+    (t._gamelog || []).forEach(g => {
+      const [fd, fm, fy] = g.fecha.split('/');
+      if (new Date(+fy, +fm - 1, +fd) >= PLAYOFF_DATE) return;
+      PJ++; ptsFor += g.ptsFor || 0;
+      if (g.ganado) G++;
+    });
+    return { Equipo: t.Equipo, PJ, G, ptsFor };
+  }).sort((a, b) => {
+    const wa = a.PJ ? a.G / a.PJ : 0, wb = b.PJ ? b.G / b.PJ : 0;
+    if (wb !== wa) return wb - wa;
+    if (b.PJ !== a.PJ) return b.PJ - a.PJ;
+    return (b.PJ ? b.ptsFor / b.PJ : 0) - (a.PJ ? a.ptsFor / a.PJ : 0);
+  });
+  if (!rows.some(r => r.PJ > 0)) return '';
+  const idx = rows.findIndex(r => r.Equipo === teamName);
+  if (idx < 0) return '';
+  return `${idx + 1}° en ${confName} · ${rows.length} equipos`;
+}
 
 function renderStandings() {
   function fillTable(tbodyId, confSet) {
@@ -911,6 +1003,7 @@ function renderStandings() {
   }
   fillTable('posNorteTbody', CONF_NORTE);
   fillTable('posSurTbody',   CONF_SUR);
+  buildHomeInsights();
 }
 
 function switchPosTab(tab) {
@@ -2677,6 +2770,7 @@ let _tCnxCheck = { pbpAst: 0, csvAst: 0 };
 let _radarPct = null;   // percentile arrays per feature, computed once
 let _radarIdxA = null;
 let _radarIdxB = null;
+let _radarIdxC = null;
 
 const RADAR_MIN_SEG = 12000; // 200 min × 60 s
 
@@ -2692,6 +2786,7 @@ const RADAR_AXES = [
 const RADAR_COLORS = {
   A: { fill: 'rgba(139,92,246,.25)', stroke: '#8b5cf6' },
   B: { fill: 'rgba(45,212,191,.18)', stroke: '#2dd4bf' },
+  C: { fill: 'rgba(245,158,11,.16)', stroke: '#f59e0b' },
 };
 
 function radarGetRaw(p) {
@@ -2782,7 +2877,8 @@ function radarGetScores(p) {
   };
 }
 
-function radarBuildSvg(scoresA, nameA, scoresB, nameB) {
+function radarBuildSvg(entries) {
+  // entries: [{ scores, color }, ...] — entries[0] is the primary player (rendered on top, bold labels)
   const W = 460, H = 460;
   const cx = W / 2, cy = H / 2;
   const R = 148;
@@ -2825,36 +2921,34 @@ function radarBuildSvg(scoresA, nameA, scoresB, nameB) {
     svg += `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,.12)" stroke-width="1"/>`;
   }
 
-  // Polygons
-  if (scoresB) svg += polygon(scoresB, RADAR_COLORS.B);
-  svg += polygon(scoresA, RADAR_COLORS.A);
+  // Polygons — draw back-to-front so entries[0] renders on top
+  for (let k = entries.length - 1; k >= 0; k--) svg += polygon(entries[k].scores, entries[k].color);
 
-  // Dots + value labels on axes
+  // Dots
   for (let i = 0; i < N; i++) {
     const ax = RADAR_AXES[i];
-    const valA = scoresA[ax.key] || 0;
-    const [xA, yA] = pt(valA, i);
-    svg += `<circle cx="${xA.toFixed(1)}" cy="${yA.toFixed(1)}" r="4" fill="${RADAR_COLORS.A.stroke}" stroke="#0b0b16" stroke-width="1.5"/>`;
-    if (scoresB) {
-      const valB = scoresB[ax.key] || 0;
-      const [xB, yB] = pt(valB, i);
-      svg += `<circle cx="${xB.toFixed(1)}" cy="${yB.toFixed(1)}" r="4" fill="${RADAR_COLORS.B.stroke}" stroke="#0b0b16" stroke-width="1.5"/>`;
-    }
+    entries.forEach(e => {
+      const v = e.scores[ax.key] || 0;
+      const [x, y] = pt(v, i);
+      svg += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="${e.color.stroke}" stroke="#0b0b16" stroke-width="1.5"/>`;
+    });
   }
 
-  // Axis labels
+  // Axis labels: main label + a stacked value per entry (bold white for the primary, colored for the rest)
   for (let i = 0; i < N; i++) {
     const ax = RADAR_AXES[i];
     const offset = 18;
     const [xE, yE] = pt(100 + offset * 100 / R, i);
     const anchor = Math.abs(xE - cx) < 8 ? 'middle' : xE < cx ? 'end' : 'start';
-    const score = scoresA[ax.key] || 0;
     svg += `<text x="${xE.toFixed(1)}" y="${(yE - 7).toFixed(1)}" text-anchor="${anchor}" font-size="10.5" font-weight="700" fill="#a78bfa" font-family="Inter,sans-serif" letter-spacing=".4">${ax.label}</text>`;
-    svg += `<text x="${xE.toFixed(1)}" y="${(yE + 6).toFixed(1)}" text-anchor="${anchor}" font-size="11" font-weight="800" fill="#f8fafc" font-family="Inter,sans-serif">${score}</text>`;
-    if (scoresB) {
-      const scoreB = scoresB[ax.key] || 0;
-      svg += `<text x="${xE.toFixed(1)}" y="${(yE + 18).toFixed(1)}" text-anchor="${anchor}" font-size="10" font-weight="700" fill="${RADAR_COLORS.B.stroke}" font-family="Inter,sans-serif">${scoreB}</text>`;
-    }
+    entries.forEach((e, k) => {
+      const score = e.scores[ax.key] || 0;
+      const dy = k === 0 ? 6 : 6 + k * 12;
+      const fontSize = k === 0 ? 11 : 10;
+      const fontWeight = k === 0 ? 800 : 700;
+      const fill = k === 0 ? '#f8fafc' : e.color.stroke;
+      svg += `<text x="${xE.toFixed(1)}" y="${(yE + dy).toFixed(1)}" text-anchor="${anchor}" font-size="${fontSize}" font-weight="${fontWeight}" fill="${fill}" font-family="Inter,sans-serif">${score}</text>`;
+    });
   }
 
   svg += '</svg>';
@@ -2949,28 +3043,35 @@ function radarRender() {
   const scoresA = radarGetScores(pA);
   if (!scoresA) { empty.style.display = ''; content.style.display = 'none'; return; }
 
-  let scoresB = null, pB = null;
+  const entries = [{ p: pA, scores: scoresA, color: RADAR_COLORS.A }];
   if (_radarIdxB !== null) {
-    pB = PLAYERS[_radarIdxB];
-    scoresB = radarGetScores(pB);
+    const pB = PLAYERS[_radarIdxB];
+    const scoresB = radarGetScores(pB);
+    if (scoresB) entries.push({ p: pB, scores: scoresB, color: RADAR_COLORS.B });
+  }
+  if (_radarIdxC !== null) {
+    const pC = PLAYERS[_radarIdxC];
+    const scoresC = radarGetScores(pC);
+    if (scoresC) entries.push({ p: pC, scores: scoresC, color: RADAR_COLORS.C });
   }
 
   empty.style.display = 'none';
   content.style.display = '';
 
   // SVG
-  svgWrap.innerHTML = radarBuildSvg(scoresA, pA['Nombre completo'], scoresB, pB ? pB['Nombre completo'] : null);
+  svgWrap.innerHTML = radarBuildSvg(entries);
 
   // FIFA-style percentile cards
   let cardsHtml = '';
   for (const ax of RADAR_AXES) {
-    const vA = scoresA[ax.key];
-    const vB = scoresB ? scoresB[ax.key] : null;
+    const valuesHtml = entries.map((e, k) => k === 0
+      ? `<div class="radar-card-val">${e.scores[ax.key]}</div>`
+      : `<div class="radar-card-val-b" style="color:${e.color.stroke}">${e.scores[ax.key]}</div>`
+    ).join('');
     cardsHtml += `<div class="radar-card">
       <div class="radar-card-lbl">${ax.label}</div>
-      <div class="radar-card-val">${vA}</div>
-      ${vB !== null ? `<div class="radar-card-val-b">${vB}</div>` : ''}
-      <div class="radar-card-bar-wrap"><div class="radar-card-bar" style="width:${vA}%"></div></div>
+      ${valuesHtml}
+      <div class="radar-card-bar-wrap"><div class="radar-card-bar" style="width:${entries[0].scores[ax.key]}%"></div></div>
     </div>`;
   }
   cards.innerHTML = cardsHtml;
@@ -3012,10 +3113,96 @@ function radarRender() {
   }
   defsHtml += '</div>';
   axisDefs.innerHTML = defsHtml;
+
+  radarRenderTrend();
+}
+
+// ── Evolución (time series) ───────────────────────────────────────────────
+let _radarTrendStat = 'PTS';
+const RADAR_TREND_STATS = [
+  { key: 'PTS', col: 'Puntos' },
+  { key: 'VAL', col: 'Valoracion' },
+  { key: 'REB', col: 'TReb' },
+  { key: 'AST', col: 'Asistencias' },
+];
+const RADAR_TREND_N = 10;
+
+function radarSetTrendStat(key) {
+  _radarTrendStat = key;
+  document.querySelectorAll('.radar-trend-btn').forEach(b => b.classList.toggle('active', b.dataset.stat === key));
+  radarRenderTrend();
+}
+
+function radarTrendSeries(player) {
+  const stat = RADAR_TREND_STATS.find(s => s.key === _radarTrendStat);
+  const games = (player._games || []).slice(-RADAR_TREND_N);
+  return games.map(g => ({
+    val: parseFloat(g[stat.col]) || 0,
+    fecha: g['Fecha'] || '',
+    rival: g['Rival'] || '',
+  }));
+}
+
+function radarBuildTrendSvg(entries) {
+  const W = 640, H = 200, padL = 30, padR = 14, padT = 14, padB = 14;
+  const maxLen = Math.max(1, ...entries.map(e => e.series.length));
+  const maxVal = Math.max(1, ...entries.flatMap(e => e.series.map(p => p.val)));
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const xAt = i => padL + (maxLen > 1 ? (i / (maxLen - 1)) * plotW : plotW / 2);
+  const yAt = v => padT + plotH - (v / maxVal) * plotH;
+
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">`;
+  const steps = 4;
+  for (let s = 0; s <= steps; s++) {
+    const v = Math.round(maxVal * s / steps);
+    const y = yAt(v);
+    svg += `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,.08)" stroke-width="1"/>`;
+    svg += `<text x="${(padL - 8).toFixed(1)}" y="${(y + 3).toFixed(1)}" text-anchor="end" font-size="9" fill="rgba(255,255,255,.35)" font-family="Inter,sans-serif">${v}</text>`;
+  }
+  entries.forEach(e => {
+    if (!e.series.length) return;
+    const pts = e.series.map((p, i) => [xAt(i), yAt(p.val)]);
+    const d = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+    svg += `<path d="${d}" fill="none" stroke="${e.color}" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    pts.forEach(([x, y], i) => {
+      const g = e.series[i];
+      const tip = `${e.name} · ${g.fecha}${g.rival ? ' vs ' + g.rival : ''}: ${g.val}`;
+      svg += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.4" fill="${e.color}" stroke="#0b0b16" stroke-width="1"><title>${tip}</title></circle>`;
+    });
+  });
+  svg += '</svg>';
+  return svg;
+}
+
+function radarRenderTrend() {
+  const wrap = document.getElementById('radarTrendSvgWrap');
+  const legend = document.getElementById('radarTrendLegend');
+  if (!wrap) return;
+  if (_radarIdxA === null) { wrap.innerHTML = ''; if (legend) legend.innerHTML = ''; return; }
+
+  const entries = [];
+  const push = (idx, color) => {
+    if (idx === null) return;
+    const p = PLAYERS[idx];
+    entries.push({ series: radarTrendSeries(p), color: color.stroke, name: p['Nombre completo'] });
+  };
+  push(_radarIdxA, RADAR_COLORS.A);
+  push(_radarIdxB, RADAR_COLORS.B);
+  push(_radarIdxC, RADAR_COLORS.C);
+
+  const hasData = entries.some(e => e.series.length);
+  wrap.innerHTML = hasData
+    ? radarBuildTrendSvg(entries)
+    : '<div style="color:var(--muted);font-size:.82rem;padding:24px 0;text-align:center">Sin partidos suficientes para mostrar evolución</div>';
+  if (legend) {
+    legend.innerHTML = entries.map(e =>
+      `<span class="radar-trend-legend-item"><span class="radar-trend-dot" style="background:${e.color}"></span>${e.name}</span>`
+    ).join('');
+  }
 }
 
 // ── Autocomplete helpers ─────────────────────────────────────────────────────
-let _radarAcFocusIdx = { A: -1, B: -1 };
+let _radarAcFocusIdx = { A: -1, B: -1, C: -1 };
 
 function radarAcBuildList(query) {
   if (!query || query.length < 2) return [];
@@ -3067,14 +3254,30 @@ function radarAcKey(e, side) {
 function radarAcSelect(side, idx, name) {
   document.getElementById('radarInput' + side).value = name;
   document.getElementById('radarAc' + side).classList.remove('open');
-  if (side === 'A') _radarIdxA = idx; else _radarIdxB = idx;
+  if (side === 'A') _radarIdxA = idx;
+  else if (side === 'B') _radarIdxB = idx;
+  else _radarIdxC = idx;
   radarRender();
 }
 
 function radarToggleCmp() {
   const on = document.getElementById('radarCmpCheck').checked;
   document.getElementById('radarSearchB').style.display = on ? '' : 'none';
-  if (!on) { _radarIdxB = null; document.getElementById('radarInputB').value = ''; radarRender(); }
+  document.getElementById('radarCmpToggle2').style.display = on ? '' : 'none';
+  if (!on) {
+    _radarIdxB = null; document.getElementById('radarInputB').value = '';
+    document.getElementById('radarCmpCheck2').checked = false;
+    document.getElementById('radarSearchC').style.display = 'none';
+    _radarIdxC = null; document.getElementById('radarInputC').value = '';
+  }
+  radarRender();
+}
+
+function radarToggleCmp2() {
+  const on = document.getElementById('radarCmpCheck2').checked;
+  document.getElementById('radarSearchC').style.display = on ? '' : 'none';
+  if (!on) { _radarIdxC = null; document.getElementById('radarInputC').value = ''; }
+  radarRender();
 }
 
 // ── Tooltip encabezados ──────────────────────────────────────────────────────

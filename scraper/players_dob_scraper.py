@@ -31,14 +31,24 @@ import pandas as pd
 BASE_URL = "https://www.laliganacional.com.ar"
 
 # Una sola fase por liga: usamos la Serie Regular (temporada activa)
+# fase_id/grupo_ids son IDs internos del sitio, específicos de cada temporada —
+# hay que volver a buscarlos cuando arranca una temporada nueva (ver CLAUDE.md).
 LEAGUES = [
     {
         "nombre":   "Liga Nacional",
         "league":   "laliga",
-        "fase_id":  "15789",
-        "grupo_ids": ["31358"],
+        "fase_id":  "21871",   # Serie Regular 2026/27 (confirmado vía /api/clasificacion/{faseId}/grupos)
+        "grupo_ids": ["41209"],
     },
     {
+        # TODO temporada 2026/27: al momento de este cambio (29/09/2026) el fixture
+        # de Liga Argentina está confirmado pero el sitio todavía no cargó la fase
+        # de "Serie Regular" 2026/27 (el <select id="select-fase"> en
+        # /laligaargentina/estadisticas/comparativa-jugadores está vacío). Los IDs
+        # de abajo son los de 2025/26 — van a traer jugadores de la temporada vieja
+        # hasta que se actualicen. Repetir la inspección hecha para Liga Nacional
+        # (inspeccionar #select-fase en esa página, y GET a
+        # /api/clasificacion/{faseId}/grupos) una vez que el sitio publique la fase.
         "nombre":   "Liga Argentina",
         "league":   "laligaargentina",
         "fase_id":  "16077",

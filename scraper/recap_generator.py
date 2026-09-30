@@ -277,8 +277,11 @@ def main():
     output_json = docs_dir / "recaps.json"
 
     if not stats_csv.exists():
-        log.error(f"CSV de stats no encontrado: {stats_csv}")
-        sys.exit(1)
+        log.warning(f"CSV de stats no encontrado todavía: {stats_csv} (temporada sin arrancar). Nada que hacer.")
+        sys.exit(0)
+
+    if not output_json.exists():
+        output_json.write_text("{}", encoding="utf-8")
 
     games = build_game_index(stats_csv)
     log.info(f"Total partidos en {liga}: {len(games)}")

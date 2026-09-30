@@ -33,10 +33,10 @@ OUTPUT_CSV = DOCS_DIR / "liga_nacional_shots.csv"
 DELAY   = 1.0
 TIMEOUT = 30
 
-# Partidos excluidos explícitamente (ej. supercopa, partido amistoso fuera de la competencia)
-BLOCKED_GAME_IDS: set[str] = {
-    "7HOd8ZYdbHXIjwhorMzAnQ==",  # Supercopa Boca vs Instituto 05/03/2026
-}
+# Nota: no hace falta una lista de exclusión propia acá — la lista de partidos a
+# scrapear se deriva de INPUT_CSV (liga_nacional.csv), así que un partido bloqueado
+# en data_scraper_nacional.py (BLOCKED_GAME_KEYS) nunca llega a este CSV y por lo
+# tanto tampoco a este scraper.
 
 CSV_COLUMNS = [
     "IdPartido", "Fecha", "Equipo_local", "Equipo_visitante",
@@ -158,8 +158,8 @@ def main():
     args = parser.parse_args()
 
     if not INPUT_CSV.exists():
-        log.error(f"CSV no encontrado: {INPUT_CSV}")
-        sys.exit(1)
+        log.warning(f"CSV no encontrado todavía: {INPUT_CSV} (temporada sin arrancar). Nada que hacer.")
+        sys.exit(0)
 
     # Build game list from TOTALES rows usando clave estable fecha|local|visitante
     # (los IDs del sitio son dinámicos y cambian en cada request)

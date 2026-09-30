@@ -196,79 +196,56 @@ liga_argentina/
 
 ## Flujo de actualización automática
 
-**⚠️ ESTADO ACTUAL (desde agosto 2026): el cron diario está DESACTIVADO.** La temporada regular de Liga Argentina terminó (ver "Incidente: Supabase egress excedido" y el hallazgo de julio 2026 sobre `fixture_upcoming.csv` — último partido 03/06/2026, LANÚS campeón) y faltan ~2 meses para que arranque la próxima. Como no hay partidos nuevos que scrapear, se comentaron las líneas `schedule:` en `.github/workflows/scraper.yml` para no seguir corriendo el workflow en vano todos los días. `workflow_dispatch` (disparo manual desde la pestaña Actions) sigue disponible por si hace falta correrlo antes.
+**⚠️ ESTADO ACTUAL (desde septiembre 2026): el cron diario está REACTIVADO, acotado a Liga Argentina + Liga Nacional.** El 22/09/2026 se hizo el rollover de temporada para las 4 ligas (ver `docs/<liga>/archive/2025-26/` más abajo y el toggle de temporada del frontend), pero el cron de `scraper.yml` había quedado sin reactivar. La temporada 2026/27 de Liga Nacional ya arrancó (primer partido 28/09/2026, LANÚS vs GIMNASIA (CR)); Liga Argentina tiene el fixture confirmado (21/09/2026) pero al 29/09/2026 todavía no cargó partidos en el sitio. Liga Femenina y Liga de Desarrollo **siguen sin arrancar su temporada 2026/27** — sus steps en `.github/workflows/scraper.yml` quedan comentados hasta que se reactiven en una tarea aparte.
 
-**Por qué se decidió apagarlo (no solo dejarlo correr sin hacer nada):** el 01/08/2026 el workflow falló en el paso "Commitear CSVs actualizados" con `fatal: pathspec 'docs/liga_argentina/recaps.json' did not match any files` — el `git add` intenta agregar un archivo `recaps.json` que no existe, y como el step usa `bash -e`, el error corta todo el script (exit code 128) antes de llegar al `git commit`/`git push`. No se investigó ni se corrigió este bug porque no tiene sentido con la temporada terminada; **queda pendiente para cuando se reactive el workflow** — revisar qué genera (o debería generar) `recaps.json` en cada liga antes de descomentar el cron.
+**Bug de `recaps.json` (corregido, septiembre 2026):** el 01/08/2026 el workflow había fallado en "Commitear CSVs actualizados" con `fatal: pathspec 'docs/liga_argentina/recaps.json' did not match any files` porque `recap_generator.py` podía terminar sin nunca haber escrito el archivo (si no había partidos nuevos, o si faltaba `ANTHROPIC_API_KEY`), y el `git add` de una lista fija fallaba sobre un archivo inexistente. Fix aplicado: `recap_generator.py` ahora crea `recaps.json` con `{}` apenas arranca si no existe, y el step de commit itera la lista de archivos con `[ -f "$f" ] && git add "$f"` en vez de pasarlos todos juntos a un solo `git add`, así un archivo faltante no corta el resto del step.
 
-**Para reactivar antes de la próxima temporada:**
-1. Descomentar las 2 líneas `cron:` en `.github/workflows/scraper.yml` (dejan de estar comentadas, `workflow_dispatch:` no se toca).
-2. Investigar y resolver el bug de `recaps.json` (arriba) para que el `git add` no vuelva a fallar.
-3. Correr el workflow una vez a mano (`workflow_dispatch`) antes de confiar en el cron, para confirmar que el paso de commit ya no rompe.
+**Bug de "temporada sin arrancar" (corregido, septiembre 2026):** los 3 scrapers de Argentina/Nacional (`data_scraper*.py`, `shot_map_scraper*.py`, `pbp_scraper*.py`) y `recap_generator.py` hacían `sys.exit(1)` cuando no había partidos en el rango de fechas o el CSV de stats todavía no existía — un estado normal antes/al principio de temporada, no un error. Como GitHub Actions corta el job entero en el primer step que falla, esto rompía el workflow completo (incluida Liga Nacional, que corre después de Liga Argentina en la secuencia) todos los días hasta que Liga Argentina tuviera su primer partido cargado. Fix: esos casos ahora son `log.warning(...)` + `sys.exit(0)`. Liga Femenina y Liga de Desarrollo tienen el mismo patrón sin corregir — replicar este fix ahí cuando se reactiven sus steps.
 
-El workflow corre todos los días a las **06:00 ART** (cron `0 9 * * *` UTC) — cuando esté reactivado. También se puede disparar manualmente desde GitHub Actions (`workflow_dispatch`).
+**Bug del modelo con pocos partidos (corregido, septiembre 2026):** `modelos/modelo_liga_nacional.py` rompía (`ValueError` de `StandardScaler`, 0 muestras) cuando había muy pocos partidos jugados — las rolling features (ventana 5, `shift(1)`) todavía no tienen datos previos por equipo. Fix: guard `MIN_TRAINING_ROWS = 10` antes de entrenar — si no hay suficientes filas con features completas, se loguea un aviso y se sale con código 0 sin tocar el `.pkl` existente ni generar predicciones. El reentrenamiento real arranca solo una vez que haya suficiente historial por equipo.
 
-**Secuencia completa:**
-1. Scrapers Liga Argentina (stats, shots, PBP)
-2. Scrapers Liga Nacional (stats, shots, PBP)
-3. **Retrain del modelo de probabilidad** — `python modelos/modelo_liga_nacional.py`
-4. Scrapers Liga Femenina (stats, shots, PBP)
-5. Scrapers Liga de Desarrollo (stats, shots, PBP)
-6. `git commit` + `git push` → Vercel redeploya automáticamente
+El workflow corre todos los días a las **01:30 y 06:00 ART** (cron `30 4 * * *` y `0 9 * * *` UTC). También se puede disparar manualmente desde GitHub Actions (`workflow_dispatch`).
 
-**Archivos que actualiza el commit diario:**
-- Todos los CSVs de stats, shots y PBP de las 4 ligas
-- `docs/liga_nacional/predicciones_upcoming.csv` — probabilidades para partidos próximos
-- `modelos/modelo_liga_nacional_prod.pkl` — modelo serializado reentrenado
+**Secuencia completa (Argentina + Nacional; Femenina y Desarrollo comentadas):**
+1. Descargar PBP de Argentina y Nacional desde Supabase (para scraping incremental)
+2. Scrapers Liga Argentina (stats, shots, PBP) + Recap
+3. Scrapers Liga Nacional (stats, shots, PBP)
+4. Limpieza de partidos fuera de temporada regular (clave estable, ver más abajo)
+5. Recap Liga Nacional
+6. **Retrain del modelo de probabilidad** — `python modelos/modelo_liga_nacional.py` (no-op hasta que haya ≥10 partidos con historial suficiente)
+7. Subir PBP filtrado (Argentina + Nacional) a Supabase
+8. `git commit` + `git push` → Vercel redeploya automáticamente
 
-**Para actualizar Liga Nacional manualmente** (equivale al workflow pero solo para esa liga):
+**Archivos que actualiza el commit diario:** CSVs de stats/shots de Argentina y Nacional, `recaps.json` de ambas, `docs/liga_nacional/predicciones_upcoming.csv`, `modelos/modelo_liga_nacional_prod.pkl`. Femenina y Desarrollo no se tocan mientras estén desactivadas.
+
+**Para reactivar Femenina y Desarrollo cuando arranquen sus temporadas:** descomentar sus steps en `scraper.yml`, agregarlas de nuevo a la lista `files` del step "Subir PBP a Supabase" y al loop de "Descargar PBP desde Supabase", y aplicarles el mismo fix de `sys.exit(0)` en "temporada sin arrancar" (arriba) — `FIXTURE_START_DATE` en ambos scrapers ya fue actualizado en el rollover del 22/09/2026.
+
+**Para actualizar Liga Nacional manualmente** (equivale al workflow pero solo para esa liga): `scraper/update_nacional.py` está roto/desactualizado (imports y paths de antes del aplanamiento del repo, ver `git log`) — no usarlo. Correr los 3 scrapers individuales a mano en su lugar:
 ```bash
-python3.12 liga_argentina/Scraper/update_nacional.py
+python scraper/data_scraper_nacional.py && python scraper/shot_map_scraper_nacional.py && python scraper/pbp_scraper_nacional.py
 ```
 
-**Regla importante:** los scrapers individuales (`data_scraper_nacional.py`, etc.) siguen funcionando de forma independiente sin ningún cambio. `update_nacional.py` y el workflow los encadenan sin modificarlos.
+## Carpetas `archive/2025-26/`
+
+Cada liga (`docs/liga_argentina/`, `docs/liga_nacional/`, `docs/liga_femenina/`, `docs/liga_proximo/`) tiene una subcarpeta `archive/2025-26/` con los CSV completos de la temporada 2025/26 (stats, shots y PBP). Se movieron ahí el 22/09/2026 al arrancar la temporada 2026/27, porque los CSV no tienen columna de temporada y mezclar ambas en el mismo archivo habría hecho que el modelo entrenara sobre un historial sin poder distinguir una temporada de otra. Los CSV "en vivo" (`docs/<liga>/<liga>.csv`, etc.) quedaron vacíos (solo header) listos para que los scrapers los llenen con la temporada 2026/27.
+
+El dashboard accede a esta carpeta a través del **toggle de temporada** agregado en el frontend (no es un archivo puramente histórico sin uso, a diferencia de lo que sería un archivo de solo-lectura). El modelo (`modelos/modelo_liga_nacional.py`) sigue leyendo únicamente de los paths "en vivo".
 
 ## Partidos a excluir (torneos fuera de temporada regular)
 
-Ciertos partidos son scrapeados automáticamente pero **no pertenecen a la temporada regular** y deben eliminarse del CSV después de cada scrape.
+Ciertos partidos son scrapeados automáticamente pero **no pertenecen a la temporada regular** y deben eliminarse del CSV después de cada scrape. Mecanismo único (desde septiembre 2026): clave estable `fecha|equipoA|equipoB` — **nunca `IdPartido`**, que es dinámico y cambia en cada request (ver sección "IDs dinámicos"). Este mecanismo vive en 3 lugares que hay que mantener en sync si aparece un torneo nuevo para excluir:
 
-### Liga Nacional — Copa Liga Malvinas (abril 2026)
-Torneo de 4 equipos (2 semis + final) jugado entre fecha 36 y los playoffs.
+1. `scraper/data_scraper_nacional.py` — `BLOCKED_GAME_KEYS` (antes de que el partido entre al CSV de stats)
+2. `scraper/pbp_scraper_nacional.py` — `BLOCKED_GAME_KEYS` (antes de que entre al CSV de PBP)
+3. El step "Eliminar partidos fuera de temporada regular – Liga Nacional" en `scraper.yml` — `EXCLUDED_PAIRS` (limpieza post-hoc sobre los 3 CSV, por si un partido ya se coló)
 
-| Fecha | Partido |
-|---|---|
-| 01/04/2026 | INDEPENDIENTE (O) vs OBRAS |
-| 01/04/2026 | LA UNION FSA. vs FERRO |
-| 02/04/2026 | FERRO vs OBRAS |
+`shot_map_scraper_nacional.py` no necesita su propia lista: la lista de partidos a scrapear la deriva del CSV de stats, así que un partido bloqueado en `data_scraper_nacional.py` nunca llega a `shot_map_scraper_nacional.py` tampoco.
 
-**⚠️ No filtrar por `IdPartido`** — los IDs son dinámicos y cambian en cada request (ver sección "IDs dinámicos"). Usar clave estable `fecha|equipoA|equipoB`.
-
-**Después de correr `data_scraper_nacional.py`**, ejecutar:
-```bash
-python3 << 'EOF'
-import pandas as pd
-
-EXCLUDED_PAIRS = {
-    ('01/04/2026', frozenset(['INDEPENDIENTE (O)', 'OBRAS'])),
-    ('01/04/2026', frozenset(['LA UNION FSA.', 'FERRO'])),
-    ('02/04/2026', frozenset(['FERRO', 'OBRAS'])),
-    ('05/03/2026', frozenset(['BOCA', 'INSTITUTO'])),  # partido especial cancha Atenas
+Los 3 lugares están **vacíos para la temporada 2026/27** (los partidos de Copa Liga Malvinas y la Supercopa Boca-Instituto de 2025/26 quedaron archivados en `archive/2025-26/`). Si aparece un torneo especial esta temporada, completar los 3 con la misma clave, por ejemplo:
+```python
+BLOCKED_GAME_KEYS: set[tuple[str, frozenset[str]]] = {
+    ("DD/MM/AAAA", frozenset({"EQUIPO_A", "EQUIPO_B"})),
 }
-
-def is_excluded(fecha, equipo, rival):
-    return (fecha, frozenset([equipo, rival])) in EXCLUDED_PAIRS
-
-for f, local_col, visit_col in [
-    ('docs/liga_nacional/liga_nacional.csv', 'Equipo', 'Rival'),
-    ('docs/liga_nacional/liga_nacional_shots.csv', 'Equipo_local', 'Equipo_visitante'),
-    ('docs/liga_nacional/liga_nacional_pbp.csv', 'Equipo_local', 'Equipo_visitante'),
-]:
-    df = pd.read_csv(f)
-    mask = df.apply(lambda r: is_excluded(r['Fecha'], r[local_col], r[visit_col]), axis=1)
-    before = len(df)
-    df = df[~mask].reset_index(drop=True)
-    df.to_csv(f, index=False, encoding='utf-8-sig')
-    print(f'{f}: {before} → {len(df)} filas')
-EOF
 ```
 
 ## Fuente de datos
@@ -276,10 +253,12 @@ EOF
 - Liga Nacional URL base: `https://www.laliganacional.com.ar/laliga`
 - Liga Femenina URL base: `https://www.laliganacional.com.ar/lfb`
 - Liga de Desarrollo URL base: `https://www.laliganacional.com.ar/ligaproximo`
-- Temporada Liga Argentina: desde `30/10/2025`
-- Temporada Liga Nacional: desde `23/09/2025`
-- Temporada Liga Femenina: desde `03/10/2025` (CSV completo), pero el dashboard filtra desde `09/01/2026` (Segunda Vuelta)
-- Temporada Liga de Desarrollo: desde `22/09/2025`
+- Temporada Liga Argentina: desde `15/09/2026` (temporada 2026/27; fixture confirmado 21/09/2026, primer partido todavía no cargado en el sitio a esa fecha)
+- Temporada Liga Nacional: desde `28/09/2026` (temporada 2026/27; primer partido 28/09/2026, LANÚS vs GIMNASIA (CR))
+- Temporada Liga Femenina: desde `03/10/2025` (temporada 2025/26, sin arrancar 2026/27 todavía — ver "Flujo de actualización automática"). `FIXTURE_START_DATE` del scraper todavía no se actualizó para 26/27.
+- Temporada Liga de Desarrollo: desde `27/09/2026` (`FIXTURE_START_DATE` ya actualizado en el rollover del 22/09/2026, aunque el cron de esta liga sigue sin reactivarse)
+- `PLAYOFF_DATE`/`PLAYOFF2_DATE`/`CUARTOS_DATE` en `liga_argentina.js` y `PLAYOFF_DATE` en `liga_nacional.js` quedaron en placeholders de abril 2027 (sin fecha real de playoffs todavía) — ajustar cuando la liga confirme el calendario de playoffs 2026/27, mismo criterio que se usó para 2025/26.
+- `fase_id`/`grupo_ids` de `scraper/players_dob_scraper.py` (IDs internos del sitio, cambian por temporada): Liga Nacional actualizado a `fase_id=21871`/`grupo_ids=["41209"]` (Serie Regular 2026/27, confirmado vía `/api/clasificacion/{faseId}/grupos`). Liga Argentina, Femenina y Desarrollo **pendientes** — Liga Argentina en particular: al 29/09/2026 el sitio todavía no publicó la fase 2026/27 (el `<select id="select-fase">` en `/laligaargentina/estadisticas/comparativa-jugadores` está vacío); repetir la misma inspección cuando el sitio la publique.
 - Scraper usa `cloudscraper` para evadir protección anti-bot
 - `shot_map_scraper.py --full` regenera el CSV completo de tiros (Liga Argentina)
 - `shot_map_scraper_nacional.py --full` regenera el CSV completo de tiros (Liga Nacional)
@@ -999,6 +978,8 @@ El bug de junio 2026 solo se había corregido en `data_scraper_nacional.py` y `s
 - `pbp_scraper.py`, `pbp_scraper_nacional.py`, `pbp_scraper_femenina.py`, `pbp_scraper_proximo.py`
 
 De paso, en `pbp_scraper_nacional.py` y `data_scraper_nacional.py`, `BLOCKED_GAME_IDS` (usado para excluir la Supercopa Boca–Instituto del 05/03/2026) también dependía de un `IdPartido` fijo que nunca iba a volver a coincidir. En `pbp_scraper_nacional.py` se reemplazó por `BLOCKED_GAME_KEYS`, una clave `(fecha, frozenset({equipoA, equipoB}))` que no depende del ID dinámico.
+
+**Completado en septiembre 2026**: `data_scraper_nacional.py` seguía con `BLOCKED_GAME_IDS` por `IdPartido` (el fix de julio solo había alcanzado a `pbp_scraper_nacional.py`), y el step de limpieza de torneos especiales en `scraper.yml` también filtraba por `IdPartido` fijo — ninguno de los dos borraba nada de forma confiable. Al reactivar el cron para la temporada 2026/27 se terminó de alinear todo a `BLOCKED_GAME_KEYS`/`EXCLUDED_PAIRS` por clave estable (ver sección "Partidos a excluir" más arriba); `shot_map_scraper_nacional.py` tenía además un `BLOCKED_GAME_IDS` que nunca se usaba en ningún lado (dead code) — se eliminó en vez de convertirlo.
 
 **Limpieza única de los CSVs ya duplicados** (julio 2026):
 

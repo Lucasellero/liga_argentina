@@ -1,11 +1,12 @@
 name: Scraper diario
 
 on:
-  # Cron desactivado (agosto 2026): temporada terminada, próximo arranque en ~2 meses.
-  # Reactivar descomentando estas 2 líneas cuando se acerque el inicio de la próxima temporada.
-  # schedule:
-  #   - cron: '30 4 * * *'   # 01:30 ART (UTC-3)
-  #   - cron: '0 9 * * *'    # 06:00 ART (UTC-3)
+  # Cron reactivado (septiembre 2026): arrancó la temporada 2026/27 de Liga Argentina
+  # y Liga Nacional. Femenina y Desarrollo siguen con sus pasos comentados más abajo
+  # hasta que arranquen sus propias temporadas.
+  schedule:
+    - cron: '30 4 * * *'   # 01:30 ART (UTC-3)
+    - cron: '0 9 * * *'    # 06:00 ART (UTC-3)
   workflow_dispatch:
 
 jobs:
@@ -28,11 +29,12 @@ jobs:
         run: pip install -r scraper/requirements.txt
 
       # ── Descargar PBP actuales desde Supabase (para scraping incremental) ──
+      # Acotado a Argentina + Nacional mientras Femenina y Desarrollo estén paradas.
       - name: Descargar PBP desde Supabase
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         run: |
-          for LEAGUE in liga_argentina liga_nacional liga_femenina liga_proximo; do
+          for LEAGUE in liga_argentina liga_nacional; do
             FILE="docs/${LEAGUE}/${LEAGUE}_pbp.csv"
             STATUS=$(curl -sf -o "$FILE" -w "%{http_code}" \
               "${SUPABASE_URL}/storage/v1/object/public/pbp/${LEAGUE}_pbp.csv" 2>/dev/null || echo "000")
@@ -64,16 +66,32 @@ jobs:
       - name: Jugada a jugada – Liga Nacional
         run: python scraper/pbp_scraper_nacional.py
 
-      # ── Limpiar partidos Copa Liga Malvinas (fuera de temporada regular) ──────
-      - name: Eliminar partidos Copa Liga Malvinas – Liga Nacional
+      # ── Limpiar partidos fuera de temporada regular (torneos especiales) ─────
+      # Clave estable fecha|equipoA|equipoB — el IdPartido es dinámico y cambia en
+      # cada request, así que no sirve como identificador persistente entre corridas
+      # (ver CLAUDE.md "IDs dinámicos del sitio"). Vacío para 2026/27 hasta que
+      # aparezca un torneo fuera de temporada regular que haya que excluir.
+      - name: Eliminar partidos fuera de temporada regular – Liga Nacional
         run: |
           python -c "
           import pandas as pd
-          IDS = {'CVziX9hLM2fiIX5QRDxVvw==', 'J1PrR-tkUftYS_wjRvAJ_w==', 'StLSs290jBa1eY7d9qyvjw=='}
-          for f in ['docs/liga_nacional/liga_nacional.csv', 'docs/liga_nacional/liga_nacional_shots.csv', 'docs/liga_nacional/liga_nacional_pbp.csv']:
-              df = pd.read_csv(f); before = len(df)
-              df = df[~df['IdPartido'].isin(IDS)]; df.to_csv(f, index=False)
-              print(f'{f}: {before - len(df)} filas eliminadas')
+
+          EXCLUDED_PAIRS = set()  # {('DD/MM/AAAA', frozenset(['EQUIPO_A', 'EQUIPO_B']))}
+
+          def is_excluded(fecha, equipo, rival):
+              return (fecha, frozenset([equipo, rival])) in EXCLUDED_PAIRS
+
+          for f, local_col, visit_col in [
+              ('docs/liga_nacional/liga_nacional.csv', 'Equipo', 'Rival'),
+              ('docs/liga_nacional/liga_nacional_shots.csv', 'Equipo_local', 'Equipo_visitante'),
+              ('docs/liga_nacional/liga_nacional_pbp.csv', 'Equipo_local', 'Equipo_visitante'),
+          ]:
+              df = pd.read_csv(f)
+              mask = df.apply(lambda r: is_excluded(r['Fecha'], r[local_col], r[visit_col]), axis=1)
+              before = len(df)
+              df = df[~mask].reset_index(drop=True)
+              df.to_csv(f, index=False, encoding='utf-8-sig')
+              print(f'{f}: {before} → {len(df)} filas')
           "
 
       - name: Recap – Liga Nacional
@@ -86,26 +104,31 @@ jobs:
         run: python modelos/modelo_liga_nacional.py
 
       # ── Liga Femenina ───────────────────────────────────────────────────────
-      - name: Stats – Liga Femenina
-        run: python scraper/data_scraper_femenina.py
-
-      - name: Tiros – Liga Femenina
-        run: python scraper/shot_map_scraper_femenina.py
-
-      - name: Jugada a jugada – Liga Femenina
-        run: python scraper/pbp_scraper_femenina.py
+      # Desactivada (septiembre 2026): la temporada 2026/27 de Liga Femenina
+      # todavía no arrancó. Descomentar estos 3 steps cuando arranque.
+      # - name: Stats – Liga Femenina
+      #   run: python scraper/data_scraper_femenina.py
+      #
+      # - name: Tiros – Liga Femenina
+      #   run: python scraper/shot_map_scraper_femenina.py
+      #
+      # - name: Jugada a jugada – Liga Femenina
+      #   run: python scraper/pbp_scraper_femenina.py
 
       # ── Liga de Desarrollo ──────────────────────────────────────────────────
-      - name: Stats – Liga de Desarrollo
-        run: python scraper/data_scraper_proximo.py
-
-      - name: Tiros – Liga de Desarrollo
-        run: python scraper/shot_map_scraper_proximo.py
-
-      - name: Jugada a jugada – Liga de Desarrollo
-        run: python scraper/pbp_scraper_proximo.py
+      # Desactivada (septiembre 2026): la temporada 2026/27 de Liga de Desarrollo
+      # todavía no arrancó. Descomentar estos 3 steps cuando arranque.
+      # - name: Stats – Liga de Desarrollo
+      #   run: python scraper/data_scraper_proximo.py
+      #
+      # - name: Tiros – Liga de Desarrollo
+      #   run: python scraper/shot_map_scraper_proximo.py
+      #
+      # - name: Jugada a jugada – Liga de Desarrollo
+      #   run: python scraper/pbp_scraper_proximo.py
 
       # ── Subir PBP a Supabase (versión filtrada para web, <50 MB) ────────────
+      # Acotado a Argentina + Nacional mientras Femenina y Desarrollo estén paradas.
       - name: Subir PBP a Supabase
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -127,8 +150,6 @@ jobs:
           files = [
               ('liga_argentina', 'docs/liga_argentina/liga_argentina_pbp.csv'),
               ('liga_nacional',  'docs/liga_nacional/liga_nacional_pbp.csv'),
-              ('liga_femenina',  'docs/liga_femenina/liga_femenina_pbp.csv'),
-              ('liga_proximo',   'docs/liga_proximo/liga_proximo_pbp.csv'),
           ]
 
           url = os.environ['SUPABASE_URL']
@@ -158,18 +179,18 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add \
-            docs/liga_argentina/liga_argentina.csv \
-            docs/liga_argentina/liga_argentina_shots.csv \
-            docs/liga_argentina/recaps.json \
-            docs/liga_nacional/liga_nacional.csv \
-            docs/liga_nacional/liga_nacional_shots.csv \
-            docs/liga_nacional/predicciones_upcoming.csv \
-            docs/liga_nacional/recaps.json \
-            docs/liga_femenina/liga_femenina.csv \
-            docs/liga_femenina/liga_femenina_shots.csv \
-            docs/liga_proximo/liga_proximo.csv \
-            docs/liga_proximo/liga_proximo_shots.csv \
+          FILES=(
+            docs/liga_argentina/liga_argentina.csv
+            docs/liga_argentina/liga_argentina_shots.csv
+            docs/liga_argentina/recaps.json
+            docs/liga_nacional/liga_nacional.csv
+            docs/liga_nacional/liga_nacional_shots.csv
+            docs/liga_nacional/predicciones_upcoming.csv
+            docs/liga_nacional/recaps.json
             modelos/modelo_liga_nacional_prod.pkl
+          )
+          for f in "${FILES[@]}"; do
+            [ -f "$f" ] && git add "$f" || echo "skip (no existe): $f"
+          done
           git diff --cached --quiet || git commit -m "data: actualizar CSVs $(date +'%d-%m-%Y')"
           git push
