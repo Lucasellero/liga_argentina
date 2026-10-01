@@ -205,7 +205,7 @@ liga_argentina/
 
 **Bug de `recaps.json` (corregido, septiembre 2026):** el 01/08/2026 el workflow había fallado en "Commitear CSVs actualizados" con `fatal: pathspec 'docs/liga_argentina/recaps.json' did not match any files` porque `recap_generator.py` podía terminar sin nunca haber escrito el archivo (si no había partidos nuevos, o si faltaba `ANTHROPIC_API_KEY`), y el `git add` de una lista fija fallaba sobre un archivo inexistente. Fix aplicado: `recap_generator.py` ahora crea `recaps.json` con `{}` apenas arranca si no existe, y el step de commit itera la lista de archivos con `[ -f "$f" ] && git add "$f"` en vez de pasarlos todos juntos a un solo `git add`, así un archivo faltante no corta el resto del step.
 
-**Bug de "temporada sin arrancar" (corregido, septiembre 2026):** los 3 scrapers de Argentina/Nacional (`data_scraper*.py`, `shot_map_scraper*.py`, `pbp_scraper*.py`) y `recap_generator.py` hacían `sys.exit(1)` cuando no había partidos en el rango de fechas o el CSV de stats todavía no existía — un estado normal antes/al principio de temporada, no un error. Como GitHub Actions corta el job entero en el primer step que falla, esto rompía el workflow completo (incluida Liga Nacional, que corre después de Liga Argentina en la secuencia) todos los días hasta que Liga Argentina tuviera su primer partido cargado. Fix: esos casos ahora son `log.warning(...)` + `sys.exit(0)`. Liga Femenina y Liga de Desarrollo tienen el mismo patrón sin corregir — replicar este fix ahí cuando se reactiven sus steps.
+**Bug de "temporada sin arrancar" (corregido, septiembre 2026):** los 3 scrapers de Argentina/Nacional (`data_scraper*.py`, `shot_map_scraper*.py`, `pbp_scraper*.py`) hacían `sys.exit(1)` cuando no había partidos en el rango de fechas o el CSV de stats todavía no existía — un estado normal antes/al principio de temporada, no un error. Como GitHub Actions corta el job entero en el primer step que falla, esto rompía el workflow completo (incluida Liga Nacional, que corre después de Liga Argentina en la secuencia) todos los días hasta que Liga Argentina tuviera su primer partido cargado. Fix: esos casos ahora son `log.warning(...)` + `sys.exit(0)`. Liga Femenina y Liga de Desarrollo tienen el mismo patrón sin corregir — replicar este fix ahí cuando se reactiven sus steps.
 
 **Bug del modelo con pocos partidos (corregido, septiembre 2026):** `modelos/modelo_liga_nacional.py` rompía (`ValueError` de `StandardScaler`, 0 muestras) cuando había muy pocos partidos jugados — las rolling features (ventana 5, `shift(1)`) todavía no tienen datos previos por equipo. Fix: guard `MIN_TRAINING_ROWS = 10` antes de entrenar — si no hay suficientes filas con features completas, se loguea un aviso y se sale con código 0 sin tocar el `.pkl` existente ni generar predicciones. El reentrenamiento real arranca solo una vez que haya suficiente historial por equipo.
 
@@ -213,15 +213,14 @@ El workflow corre todos los días a las **01:30 y 06:00 ART** (cron `30 4 * * *`
 
 **Secuencia completa (Argentina + Nacional; Femenina y Desarrollo comentadas):**
 1. Descargar PBP de Argentina y Nacional desde Supabase (para scraping incremental)
-2. Scrapers Liga Argentina (stats, shots, PBP) + Recap
+2. Scrapers Liga Argentina (stats, shots, PBP)
 3. Scrapers Liga Nacional (stats, shots, PBP)
 4. Limpieza de partidos fuera de temporada regular (clave estable, ver más abajo)
-5. Recap Liga Nacional
-6. **Retrain del modelo de probabilidad** — `python modelos/modelo_liga_nacional.py` (no-op hasta que haya ≥10 partidos con historial suficiente)
-7. Subir PBP filtrado (Argentina + Nacional) a Supabase
-8. `git commit` + `git push` → Vercel redeploya automáticamente
+5. **Retrain del modelo de probabilidad** — `python modelos/modelo_liga_nacional.py` (no-op hasta que haya ≥10 partidos con historial suficiente)
+6. Subir PBP filtrado (Argentina + Nacional) a Supabase
+7. `git commit` + `git push` → Vercel redeploya automáticamente
 
-**Archivos que actualiza el commit diario:** CSVs de stats/shots de Argentina y Nacional, `recaps.json` de ambas, `docs/liga_nacional/predicciones_upcoming.csv`, `modelos/modelo_liga_nacional_prod.pkl`. Femenina y Desarrollo no se tocan mientras estén desactivadas.
+**Archivos que actualiza el commit diario:** CSVs de stats/shots de Argentina y Nacional, `docs/liga_nacional/predicciones_upcoming.csv`, `modelos/modelo_liga_nacional_prod.pkl`. Femenina y Desarrollo no se tocan mientras estén desactivadas.
 
 **Para reactivar Femenina y Desarrollo cuando arranquen sus temporadas:** descomentar sus steps en `scraper.yml`, agregarlas de nuevo a la lista `files` del step "Subir PBP a Supabase" y al loop de "Descargar PBP desde Supabase", y aplicarles el mismo fix de `sys.exit(0)` en "temporada sin arrancar" (arriba) — `FIXTURE_START_DATE` en ambos scrapers ya fue actualizado en el rollover del 22/09/2026.
 
@@ -387,9 +386,9 @@ La tabla `j-tabla` tiene un toggle adicional: **Todos / Local / Visitante**.
 **Modal de equipo / partido** (`#teamGamesBackdrop`) — lógica en `docs/shared/common.js` (**compartida por las 5 ligas**, no por-liga; ver "`docs/shared/`" más arriba):
 - Se abre al hacer clic en una fila de la tabla de Posiciones, en el **nombre** del equipo dentro de `Equipos > Tabla` (`.team-name-link`, ver más abajo — el resto de la fila sigue siendo el comparador de equipos), o en una card de partido (desde `partidos`, entra directo al detalle vía `openPartidoModal`).
 - **Vista de equipo** (`showTeamGames(teamName)`): header con logo/récord, línea de posición (`#tgmStanding`, ver "Ficha de equipo" abajo), y dos tabs — **Partidos** (`#tgmGamesPanel`) y **Plantel** (`#tgmRosterPanel`).
-- **Vista de detalle de partido** (`tgmDetail`, se abre al clickear una fila del tab Partidos): tabs "Estadísticas" (stats head-to-head), "Mapa de tiro" (canvas con filtros equipo/tipo/resultado), "Box Score" (tabla por equipo, columnas #dorsal/Min/PTS/Dobles/Triples/TL/REB/RD/RO/AST/REC/PER/TAP/VAL, titulares con ●, DNP atenuados), "Evolución" (gráfico de diferencia de marcador) y "Recap" (crónica generada por IA, ver sección "Recap automático").
+- **Vista de detalle de partido** (`tgmDetail`, se abre al clickear una fila del tab Partidos): tabs "Estadísticas" (stats head-to-head), "Mapa de tiro" (canvas con filtros equipo/tipo/resultado), "Box Score" (tabla por equipo, columnas #dorsal/Min/PTS/Dobles/Triples/TL/REB/RD/RO/AST/REC/PER/TAP/VAL, titulares con ●, DNP atenuados), "Evolución" (gráfico de diferencia de marcador).
 - Botón "‹ Volver" (`onTgmBack`): si fue abierto desde `partidos` (`_partidoMode=true`) cierra el modal entero; si fue desde la ficha de equipo, vuelve a esa ficha (`closeGameDetail`) restaurando el tab (Partidos/Plantel) en el que estaba antes de entrar al detalle (`_teamModalTab`).
-- `switchGameTab(tab)` maneja los tabs de detalle (`'stats'|'map'|'box'|'evol'|'recap'`); al activar `'box'` llama `renderBoxScore(_smState.gameId, _smState.local, _smState.visit)`.
+- `switchGameTab(tab)` maneja los tabs de detalle (`'stats'|'map'|'box'|'evol'`); al activar `'box'` llama `renderBoxScore(_smState.gameId, _smState.local, _smState.visit)`.
 - **Scroll horizontal del Box Score**: `.tgm-box-table-wrap` tiene `overflow-x:auto`. El selector `#teamGamesModal table{table-layout:fixed}` aplica a todas las tablas del modal y causaría que el box score recortara columnas en lugar de crear scroll. Se sobreescribe con `#teamGamesModal .tgm-box-table{table-layout:auto;}` (mayor especificidad: ID+clase > ID+elemento). **Al agregar una nueva liga, incluir esta regla CSS.**
 
 **Ficha de equipo (tabs Partidos/Plantel del modal, septiembre 2026):**
@@ -1370,33 +1369,14 @@ Preview + Development):
 - `SUPABASE_URL`, `SUPABASE_ANON_KEY` — mismas que usa `login.html`.
 - `ADMIN_EMAILS` — emails admin separados por coma (para `/api/placas/generate`).
 - `GH_PLACAS_TOKEN` — GitHub PAT fine-grained, permiso "Actions: Read and write" sobre este repo.
-- `ANTHROPIC_API_KEY` — key de console.anthropic.com, para `/api/mercado/chat`. **Distinta** del
-  secret homónimo de GitHub Actions que usa `recap_generator.py` (ese vive en GitHub, no en
-  Vercel) — hay que cargarla en los dos lugares por separado si se rota.
+- `ANTHROPIC_API_KEY` — key de console.anthropic.com, para `/api/mercado/chat`. Vive solo en Vercel
+  (el secret homónimo de GitHub Actions quedó sin uso al eliminar el recap automático, octubre 2026).
 
-## Recap automático (tab "Recap") — Liga Argentina y Liga Nacional (julio 2026)
+## Recap automático — ELIMINADO (octubre 2026)
 
-5ª pestaña del modal de partido (`#tgmTabRecap` / `#tgmRecapPanel`, junto a Estadísticas/Mapa de tiro/Box Score/Evolución). Muestra una crónica de 2-3 párrafos en español generada automáticamente para cada partido ya jugado. Presente solo en Liga Argentina y Liga Nacional (Femenina y Desarrollo quedaron fuera del alcance inicial).
+Existió entre agosto y septiembre 2026 una pestaña "Recap" en el modal de partido (Liga Argentina y Liga Nacional) con crónicas generadas por Claude Haiku desde `scraper/recap_generator.py`. Se eliminó por completo el 01/10/2026 (script, `recaps.json`, steps de `scraper.yml`, tab del frontend) y el secret `ANTHROPIC_API_KEY` de GitHub Actions dejó de usarse (se puede borrar). No reintroducir sin acordarlo antes.
 
-**Generación (`scraper/recap_generator.py`)**:
-- CLI: `python scraper/recap_generator.py --liga liga_argentina|liga_nacional` (flags `--full` para regenerar todo, `--limit N` para acotar una corrida).
-- **No manda el PBP crudo al LLM.** Primero calcula un JSON de hechos compacto por partido (`build_recap_facts`): marcador final, top 2 goleadores de cada equipo, mayor racha de puntos consecutivos (y cuándo), cantidad de cambios de líder, mayor diferencia alcanzada, y — si el partido terminó con margen ≤ 8 — un resumen de los últimos 2 minutos. Esos hechos (no los eventos PBP) son el único prompt que recibe el modelo.
-- Modelo: **Claude Haiku** (`claude-haiku-4-5-20251001`) vía el SDK `anthropic` (agregado a `scraper/requirements.txt`). Requiere el secret `ANTHROPIC_API_KEY` en GitHub Actions — si no está seteada, o si la API falla (con 1 reintento), el script loguea un warning y sigue sin romper el step; el partido queda pendiente y se reintenta solo. Costo aproximado: backfill inicial de toda la temporada (~1.250 partidos entre las 2 ligas) ≈ US$3-4; uso incremental en temporada ≈ US$0.50-1.50/mes.
-- **Incrementalidad**: misma clave estable `fecha|local|visitante` que usa todo el proyecto (ver "IDs dinámicos del sitio"), NO `IdPartido`. Compara contra las keys ya presentes en el JSON de salida y solo genera las que faltan.
-- **Fallback defensivo**: si no hay filas de PBP para la clave del partido (PBP no disponible, o el bug histórico de `Equipo_local` vacío en datos viejos), genera el recap solo con marcador + goleadores, sin racha/cambios de líder/cierre. Nunca crashea el step.
-
-**Salida — `docs/<liga>/recaps.json`** (git-commiteado, servido estático por Vercel; **no** vive en Supabase, a propósito, para no repetir el incidente de egress):
-```json
-{ "fecha|local|visitante": { "texto": "...", "generado_en": "2026-07-31T04:32:10+00:00" } }
-```
-
-**Workflow (`scraper.yml`)**: step "Recap – Liga Argentina" después de "Jugada a jugada – Liga Argentina"; step "Recap – Liga Nacional" después de la limpieza de Copa Liga Malvinas (para no generar recap de partidos que esa limpieza va a descartar). Ambos steps con `env: ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}`. Los `recaps.json` de ambas ligas están en la lista de `git add` del step final de commit.
-
-**Frontend**: `loadRecaps()` — carga lazy de `recaps.json` (fetch **relativo local**, no Supabase, cache-busting por fecha ISO igual que el fix de `loadPbp()`), arma `RECAP_MAP = Map<"fecha|local|visit", texto>`. `renderRecap(fecha, local, visit)` — mismo patrón que `renderScoreDelta` (lazy-load + empty-state con el mismo idioma que el resto del modal: "No hay recap disponible para este partido."). Implementado en paralelo en `liga_argentina.js`/`index.html` y `liga_nacional.js`/`index.html`.
-
-**Primer despliegue**: como el JSON de cache arranca vacío, la primera corrida genera el backlog completo de la temporada (no solo los partidos de esa noche). Conviene dispararla a mano una vez (`workflow_dispatch`) en vez de dejar que la agarre el cron nocturno sin avisar.
-
-**Nota de estructura**: al escribir este script se confirmó que el repo real difiere del árbol documentado en "Estructura" más arriba — el git root es `/Users/ramiellero/liga_argentina` directamente (no un monorepo padre), los scrapers viven en `scraper/` (minúscula) y **Liga Argentina también vive en su propia subcarpeta `docs/liga_argentina/`** (con `docs/index.html` como stub de redirect a `/liga_argentina/`), igual que las otras 3 ligas. Si algo en "Estructura" no coincide con lo que ves en el filesystem, confiá en el filesystem.
+**Nota de estructura**: al escribir el recap automático se confirmó que el repo real difiere del árbol documentado en "Estructura" más arriba — el git root es `/Users/ramiellero/liga_argentina` directamente (no un monorepo padre), los scrapers viven en `scraper/` (minúscula) y **Liga Argentina también vive en su propia subcarpeta `docs/liga_argentina/`** (con `docs/index.html` como stub de redirect a `/liga_argentina/`), igual que las otras 3 ligas. Si algo en "Estructura" no coincide con lo que ves en el filesystem, confiá en el filesystem.
 
 ## Comandos útiles
 ```bash
