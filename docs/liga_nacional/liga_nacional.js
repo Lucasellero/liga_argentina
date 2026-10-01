@@ -1573,7 +1573,7 @@ async function initApp() {
     if (SEASON !== '2025-26') {
     const _playedKeys = new Set(GAMES_ALL.map(g => `${g.fecha}|${g.local}|${g.visit}`));
     try {
-      const upResp = await fetch('fixture_upcoming.csv?v=' + new Date().toISOString().slice(0, 10));
+      const upResp = await fetch('fixture_upcoming.csv?v=' + new Date().toISOString().slice(0, 10), { cache: 'no-cache' });
       if (upResp.ok) {
         const upRows = parseCSV(await upResp.text());
         upRows.forEach(u => {
@@ -1592,7 +1592,7 @@ async function initApp() {
 
     // Cargar predicciones del modelo
     try {
-      const prResp = await fetch('predicciones_upcoming.csv?v=' + new Date().toISOString().slice(0, 10));
+      const prResp = await fetch('predicciones_upcoming.csv?v=' + new Date().toISOString().slice(0, 10), { cache: 'no-cache' });
       if (prResp.ok) {
         const prRows = parseCSV(await prResp.text());
         prRows.forEach(r => {
@@ -1641,6 +1641,9 @@ async function initApp() {
     onTFilter();
     buildLeaders();
     renderStandings();
+    // Contadores del header según la temporada cargada
+    document.getElementById('hdrPlayers').textContent = PLAYERS.length + ' Jugadores';
+    document.getElementById('hdrTeams').textContent = (new Set([...TEAMS.map(t => t.Equipo), ...GAMES_ALL.filter(g => g.upcoming).flatMap(g => [g.local, g.visit])]).size) + ' Equipos';
 
   } catch(err) {
     console.error('Error cargando CSV:', err);
