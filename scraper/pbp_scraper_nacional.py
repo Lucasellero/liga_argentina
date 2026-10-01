@@ -305,10 +305,30 @@ def main():
     output_csv = Path(args.output) if args.output else OUTPUT_CSV
     cached_keys: set[str] = set()
     existing_df: pd.DataFrame | None = None
+    pruned = False
     if not args.full and output_csv.exists():
         existing_df = pd.read_csv(output_csv, encoding="utf-8-sig")
-        for _, _r in existing_df.drop_duplicates(subset=["Fecha", "Equipo_local", "Equipo_visitante"]).iterrows():
-            cached_keys.add(f"{_r['Fecha']}|{_r['Equipo_local']}|{_r['Equipo_visitante']}")
+        key_cols = ["Fecha", "Equipo_local", "Equipo_visitante"]
+        missing = [c for c in key_cols if c not in existing_df.columns]
+        if missing:
+            # El PBP bajado de Supabase puede venir sin Fecha (versiones viejas del
+            # step de upload la dropeaban). Sin clave estable no sirve como cache:
+            # se descarta y se re-scrapean los partidos de la temporada.
+            log.warning(f"PBP existente sin columnas {missing}: se descarta el cache")
+            existing_df = None
+            pruned = True
+        else:
+            # Quedarse solo con partidos que están en el CSV de stats de la
+            # temporada en curso (descarta restos de temporadas archivadas).
+            existing_keys = (existing_df["Fecha"].astype(str) + "|" + existing_df["Equipo_local"].astype(str)
+                             + "|" + existing_df["Equipo_visitante"].astype(str))
+            in_season = existing_keys.isin(games.keys())
+            if not in_season.all():
+                log.warning(f"Descartadas {(~in_season).sum()} acciones de partidos fuera del CSV de stats (otra temporada)")
+                existing_df = existing_df[in_season].reset_index(drop=True)
+                existing_keys = existing_keys[in_season]
+                pruned = True
+            cached_keys = set(existing_keys)
         log.info(f"Cache: {len(cached_keys)} partidos ya scrapeados")
 
     new_game_keys = [
@@ -323,7 +343,7 @@ def main():
             log.info(f"  {g['fecha']}  {g['local']} vs {g['visitante']}  [{g['game_id']}]")
         return
 
-    if not new_game_keys:
+    if not new_game_keys and not pruned:
         log.info("Nada nuevo.")
         return
 

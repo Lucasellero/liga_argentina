@@ -157,7 +157,7 @@ jobs:
 
           for league, path in files:
               df = pd.read_csv(path)
-              web = df[df['Tipo'].isin(KEEP)].drop(columns=['Fecha'], errors='ignore')
+              web = df[df['Tipo'].isin(KEEP)]  # conservar Fecha: la usan el cache incremental y PBP_STABLE_MAP
               tmp = f'/tmp/{league}_pbp_web.csv'
               web.to_csv(tmp, index=False)
               mb = os.path.getsize(tmp) / 1024 / 1024
