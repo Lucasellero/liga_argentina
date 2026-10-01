@@ -870,16 +870,27 @@ function isPostSeason(fechaStr) {
   return new Date(+y,+m-1,+d) >= PLAYOFF_DATE;
 }
 
-const CONF_NORTE = new Set([
-  'AMANCAY (LR)','BARRIO PARQUE','BOCHAS (CC)','COMUNICACIONES',
-  'HINDU (C)',
-  'INDEPENDIENTE (SDE)','JUJUY BASQUET','SALTA BASKET',
+// Conferencias por temporada (el toggle 2025/26 sigue usando la composición vieja)
+const CONF_NORTE = new Set(SEASON === '2025-26' ? [
+  'AMANCAY (LR)','BARRIO PARQUE','BOCHAS (CC)','COLON (SF)','COMUNICACIONES',
+  'ESTUDIANTES (T)','FUSION RIOJANA','HINDU (C)','HURACAN (LH)',
+  'INDEPENDIENTE (SDE)','JUJUY BASQUET','RIVADAVIA (MZA)','SALTA BASKET',
   'SAN ISIDRO','SANTA PAULA (G)','SP. SUARDI','VILLA SAN MARTIN'
+] : [
+  'AMANCAY (LR)','BARRIO JARDIN (T)','BARRIO PARQUE','BOCHAS (CC)','COMUNICACIONES',
+  'EL CEIBO (SF)','HINDU (C)','INDEPENDIENTE (SDE)','JUJUY BASQUET','MITRE (POSADAS)',
+  'RIACHUELO (LR)','SALTA BASKET','SAN ISIDRO','SANTA PAULA (G)','SP. SUARDI',
+  'UNION (SF)','VILLA SAN MARTIN'
 ]);
-const CONF_SUR = new Set([
+const CONF_SUR = new Set(SEASON === '2025-26' ? [
   'CENTENARIO (VT)','CENTRAL ENTRERRIANO','CICLISTA (J)','DEP. NORTE',
-  'DEP. VIEDMA','GIMNASIA (LP)','LA UNIÓN (C)',
+  'DEP. VIEDMA','EL TALAR','GIMNASIA (LP)','LANÚS','LA UNIÓN (C)',
   'PERGAMINO BASQUET','PICO F.C.','PROVINCIAL (R)','QUILMES (MDP)',
+  'RACING (A)','ROCAMORA','UNION (MDP)','VILLA MITRE (BB)'
+] : [
+  'CENTENARIO (VT)','CENTRAL ENTRERRIANO','CICLISTA (J)','DEP. NORTE',
+  'DEP. VIEDMA','GIMNASIA (LP)','LA UNIÓN (C)','PERGAMINO BASQUET','PICO F.C.',
+  'PROVINCIAL (R)','QUILMES (MDP)','RACING (A)','REGATAS (SN)','RIVER',
   'ROCAMORA','UNION (MDP)','VILLA MITRE (BB)'
 ]);
 
@@ -902,6 +913,8 @@ const LOGOS = {
   'ROCAMORA':           'logos/rocamora.jpeg',
   'PERGAMINO BASQUET':  'logos/pergamino_basquet.jpeg',
   'DEP. NORTE':         'logos/dep_norte.jpeg',
+  'REGATAS (SN)':       'logos/regatas_sn.jpeg',
+  'RIVER':              'logos/river.jpeg',
   // Conferencia Norte
   'AMANCAY (LR)':       'logos/amancay_lr.jpeg',
   'BARRIO PARQUE':      'logos/barrio_parque.jpeg',
@@ -920,6 +933,11 @@ const LOGOS = {
   'SANTA PAULA (G)':    'logos/santa_paula_g.jpeg',
   'SP. SUARDI':         'logos/sp_suardi.jpeg',
   'VILLA SAN MARTIN':   'logos/villa_san_martin.jpeg',
+  'BARRIO JARDIN (T)':  'logos/barrio_jardin_t.jpeg',
+  'EL CEIBO (SF)':      'logos/el_ceibo_sf.jpeg',
+  'MITRE (POSADAS)':    'logos/mitre_posadas.jpeg',
+  'RIACHUELO (LR)':     'logos/riachuelo_lr.jpeg',
+  'UNION (SF)':         'logos/union_sf.jpeg',
 };
 
 const TEAM_CITY = {
@@ -1003,6 +1021,10 @@ function renderStandings() {
         results.push(g.ganado);
       });
       statsMap[t.Equipo]={Equipo:t.Equipo,PJ,G,P,ptsFor,ptsAgainst,localG,localP,visitG,visitP,last5:results.slice(-5)};
+    });
+    // Equipos de la conferencia que todavía no jugaron: aparecen en 0 hasta su primer partido
+    confSet.forEach(eq => {
+      if (!statsMap[eq]) statsMap[eq]={Equipo:eq,PJ:0,G:0,P:0,ptsFor:0,ptsAgainst:0,localG:0,localP:0,visitG:0,visitP:0,last5:[]};
     });
     const rows = Object.values(statsMap).sort((a,b) => {
       const wa=a.PJ?a.G/a.PJ:0, wb=b.PJ?b.G/b.PJ:0;
