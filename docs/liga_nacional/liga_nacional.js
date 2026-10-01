@@ -795,7 +795,7 @@ const LOGOS = {
   'RACING (CH)':    'logos/racing_ch.jpeg',
   'SAN LORENZO':    'logos/san_lorenzo.jpeg',
   'UNION (SF)':     'logos/union_sf.jpeg',
-  'LANUS':          'logos/lanus.jpeg',
+  'LANÚS':          'logos/lanus.jpeg',
 };
 
 const TEAM_CITY = {
