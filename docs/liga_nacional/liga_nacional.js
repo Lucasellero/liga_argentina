@@ -862,6 +862,10 @@ function renderStandings() {
     });
     statsMap[t.Equipo]={Equipo:t.Equipo,PJ,G,P,ptsFor,ptsAgainst,localG,localP,visitG,visitP,last5:results.slice(-5)};
   });
+  // Equipos del fixture que todavía no jugaron: aparecen en 0 hasta su primer partido
+  GAMES_ALL.filter(g => g.upcoming).forEach(g => [g.local, g.visit].forEach(eq => {
+    if (!statsMap[eq]) statsMap[eq]={Equipo:eq,PJ:0,G:0,P:0,ptsFor:0,ptsAgainst:0,localG:0,localP:0,visitG:0,visitP:0,last5:[]};
+  }));
   const rows = Object.values(statsMap).sort((a,b) => {
     const wa=a.PJ?a.G/a.PJ:0, wb=b.PJ?b.G/b.PJ:0;
     if(wb!==wa) return wb-wa;
