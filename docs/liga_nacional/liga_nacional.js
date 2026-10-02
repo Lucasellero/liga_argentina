@@ -77,18 +77,14 @@ const CSV_PATH = SEASON_DIR + 'liga_nacional.csv';
 const DOB_PATH = '../shared/players_dob.csv';
 
 (function renderSeasonToggle() {
-  const pillBase = 'display:inline-flex;align-items:center;justify-content:center;gap:5px;font-size:0.68rem;font-weight:700;padding:3px 10px;border-radius:20px;min-width:120px;';
-  const activeStyle = pillBase + 'color:var(--teal-l,#5eead4);border:1.5px solid rgba(45,212,191,.7);background:rgba(45,212,191,.22);cursor:default;';
-  const linkStyle = pillBase + 'font-weight:600;color:var(--purple-l,#a78bfa);text-decoration:none;border:1px solid rgba(139,92,246,.3);background:rgba(139,92,246,.08);';
   const seasons = [
-    { key: 'live', label: 'Temporada 2026/27' },
-    { key: '2025-26', label: 'Temporada 2025/26' },
+    { key: 'live', label: '2026/27' },
+    { key: '2025-26', label: '2025/26' },
   ];
   const html = seasons.map(s => {
-    const isActive = s.key === SEASON;
-    if (isActive) return '<span style="' + activeStyle + '">' + s.label + '</span>';
+    if (s.key === SEASON) return '<span class="hseg-opt active">' + s.label + '</span>';
     const href = s.key === 'live' ? location.pathname : location.pathname + '?season=' + s.key;
-    return '<a href="' + href + '" style="' + linkStyle + '" onmouseover="this.style.background=\'rgba(139,92,246,.18)\'" onmouseout="this.style.background=\'rgba(139,92,246,.08)\'">' + s.label + '</a>';
+    return '<a class="hseg-opt" href="' + href + '">' + s.label + '</a>';
   }).join('');
   const el = document.getElementById('seasonToggle');
   if (el) el.innerHTML = html;
@@ -896,12 +892,12 @@ function renderStandings() {
       <td>${pos}</td>
       <td>${logoHtml}${t.Equipo}</td>
       <td>${t.PJ}</td>
-      <td style="color:var(--green);font-weight:700">${t.G}</td>
-      <td style="color:var(--red)">${t.P}</td>
-      <td class="${wc}">${wpct.toFixed(1)}%</td>
-      <td class="pos-pts-f">${ptspg.toFixed(1)}</td>
-      <td class="pos-pts-a">${ptsapg.toFixed(1)}</td>
-      <td class="${difClass}">${(dif>=0?'+':'')+dif.toFixed(1)}</td>
+      <td style="color:${t.PJ?'var(--green)':'var(--muted2)'};font-weight:700">${t.G}</td>
+      <td style="color:${t.PJ?'var(--red)':'var(--muted2)'}">${t.P}</td>
+      <td class="${t.PJ?wc:'pos-na'}">${t.PJ?wpct.toFixed(1)+'%':'—'}</td>
+      <td class="${t.PJ?'pos-pts-f':'pos-na'}">${t.PJ?ptspg.toFixed(1):'—'}</td>
+      <td class="${t.PJ?'pos-pts-a':'pos-na'}">${t.PJ?ptsapg.toFixed(1):'—'}</td>
+      <td class="${t.PJ?difClass:'pos-na'}">${t.PJ?(dif>=0?'+':'')+dif.toFixed(1):'—'}</td>
       <td style="color:var(--muted);font-size:.78rem">${t.localG}-${t.localP}</td>
       <td style="color:var(--muted);font-size:.78rem">${t.visitG}-${t.visitP}</td>
       <td style="text-align:center">${t.last5.map(g=>g
@@ -1547,6 +1543,8 @@ async function initApp() {
       const opts = { day: '2-digit', month: 'short', year: 'numeric' };
       document.getElementById('lastUpdate').textContent =
         'Actualizado al ' + maxFecha.toLocaleDateString('es-AR', opts);
+    } else {
+      document.getElementById('lastUpdate').textContent = 'Sin partidos jugados todavía';
     }
 
     // Build GAMES_ALL (unique games from all team gamelogs)
@@ -1646,6 +1644,7 @@ async function initApp() {
     }
     showUpcomingDefault();
 
+    applyDefaultMinGames();
     onJFilter();
     onTFilter();
     setLPhase(lPhase);

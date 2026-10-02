@@ -79,6 +79,22 @@ function clearJFilter(){
   onJFilter();
 }
 
+// Mínimo de PJ por defecto según la temporada: el valor marcado en el HTML (ej. 20+) es para
+// temporada avanzada; al arranque nadie llega y la tabla y el gráfico quedarían vacíos.
+function applyDefaultMinGames(){
+  const sel=document.getElementById('jMinG'); if(!sel) return;
+  const maxPJ=Math.max(0,...PLAYERS.map(p=>p.PJ||0));
+  const preferred=+((sel.querySelector('option[selected]')||{}).value||0);
+  const opts=[...sel.options].map(o=>+o.value).filter(v=>!isNaN(v)).sort((a,b)=>a-b);
+  const v=opts.filter(x=>x<=preferred && x<=maxPJ/2).pop()||0;
+  sel.value=String(v);
+  const wrap=document.getElementById('jMinGCustom'); if(!wrap) return;
+  const opt=wrap.querySelector('.fcs-option[data-value="'+v+'"]'); if(!opt) return;
+  wrap.querySelector('.fcs-selected .fcs-name').textContent=opt.querySelector('.fcs-name').textContent;
+  wrap.querySelector('.fcs-selected .fcs-sub').textContent=opt.querySelector('.fcs-sub').textContent;
+  wrap.querySelectorAll('.fcs-option').forEach(o=>o.classList.toggle('selected',o===opt));
+}
+
 function onJFilter(){
   updateJFilterVisibility();
   jFiltered=getJFiltered();
@@ -499,7 +515,15 @@ function drawScatter(canvasId, pts_ref, data, xKey, yKey, sizeKey, colorFn, labe
   const PAD={left:64,right:22,top:22,bottom:52};
   const plotW=W-PAD.left-PAD.right, plotH=H-PAD.top-PAD.bottom;
   const pts=data.filter(p=>p[xKey]!=null&&p[yKey]!=null);
-  if(!pts.length)return;
+  if(!pts.length){
+    pts_ref.length=0;
+    ctx.fillStyle='#64748b';ctx.font='500 14px Inter,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    const sinPartidos=typeof GAMES_ALL!=='undefined'&&!GAMES_ALL.some(g=>!g.upcoming);
+    ctx.fillText(sinPartidos?'Todavía no se jugaron partidos esta temporada.':'No hay datos para los filtros elegidos.',W/2,H/2-10);
+    ctx.font='12px Inter,sans-serif';ctx.fillStyle='#475569';
+    if(canvasId==='jCanvas'&&!sinPartidos) ctx.fillText('Probá bajar el mínimo de partidos jugados en Jugadores › Tabla.',W/2,H/2+14);
+    return;
+  }
   const xs=pts.map(p=>p[xKey]),ys=pts.map(p=>p[yKey]);
   let xMin=Math.min(...xs),xMax=Math.max(...xs),yMin=Math.min(...ys),yMax=Math.max(...ys);
   const xPad=(xMax-xMin)*.08||.5,yPad=(yMax-yMin)*.08||.5;
@@ -2137,9 +2161,10 @@ function showUpcomingDefault() {
       document.getElementById('pDateTo').value   = nextISO;
       renderPartidoList(nextGames, true);
     } else {
+      // Sin próximos (temporada terminada o fixture sin publicar): últimos resultados primero
       document.getElementById('pDateFrom').value = '';
       document.getElementById('pDateTo').value   = '';
-      renderPartidoList([], true);
+      renderPartidoList(GAMES_ALL.filter(g => !g.upcoming), false);
     }
   }
 }

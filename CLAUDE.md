@@ -515,6 +515,17 @@ Muestra los kilómetros que cada equipo recorrió en la temporada para jugar sus
 
 **Al portar a Liga Femenina / Liga de Desarrollo:** hace falta (1) relevar ciudad de cada equipo nuevo y agregarlas a `CITY_COORDS`/`CITY_DIST_KM` en `common.js` (algunas ya van a estar si comparten equipo con Liga Nacional, ej. Ferro/Obras/Instituto), (2) crear el `TEAM_CITY` de esa liga en su `liga_*.js`, (3) agregar el `<th data-c="KM">` a su `tCardBasic`.
 
+## Rediseño UI (octubre 2026)
+
+Bloque "REDISEÑO UI" al final de `docs/shared/common.css`. Puntos a tener en cuenta al tocar el front:
+- **Filtros de Jugadores/Equipos**: el markup sigue siendo `.sidebar-layout > .ctrl-sidebar + .sidebar-main`, pero en desktop (`min-width:641px`) la `.ctrl-sidebar` se muestra como **barra horizontal arriba de la tabla** (flex-wrap) y `.fsb-pills` como segmentados horizontales. En celular sigue siendo el panel desplegable de "Filtros".
+- **Header**: selectores segmentados `.hdr-switches > .hseg` (Temporada / Liga). `renderSeasonToggle()` escribe `.hseg-opt` dentro de `#seasonToggle`. Solo Liga Argentina y Liga Nacional; Femenina/Desarrollo conservan las píldoras viejas.
+- **`#lastUpdate`** tiene `min-height` para que el header no cambie de alto; sin partidos muestra "Sin partidos jugados todavía".
+- **Fixture**: barra `.pf-bar` (Desde/Hasta/Equipo). Sin partidos próximos, `showUpcomingDefault()` muestra los ya jugados (más reciente primero).
+- **`select` nativos**: estilo unificado con flecha propia. Tailwind CDN inyecta `font-size:100%` en `select` después de `common.css` → se pisa con `html body select`.
+- **Mínimo PJ de Jugadores**: `applyDefaultMinGames()` (common.js) baja el default del HTML (20+) según los PJ de la temporada; sin eso, al arranque de temporada la tabla y el gráfico quedaban vacíos.
+- **Celular**: columna 2 (equipo/jugador) `position:sticky` en `.pos-table` y `.table-card`; `.main-tabs`/`.sub-tabs` con fade a la derecha.
+
 ## Responsive
 El frontend debe funcionar y verse bien tanto en celular como en computadora. Cualquier cambio de UI debe considerar ambos contextos.
 
