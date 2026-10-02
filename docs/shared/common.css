@@ -1065,6 +1065,14 @@ canvas{display:block;width:100%;cursor:crosshair;}
   .subtitle{font-size:.6rem;margin-top:2px;}
   #lastUpdate{display:none;}
   .header-badges{display:none;}
+  /* Login/usuario fijo arriba a la derecha (solo ícono) para no pisar los botones de temporada/liga */
+  .header-right{position:absolute;top:10px;right:14px;z-index:2;}
+  #headerLogin{padding:7px!important;}
+  #headerLogin .hl-text,#headerUserName{display:none;}
+  .header-left > div{padding-right:38px;}
+  .header-left > div > a,.header-left > div > span:not(#seasonToggle),#seasonToggle > *{
+    min-width:0!important;white-space:nowrap;padding:3px 9px!important;font-size:.62rem!important;
+  }
 
   /* Main tabs — horizontal scroll with fade hint */
   .main-tabs{
@@ -1171,6 +1179,20 @@ canvas{display:block;width:100%;cursor:crosshair;}
   /* Game detail modal table */
   #teamGamesModal thead th{font-size:.56rem;padding:7px 8px;}
   #teamGamesModal tbody td{padding:7px 8px;font-size:.75rem;}
+  /* Lista de partidos de la ficha de equipo: anchos para celular, escudo al lado del rival y nombres largos recortados */
+  #teamGamesModal .tgm-games-table thead th:first-child{width:21%;}
+  #teamGamesModal .tgm-games-table thead th:nth-child(2){width:17%;}
+  #teamGamesModal .tgm-games-table thead th:nth-child(3){width:32%;}
+  #teamGamesModal .tgm-games-table thead th:nth-child(4){width:18%;}
+  #teamGamesModal .tgm-games-table thead th:nth-child(5){width:7%;}
+  #teamGamesModal .tgm-games-table thead th:nth-child(6){width:5%;}
+  #teamGamesModal .tgm-games-table tbody td{padding:9px 4px;}
+  #teamGamesModal .tgm-games-table tbody td:first-child{font-size:.66rem;padding-left:10px;}
+  #teamGamesModal .tgm-games-table .tgm-cond{font-size:.58rem;padding:2px 5px;}
+  #teamGamesModal .tgm-games-table tbody td:nth-child(3){white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #teamGamesModal .tgm-games-table tbody td:nth-child(3) img{display:inline-block;}
+  #teamGamesModal .tgm-games-table tbody td:nth-child(4){white-space:nowrap;}
+  #teamGamesModal .tgm-games-table tbody td:nth-child(6) svg{width:13px;height:13px;}
 
   /* Shot zone chart */
   .szc-outer{padding:16px 10px 32px;}

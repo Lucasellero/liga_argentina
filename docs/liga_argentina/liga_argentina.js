@@ -322,7 +322,7 @@ let tPhase='all'; // 'all' | 'regular' | 'post'
 let tLocVis='all';
 let tConf='all';
 let lConf='all';
-let lPhase='post';
+let lPhase='regular';
 let szcPeriod='all';
 let szcLocVis='all';
 let szcCurrentIdx=-1;
@@ -637,13 +637,13 @@ function setLConf(v) {
 function setLPhase(v) {
   lPhase=v;
   const sel=document.getElementById('lPhaseSelect'); if(sel) sel.value=v;
+  const titles={regular:'Temporada Regular', last5:'Últimos 5 Partidos', post:'Post Temporada'};
+  const minPJ = v==='regular' ? LEADERS_MIN_REG : 1;
   const titleEl=document.getElementById('leadersTitle');
   const subEl=document.getElementById('leadersSubtitle');
-  if(titleEl) titleEl.innerHTML = v==='post' ? 'Líderes <span>·</span> Post Temporada' : 'Líderes <span>·</span> Temporada Regular';
-  if(subEl) subEl.textContent = v==='post'
-    ? 'Promedio por partido · mín. 1 partido jugado · porcentajes con mín. 3 intentos'
-    : 'Promedio por partido · mín. 5 partidos jugados · porcentajes con mín. 3 intentos';
-  LEADERS_DATA = v==='post' ? LEADERS_DATA_POST : LEADERS_DATA_REGULAR;
+  if(titleEl) titleEl.innerHTML = 'Líderes <span>·</span> ' + titles[v];
+  if(subEl) subEl.textContent = 'Promedio por partido · mín. ' + minPJ + (minPJ===1 ? ' partido jugado' : ' partidos jugados') + ' · porcentajes con mín. 3 intentos';
+  LEADERS_DATA = v==='post' ? LEADERS_DATA_POST : v==='last5' ? LEADERS_DATA_LAST5 : LEADERS_DATA_REGULAR;
   buildLeaders();
 }
 
@@ -753,6 +753,8 @@ setupScrollSync('tTableWrap','tScrollOuter','tScrollInner');
 let LEADERS_DATA = {};
 let LEADERS_DATA_REGULAR = {};
 let LEADERS_DATA_POST = {};
+let LEADERS_DATA_LAST5 = {};
+let LEADERS_MIN_REG = 5;  // baja al arranque de temporada, cuando nadie tiene 5 PJ todavía
 
 const LEADER_ICONS = {};
 const LEADER_COLORS = ['r1','r2','r3','',''];
@@ -861,9 +863,11 @@ function buildHomeInsights() {
 // POSICIONES POR CONFERENCIA
 // ============================================================
 // Placeholder temporada 2026/27 — ajustar cuando se sepa la fecha real de playoffs
-const PLAYOFF_DATE = new Date(2027, 3, 1);  // 1 de abril de 2027 (placeholder)
-const PLAYOFF2_DATE = new Date(2027, 3, 15); // 15 de abril de 2027 — inicio Octavos (placeholder)
-const CUARTOS_DATE  = new Date(2027, 3, 30); // 30 de abril de 2027 — inicio Cuartos (placeholder)
+// Fechas de playoffs por temporada (2026/27 sigue siendo placeholder hasta que se confirme)
+const _ARCH = SEASON === '2025-26';
+const PLAYOFF_DATE  = _ARCH ? new Date(2026, 3, 1)  : new Date(2027, 3, 1);  // fin temporada regular
+const PLAYOFF2_DATE = _ARCH ? new Date(2026, 3, 15) : new Date(2027, 3, 15); // inicio Octavos
+const CUARTOS_DATE  = _ARCH ? new Date(2026, 3, 30) : new Date(2027, 3, 30); // inicio Cuartos
 function isPostSeason(fechaStr) {
   if (!fechaStr) return false;
   const [d,m,y] = fechaStr.split('/');
@@ -1742,11 +1746,18 @@ async function initApp() {
         T1PCT: {label:'% Libre',     key:'T1PCT', entries:top5Pct(arr, d=>d.T1IPG>=2, d=>d['T1%']||0)},
       };
     }
-    const Lreg = PLAYERS.map(p => p._regular).filter(d => d && d.PJ >= 5);
+    const maxRegPJ = Math.max(0, ...PLAYERS.map(p => (p._regular && p._regular.PJ) || 0));
+    LEADERS_MIN_REG = Math.max(1, Math.min(5, Math.floor(maxRegPJ / 2)));
+    const Lreg = PLAYERS.map(p => p._regular).filter(d => d && d.PJ >= LEADERS_MIN_REG);
+    const L5all = PLAYERS.map(p => p._last5).filter(d => d && d.PJ >= 1);
     const Lpost = PLAYERS.map(p => p._post).filter(d => d && d.PJ >= 1);
     LEADERS_DATA_REGULAR = buildLeadersDataset(Lreg);
     LEADERS_DATA_POST = buildLeadersDataset(Lpost);
-    LEADERS_DATA = LEADERS_DATA_POST;
+    LEADERS_DATA_LAST5 = buildLeadersDataset(L5all);
+    LEADERS_DATA = LEADERS_DATA_REGULAR;
+    // "Post Temporada" solo se ofrece si hubo partidos de playoffs
+    const _postOpt = document.querySelector('#lPhaseSelect option[value="post"]');
+    if (_postOpt) _postOpt.hidden = !Lpost.length;
 
     // Last update: max Fecha from rows
     const maxFecha = rows.reduce((max, r) => {
@@ -1847,7 +1858,7 @@ async function initApp() {
 
     onJFilter();
     onTFilter();
-    buildLeaders();
+    setLPhase(lPhase);
     renderStandings();
     // Contadores del header según la temporada cargada
     document.getElementById('hdrPlayers').textContent = PLAYERS.length + ' Jugadores';
