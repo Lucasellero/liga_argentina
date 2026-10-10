@@ -769,8 +769,8 @@ function isPostSeason(fechaStr) {
   return new Date(+y,+m-1,+d) >= PLAYOFF_DATE;
 }
 
-const CONF_NORTE = new Set(['ARGENTINO (J)','ATENAS (C)','GIMNASIA (CR)','INDEPENDIENTE (O)','INSTITUTO','LA UNION FSA.','OBERÁ','QUIMSA','REGATAS (C)','SAN MARTÍN (C)']);
-const CONF_SUR   = new Set(['BOCA','FERRO','OLÍMPICO (LB)','PEÑAROL (MDP)','PLATENSE','RACING (CH)','SAN LORENZO']);
+const CONF_NORTE = new Set(['ARGENTINO (J)','ATENAS (C)','GIMNASIA (CR)','INDEPENDIENTE (O)','INSTITUTO','LA UNION FSA','OBERÁ','QUIMSA','REGATAS (C)','SAN MARTÍN (C)']);
+const CONF_SUR   = new Set(['BOCA','FERRO','OLIMPICO (LB)','PEÑAROL (MDP)','PLATENSE','RACING (CH)','SAN LORENZO']);
 
 const LOGOS = {
   // Conferencia Norte
@@ -779,7 +779,7 @@ const LOGOS = {
   'GIMNASIA (CR)':  'logos/gimnasia_cr.jpeg',
   'INDEPENDIENTE (O)':'logos/independiente_o.jpeg',
   'INSTITUTO':      'logos/instituto.jpeg',
-  'LA UNION FSA.':  'logos/la_union_fsa.jpeg',
+  'LA UNION FSA':   'logos/la_union_fsa.jpeg',
   'OBERÁ':          'logos/obera.jpeg',
   'QUIMSA':         'logos/quimsa.jpeg',
   'REGATAS (C)':    'logos/regatas_c.jpeg',
@@ -787,7 +787,7 @@ const LOGOS = {
   // Conferencia Sur
   'BOCA':           'logos/boca.jpeg',
   'FERRO':          'logos/ferro.jpeg',
-  'OLÍMPICO (LB)':  'logos/olimpico_lb.jpeg',
+  'OLIMPICO (LB)':  'logos/olimpico_lb.jpeg',
   'OBRAS':          'logos/obras.jpeg',
   'PEÑAROL (MDP)':  'logos/peñarol_mdp.jpeg',
   'PLATENSE':       'logos/platense.jpeg',
@@ -803,14 +803,14 @@ const TEAM_CITY = {
   'GIMNASIA (CR)': 'Comodoro Rivadavia',
   'INDEPENDIENTE (O)': 'Oliva',
   'INSTITUTO': 'Córdoba',
-  'LA UNION FSA.': 'Formosa',
+  'LA UNION FSA': 'Formosa',
   'OBERÁ': 'Oberá',
   'QUIMSA': 'Santiago del Estero',
   'REGATAS (C)': 'Corrientes',
   'SAN MARTÍN (C)': 'Corrientes',
   'BOCA': 'Buenos Aires (CABA)',
   'FERRO': 'Buenos Aires (CABA)',
-  'OLÍMPICO (LB)': 'La Banda',
+  'OLIMPICO (LB)': 'La Banda',
   'OBRAS': 'Buenos Aires (CABA)',
   'PEÑAROL (MDP)': 'Mar del Plata',
   'PLATENSE': 'Vicente López',

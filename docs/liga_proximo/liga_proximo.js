@@ -678,7 +678,7 @@ const LOGOS = {
   'GIMNASIA (CR)':  '../liga_nacional/logos/gimnasia_cr.jpeg',
   'INDEPENDIENTE (O)':'../liga_nacional/logos/independiente_o.jpeg',
   'INSTITUTO':      '../liga_nacional/logos/instituto.jpeg',
-  'LA UNION FSA.':  '../liga_nacional/logos/la_union_fsa.jpeg',
+  'LA UNION FSA':   '../liga_nacional/logos/la_union_fsa.jpeg',
   'OBERA':          '../liga_nacional/logos/obera.jpeg',
   'QUIMSA':         '../liga_nacional/logos/quimsa.jpeg',
   'REGATAS (C)':    '../liga_nacional/logos/regatas_c.jpeg',
