@@ -594,7 +594,7 @@ def evaluate_model(model, scaler, feature_cols, X_test, y_test):
 
     acc  = accuracy_score(y_test, y_pred)
     auc  = roc_auc_score(y_test, y_proba)
-    ll   = log_loss(y_test, y_proba)
+    ll   = log_loss(y_test, y_proba, labels=[0, 1])
 
     print(f"\n  Métricas (test set)")
     print(f"  {'Accuracy':<15}: {acc:.4f}")
@@ -665,6 +665,11 @@ def cross_validate_temporal(
         X_tr, X_te = X[train_idx], X[test_idx]
         y_tr, y_te = y[train_idx], y[test_idx]
 
+        if len(np.unique(y_tr)) < 2:
+            print(f"  {fold:<6} {len(train_idx):>7} {len(test_idx):>6}  "
+                  f"(fold salteado: train con una sola clase, aún no hay suficientes partidos)")
+            continue
+
         scaler_cv = StandardScaler()
         X_tr_s = scaler_cv.fit_transform(X_tr)
         X_te_s  = scaler_cv.transform(X_te)
@@ -677,7 +682,7 @@ def cross_validate_temporal(
 
         acc = accuracy_score(y_te, y_pred)
         auc = roc_auc_score(y_te, y_proba)
-        ll  = log_loss(y_te, y_proba)
+        ll  = log_loss(y_te, y_proba, labels=[0, 1])
 
         fold_metrics.append({"accuracy": acc, "roc_auc": auc, "log_loss": ll})
 
