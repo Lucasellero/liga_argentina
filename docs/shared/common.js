@@ -14,6 +14,21 @@ function calcAge(dob) {
   return age;
 }
 
+// DOB_MAP se indexa por "nombre||equipo" (players_dob.csv trae `equipo`) y por nombre solo como
+// fallback; si dos jugadores de la liga comparten nombre abreviado con fechas distintas, el
+// fallback por nombre queda en null para no mostrarle a uno la edad del otro.
+function addDob(map, r) {
+  const name = r.nombre_abreviado, dob = r.fecha_nacimiento;
+  if (!name || !dob) return;
+  if (r.equipo) map[name + '||' + r.equipo] = dob;
+  if (!(name in map)) map[name] = dob;
+  else if (map[name] !== dob) map[name] = null;
+}
+
+function lookupDob(map, name, team) {
+  return map[name + '||' + team] || map[name];
+}
+
 function parseCSVLine(line) {
   const result = []; let cur = '', inQ = false;
   for (let i = 0; i < line.length; i++) {

@@ -1308,7 +1308,7 @@ async function initApp() {
     const text = await resp.text();
     if (dobResp && dobResp.ok) {
       const dobRows = parseCSV(await dobResp.text());
-      dobRows.forEach(r => { if (r.liga === 'Liga Nacional') DOB_MAP[r.nombre_abreviado] = r.fecha_nacimiento; });
+      dobRows.forEach(r => { if (r.liga === 'Liga Nacional') addDob(DOB_MAP, r); });
     }
     const rows = parseCSV(text);
     const RAW_J = buildRAW_J(rows);
@@ -1357,7 +1357,7 @@ async function initApp() {
       const tmOppRO = tm.OPP_RO||0;
       d['DRB%'] = (playerMinTotal>0 && (tmRD+tmOppRO)>0) ? Math.round((p.RD||0)*(tmMinTotal/5)/(playerMinTotal*(tmRD+tmOppRO))*1000)/10 : null;
       d['FTr'] = tci>0 ? Math.round((p.T1I||0)/tci*1000)/1000 : null;
-      d.Edad = calcAge(DOB_MAP[p['Nombre completo']]);
+      d.Edad = calcAge(lookupDob(DOB_MAP, p['Nombre completo'], p.Equipo));
       return d;
     });
 

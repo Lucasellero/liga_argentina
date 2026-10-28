@@ -262,7 +262,7 @@ BLOCKED_GAME_KEYS: set[tuple[str, frozenset[str]]] = {
 - Temporada Liga Femenina: desde `03/10/2025` (temporada 2025/26, sin arrancar 2026/27 todavía — ver "Flujo de actualización automática"). `FIXTURE_START_DATE` del scraper todavía no se actualizó para 26/27.
 - Temporada Liga de Desarrollo: desde `27/09/2026` (`FIXTURE_START_DATE` ya actualizado en el rollover del 22/09/2026, aunque el cron de esta liga sigue sin reactivarse)
 - `PLAYOFF_DATE`/`PLAYOFF2_DATE`/`CUARTOS_DATE` en `liga_argentina.js` y `PLAYOFF_DATE` en `liga_nacional.js` dependen de `SEASON` (desde 01/10/2026): con `?season=2025-26` usan las fechas reales de 2025/26 (1/4, 15/4 y 30/4/2026 en Argentina; 23/4/2026 en Nacional) — antes estaban fijas en 2027 y la tabla archivada sumaba los playoffs como temporada regular. Para la temporada en curso quedaron en placeholders de abril 2027 (sin fecha real de playoffs todavía) — ajustar cuando la liga confirme el calendario de playoffs 2026/27, mismo criterio que se usó para 2025/26.
-- `fase_id`/`grupo_ids` de `scraper/players_dob_scraper.py` (IDs internos del sitio, cambian por temporada): Liga Nacional actualizado a `fase_id=21871`/`grupo_ids=["41209"]` (Serie Regular 2026/27, confirmado vía `/api/clasificacion/{faseId}/grupos`). Liga Argentina actualizado el 28/10/2026 a `fase_id=21986`/`grupo_ids=["41441","41442"]` (Conf Norte + Sur, misma inspección). Femenina y Desarrollo **pendientes**. La comparativa no lista a todos los jugadores con minutos (faltaban ~30 de Liga Nacional, sobre todo juveniles); el 28/10/2026 se completaron 21 a mano con su fila de la temporada anterior (mismo `nombre_abreviado`, fecha única).
+- `fase_id`/`grupo_ids` de `scraper/players_dob_scraper.py` (IDs internos del sitio, cambian por temporada): Liga Nacional actualizado a `fase_id=21871`/`grupo_ids=["41209"]` (Serie Regular 2026/27, confirmado vía `/api/clasificacion/{faseId}/grupos`). Liga Argentina actualizado el 28/10/2026 a `fase_id=21986`/`grupo_ids=["41441","41442"]` (Conf Norte + Sur, misma inspección). Femenina y Desarrollo **pendientes**. Desde el 28/10/2026 la lista de jugadores sale principalmente del **roster de cada equipo** (`/{liga}/equipo/.../roster`, equipos tomados de `/{liga}/tabla-posiciones` — `/{liga}/equipos` tiene los mismos links pero responde HTTP 404), complementado con la comparativa: la comparativa sola dejaba afuera ~30 jugadores por liga (sobre todo juveniles). `--ligas "Liga Argentina" "Liga Nacional"` re-scrapea solo esas ligas y conserva las filas de las demás.
 - Scraper usa `cloudscraper` para evadir protección anti-bot
 - `shot_map_scraper.py --full` regenera el CSV completo de tiros (Liga Argentina)
 - `shot_map_scraper_nacional.py --full` regenera el CSV completo de tiros (Liga Nacional)
@@ -275,13 +275,15 @@ Stats: `Puntos, T2A/T2I/T2%, T3A/T3I/T3%, T1A/T1I/T1%, DReb, OReb, TReb, Asisten
 - Filas `Nombre completo == "TOTALES"` son los totales de equipo por partido
 
 ## CSV: players_dob.csv
-Columnas: `liga, nombre_completo, nombre_abreviado, fecha_nacimiento, url_perfil`
+Columnas: `liga, nombre_completo, nombre_abreviado, fecha_nacimiento, url_perfil, equipo`
+- `equipo` (agregada 28/10/2026, decisión explícita del usuario pese a la regla de no cambiar formatos de CSV): nombre del equipo **tal como figura en el CSV de stats** de esa liga. El scraper lo mapea desde el slug del roster (`san-martin-c` ↔ `SAN MARTÍN (C)`) y ajusta `nombre_abreviado` a la variante que usa stats para ese equipo (apellidos compuestos `FINETTI LOPEZ` → `FINETTI`, con/sin tilde). Las filas de Femenina/Desarrollo todavía no la tienen (vacía).
 - Compartido por todas las ligas (una fila por jugador registrado)
 - `liga`: nombre de la liga tal como aparece en el dashboard (ej. `"Liga Nacional"`, `"Liga Argentina"`)
 - `nombre_abreviado`: formato `"APELLIDO, I."` — coincide con el campo `Nombre completo` del CSV de stats de cada liga. **Esta es la clave de matching.**
 - `nombre_completo`: nombre completo sin abreviar (ej. `"AGUSTIN CAFFARO"`). No usar como clave de lookup.
 - `fecha_nacimiento`: formato `DD/MM/YYYY`
 - Usado en cada `index.html` para calcular la columna `Edad` de la tabla de jugadores. Se carga en paralelo con el CSV de stats en `initApp()` via `Promise.all`. Se indexa en `DOB_MAP` por `nombre_abreviado`.
+- **Homónimos** (ej. `GOMEZ, M.` en UNION (SF) y en CENTRAL ENTRERRIANO, ambos en Liga Argentina 2026/27): Liga Argentina y Liga Nacional arman `DOB_MAP` con `addDob()` y buscan con `lookupDob(DOB_MAP, nombre, equipo)` (`docs/shared/common.js`): clave `nombre||equipo`, con fallback a solo nombre, que queda en `null` si el nombre tiene fechas distintas en la liga (mejor `—` que la edad de otro jugador). Femenina, Desarrollo y Formativas siguen indexando solo por nombre.
 - `calcAge(dob)` calcula la edad exacta en años enteros (considera si el cumpleaños ya ocurrió en el año actual).
 - Si el archivo no existe o falla el fetch, la app continúa sin errores y los jugadores sin DOB muestran `—`.
 
