@@ -813,7 +813,7 @@ function buildHomeInsights() {
         <span class="insight-vs">vs</span>
         <div class="insight-team">${logoV}<span>${upcoming.visit}</span></div>
       </div>
-      <div class="insight-card-sub">${upcoming.fecha}${upcoming.hora ? ' · ' + upcoming.hora : ''}${upcoming.estadio ? ' · ' + upcoming.estadio : ''}</div>
+      <div class="insight-card-sub">${upcoming.fecha} · ${upcoming.hora || 'Hora a conf.'}${upcoming.estadio ? ' · ' + upcoming.estadio : ''}</div>
     </div>`);
   }
 
@@ -1155,7 +1155,7 @@ function renderPostSeason() {
       if (g.upcoming) {
         return `<div class="series-game sg-next">
           <span class="sg-label">J${idx+1}</span>
-          <span class="sg-hora">${g.hora} hs</span>
+          <span class="sg-hora">${g.hora ? g.hora + ' hs' : 'Hora a conf.'}</span>
           <span class="sg-date">${g.fecha}</span>
           <span class="sg-next-pill">Próximo</span>
         </div>`;
@@ -1464,7 +1464,7 @@ function renderPartidoList(games, ascending=false) {
             <span class="pcard-name">${fmtTeamName(g.local)}</span>
           </div>
           <div class="pcard-center">
-            <div class="pcard-hora">${g.hora}</div>
+            <div class="pcard-hora">${g.hora || 'Hora a conf.'}</div>
             <div class="pcard-estadio">${g.estadio}</div>
             <div class="pcard-badges">
               <span class="pcard-badge-l">L</span>
@@ -1531,7 +1531,7 @@ async function initApp() {
     const text = await resp.text();
     if (dobResp && dobResp.ok) {
       const dobRows = parseCSV(await dobResp.text());
-      dobRows.forEach(r => { if (r.liga === 'Liga Argentina') DOB_MAP[r.nombre_abreviado] = r.fecha_nacimiento; });
+      dobRows.forEach(r => { if (r.liga === 'Liga Argentina') addDob(DOB_MAP, r); });
     }
     const rows = parseCSV(text);
     const RAW_J = buildRAW_J(rows);
@@ -1580,7 +1580,7 @@ async function initApp() {
       const tmOppRO = tm.OPP_RO||0;
       d['DRB%'] = (playerMinTotal>0 && (tmRD+tmOppRO)>0) ? Math.round((p.RD||0)*(tmMinTotal/5)/(playerMinTotal*(tmRD+tmOppRO))*1000)/10 : null;
       d['FTr'] = tci>0 ? Math.round((p.T1I||0)/tci*1000)/1000 : null;
-      d.Edad = calcAge(DOB_MAP[p['Nombre completo']]);
+      d.Edad = calcAge(lookupDob(DOB_MAP, p['Nombre completo'], p.Equipo));
       return d;
     });
 
@@ -1825,7 +1825,8 @@ async function initApp() {
               gameId:   `upcoming_${(local+visit+u['fecha']).replace(/\W/g,'')}`,
               fecha:    u['fecha'], local, visit,
               ptsLocal: null, ptsVisit: null, ganLocal: null,
-              upcoming: true, hora: u['hora'], estadio: u['estadio'] || '',
+              // "00:00" = horario sin confirmar en el sitio de la liga, no medianoche
+              upcoming: true, hora: u['hora'] === '00:00' ? '' : (u['hora'] || ''), estadio: u['estadio'] || '',
             });
           }
         });
