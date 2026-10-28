@@ -1801,14 +1801,26 @@ async function initApp() {
     // Merge upcoming fixture from CSV (skip any game already played/scraped)
     // Temporadas archivadas no tienen partidos "próximos".
     if (SEASON !== '2025-26') {
-    const _playedKeys = new Set(GAMES_ALL.map(g => `${g.fecha}|${g.local}|${g.visit}`));
+    // Nombres normalizados (sin tildes): el fixture dice "UNION (MDP)" y el scraper "UNIÓN (MDP)";
+    // sin esto el partido jugado nunca desplaza a su fila upcoming y queda como "próximo" para siempre.
+    const _norm = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toUpperCase();
+    const _canonName = {};
+    GAMES_ALL.forEach(g => { _canonName[_norm(g.local)] = g.local; _canonName[_norm(g.visit)] = g.visit; });
+    const _playedKeys = new Set(GAMES_ALL.map(g => `${g.fecha}|${_norm(g.local)}|${_norm(g.visit)}`));
+    const _today = new Date(); _today.setHours(0, 0, 0, 0);
     try {
       const upResp = await fetch('fixture_upcoming.csv?v=' + new Date().toISOString().slice(0, 10), { cache: 'no-cache' });
       if (upResp.ok) {
         const upRows = parseCSV(await upResp.text());
         upRows.forEach(u => {
-          const local = u['local'], visit = u['visitante'];
-          if (local && visit && !_playedKeys.has(`${u['fecha']}|${local}|${visit}`)) {
+          if (!u['local'] || !u['visitante'] || !u['fecha']) return;
+          // Fila con fecha pasada que no matcheó ningún partido jugado (postergado, contingencia de playoff,
+          // nombre distinto): se descarta para que "Próximo partido" siempre apunte al siguiente real.
+          const [ud, um, uy] = u['fecha'].split('/');
+          if (new Date(+uy, +um - 1, +ud) < _today) return;
+          const local = _canonName[_norm(u['local'])] || u['local'];
+          const visit = _canonName[_norm(u['visitante'])] || u['visitante'];
+          if (!_playedKeys.has(`${u['fecha']}|${_norm(local)}|${_norm(visit)}`)) {
             GAMES_ALL.push({
               gameId:   `upcoming_${(local+visit+u['fecha']).replace(/\W/g,'')}`,
               fecha:    u['fecha'], local, visit,
