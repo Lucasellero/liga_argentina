@@ -1718,6 +1718,7 @@ async function loadShots() {
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const text = await resp.text();
     const rows = parseCSV(text);
+    if (typeof canonTeamRows === 'function') canonTeamRows(rows);  // solo ligas que la definen
     SHOTS_MAP = new Map();
     SHOTS_STABLE_MAP = new Map();
     SHOTS_BY_PLAYER = new Map();
@@ -2577,6 +2578,7 @@ async function loadPbp() {
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const text = await resp.text();
     const rows = parseCSV(text);
+    if (typeof canonTeamRows === 'function') canonTeamRows(rows);  // solo ligas que la definen
     PBP_MAP = new Map();
     PBP_STABLE_MAP = new Map();
     rows.forEach(r => {

@@ -977,6 +977,19 @@ const TEAM_CITY = {
   'VILLA MITRE (BB)': 'Bahía Blanca',
 };
 
+// El sitio de la liga cambia la grafía de algunos equipos ("UNIÓN (MDP)", "VILLA SAN MARTÍN",
+// "PICO FC"); se llevan al nombre canónico de LOGOS/CONF_* al leer cada CSV, si no el equipo
+// queda fuera de su conferencia (0 partidos en Posiciones) y sin logo.
+const _teamKey = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^A-Z0-9()]/g, '');
+const _CANON_TEAM = {};
+[...Object.keys(LOGOS), ...CONF_NORTE, ...CONF_SUR].forEach(n => { _CANON_TEAM[_teamKey(n)] = n; });
+function canonTeam(name) { return _CANON_TEAM[_teamKey(name)] || name; }
+function canonTeamRows(rows) {
+  const cols = ['Equipo', 'Rival', 'Equipo_local', 'Equipo_visitante', 'local', 'visitante'];
+  rows.forEach(r => cols.forEach(c => { if (r[c]) r[c] = canonTeam(r[c]); }));
+  return rows;
+}
+
 
 
 function getTeamStandingLabel(teamName) {
@@ -1533,7 +1546,7 @@ async function initApp() {
       const dobRows = parseCSV(await dobResp.text());
       dobRows.forEach(r => { if (r.liga === 'Liga Argentina') addDob(DOB_MAP, r); });
     }
-    const rows = parseCSV(text);
+    const rows = canonTeamRows(parseCSV(text));
     const RAW_J = buildRAW_J(rows);
     const RAW_T = buildRAW_T(rows);
 
@@ -1811,7 +1824,7 @@ async function initApp() {
     try {
       const upResp = await fetch('fixture_upcoming.csv?v=' + new Date().toISOString().slice(0, 10), { cache: 'no-cache' });
       if (upResp.ok) {
-        const upRows = parseCSV(await upResp.text());
+        const upRows = canonTeamRows(parseCSV(await upResp.text()));
         upRows.forEach(u => {
           if (!u['local'] || !u['visitante'] || !u['fecha']) return;
           // Fila con fecha pasada que no matcheó ningún partido jugado (postergado, contingencia de playoff,

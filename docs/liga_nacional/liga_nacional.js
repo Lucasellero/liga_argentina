@@ -820,6 +820,18 @@ const TEAM_CITY = {
   'LANÚS': 'Lanús',
 };
 
+// El sitio de la liga cambia la grafía de algunos equipos (tildes, puntos: "UNIÓN (MDP)" vs
+// "UNION (MDP)" en Liga Argentina); se llevan al nombre canónico de LOGOS al leer cada CSV.
+const _teamKey = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^A-Z0-9()]/g, '');
+const _CANON_TEAM = {};
+[...Object.keys(LOGOS), ...CONF_NORTE, ...CONF_SUR].forEach(n => { _CANON_TEAM[_teamKey(n)] = n; });
+function canonTeam(name) { return _CANON_TEAM[_teamKey(name)] || name; }
+function canonTeamRows(rows) {
+  const cols = ['Equipo', 'Rival', 'Equipo_local', 'Equipo_visitante', 'local', 'visitante'];
+  rows.forEach(r => cols.forEach(c => { if (r[c]) r[c] = canonTeam(r[c]); }));
+  return rows;
+}
+
 
 // ============================================================
 
@@ -974,7 +986,7 @@ function renderPostSeason() {
       if (g.upcoming) {
         return `<div class="series-game sg-next">
           <span class="sg-label">J${idx+1}</span>
-          <span class="sg-hora">${g.hora} hs</span>
+          <span class="sg-hora">${g.hora ? g.hora + ' hs' : 'Hora a conf.'}</span>
           <span class="sg-date">${g.fecha}</span>
           <span class="sg-next-pill">Próximo</span>
         </div>`;
@@ -1240,7 +1252,7 @@ function renderPartidoList(games, ascending=false) {
             <span class="pcard-name">${fmtTeamName(g.local)}</span>
           </div>
           <div class="pcard-center">
-            <div class="pcard-hora">${g.hora}</div>
+            <div class="pcard-hora">${g.hora || 'Hora a conf.'}</div>
             <div class="pcard-estadio">${g.estadio}</div>
             <div class="pcard-badges">
               <span class="pcard-badge-l">L</span>
@@ -1310,7 +1322,7 @@ async function initApp() {
       const dobRows = parseCSV(await dobResp.text());
       dobRows.forEach(r => { if (r.liga === 'Liga Nacional') addDob(DOB_MAP, r); });
     }
-    const rows = parseCSV(text);
+    const rows = canonTeamRows(parseCSV(text));
     const RAW_J = buildRAW_J(rows);
     const RAW_T = buildRAW_T(rows);
 
@@ -1579,18 +1591,25 @@ async function initApp() {
     // Temporadas archivadas no tienen partidos "próximos" ni predicciones vigentes.
     if (SEASON !== '2025-26') {
     const _playedKeys = new Set(GAMES_ALL.map(g => `${g.fecha}|${g.local}|${g.visit}`));
+    const _today = new Date(); _today.setHours(0, 0, 0, 0);
     try {
       const upResp = await fetch('fixture_upcoming.csv?v=' + new Date().toISOString().slice(0, 10), { cache: 'no-cache' });
       if (upResp.ok) {
-        const upRows = parseCSV(await upResp.text());
+        const upRows = canonTeamRows(parseCSV(await upResp.text()));
         upRows.forEach(u => {
           const local = u['local'], visit = u['visitante'];
-          if (local && visit && !_playedKeys.has(`${u['fecha']}|${local}|${visit}`)) {
+          if (!local || !visit || !u['fecha']) return;
+          // Fila con fecha pasada que no matcheó ningún partido jugado (postergado, contingencia
+          // de playoff): se descarta para que no quede como "próximo" para siempre.
+          const [ud, um, uy] = u['fecha'].split('/');
+          if (new Date(+uy, +um - 1, +ud) < _today) return;
+          if (!_playedKeys.has(`${u['fecha']}|${local}|${visit}`)) {
             GAMES_ALL.push({
               gameId:   `upcoming_${(local+visit+u['fecha']).replace(/\W/g,'')}`,
               fecha:    u['fecha'], local, visit,
               ptsLocal: null, ptsVisit: null, ganLocal: null,
-              upcoming: true, hora: u['hora'], estadio: u['estadio'] || '',
+              // "00:00" = horario sin confirmar en el sitio de la liga, no medianoche
+              upcoming: true, hora: u['hora'] === '00:00' ? '' : (u['hora'] || ''), estadio: u['estadio'] || '',
             });
           }
         });
@@ -1601,7 +1620,7 @@ async function initApp() {
     try {
       const prResp = await fetch('predicciones_upcoming.csv?v=' + new Date().toISOString().slice(0, 10), { cache: 'no-cache' });
       if (prResp.ok) {
-        const prRows = parseCSV(await prResp.text());
+        const prRows = canonTeamRows(parseCSV(await prResp.text()));
         prRows.forEach(r => {
           const k = `${r['fecha']}|${r['local']}|${r['visitante']}`;
           PRED_MAP[k] = { prob_local: parseFloat(r['prob_local']), prob_visit: parseFloat(r['prob_visit']) };
