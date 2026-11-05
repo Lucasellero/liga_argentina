@@ -41,7 +41,7 @@
       const ov = document.createElement('div');
       ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(11,11,22,.93);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:16px;';
       ov.innerHTML = '<div style="background:#18182e;border:1px solid rgba(139,92,246,.25);border-radius:18px;padding:40px 36px;width:100%;max-width:400px;text-align:center;box-shadow:0 8px 48px rgba(0,0,0,.65);">'
-        + '<div style="width:80px;height:80px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;"><img src="../logos/scouteado_logo.png" alt="Scouteado" style="width:130px;height:130px;object-fit:contain;"></div>'
+        + '<div style="width:80px;height:80px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;"><img src="../liga_argentina/logos/scouteado_logo.png" alt="Scouteado" style="width:130px;height:130px;object-fit:contain;"></div>'
         + '<h2 style="color:#f8fafc;font-size:1.3rem;font-weight:700;margin-bottom:8px;">¡Seguí explorando!</h2>'
         + '<p style="color:#64748b;font-size:.88rem;margin-bottom:28px;line-height:1.55;">Creá tu cuenta gratis para continuar navegando las estadísticas de la liga.</p>'
         + '<a href="' + LOGIN_URL + '" style="display:block;padding:13px;background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff;font-weight:600;font-size:.92rem;border-radius:10px;text-decoration:none;margin-bottom:12px;box-shadow:0 4px 18px rgba(139,92,246,.4);">Iniciar sesión</a>'
@@ -72,18 +72,14 @@ const CSV_PATH = SEASON_DIR + 'liga_proximo.csv';
 const DOB_PATH = '../shared/players_dob.csv';
 
 (function renderSeasonToggle() {
-  const pillBase = 'display:inline-flex;align-items:center;justify-content:center;gap:5px;font-size:0.68rem;font-weight:700;padding:3px 10px;border-radius:20px;min-width:120px;';
-  const activeStyle = pillBase + 'color:var(--teal-l,#5eead4);border:1.5px solid rgba(45,212,191,.7);background:rgba(45,212,191,.22);cursor:default;';
-  const linkStyle = pillBase + 'font-weight:600;color:var(--purple-l,#a78bfa);text-decoration:none;border:1px solid rgba(139,92,246,.3);background:rgba(139,92,246,.08);';
   const seasons = [
-    { key: 'live', label: 'Temporada 2026/27' },
-    { key: '2025-26', label: 'Temporada 2025/26' },
+    { key: 'live', label: '2026/27' },
+    { key: '2025-26', label: '2025/26' },
   ];
   const html = seasons.map(s => {
-    const isActive = s.key === SEASON;
-    if (isActive) return '<span style="' + activeStyle + '">' + s.label + '</span>';
+    if (s.key === SEASON) return '<span class="hseg-opt active">' + s.label + '</span>';
     const href = s.key === 'live' ? location.pathname : location.pathname + '?season=' + s.key;
-    return '<a href="' + href + '" style="' + linkStyle + '" onmouseover="this.style.background=\'rgba(139,92,246,.18)\'" onmouseout="this.style.background=\'rgba(139,92,246,.08)\'">' + s.label + '</a>';
+    return '<a class="hseg-opt" href="' + href + '">' + s.label + '</a>';
   }).join('');
   const el = document.getElementById('seasonToggle');
   if (el) el.innerHTML = html;
