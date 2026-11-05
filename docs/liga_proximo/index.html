@@ -1232,13 +1232,34 @@
       <span class="tgm-record" id="tgmRecord"></span>
       <button class="tgm-close" onclick="closeTeamGames()">✕</button>
     </div>
-    <div class="tgm-body" id="tgmBody">
-      <table class="tgm-games-table">
+    <div class="tgm-standing" id="tgmStanding"></div>
+    <div class="tgm-detail-tabs" id="tgmMainTabs">
+      <button class="tgm-tab active" id="tgmMainTabGames" onclick="switchTeamMainTab('games')">Partidos</button>
+      <button class="tgm-tab" id="tgmMainTabRoster" onclick="switchTeamMainTab('roster')">Plantel</button>
+    </div>
+    <div id="tgmGamesPanel">
+      <div id="tgmUpcoming"></div>
+      <div class="tgm-body" id="tgmBody">
+        <table class="tgm-games-table">
+          <thead><tr>
+            <th>Fecha</th><th>Cond.</th><th>Rival</th>
+            <th>Score</th><th>Res.</th><th></th>
+          </tr></thead>
+          <tbody id="tgmTbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="tgmRosterPanel" class="tgm-body" style="display:none">
+      <table class="tgm-roster-table">
         <thead><tr>
-          <th>Fecha</th><th>Cond.</th><th>Rival</th>
-          <th>Score</th><th>Res.</th><th></th>
+          <th>#</th><th>Jugador</th><th>Edad</th><th>PJ</th>
+          <th data-tip="Puntos por partido">PTS/P</th>
+          <th data-tip="Rebotes por partido">REB/P</th>
+          <th data-tip="Asistencias por partido">AST/P</th>
+          <th data-tip="Recuperos por partido">REC/P</th>
+          <th data-tip="Tapones por partido">TAP/P</th>
         </tr></thead>
-        <tbody id="tgmTbody"></tbody>
+        <tbody id="tgmRosterTbody"></tbody>
       </table>
     </div>
     <div id="tgmDetail">

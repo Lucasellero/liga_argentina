@@ -708,6 +708,20 @@ function canonTeamRows(rows) {
 }
 
 
+// Línea de posición del modal de equipo (#tgmStanding, ver renderTeamStanding en common.js).
+// Mismo orden que renderStandings(): tabla general única, sin corte de playoffs.
+function getTeamStandingLabel(teamName) {
+  if (!TEAMS.some(t => t.PJ > 0)) return '';
+  const rows = [...TEAMS].sort((a,b) => {
+    if (b['W%'] !== a['W%']) return b['W%'] - a['W%'];
+    if (b.PJ !== a.PJ) return b.PJ - a.PJ;
+    return (b.PTSPG||0) - (a.PTSPG||0);
+  });
+  const idx = rows.findIndex(t => t.Equipo === teamName);
+  if (idx < 0) return '';
+  return `${idx + 1}° en la tabla general · ${rows.length} equipos`;
+}
+
 function renderStandings() {
   const rows = [...TEAMS].sort((a,b) => {
     if (b['W%'] !== a['W%']) return b['W%'] - a['W%'];

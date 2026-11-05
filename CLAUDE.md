@@ -827,6 +827,8 @@ Mismo esquema y formato que los demás PBP CSVs.
 - Sirve en `/liga_proximo/` (subcarpeta `docs/liga_proximo/`)
 - Una sola conferencia (igual que Liga Nacional, sin división Norte/Sur)
 - Logos referenciados desde `../liga_nacional/logos/` (equipos idénticos a Liga Nacional; LANÚS agregado en 2026/27)
+- **Modal de equipo (noviembre 2026)**: Desarrollo tenía el markup viejo de `#teamGamesModal` (sin `#tgmStanding`/`#tgmMainTabs`/`#tgmGamesPanel`/`#tgmRosterPanel`) mientras `showTeamGames`/`closeGameDetail` de `common.js` ya asumían el nuevo desde septiembre 2026 → el modal de equipo y el de partido (desde Fixture) tiraban `TypeError` y no abrían. Se copió el bloque de Liga Nacional y se definió `getTeamStandingLabel()` en `liga_proximo.js` con el mismo orden que su `renderStandings()` (tabla general única, sin `PLAYOFF_DATE`).
+- **`players_dob.csv` de Desarrollo**: tiene las filas 2026/27 (con `equipo`) **y** las filas de 2025/26 que no se repiten (sin `equipo`), para que la temporada archivada siga mostrando edades. Re-correr `players_dob_scraper.py --ligas "Liga Desarrollo"` borra esas filas viejas — volver a agregarlas desde el historial de git si se re-scrapea.
 - `canonTeamRows()` portada desde Liga Nacional (noviembre 2026): el sitio escribe `OBERÁ` / `LA UNION FSA.` y `LOGOS` tiene `OBERA` / `LA UNION FSA`; se normaliza al leer stats, fixture, tiros y PBP
 - Sin filtro de `START_DATE` — muestra toda la temporada desde `22/09/2025`
 - Jugador por defecto en Tiro: SOÑORA (OBRAS)
