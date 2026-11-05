@@ -153,8 +153,8 @@ def main():
     args = parser.parse_args()
 
     if not INPUT_CSV.exists():
-        log.error(f"CSV no encontrado: {INPUT_CSV}")
-        sys.exit(1)
+        log.warning(f"CSV no encontrado todavía: {INPUT_CSV} (temporada sin arrancar). Nada que hacer.")
+        sys.exit(0)
 
     # Build game list from TOTALES rows usando clave estable fecha|local|visitante
     # (los IDs del sitio son dinámicos y cambian en cada request)

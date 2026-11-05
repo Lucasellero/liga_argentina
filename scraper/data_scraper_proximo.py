@@ -724,8 +724,8 @@ def main():
     # 2. Get fixture game list
     all_fixture_games = fetch_fixture_games(session, debug=args.debug)
     if not all_fixture_games:
-        log.error("No games found.")
-        sys.exit(1)
+        log.warning("No hay partidos en el rango de fechas (temporada sin arrancar todavía o sin novedades). Nada que hacer.")
+        sys.exit(0)
 
     if args.dry_run:
         log.info("--- DRY RUN ---")

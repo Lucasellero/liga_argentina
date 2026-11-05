@@ -76,8 +76,8 @@ LEAGUES = [
     {
         "nombre":   "Liga Desarrollo",
         "league":   "ligaproximo",
-        "fase_id":  "15790",
-        "grupo_ids": ["31359"],
+        "fase_id":  "21881",   # Serie Regular 2026/27 (confirmado vía /api/clasificacion/{faseId}/grupos)
+        "grupo_ids": ["41319"],
         "stats_csv": DOCS_DIR / "liga_proximo" / "liga_proximo.csv",
     },
 ]

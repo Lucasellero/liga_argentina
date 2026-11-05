@@ -2,8 +2,8 @@ name: Scraper diario
 
 on:
   # Cron reactivado (septiembre 2026): arrancó la temporada 2026/27 de Liga Argentina
-  # y Liga Nacional. Femenina y Desarrollo siguen con sus pasos comentados más abajo
-  # hasta que arranquen sus propias temporadas.
+  # y Liga Nacional. Liga de Desarrollo reactivada en noviembre 2026. Femenina sigue
+  # con sus pasos comentados más abajo hasta que arranque su temporada.
   schedule:
     - cron: '30 4 * * *'   # 01:30 ART (UTC-3)
     - cron: '0 9 * * *'    # 06:00 ART (UTC-3)
@@ -29,12 +29,12 @@ jobs:
         run: pip install -r scraper/requirements.txt
 
       # ── Descargar PBP actuales desde Supabase (para scraping incremental) ──
-      # Acotado a Argentina + Nacional mientras Femenina y Desarrollo estén paradas.
+      # Acotado a Argentina + Nacional + Desarrollo mientras Femenina esté parada.
       - name: Descargar PBP desde Supabase
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         run: |
-          for LEAGUE in liga_argentina liga_nacional; do
+          for LEAGUE in liga_argentina liga_nacional liga_proximo; do
             FILE="docs/${LEAGUE}/${LEAGUE}_pbp.csv"
             STATUS=$(curl -sf -o "$FILE" -w "%{http_code}" \
               "${SUPABASE_URL}/storage/v1/object/public/pbp/${LEAGUE}_pbp.csv" 2>/dev/null || echo "000")
@@ -106,19 +106,20 @@ jobs:
       #   run: python scraper/pbp_scraper_femenina.py
 
       # ── Liga de Desarrollo ──────────────────────────────────────────────────
-      # Desactivada (septiembre 2026): la temporada 2026/27 de Liga de Desarrollo
-      # todavía no arrancó. Descomentar estos 3 steps cuando arranque.
-      # - name: Stats – Liga de Desarrollo
-      #   run: python scraper/data_scraper_proximo.py
-      #
-      # - name: Tiros – Liga de Desarrollo
-      #   run: python scraper/shot_map_scraper_proximo.py
-      #
-      # - name: Jugada a jugada – Liga de Desarrollo
-      #   run: python scraper/pbp_scraper_proximo.py
+      - name: Stats – Liga de Desarrollo
+        run: python scraper/data_scraper_proximo.py
+
+      - name: Tiros – Liga de Desarrollo
+        run: python scraper/shot_map_scraper_proximo.py
+
+      - name: Jugada a jugada – Liga de Desarrollo
+        run: python scraper/pbp_scraper_proximo.py
+
+      - name: Fixture próximos partidos – Liga de Desarrollo
+        run: python scraper/fixture_scraper_proximo.py
 
       # ── Subir PBP a Supabase (versión filtrada para web, <50 MB) ────────────
-      # Acotado a Argentina + Nacional mientras Femenina y Desarrollo estén paradas.
+      # Acotado a Argentina + Nacional + Desarrollo mientras Femenina esté parada.
       - name: Subir PBP a Supabase
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -140,6 +141,7 @@ jobs:
           files = [
               ('liga_argentina', 'docs/liga_argentina/liga_argentina_pbp.csv'),
               ('liga_nacional',  'docs/liga_nacional/liga_nacional_pbp.csv'),
+              ('liga_proximo',   'docs/liga_proximo/liga_proximo_pbp.csv'),
           ]
 
           url = os.environ['SUPABASE_URL']
@@ -175,6 +177,9 @@ jobs:
             docs/liga_nacional/liga_nacional.csv
             docs/liga_nacional/liga_nacional_shots.csv
             docs/liga_nacional/predicciones_upcoming.csv
+            docs/liga_proximo/liga_proximo.csv
+            docs/liga_proximo/liga_proximo_shots.csv
+            docs/liga_proximo/fixture_upcoming.csv
             modelos/modelo_liga_nacional_prod.pkl
           )
           for f in "${FILES[@]}"; do

@@ -692,7 +692,20 @@ const LOGOS = {
   'RACING (CH)':    '../liga_nacional/logos/racing_ch.jpeg',
   'SAN LORENZO':    '../liga_nacional/logos/san_lorenzo.jpeg',
   'UNION (SF)':     '../liga_nacional/logos/union_sf.jpeg',
+  'LANÚS':          '../liga_nacional/logos/lanus.jpeg',
 };
+
+// El sitio de la liga cambia la grafía de algunos equipos (tildes, puntos: "OBERÁ" vs
+// "OBERA", "LA UNION FSA." vs "LA UNION FSA"); se llevan al nombre canónico de LOGOS al leer cada CSV.
+const _teamKey = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9()]/g, '');
+const _CANON_TEAM = {};
+Object.keys(LOGOS).forEach(n => { _CANON_TEAM[_teamKey(n)] = n; });
+function canonTeam(name) { return _CANON_TEAM[_teamKey(name)] || name; }
+function canonTeamRows(rows) {
+  const cols = ['Equipo', 'Rival', 'Equipo_local', 'Equipo_visitante', 'local', 'visitante'];
+  rows.forEach(r => cols.forEach(c => { if (r[c]) r[c] = canonTeam(r[c]); }));
+  return rows;
+}
 
 
 function renderStandings() {
@@ -956,7 +969,7 @@ function renderPartidoList(games, ascending=false) {
             <span class="pcard-name">${fmtTeamName(g.local)}</span>
           </div>
           <div class="pcard-center">
-            <div class="pcard-hora">${g.hora}</div>
+            <div class="pcard-hora">${g.hora || 'Hora a conf.'}</div>
             <div class="pcard-estadio">${g.estadio}</div>
             <div class="pcard-badges">
               <span class="pcard-badge-l">L</span>
@@ -1022,9 +1035,9 @@ async function initApp() {
     const text = await resp.text();
     if (dobResp && dobResp.ok) {
       const dobRows = parseCSV(await dobResp.text());
-      dobRows.forEach(r => { if (r.liga === 'Liga Desarrollo') DOB_MAP[r.nombre_abreviado] = r.fecha_nacimiento; });
+      dobRows.forEach(r => { if (r.liga === 'Liga Desarrollo') addDob(DOB_MAP, { ...r, equipo: canonTeam(r.equipo) }); });
     }
-    const rows = parseCSV(text);
+    const rows = canonTeamRows(parseCSV(text));
     const RAW_J = buildRAW_J(rows);
     const RAW_T = buildRAW_T(rows);
 
@@ -1071,7 +1084,7 @@ async function initApp() {
       const tmOppRO = tm.OPP_RO||0;
       d['DRB%'] = (playerMinTotal>0 && (tmRD+tmOppRO)>0) ? Math.round((p.RD||0)*(tmMinTotal/5)/(playerMinTotal*(tmRD+tmOppRO))*1000)/10 : null;
       d['FTr'] = tci>0 ? Math.round((p.T1I||0)/tci*1000)/1000 : null;
-      d.Edad = calcAge(DOB_MAP[p['Nombre completo']]);
+      d.Edad = calcAge(lookupDob(DOB_MAP, p['Nombre completo'], p.Equipo));
       return d;
     });
 
@@ -1260,18 +1273,25 @@ async function initApp() {
     // Temporadas archivadas no tienen partidos "próximos".
     if (SEASON !== '2025-26') {
     const _playedKeys = new Set(GAMES_ALL.map(g => `${g.fecha}|${g.local}|${g.visit}`));
+    const _today = new Date(); _today.setHours(0, 0, 0, 0);
     try {
       const upResp = await fetch('fixture_upcoming.csv?v=' + new Date().toISOString().slice(0, 10));
       if (upResp.ok) {
-        const upRows = parseCSV(await upResp.text());
+        const upRows = canonTeamRows(parseCSV(await upResp.text()));
         upRows.forEach(u => {
           const local = u['local'], visit = u['visitante'];
-          if (local && visit && !_playedKeys.has(`${u['fecha']}|${local}|${visit}`)) {
+          if (!local || !visit || !u['fecha']) return;
+          // Fila con fecha pasada que no matcheó ningún partido jugado (postergado, contingencia
+          // de playoff): se descarta para que no quede como "próximo" para siempre.
+          const [ud, um, uy] = u['fecha'].split('/');
+          if (new Date(+uy, +um - 1, +ud) < _today) return;
+          if (!_playedKeys.has(`${u['fecha']}|${local}|${visit}`)) {
             GAMES_ALL.push({
               gameId:   `upcoming_${(local+visit+u['fecha']).replace(/\W/g,'')}`,
               fecha:    u['fecha'], local, visit,
               ptsLocal: null, ptsVisit: null, ganLocal: null,
-              upcoming: true, hora: u['hora'], estadio: u['estadio'] || '',
+              // "00:00" = horario sin confirmar en el sitio de la liga, no medianoche
+              upcoming: true, hora: u['hora'] === '00:00' ? '' : (u['hora'] || ''), estadio: u['estadio'] || '',
             });
           }
         });
