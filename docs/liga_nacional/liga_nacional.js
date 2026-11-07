@@ -333,7 +333,6 @@ let jHov=-1, jPin=new Set(), tHov=-1, tPin=-1;
 const SHOTS_CSV = SEASON_DIR + 'liga_nacional_shots.csv';
 let SHOTS_MAP = null;        // null=not loaded, Map keyed by shots CSV IdPartido
 let SHOTS_STABLE_MAP = null; // Map keyed by "fecha|local|visit" (cross-CSV stable key)
-let PRED_MAP  = {};   // keyed by "fecha|local|visitante" → {prob_local, prob_visit}
 let SHOTS_BY_PLAYER = null; // Map keyed by "Equipo||Dorsal"
 let LEAGUE_ZONE_STATS = null;
 let _smState = { gameId: null, fecha: null, local: '', visit: '', focusTeam: null, filter: { team: 'all', tipo: 'all', result: 'all' } };
@@ -1238,14 +1237,6 @@ function renderPartidoList(games, ascending=false) {
       const ll = LOGOS[g.local]  ? `<img src="${LOGOS[g.local]}"  class="pcard-logo" alt="" onerror="this.style.display='none'">` : '';
       const vl = LOGOS[g.visit]  ? `<img src="${LOGOS[g.visit]}"  class="pcard-logo" alt="" onerror="this.style.display='none'">` : '';
       if (g.upcoming) {
-        const pred = PRED_MAP[`${g.fecha}|${g.local}|${g.visit}`];
-        const predBar = pred ? `
-          <div class="pcard-pred">
-            <span class="pcard-pred-label">prob. victoria</span>
-            <span class="pcard-pred-pct local">${Math.round(pred.prob_local*100)}%</span>
-            <div class="pcard-pred-bar"><div class="pcard-pred-fill" style="width:${Math.round(pred.prob_local*100)}%"></div></div>
-            <span class="pcard-pred-pct visit">${Math.round(pred.prob_visit*100)}%</span>
-          </div>` : '';
         return `<div class="partido-card upcoming" data-gid="${g.gameId}">
           <div class="pcard-side local">
             ${ll}
@@ -1264,7 +1255,6 @@ function renderPartidoList(games, ascending=false) {
             ${vl}
             <span class="pcard-name">${fmtTeamName(g.visit)}</span>
           </div>
-          ${predBar}
         </div>`;
       }
       const lw = g.ganLocal;
@@ -1588,7 +1578,7 @@ async function initApp() {
     });
 
     // Merge upcoming fixture from CSV (skip any game already played/scraped)
-    // Temporadas archivadas no tienen partidos "próximos" ni predicciones vigentes.
+    // Temporadas archivadas no tienen partidos "próximos" vigentes.
     if (SEASON !== '2025-26') {
     const _playedKeys = new Set(GAMES_ALL.map(g => `${g.fecha}|${g.local}|${g.visit}`));
     const _today = new Date(); _today.setHours(0, 0, 0, 0);
@@ -1616,17 +1606,6 @@ async function initApp() {
       }
     } catch(e) { /* fixture_upcoming.csv no disponible, se ignora */ }
 
-    // Cargar predicciones del modelo
-    try {
-      const prResp = await fetch('predicciones_upcoming.csv?v=' + new Date().toISOString().slice(0, 10), { cache: 'no-cache' });
-      if (prResp.ok) {
-        const prRows = canonTeamRows(parseCSV(await prResp.text()));
-        prRows.forEach(r => {
-          const k = `${r['fecha']}|${r['local']}|${r['visitante']}`;
-          PRED_MAP[k] = { prob_local: parseFloat(r['prob_local']), prob_visit: parseFloat(r['prob_visit']) };
-        });
-      }
-    } catch(e) { /* predicciones no disponibles, se ignoran */ }
     }
 
     GAMES_ALL.sort((a,b)=>{

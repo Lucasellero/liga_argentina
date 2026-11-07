@@ -356,7 +356,6 @@ let jHov=-1, jPin=new Set(), tHov=-1, tPin=-1;
 // ── SHOTS DATA ──────────────────────────────────────
 const SHOTS_CSV = SHOTS_PATH;
 let SHOTS_MAP = null; // null=not loaded, Map keyed by gameId
-let PRED_MAP  = {};   // keyed by "fecha|local|visitante" → {prob_local, prob_visit}
 let SHOTS_BY_PLAYER = null; // Map keyed by "Equipo||Dorsal"
 let LEAGUE_ZONE_STATS = null;
 let _smState = { gameId: null, local: '', visit: '', focusTeam: null, filter: { team: 'all', tipo: 'all', result: 'all' } };
@@ -2653,17 +2652,6 @@ async function initApp() {
       }
     } catch(e) { /* fixture_upcoming.csv no disponible, se ignora */ }
 
-    // Cargar predicciones del modelo
-    try {
-      const prResp = await fetch('predicciones_upcoming.csv?v=' + new Date().toISOString().slice(0, 10));
-      if (prResp.ok) {
-        const prRows = parseCSV(await prResp.text());
-        prRows.forEach(r => {
-          const k = `${r['fecha']}|${r['local']}|${r['visitante']}`;
-          PRED_MAP[k] = { prob_local: parseFloat(r['prob_local']), prob_visit: parseFloat(r['prob_visit']) };
-        });
-      }
-    } catch(e) { /* predicciones no disponibles, se ignoran */ }
 
     GAMES_ALL.sort((a,b)=>{
       const [ad,am,ay]=a.fecha.split('/'); const [bd,bm,by]=b.fecha.split('/');

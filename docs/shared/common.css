@@ -945,15 +945,6 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .cnx-legend-dot.low{background:#8b5cf6;}
 .cnx-legend-dot.high{background:#2dd4bf;}
 
-/* ── PREDICCIONES ────────────────────────────────── */
-.pcard-pred{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding-top:6px;border-top:1px solid var(--border2);margin-top:2px;}
-.pcard-pred-label{font-size:.55rem;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;margin-right:2px;}
-.pcard-pred-pct{font-size:.68rem;font-weight:800;min-width:34px;letter-spacing:.3px;}
-.pcard-pred-pct.local{color:var(--purple-l);text-align:left;}
-.pcard-pred-pct.visit{color:var(--teal-l);text-align:right;}
-.pcard-pred-bar{flex:1;height:12px;border-radius:6px;background:rgba(45,212,191,.2);overflow:hidden;position:relative;}
-.pcard-pred-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,rgba(139,92,246,.9),rgba(139,92,246,.6));}
-
 /* ── POS TABS ────────────────────────────────────── */
 .pos-tab-bar{display:flex;gap:8px;padding:16px 20px 0;max-width:900px;margin:0 auto;}
 .pos-tab{padding:7px 18px;border-radius:20px;font-size:.76rem;font-weight:700;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s;}
@@ -1230,11 +1221,6 @@ canvas{display:block;width:100%;cursor:crosshair;}
   .cnx-outer{padding:14px 10px 32px;}
   .cnx-header{gap:8px;}
   .cnx-legend{gap:12px;}
-
-  /* Predicciones */
-  .pcard-pred{gap:6px;padding-top:5px;}
-  .pcard-pred-label{display:none;}
-  .pcard-pred-pct{font-size:.65rem;min-width:28px;}
 
   /* Post temporada */
   .playoff-grid{grid-template-columns:1fr;}

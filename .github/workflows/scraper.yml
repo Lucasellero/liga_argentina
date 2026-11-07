@@ -61,6 +61,16 @@ jobs:
       - name: Jugada a jugada – Liga Nacional
         run: python scraper/pbp_scraper_nacional.py
 
+      # ── Fixture de próximos partidos (Argentina + Nacional) ─────────────────
+      # continue-on-error: un fallo del fixture no debe frenar el commit de stats.
+      - name: Fixture próximos partidos – Liga Argentina
+        continue-on-error: true
+        run: python scraper/fixture_scraper.py argentina
+
+      - name: Fixture próximos partidos – Liga Nacional
+        continue-on-error: true
+        run: python scraper/fixture_scraper.py nacional
+
       # ── Limpiar partidos fuera de temporada regular (torneos especiales) ─────
       # Clave estable fecha|equipoA|equipoB — el IdPartido es dinámico y cambia en
       # cada request, así que no sirve como identificador persistente entre corridas
@@ -88,10 +98,6 @@ jobs:
               df.to_csv(f, index=False, encoding='utf-8-sig')
               print(f'{f}: {before} → {len(df)} filas')
           "
-
-      # ── Modelo Liga Nacional ────────────────────────────────────────────────
-      - name: Reentrenar modelo de probabilidad – Liga Nacional
-        run: python modelos/modelo_liga_nacional.py
 
       # ── Liga Femenina ───────────────────────────────────────────────────────
       # Desactivada (septiembre 2026): la temporada 2026/27 de Liga Femenina
@@ -174,13 +180,13 @@ jobs:
           FILES=(
             docs/liga_argentina/liga_argentina.csv
             docs/liga_argentina/liga_argentina_shots.csv
+            docs/liga_argentina/fixture_upcoming.csv
             docs/liga_nacional/liga_nacional.csv
             docs/liga_nacional/liga_nacional_shots.csv
-            docs/liga_nacional/predicciones_upcoming.csv
+            docs/liga_nacional/fixture_upcoming.csv
             docs/liga_proximo/liga_proximo.csv
             docs/liga_proximo/liga_proximo_shots.csv
             docs/liga_proximo/fixture_upcoming.csv
-            modelos/modelo_liga_nacional_prod.pkl
           )
           for f in "${FILES[@]}"; do
             [ -f "$f" ] && git add "$f" || echo "skip (no existe): $f"

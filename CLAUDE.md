@@ -119,7 +119,7 @@ El repo tiene dos niveles: la raíz del repo (git root) y `liga_argentina/` que 
 
 ```
 <repo-root>/
-  .github/workflows/scraper.yml  # CI/CD: corre scrapers + retrain del modelo diariamente y pushea
+  .github/workflows/scraper.yml  # CI/CD: corre scrapers diariamente y pushea
   .github/workflows/mercado.yml  # CI/CD: refresca Mercado de Pases (LA + LN) 4 veces al día y pushea
   backend/
     .env                         # Variables de entorno del backend
@@ -149,12 +149,9 @@ liga_argentina/
     players_dob_scraper.py       # Scraper de fechas de nacimiento
     mercado_scraper.py           # Scraper del Mercado de Pases en vivo (Liga Argentina, fuente pickandroll.com.ar)
     mercado_scraper_nacional.py  # Scraper del Mercado de Pases en vivo (Liga Nacional, fuente pickandroll.com.ar)
-    update_nacional.py           # Orquestador: corre los 3 scrapers de Liga Nacional + retrain
-    requirements.txt             # cloudscraper, pandas, bs4, lxml, playwright, sklearn, joblib
-  modelos/                       # ML: predicción de resultados y similitud entre jugadores
+    requirements.txt             # cloudscraper, pandas, bs4, lxml, playwright
+  modelos/                       # ML: similitud entre jugadores
     CLAUDE_MODELOS.md            # Documentación técnica de los modelos
-    modelo_liga_nacional.py      # Regresión logística para predecir victorias (Liga Nacional)
-    modelo_liga_nacional_prod.pkl # Modelo serializado listo para producción
     similitud_liga_argentina/    # Paquete Python: similitud entre jugadores (Liga Argentina)
       feature_engineering.py
       normalization.py
@@ -190,7 +187,6 @@ liga_argentina/
       liga_nacional_shots.csv
       liga_nacional_pbp.csv
       fixture_upcoming.csv
-      predicciones_upcoming.csv  # Generado por modelos/modelo_liga_nacional.py
       mercado.json               # Mercado de pases en vivo (tab "Mercado")
       logos/
     liga_femenina/               # Liga Femenina (sirve en /liga_femenina/)
@@ -207,8 +203,6 @@ liga_argentina/
 
 **Bug de "temporada sin arrancar" (corregido, septiembre 2026):** los 3 scrapers de Argentina/Nacional (`data_scraper*.py`, `shot_map_scraper*.py`, `pbp_scraper*.py`) hacían `sys.exit(1)` cuando no había partidos en el rango de fechas o el CSV de stats todavía no existía — un estado normal antes/al principio de temporada, no un error. Como GitHub Actions corta el job entero en el primer step que falla, esto rompía el workflow completo (incluida Liga Nacional, que corre después de Liga Argentina en la secuencia) todos los días hasta que Liga Argentina tuviera su primer partido cargado. Fix: esos casos ahora son `log.warning(...)` + `sys.exit(0)`. Liga de Desarrollo ya tiene el fix (noviembre 2026); Liga Femenina tiene el mismo patrón sin corregir — replicar este fix ahí cuando se reactiven sus steps.
 
-**Bug del modelo con pocos partidos (corregido, septiembre 2026):** `modelos/modelo_liga_nacional.py` rompía (`ValueError` de `StandardScaler`, 0 muestras) cuando había muy pocos partidos jugados — las rolling features (ventana 5, `shift(1)`) todavía no tienen datos previos por equipo. Fix: guard `MIN_TRAINING_ROWS = 10` antes de entrenar — si no hay suficientes filas con features completas, se loguea un aviso y se sale con código 0 sin tocar el `.pkl` existente ni generar predicciones. El reentrenamiento real arranca solo una vez que haya suficiente historial por equipo.
-
 El workflow corre todos los días a las **01:30 y 06:00 ART** (cron `30 4 * * *` y `0 9 * * *` UTC). También se puede disparar manualmente desde GitHub Actions (`workflow_dispatch`).
 
 **Secuencia completa (Argentina + Nacional + Desarrollo; Femenina comentada):**
@@ -216,15 +210,16 @@ El workflow corre todos los días a las **01:30 y 06:00 ART** (cron `30 4 * * *`
 2. Scrapers Liga Argentina (stats, shots, PBP)
 3. Scrapers Liga Nacional (stats, shots, PBP)
 4. Limpieza de partidos fuera de temporada regular (clave estable, ver más abajo)
-5. **Retrain del modelo de probabilidad** — `python modelos/modelo_liga_nacional.py` (no-op hasta que haya ≥10 partidos con historial suficiente)
-6. Subir PBP filtrado (Argentina + Nacional) a Supabase
-7. `git commit` + `git push` → Vercel redeploya automáticamente
+5. Subir PBP filtrado (Argentina + Nacional) a Supabase
+6. `git commit` + `git push` → Vercel redeploya automáticamente
 
-**Archivos que actualiza el commit diario:** CSVs de stats/shots de Argentina, Nacional y Desarrollo, `docs/liga_nacional/predicciones_upcoming.csv`, `modelos/modelo_liga_nacional_prod.pkl`. Femenina no se toca mientras esté desactivada.
+**Predicciones de victoria — ELIMINADAS (noviembre 2026):** existió un modelo de regresión logística (`modelos/modelo_liga_nacional.py`) que generaba `predicciones_upcoming.csv` y una barra "prob. victoria" en las cards de partidos próximos de Liga Nacional. Se borró todo (script, `.pkl`, CSV, step del workflow, código del frontend, CSS `.pcard-pred*`, `update_nacional.py` y `scikit-learn`/`joblib` de requirements). Los modelos de similitud (`modelos/similitud_*`) no se tocaron. No reintroducir sin acordarlo antes.
+
+**Archivos que actualiza el commit diario:** CSVs de stats/shots de Argentina, Nacional y Desarrollo. Femenina no se toca mientras esté desactivada.
 
 **Para reactivar Femenina y Desarrollo cuando arranquen sus temporadas:** descomentar sus steps en `scraper.yml`, agregarlas de nuevo a la lista `files` del step "Subir PBP a Supabase" y al loop de "Descargar PBP desde Supabase", y aplicarles el mismo fix de `sys.exit(0)` en "temporada sin arrancar" (arriba) — `FIXTURE_START_DATE` en ambos scrapers ya fue actualizado en el rollover del 22/09/2026.
 
-**Para actualizar Liga Nacional manualmente** (equivale al workflow pero solo para esa liga): `scraper/update_nacional.py` está roto/desactualizado (imports y paths de antes del aplanamiento del repo, ver `git log`) — no usarlo. Correr los 3 scrapers individuales a mano en su lugar:
+**Para actualizar Liga Nacional manualmente** (equivale al workflow pero solo para esa liga): `scraper/update_nacional.py` se eliminó (noviembre 2026). Correr los 3 scrapers individuales a mano:
 ```bash
 python scraper/data_scraper_nacional.py && python scraper/shot_map_scraper_nacional.py && python scraper/pbp_scraper_nacional.py
 ```
@@ -233,7 +228,7 @@ python scraper/data_scraper_nacional.py && python scraper/shot_map_scraper_nacio
 
 Cada liga (`docs/liga_argentina/`, `docs/liga_nacional/`, `docs/liga_femenina/`, `docs/liga_proximo/`) tiene una subcarpeta `archive/2025-26/` con los CSV completos de la temporada 2025/26 (stats, shots y PBP). Se movieron ahí el 22/09/2026 al arrancar la temporada 2026/27, porque los CSV no tienen columna de temporada y mezclar ambas en el mismo archivo habría hecho que el modelo entrenara sobre un historial sin poder distinguir una temporada de otra. Los CSV "en vivo" (`docs/<liga>/<liga>.csv`, etc.) quedaron vacíos (solo header) listos para que los scrapers los llenen con la temporada 2026/27.
 
-El dashboard accede a esta carpeta a través del **toggle de temporada** agregado en el frontend (no es un archivo puramente histórico sin uso, a diferencia de lo que sería un archivo de solo-lectura). El modelo (`modelos/modelo_liga_nacional.py`) sigue leyendo únicamente de los paths "en vivo".
+El dashboard accede a esta carpeta a través del **toggle de temporada** agregado en el frontend (no es un archivo puramente histórico sin uso, a diferencia de lo que sería un archivo de solo-lectura).
 
 ## Partidos a excluir (torneos fuera de temporada regular)
 
@@ -693,8 +688,7 @@ La sección Home tiene dos tabs internos: **Temporada Regular** y **Post Tempora
   - **Liga Argentina y Liga Nacional (octubre 2026)**: el merge **descarta toda fila con fecha anterior a hoy** aunque no matchee ningún partido jugado (fantasmas, postergados), y la hora `00:00` (horario sin confirmar en el sitio de la liga) se guarda como `hora: ''` y se muestra "Hora a conf.". Pendiente portar a Femenina (Desarrollo ya lo tiene, noviembre 2026).
   - **Nombres de equipo canónicos (`canonTeam`/`canonTeamRows`, octubre 2026, Argentina + Nacional)**: el sitio cambió la grafía de algunos equipos en 2026/27 (`UNIÓN (MDP)`, `VILLA SAN MARTÍN`, `PICO FC` en Liga Argentina) y no coincidían con `LOGOS`/`CONF_*`/`TEAM_CITY` → el equipo aparecía con 0 partidos en Posiciones y sin logo, aunque sus jugadores tuvieran stats; además el partido jugado no desplazaba su fila del fixture. Fix: cada `liga_*.js` define `canonTeamRows(rows)` (definida justo después de `TEAM_CITY`), que lleva `Equipo/Rival/Equipo_local/Equipo_visitante/local/visitante` al nombre canónico de `LOGOS`/`CONF_*` comparando sin tildes, puntos ni espacios. Se aplica al leer stats, fixture y predicciones (en el JS de la liga) y tiros/PBP (`loadShots`/`loadPbp` en `common.js`, con guard `typeof canonTeamRows === 'function'` para las ligas que no la definen). **Al sumar un equipo nuevo, alcanza con agregarlo a `LOGOS`** con cualquier grafía: el CSV se normaliza a esa.
   - **Liga de Desarrollo (noviembre 2026)**: `scraper/fixture_scraper_proximo.py` regenera `docs/liga_proximo/fixture_upcoming.csv` desde el fixture del sitio (`/ligaproximo/fixture?handler=ProximosPartidos`, de hoy a `FIXTURE_END_DATE`), y corre en el workflow diario. Si el sitio no devuelve partidos no pisa el archivo. El merge del frontend de Desarrollo ya tiene el descarte de filas pasadas y el `00:00` → "Hora a conf." de Argentina/Nacional.
-  - **⚠️ Para Argentina/Nacional/Femenina ningún scraper regenera `fixture_upcoming.csv` automáticamente** — es un archivo estático que hay que mantener a mano (se podría replicar `fixture_scraper_proximo.py`). El descarte automático por clave (`fecha|local|visit`) solo funciona si el partido efectivamente se jugó. Si una fila corresponde a un "partido de contingencia" (ej. posible partido 3 de una serie best-of-3 que se definió 2-0), **nunca se juega y nunca se descarta solo** — queda como "próximo" para siempre. Encontrado en julio 2026: 3 filas fantasma en `docs/liga_argentina/fixture_upcoming.csv` de series de semifinal ya definidas, eliminadas a mano. Revisar periódicamente (o al cierre de cada fase de playoffs) si quedan filas con fecha pasada que no matchean ningún partido jugado — esas son candidatas a fantasma y hay que borrarlas manualmente.
-- **Predicciones de victoria (Liga Nacional)**: se leen de `predicciones_upcoming.csv` (columnas: `fecha,local,visitante,prob_local,prob_visit`), generado por `liga_argentina/modelo_liga_nacional.py`. En `initApp()` se carga justo después del fixture y se indexa en `PRED_MAP` por clave `"fecha|local|visitante"`. Las cards de partidos próximos muestran una barra dividida: porcentaje violeta (local) a la izquierda y teal (visitante) a la derecha, con leyenda "PROB. VICTORIA" (oculta en mobile). Si el CSV no existe, las cards se muestran sin barra. El CSV se regenera automáticamente cada vez que se ejecuta el modelo.
+  - **Liga Argentina y Liga Nacional (noviembre 2026)**: `scraper/fixture_scraper.py <argentina|nacional>` regenera su `fixture_upcoming.csv` en cada corrida del workflow (mismo parseo que `fixture_scraper_proximo.py`, que importa). Los pasos tienen `continue-on-error`. Los horarios sin confirmar vienen como `00:00` y se actualizan solos cuando la liga los publica. **Femenina todavía no tiene scraper de fixture** — archivo estático a mano. Lo que sigue aplica a ese caso y a cualquier fila que el sitio deje colgada: el descarte automático por clave (`fecha|local|visit`) solo funciona si el partido efectivamente se jugó. Si una fila corresponde a un "partido de contingencia" (ej. posible partido 3 de una serie best-of-3 que se definió 2-0), **nunca se juega y nunca se descarta solo** — queda como "próximo" para siempre. Encontrado en julio 2026: 3 filas fantasma en `docs/liga_argentina/fixture_upcoming.csv` de series de semifinal ya definidas, eliminadas a mano. Revisar periódicamente (o al cierre de cada fase de playoffs) si quedan filas con fecha pasada que no matchean ningún partido jugado — esas son candidatas a fantasma y hay que borrarlas manualmente.
 - `GAME_PLAYERS_MAP`: `Map<IdPartido → rows[]>` con todas las filas no-TOTALES del CSV, construido en `initApp()` desde `rows`. Usado por `renderBoxScore()` para el box score.
 - `_partidoMode`: flag booleano. `true` cuando el modal fue abierto desde `partidos`. Controla el comportamiento del botón "‹ Volver" (`onTgmBack()`).
 - Dorsal en box score formateado como `#15` (entero sin decimal): `#${Math.round(parseFloat(r['Número Camiseta'])||0)}`.
