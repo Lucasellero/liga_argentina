@@ -348,11 +348,11 @@ const f1=v=>v==null||isNaN(v)?'—':v.toFixed(1);
 // NAV
 // ============================================================
 const _SUB_GROUP = {
-  't-tabla':'equipos','t-tcmp':'equipos','t-chart':'equipos','quintetos':'equipos','trios':'equipos','duplas':'equipos','t-tiro':'equipos','t-conexiones':'equipos',
+  't-tabla':'equipos','t-tcmp':'equipos','t-chart':'equipos','quintetos':'equipos','trios':'equipos','duplas':'equipos','t-tiro':'equipos','t-conexiones':'equipos','t-ficha':'equipos',
   'j-tabla':'jugadores','j-tiro':'jugadores','j-chart':'jugadores','j-conexiones':'jugadores','j-radar':'jugadores'
 };
 const _SUB_IDX = {
-  't-tabla':0,'t-tcmp':1,'t-chart':2,'quintetos':3,'trios':4,'duplas':5,'t-tiro':6,'t-conexiones':7,
+  't-tabla':0,'t-tcmp':1,'t-chart':2,'quintetos':3,'trios':4,'duplas':5,'t-tiro':6,'t-conexiones':7,'t-ficha':8,
   'j-tabla':0,'j-tiro':1,'j-chart':2,'j-conexiones':3,'j-radar':4
 };
 
@@ -388,6 +388,12 @@ function switchSection(id) {
   }
   if(id==='partidos') showUpcomingDefault();
   if(id==='t-tiro') { tzcInit(); }
+  if(id==='t-ficha') {
+    tfInit();
+    const sel = document.getElementById('tfTeam');
+    const target = _tfCurrentTeam || (sel && sel.options[1] && sel.options[1].value);
+    if (target) renderTeamFicha(target);
+  }
   if(id==='j-tiro') {
     const main = document.getElementById('szcMain');
     if (main && main.style.display !== 'block') {
@@ -972,6 +978,7 @@ const TEAM_CITY = {
   'PROVINCIAL (R)': 'Rosario',
   'QUILMES (MDP)': 'Mar del Plata',
   'RACING (A)': 'Avellaneda',
+  'RIVER': 'Buenos Aires (CABA)',
   'ROCAMORA': 'Concepción del Uruguay',
   'UNION (MDP)': 'Mar del Plata',
   'VILLA MITRE (BB)': 'Bahía Blanca',
@@ -1924,66 +1931,93 @@ const SZC_CENTERS = {
 };
 
 
-function szcUpdateSvg(pStats, leagueStats, svgId='szcSvg') {
+function szcUpdateSvg(pStats, leagueStats, svgId='szcSvg', mode='zones') {
   const svg = document.getElementById(svgId);
   if (!svg) return;
+  const P = svgId + '_';                       // ids únicos por SVG (hay 3 en la página)
   const bx = 1.575, by = 7.5, R3 = 6.75;
-  const dy1 = 0.9 - by; // -6.6
-  const dx1 = Math.sqrt(R3*R3 - dy1*dy1); // ≈ 1.4151
+  const dy1 = 0.9 - by;
+  const dx1 = Math.sqrt(R3*R3 - dy1*dy1);
   const arcX = bx + dx1;
   const arcMidX = bx + Math.sqrt(R3*R3 - 2.25);
   const diagArcX = bx + R3 / Math.SQRT2;
   const diagArcDY = R3 / Math.SQRT2;
-  const diagEdgeX = bx + by; // 9.075
+  const diagEdgeX = bx + by;
   const f = n => n.toFixed(4);
-  const sw = 0.04;
-  const lc = 'rgba(255,255,255,.75)';
-  const sep = 'rgba(255,255,255,.45)';
+  const lighten = (c, t) => `rgb(${c.slice(0,3).map(v => Math.round(v + (255 - v) * t)).join(',')})`;
+
+  // Líneas de cancha (sólidas). Se dibujan dos veces: una difusa (glow) y una nítida encima.
+  const courtLines = (stroke, w) => `
+    <g fill="none" stroke="${stroke}" stroke-width="${w}" stroke-linecap="round">
+      <rect x="0.03" y="0.03" width="13.94" height="14.94"/>
+      <rect x="0.03" y="${by-2.45}" width="5.77" height="4.9"/>
+      <path d="M 5.8 ${by-1.8} A 1.8 1.8 0 0 1 5.8 ${by+1.8}"/>
+      <path d="M 5.8 ${by+1.8} A 1.8 1.8 0 0 0 5.8 ${by-1.8}" stroke-dasharray="0.2 0.2"/>
+      <path d="M ${bx} ${by-1.25} A 1.25 1.25 0 0 1 ${bx} ${by+1.25}"/>
+      <line x1="0.03" y1="0.9" x2="${f(arcX)}" y2="0.9"/>
+      <line x1="0.03" y1="14.1" x2="${f(arcX)}" y2="14.1"/>
+      <path d="M ${f(arcX)} 0.9 A ${R3} ${R3} 0 0 1 ${f(arcX)} 14.1"/>
+    </g>`;
+  const sepLines = `
+    <g fill="none" stroke="rgba(255,255,255,.34)" stroke-width="0.032" stroke-dasharray="0.16 0.2" stroke-linecap="round">
+      <line x1="5.8" y1="${by-1.5}" x2="${f(arcMidX)}" y2="${by-1.5}"/>
+      <line x1="5.8" y1="${by+1.5}" x2="${f(arcMidX)}" y2="${by+1.5}"/>
+      <line x1="${f(diagArcX)}" y1="${f(by-diagArcDY)}" x2="${f(diagEdgeX)}" y2="0"/>
+      <line x1="${f(diagArcX)}" y1="${f(by+diagArcDY)}" x2="${f(diagEdgeX)}" y2="15"/>
+    </g>`;
 
   let defs = `<defs>
-    <filter id="lblShadow" x="-60%" y="-60%" width="220%" height="220%">
-      <feDropShadow dx="0" dy="0.07" stdDeviation="0.14" flood-color="rgba(0,0,0,.85)"/>
-    </filter>`;
+    <filter id="${P}glow" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="0.07"/></filter>
+    <filter id="${P}hoopGlow" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="0.12"/></filter>
+    <filter id="${P}shadow" x="-40%" y="-50%" width="180%" height="220%">
+      <feDropShadow dx="0" dy="0.08" stdDeviation="0.16" flood-color="#000" flood-opacity=".7"/>
+    </filter>
+    <linearGradient id="${P}paint" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity=".13"/><stop offset="1" stop-color="#fff" stop-opacity=".03"/>
+    </linearGradient>
+    <linearGradient id="${P}pill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#171b3a" stop-opacity=".94"/><stop offset="1" stop-color="#080a1c" stop-opacity=".92"/>
+    </linearGradient>`;
+
+  // Etiquetas por zona: tamaño/opacidad según volumen de tiros
+  const maxAtt = Math.max(1, ...SZC_ZONES.map(z => (pStats[z] ? pStats[z].att : 0)));
   let labels = '';
   SZC_ZONES.forEach(zone => {
     const ps = pStats[zone];
     if (!ps || ps.att === 0) return;
     const ls = leagueStats ? leagueStats[zone] : null;
     const [cx, cy] = SZC_CENTERS[zone];
-    const pct = (ps.makes / ps.att * 100).toFixed(1) + '%';
-    const att = `${ps.makes}/${ps.att}`;
     const zc = szcZoneColor(ps, ls);
-    const bc = `rgb(${zc[0]},${zc[1]},${zc[2]})`;
-    defs += `<linearGradient id="lbg_${zone}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="${bc}" stop-opacity="0.2"/>
-      <stop offset="100%" stop-color="${bc}" stop-opacity="0.03"/>
-    </linearGradient>`;
-    labels += `<g filter="url(#lblShadow)">
-      <rect x="${cx-0.75}" y="${cy-0.425}" width="1.5" height="0.85" rx="0.14" fill="rgba(6,8,22,.92)"/>
-      <rect x="${cx-0.75}" y="${cy-0.425}" width="1.5" height="0.85" rx="0.14" fill="url(#lbg_${zone})"/>
-      <rect x="${cx-0.75}" y="${cy-0.425}" width="1.5" height="0.85" rx="0.14" fill="none" stroke="${bc}" stroke-width="0.045"/>
-      <text x="${cx}" y="${cy-0.06}" text-anchor="middle" dominant-baseline="auto" font-family="Inter,sans-serif" font-size="0.43" font-weight="800" fill="#fff">${pct}</text>
-      <text x="${cx}" y="${cy+0.34}" text-anchor="middle" dominant-baseline="auto" font-family="Inter,sans-serif" font-size="0.28" font-weight="600" fill="rgba(200,212,228,.8)">${att}</text>
+    const bc = lighten(zc, 0.45);
+    const scale = 0.86 + 0.2 * Math.sqrt(ps.att / maxAtt);
+    const op = ps.att < 5 ? 0.72 : 1;
+    const pct = (ps.makes / ps.att * 100).toFixed(1) + '%';
+    labels += `<g transform="translate(${cx} ${cy}) scale(${scale.toFixed(3)})" opacity="${op}" filter="url(#${P}shadow)">
+      <rect x="-0.85" y="-0.5" width="1.7" height="1" rx="0.2" fill="url(#${P}pill)"/>
+      <rect x="-0.85" y="-0.5" width="1.7" height="1" rx="0.2" fill="none" stroke="${bc}" stroke-width="0.05" stroke-opacity=".9"/>
+      <rect x="-0.52" y="-0.5" width="1.04" height="0.07" rx="0.035" fill="${bc}"/>
+      <text x="0" y="0.07" text-anchor="middle" font-family="Manrope,sans-serif" font-size="0.46" font-weight="800" letter-spacing="-0.01" fill="#fff">${pct}</text>
+      <text x="0" y="0.37" text-anchor="middle" font-family="Manrope,sans-serif" font-size="0.28" font-weight="600" fill="rgba(210,220,235,.85)">${ps.makes}/${ps.att}</text>
     </g>`;
   });
-  defs += '</defs>';
+
+  defs += `<radialGradient id="${P}vig" cx="0.42" cy="0.5" r="0.75">
+      <stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/>
+    </radialGradient></defs>`;
 
   svg.innerHTML = `
     ${defs}
-    <rect x="0" y="0" width="14" height="15" fill="none" stroke="${lc}" stroke-width="${sw}"/>
-    <rect x="0" y="${by-2.45}" width="5.8" height="4.9" fill="none" stroke="${lc}" stroke-width="${sw}"/>
-    <path d="M 5.8 ${by-1.8} A 1.8 1.8 0 0 1 5.8 ${by+1.8}" fill="none" stroke="${lc}" stroke-width="${sw}"/>
-    <path d="M 5.8 ${by+1.8} A 1.8 1.8 0 0 0 5.8 ${by-1.8}" fill="none" stroke="${lc}" stroke-width="${sw}" stroke-dasharray="0.18 0.18"/>
-    <path d="M ${bx} ${by-1.25} A 1.25 1.25 0 0 1 ${bx} ${by+1.25}" fill="none" stroke="${lc}" stroke-width="${sw}"/>
-    <circle cx="${bx}" cy="${by}" r="0.23" fill="none" stroke="rgba(251,146,60,.95)" stroke-width="${sw*1.5}"/>
-    <line x1="0" y1="0.9" x2="${f(arcX)}" y2="0.9" stroke="${lc}" stroke-width="${sw}"/>
-    <line x1="0" y1="14.1" x2="${f(arcX)}" y2="14.1" stroke="${lc}" stroke-width="${sw}"/>
-    <path d="M ${f(arcX)} 0.9 A ${R3} ${R3} 0 0 1 ${f(arcX)} 14.1" fill="none" stroke="${lc}" stroke-width="${sw}"/>
-    <line x1="5.8" y1="${by-1.5}" x2="${f(arcMidX)}" y2="${by-1.5}" stroke="${sep}" stroke-width="${sw}" stroke-dasharray="0.2 0.17"/>
-    <line x1="5.8" y1="${by+1.5}" x2="${f(arcMidX)}" y2="${by+1.5}" stroke="${sep}" stroke-width="${sw}" stroke-dasharray="0.2 0.17"/>
-    <line x1="${f(diagArcX)}" y1="${f(by-diagArcDY)}" x2="${f(diagEdgeX)}" y2="0" stroke="${sep}" stroke-width="${sw}" stroke-dasharray="0.2 0.17"/>
-    <line x1="${f(diagArcX)}" y1="${f(by+diagArcDY)}" x2="${f(diagEdgeX)}" y2="15" stroke="${sep}" stroke-width="${sw}" stroke-dasharray="0.2 0.17"/>
-    ${labels}
+    ${mode === 'zones' ? `<rect x="0" y="${by-2.45}" width="5.8" height="4.9" fill="url(#${P}paint)"/>` : ''}
+    ${mode === 'zones'
+      ? courtLines('rgba(18,36,84,.78)', 0.045)
+      : `<g filter="url(#${P}glow)" opacity=".7">${courtLines('rgba(180,200,255,.9)', 0.12)}</g>${courtLines('rgba(255,255,255,.93)', 0.052)}`}
+    ${mode === 'zones' ? `<g opacity=".55" style="mix-blend-mode:multiply">${sepLines.replace(/rgba\(255,255,255,\.34\)/, 'rgba(18,36,84,.9)')}</g>` : `<g opacity=".5">${sepLines}</g>`}
+    <line x1="1.2" y1="${by-0.9}" x2="1.2" y2="${by+0.9}" stroke="${mode === 'zones' ? 'rgba(18,36,84,.85)' : '#fff'}" stroke-width="0.07" stroke-linecap="round"/>
+    <line x1="1.2" y1="${by}" x2="${bx-0.23}" y2="${by}" stroke="rgba(251,146,60,.9)" stroke-width="0.05"/>
+    <circle cx="${bx}" cy="${by}" r="0.23" fill="none" stroke="#fb923c" stroke-width="0.12" filter="url(#${P}hoopGlow)" opacity=".85"/>
+    <circle cx="${bx}" cy="${by}" r="0.23" fill="none" stroke="#fdba74" stroke-width="0.06"/>
+    ${mode === 'zones' ? '' : `<rect x="0" y="0" width="14" height="15" fill="url(#${P}vig)"/>`}
+    ${mode === 'zones' ? labels : ''}
   `;
 }
 
@@ -2047,8 +2081,9 @@ function renderZoneChart(canvas, playerShots) {
   }
 
   const pStats = szcComputeStats(playerShots);
-  szcDrawZoneColors(ctx, W, H, m, pStats, LEAGUE_ZONE_STATS);
-  szcUpdateSvg(pStats, LEAGUE_ZONE_STATS);
+  if (szcViewMode === 'heat') szcDrawHeatmap(ctx, W, H, m, playerShots);
+  else szcDrawZoneColors(ctx, W, H, m, pStats, LEAGUE_ZONE_STATS);
+  szcUpdateSvg(pStats, LEAGUE_ZONE_STATS, 'szcSvg', szcViewMode);
   const _lvShots = szcApplyLocVis(szcPlayerAllShots);
   const _lvGIds = szcLocVis === 'all' ? szcPlayerGameIds : null;
   const statsAll  = szcComputeStats(szcFilterByPeriod(_lvShots, 'all', _lvGIds));
@@ -2109,6 +2144,15 @@ function szcApplyLocVis(shots) {
   return shots.filter(s => s['Local'] === val);
 }
 
+// Vista del gráfico de tiros: 'zones' (colores por zona vs liga, default) o 'heat' (densidad continua). Las tarjetas siempre van por zona.
+let szcViewMode = 'zones';
+function setShotView(mode) {
+  szcViewMode = mode;
+  document.querySelectorAll('.shot-view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === mode));
+  if (szcCurrentIdx >= 0) selectSzcPlayer(szcCurrentIdx);
+  if (tzcCurrentTeam) onTzcTeamChange();
+}
+
 function setSzcLocVis(v) {
   szcLocVis = v;
   ['szcLocVisAll','szcLocVisLocal','szcLocVisVisit'].forEach(id => document.getElementById(id).classList.remove('active'));
@@ -2161,8 +2205,8 @@ function selectSzcPlayer(idx) {
 // TIRO POR ZONAS — EQUIPOS
 // ============================================================
 
-function tzcRenderZoneCards(statsAll, statsL10, statsL5, lStats) {
-  const el = document.getElementById('tzcZoneCards');
+function tzcRenderZoneCards(statsAll, statsL10, statsL5, lStats, cardsId='tzcZoneCards') {
+  const el = document.getElementById(cardsId);
   if (!el) return;
   const aps = tzcPeriod === 'all' ? statsAll : tzcPeriod === 'last10' ? statsL10 : statsL5;
   el.innerHTML = SZC_ZONES.map(zone => {
@@ -2198,11 +2242,11 @@ function tzcRenderZoneCards(statsAll, statsL10, statsL5, lStats) {
   }).join('');
 }
 
-function renderTzcZoneChart(canvas, teamShots) {
+function renderTzcZoneChart(canvas, teamShots, svgId='tzcSvg', cardsId='tzcZoneCards') {
   const W = canvas.offsetWidth || 400;
   const H = Math.round(W * 15 / 14);
   canvas.width = W; canvas.height = H;
-  const svg = document.getElementById('tzcSvg');
+  const svg = document.getElementById(svgId);
   if (svg) svg.style.height = H + 'px';
   const ctx = canvas.getContext('2d');
   const m = W / 14;
@@ -2215,14 +2259,16 @@ function renderTzcZoneChart(canvas, teamShots) {
 
   const isLiga = tzcCurrentTeam === '__LIGA__';
   const pStats = szcComputeStats(teamShots);
-  szcDrawZoneColors(ctx, W, H, m, pStats, isLiga ? null : LEAGUE_ZONE_STATS);
-  szcUpdateSvg(pStats, isLiga ? null : LEAGUE_ZONE_STATS, 'tzcSvg');
+  const viewMode = svgId === 'tzcSvg' ? szcViewMode : tfViewMode;   // la ficha de equipo tiene su propio toggle (arranca en zonas)
+  if (viewMode === 'heat') szcDrawHeatmap(ctx, W, H, m, teamShots);
+  else szcDrawZoneColors(ctx, W, H, m, pStats, isLiga ? null : LEAGUE_ZONE_STATS);
+  szcUpdateSvg(pStats, isLiga ? null : LEAGUE_ZONE_STATS, svgId, viewMode);
   const _tlvShots = tzcApplyLocVis(tzcTeamAllShots);
   const _tlvGIds = tzcLocVis === 'all' ? tzcTeamGameIds : null;
   const statsAll = szcComputeStats(szcFilterByPeriod(_tlvShots, 'all', _tlvGIds));
   const statsL10 = szcComputeStats(szcFilterByPeriod(_tlvShots, 'last10', _tlvGIds));
   const statsL5  = szcComputeStats(szcFilterByPeriod(_tlvShots, 'last5', _tlvGIds));
-  tzcRenderZoneCards(statsAll, statsL10, statsL5, isLiga ? null : LEAGUE_ZONE_STATS);
+  tzcRenderZoneCards(statsAll, statsL10, statsL5, isLiga ? null : LEAGUE_ZONE_STATS, cardsId);
 }
 
 function setTzcPeriod(period) {
@@ -2310,6 +2356,290 @@ function onTzcTeamChange() {
   };
 
   if (SHOTS_MAP === null) loadShots().then(doRender); else doRender();
+}
+
+// ============================================================
+// FICHA DE EQUIPO (sección, no modal)
+// ============================================================
+let _tfCurrentTeam = null;
+
+function tfInit() {
+  const sel = document.getElementById('tfTeam');
+  if (!sel || sel.options.length > 1) return;
+  [...TEAMS].sort((a, b) => a.Equipo.localeCompare(b.Equipo)).forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.Equipo; opt.textContent = t.Equipo;
+    sel.appendChild(opt);
+  });
+}
+
+// Entry point usado por showTeamGames() (common.js) cuando existe #sec-t-ficha
+function goToTeamFicha(teamName) {
+  _tfCurrentTeam = teamName;
+  openGroup('equipos', 't-ficha');
+}
+
+function onTfTeamChange() {
+  const sel = document.getElementById('tfTeam');
+  if (sel && sel.value) renderTeamFicha(sel.value);
+}
+
+function tfOpenFullShotChart() {
+  if (!_tfCurrentTeam) return;
+  switchSection('t-tiro');
+  tzcInit();
+  const sel = document.getElementById('tzcTeam');
+  if (sel) { sel.value = _tfCurrentTeam; onTzcTeamChange(); }
+}
+
+function renderTeamFicha(teamName) {
+  const t = TEAMS.find(x => x.Equipo === teamName);
+  if (!t) return;
+  _tfCurrentTeam = teamName;
+  const sel = document.getElementById('tfTeam');
+  if (sel) sel.value = teamName;
+
+  const logoSrc = LOGOS[teamName];
+  const logo = document.getElementById('tfLogo');
+  if (logo) { logo.src = logoSrc || ''; logo.style.display = logoSrc ? '' : 'none'; }
+  const titleEl = document.getElementById('tfTitle');
+  if (titleEl) titleEl.textContent = teamName;
+  const recordEl = document.getElementById('tfRecord');
+  if (recordEl) recordEl.textContent = `${t.Ganados}G - ${t.Perdidos}P`;
+  const kmEl = document.getElementById('tfKm');
+  if (kmEl) {
+    kmEl.textContent = t.KM != null ? `${t.KM.toLocaleString('es-AR')} km` : '';
+    kmEl.title = t.KM != null ? `${t.KM.toLocaleString('es-AR')} km recorridos en la temporada` : '';
+  }
+
+  const standingEl = document.getElementById('tfStanding');
+  if (standingEl) standingEl.textContent = (typeof getTeamStandingLabel === 'function' ? getTeamStandingLabel(teamName) : '') || '';
+
+  renderTeamFichaUpcoming(teamName);
+  renderTeamFichaRoster(teamName, t);
+  renderTeamFichaGames(teamName, t);
+  renderTeamFichaShotChart(teamName);
+}
+
+// Km de viaje de cada partido próximo, respetando el concepto de gira: arranca
+// desde la ciudad donde quedó el equipo tras su último partido jugado (no
+// siempre la sede) y la va actualizando partido a próximo partido en orden
+// cronológico — así varios partidos de visitante seguidos sin volver a la sede
+// no se calculan cada uno desde la sede, sino ciudad→ciudad real.
+// Devuelve Map<game, km> solo para los partidos que juega de visitante.
+function computeUpcomingTravelKm(teamName, upcomingGamesSorted) {
+  const kmByGame = new Map();
+  const teamCity = (typeof TEAM_CITY !== 'undefined') ? TEAM_CITY : null;
+  const homeCity = teamCity ? teamCity[teamName] : null;
+  if (!homeCity) return kmByGame;
+  const team = (typeof TEAM_MAP !== 'undefined') ? TEAM_MAP[teamName] : null;
+  let currentCity = homeCity;
+  (team && team._gamelog || []).forEach(g => {
+    const gameCity = g.condicion === 'LOCAL' ? homeCity : teamCity[g.rival];
+    if (gameCity) currentCity = gameCity;
+  });
+  upcomingGamesSorted.forEach(g => {
+    const isLocal = g.local === teamName;
+    const rival = isLocal ? g.visit : g.local;
+    const gameCity = isLocal ? homeCity : teamCity[rival];
+    if (!gameCity) return;
+    const d = getRouteKm(currentCity, gameCity);
+    if (!isLocal && d != null) kmByGame.set(g, Math.round(d));
+    currentCity = gameCity;
+  });
+  return kmByGame;
+}
+
+function renderTeamFichaUpcoming(teamName) {
+  const el = document.getElementById('tfUpcoming');
+  if (!el) return;
+  const allUpcoming = (typeof GAMES_ALL !== 'undefined' ? GAMES_ALL : [])
+    .filter(g => g.upcoming && (g.local === teamName || g.visit === teamName))
+    .sort((a, b) => _partidoFechaToDate(a.fecha) - _partidoFechaToDate(b.fecha));
+  const next = allUpcoming.slice(0, 3);
+  if (!next.length) { el.innerHTML = ''; return; }
+  const kmByGame = computeUpcomingTravelKm(teamName, allUpcoming);
+  el.innerHTML = next.map(g => {
+    const rival = g.local === teamName ? g.visit : g.local;
+    const isLocal = g.local === teamName;
+    const km = kmByGame.get(g);
+    return `<div class="tf-timeline-item">
+      <span class="tf-timeline-dot"></span>
+      <span class="tf-timeline-date">${g.fecha}${g.hora ? ' · ' + g.hora : ''}</span>
+      <span class="tf-timeline-vs">${teamLogoHtml(rival, 16)}<span>vs ${rival}</span></span>
+      <span class="tf-timeline-cond ${isLocal ? 'local' : 'visit'}">${isLocal ? 'Local' : 'Visitante'}</span>
+      ${km != null ? `<span class="tf-timeline-km">${km.toLocaleString('es-AR')} km</span>` : ''}
+      ${g.estadio ? `<span class="tf-timeline-estadio">${g.estadio}</span>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderTeamFichaRoster(teamName, team) {
+  const tbody = document.getElementById('tfRosterTbody');
+  if (!tbody) return;
+  const roster = (typeof PLAYERS !== 'undefined' ? PLAYERS : [])
+    .filter(p => p.Equipo === teamName)
+    .slice()
+    .sort((a, b) => (b.PPG || 0) - (a.PPG || 0));
+  if (!roster.length) {
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">Sin datos de plantel disponibles.</td></tr>';
+    return;
+  }
+  const maxPpg = Math.max(...roster.map(p => p.PPG || 0), 1);
+  tbody.innerHTML = roster.map((p, i) => {
+    const dorsal = p.DORSAL != null && p.DORSAL !== '' && !isNaN(parseFloat(p.DORSAL)) ? '#' + Math.round(parseFloat(p.DORSAL)) : '—';
+    const edad = p.Edad != null ? p.Edad : '—';
+    const e = computeEnergyIndex(p, team);
+    const energyHtml = e ? energyBatteryHtml(e) : energyFullBatteryHtml();
+    const ppg = p.PPG || 0;
+    const ptsBarPct = Math.round(ppg / maxPpg * 100);
+    const ptsHtml = `<div class="tf-pts-cell"><span class="tf-pts-val">${ppg.toFixed(1)}</span><span class="tf-pts-bar-wrap"><span class="tf-pts-bar" style="width:${ptsBarPct}%"></span></span></div>`;
+    return `<tr class="${i === 0 && ppg > 0 ? 'tf-top-scorer' : ''}">
+      <td><span class="tf-dorsal-badge">${dorsal}</span></td>
+      <td style="text-align:left;color:var(--text-bright)">${p['Nombre completo']}</td>
+      <td>${edad}</td>
+      <td>${p.PJ || 0}</td>
+      <td>${ptsHtml}</td>
+      <td>${(p.RPG || 0).toFixed(1)}</td>
+      <td>${(p.APG || 0).toFixed(1)}</td>
+      <td>${(p.SPG || 0).toFixed(1)}</td>
+      <td>${(p.BPG || 0).toFixed(1)}</td>
+      <td>${energyHtml}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderTeamFichaGames(teamName, team) {
+  const tbody = document.getElementById('tfTbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  (team._gamelog || []).slice().reverse().forEach(g => {
+    const rivalLogo = LOGOS[g.rival]
+      ? `<img src="${LOGOS[g.rival]}" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;margin-right:5px" onerror="this.style.display='none'">`
+      : '';
+    const condHtml = g.condicion === 'LOCAL'
+      ? '<span class="tgm-cond tgm-cond-l">Local</span>'
+      : '<span class="tgm-cond tgm-cond-v">Visita</span>';
+    const resHtml = g.ganado ? '<span class="tgm-win">V</span>' : '<span class="tgm-loss">D</span>';
+    const scoreColor = g.ganado ? 'var(--green)' : 'var(--red)';
+    const tr = document.createElement('tr');
+    tr.className = 'tgm-clickable';
+    tr.innerHTML = `
+      <td>${g.fecha}</td>
+      <td>${condHtml}</td>
+      <td>${rivalLogo}${g.rival}</td>
+      <td><span style="font-weight:700;color:${scoreColor}">${g.ptsFor}</span><span style="color:var(--muted2);margin:0 4px">—</span><span style="color:var(--muted)">${g.ptsAgainst}</span></td>
+      <td>${resHtml}</td>
+      <td><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></td>`;
+    tr.addEventListener('click', () => showGameDetail(g, teamName));
+    tbody.appendChild(tr);
+  });
+}
+
+// Vista del cuadro de tiro en la Ficha de equipo: arranca por zonas; independiente del toggle de t-tiro/j-tiro
+let tfViewMode = 'zones';
+function setTfView(mode) {
+  tfViewMode = mode;
+  document.querySelectorAll('.tf-view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === mode));
+  if (_tfCurrentTeam) renderTeamFichaShotChart(_tfCurrentTeam);
+}
+
+function renderTeamFichaShotChart(teamName) {
+  const canvas = document.getElementById('tfShotCanvas');
+  if (!canvas) return;
+  const doRender = () => {
+    const shots = [];
+    SHOTS_MAP.forEach(rows => rows.forEach(s => { if (s['Equipo'] === teamName) shots.push(s); }));
+    // Reusa el pipeline de t-tiro (renderTzcZoneChart) con IDs propios; pisa
+    // temporalmente el estado global de t-tiro (tzc*) y lo restaura después
+    // del render síncrono para no afectar esa sección si el usuario la visita después.
+    const prev = { team: tzcCurrentTeam, shots: tzcTeamAllShots, gids: tzcTeamGameIds, period: tzcPeriod, locvis: tzcLocVis };
+    tzcCurrentTeam = teamName;
+    tzcTeamAllShots = shots;
+    tzcTeamGameIds = (TEAM_MAP[teamName] && TEAM_MAP[teamName]._gamelog) ? TEAM_MAP[teamName]._gamelog.map(g => g.gameId) : null;
+    tzcPeriod = 'all';
+    tzcLocVis = 'all';
+    requestAnimationFrame(() => {
+      renderTzcZoneChart(canvas, shots, 'tfShotSvg', 'tfZoneCards');
+      tzcCurrentTeam = prev.team; tzcTeamAllShots = prev.shots; tzcTeamGameIds = prev.gids; tzcPeriod = prev.period; tzcLocVis = prev.locvis;
+    });
+  };
+  if (SHOTS_MAP === null) loadShots().then(doRender); else doRender();
+}
+
+// Índice de carga/cansancio (primera versión, heurística con pesos ajustables):
+// combina minutos recientes del jugador + km de viaje reciente del equipo + back-to-back.
+const ENERGY_N = 5;
+const ENERGY_MIN_REF = 32;  // minutos/partido de referencia para "carga alta"
+const ENERGY_KM_REF = 1200; // km del equipo en los últ. 5 partidos de referencia para "carga alta"
+const ENERGY_LABEL = { alta: 'Alta', media: 'Media', baja: 'Baja' };
+
+// Color de la batería: interpola rojo (vacía/cansado) → ámbar → verde (llena/descansado)
+function energyColor(pct) {
+  const stops = [[0, [239, 68, 68]], [50, [251, 191, 36]], [100, [34, 197, 94]]];
+  for (let i = 0; i < stops.length - 1; i++) {
+    const [p0, c0] = stops[i], [p1, c1] = stops[i + 1];
+    if (pct <= p1) {
+      const t = (pct - p0) / (p1 - p0);
+      return `rgb(${Math.round(c0[0] + (c1[0] - c0[0]) * t)},${Math.round(c0[1] + (c1[1] - c0[1]) * t)},${Math.round(c0[2] + (c1[2] - c0[2]) * t)})`;
+    }
+  }
+  return 'rgb(34,197,94)';
+}
+
+// Batería 0-100: muestra energía restante (100 - carga), llena y verde cuando
+// el jugador está descansado, vacía y roja cuando llega con mucha carga encima.
+function energyBatteryHtml(e) {
+  const pct = Math.max(0, Math.min(100, 100 - e.score));
+  const color = energyColor(pct);
+  const tip = `Frescura: ${pct}% (fatiga ${ENERGY_LABEL[e.level]}) · Min/P últ.5: ${e.minutosProm.toFixed(1)} · KM equipo últ.5: ${e.kmRecientes != null ? e.kmRecientes.toLocaleString('es-AR') : '—'} · Back-to-back: ${e.b2b ? 'Sí' : 'No'}`;
+  return `<span class="energy-battery" title="${tip}">
+    <span class="energy-battery-body"><span class="energy-battery-fill" style="width:${pct}%;background:${color}"></span></span>
+    <span class="energy-battery-nub"></span>
+    <span class="energy-battery-pct" style="color:${color}">${pct}%</span>
+  </span>`;
+}
+
+// Sin partidos recientes suficientes para estimar carga — se asume descansado al 100%,
+// en vez de dejar la celda vacía ("—").
+function energyFullBatteryHtml() {
+  const color = energyColor(100);
+  const tip = 'Frescura: 100% · Sin partidos recientes suficientes para estimar carga — se asume descansado';
+  return `<span class="energy-battery" title="${tip}">
+    <span class="energy-battery-body"><span class="energy-battery-fill" style="width:100%;background:${color}"></span></span>
+    <span class="energy-battery-nub"></span>
+    <span class="energy-battery-pct" style="color:${color}">100%</span>
+  </span>`;
+}
+
+function computeEnergyIndex(player, team) {
+  const games = (player && player._games) || [];
+  if (games.length < 2) return null;
+  const recent = games.slice(-ENERGY_N);
+  const minutosProm = recent.reduce((s, g) => s + (parseFloat(g['Segundos jugados']) || 0), 0) / recent.length / 60;
+  const minutosScore = Math.min(minutosProm / ENERGY_MIN_REF, 1) * 100;
+
+  let kmRecientes = null, b2b = false;
+  if (team) {
+    kmRecientes = computeTeamTravelKmWindow(team, ENERGY_N);
+    const log = team._gamelog || [];
+    if (log.length >= 2) {
+      const d1 = _partidoFechaToDate(log[log.length - 1].fecha);
+      const d2 = _partidoFechaToDate(log[log.length - 2].fecha);
+      b2b = Math.abs(d1 - d2) / 86400000 <= 1;
+    }
+  }
+
+  let score;
+  if (kmRecientes != null) {
+    const kmScore = Math.min(kmRecientes / ENERGY_KM_REF, 1) * 100;
+    score = 0.55 * minutosScore + 0.30 * kmScore + 0.15 * (b2b ? 100 : 0);
+  } else {
+    score = 0.7 * minutosScore + 0.3 * (b2b ? 100 : 0);
+  }
+  score = Math.round(score);
+  const level = score >= 70 ? 'alta' : score >= 40 ? 'media' : 'baja';
+  return { score, level, minutosProm, kmRecientes, b2b };
 }
 
 // ============================================================

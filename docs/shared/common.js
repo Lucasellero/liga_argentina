@@ -1682,6 +1682,27 @@ function computeTeamTravelKm(team) {
   return hasAny ? Math.round(km) : null;
 }
 
+// Variante de computeTeamTravelKm: solo suma el km de los últimos n tramos,
+// pero igual recorre todo _gamelog desde el arranque para arrancar la ventana
+// desde la ciudad correcta (no desde la sede).
+function computeTeamTravelKmWindow(team, n) {
+  const teamCity = (typeof TEAM_CITY !== 'undefined') ? TEAM_CITY : null;
+  if (!teamCity) return null;
+  const homeCity = teamCity[team.Equipo];
+  if (!homeCity) return null;
+  const log = team._gamelog || [];
+  const startIdx = Math.max(0, log.length - n);
+  let km = 0, currentCity = homeCity, hasAny = false;
+  log.forEach((g, i) => {
+    const gameCity = g.condicion === 'LOCAL' ? homeCity : teamCity[g.rival];
+    if (!gameCity) return;
+    const d = getRouteKm(currentCity, gameCity);
+    if (i >= startIdx && d != null) { km += d; hasAny = true; }
+    currentCity = gameCity;
+  });
+  return hasAny ? Math.round(km) : null;
+}
+
 function teamLogoHtml(teamName, size) {
   size = size || 20;
   const src = LOGOS[teamName];
@@ -1970,11 +1991,12 @@ function openPartidoModal(game) {
     {title:'Otros',rows:[row('Asistencias',m.ast,o.ast),row('Recuperos',m.rec,o.rec),row('Pérdidas',m.per,o.per,false),row('Tapones',m.tap,o.tap),row('Valoración',m.val,o.val)]},
   ];
   document.getElementById('tgmDetailBody').innerHTML = groups.map(g=>`<div class="tgm-stat-section"><div class="tgm-stat-group-title">${g.title}</div>${g.rows.join('')}</div>`).join('');
-  // Show detail directly (skip game list)
-  document.getElementById('tgmMainTabs').style.display = 'none';
-  document.getElementById('tgmStanding').style.display = 'none';
-  document.getElementById('tgmGamesPanel').style.display = 'none';
-  document.getElementById('tgmRosterPanel').style.display = 'none';
+  // Show detail directly (skip game list) — guardado: en Liga Argentina estos
+  // paneles ya no viven en el modal (se movieron a #sec-t-ficha).
+  const _ppmMainTabs = document.getElementById('tgmMainTabs'); if (_ppmMainTabs) _ppmMainTabs.style.display = 'none';
+  const _ppmStanding = document.getElementById('tgmStanding'); if (_ppmStanding) _ppmStanding.style.display = 'none';
+  const _ppmGamesPanel = document.getElementById('tgmGamesPanel'); if (_ppmGamesPanel) _ppmGamesPanel.style.display = 'none';
+  const _ppmRosterPanel = document.getElementById('tgmRosterPanel'); if (_ppmRosterPanel) _ppmRosterPanel.style.display = 'none';
   document.getElementById('tgmDetail').classList.add('visible');
   document.getElementById('teamGamesBackdrop').classList.add('open');
 }
@@ -2155,7 +2177,9 @@ function onPartidoFilter() {
     return true;
   });
   document.getElementById('pCount').textContent = filtered.length;
-  renderPartidoList(filtered);
+  // Rango que arranca hoy o después: orden cronológico (próximos primero); si incluye pasado: más reciente primero
+  const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+  renderPartidoList(filtered, !!fromD && fromD >= todayStart);
 }
 
 function showUpcomingDefault() {
@@ -2163,25 +2187,17 @@ function showUpcomingDefault() {
   const toISO = s => { const [d,m,y]=s.split('/'); return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`; };
   const now = new Date();
   const todayISO = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-  const todayGames = GAMES_ALL.filter(g => toISO(g.fecha) === todayISO);
-  if (todayGames.length) {
+  // Desde hoy en adelante, sin fecha límite (incluye los ya jugados hoy)
+  const fromToday = GAMES_ALL.filter(g => toISO(g.fecha) >= todayISO);
+  if (fromToday.length) {
     document.getElementById('pDateFrom').value = todayISO;
-    document.getElementById('pDateTo').value   = todayISO;
-    renderPartidoList(todayGames, true);
+    document.getElementById('pDateTo').value   = '';
+    renderPartidoList(fromToday, true);
   } else {
-    const upcoming = GAMES_ALL.filter(g => g.upcoming);
-    if (upcoming.length) {
-      const nextISO = toISO(upcoming[0].fecha);
-      const nextGames = upcoming.filter(g => toISO(g.fecha) === nextISO);
-      document.getElementById('pDateFrom').value = nextISO;
-      document.getElementById('pDateTo').value   = nextISO;
-      renderPartidoList(nextGames, true);
-    } else {
-      // Sin próximos (temporada terminada o fixture sin publicar): últimos resultados primero
-      document.getElementById('pDateFrom').value = '';
-      document.getElementById('pDateTo').value   = '';
-      renderPartidoList(GAMES_ALL.filter(g => !g.upcoming), false);
-    }
+    // Sin próximos (temporada terminada o fixture sin publicar): últimos resultados primero
+    document.getElementById('pDateFrom').value = '';
+    document.getElementById('pDateTo').value   = '';
+    renderPartidoList(GAMES_ALL.filter(g => !g.upcoming), false);
   }
 }
 
@@ -2268,6 +2284,12 @@ function showTeamGames(teamName) {
   if (!t) return;
   _currentTeamName = teamName;
   closeGameDetail();
+  // Si la liga tiene la sección "Ficha de equipo" (Liga Argentina, nov. 2026),
+  // navegar ahí en vez de abrir el modal — ver CLAUDE.md "Modal de equipo / partido".
+  if (typeof goToTeamFicha === 'function' && document.getElementById('sec-t-ficha')) {
+    goToTeamFicha(teamName);
+    return;
+  }
   const logoSrc = LOGOS[teamName];
   const logo = document.getElementById('tgmLogo');
   logo.src = logoSrc || ''; logo.style.display = logoSrc ? '' : 'none';
@@ -2326,6 +2348,25 @@ function showGameDetail(g, teamName) {
 
   // Reset to stats tab
   switchGameTab('stats');
+
+  // Header del modal: cuando existe la sección "Ficha de equipo" (Liga Argentina),
+  // showTeamGames() ya no pre-llena tgmLogo/tgmTitle/tgmRecord (viven en #sec-t-ficha
+  // con IDs propios), así que acá hay que armar el header self-contained, igual que
+  // hace openPartidoModal() para una entrada directa desde Fixture.
+  if (document.getElementById('sec-t-ficha')) {
+    const localTeam = isLocal ? teamName : g.rival;
+    const visitTeam = isLocal ? g.rival : teamName;
+    const headerLogo = document.getElementById('tgmLogo');
+    if (headerLogo) {
+      const src = LOGOS[localTeam];
+      if (src) { headerLogo.src = src; headerLogo.style.display = ''; } else headerLogo.style.display = 'none';
+    }
+    const headerTitle = document.getElementById('tgmTitle');
+    if (headerTitle) headerTitle.textContent = `${localTeam} vs ${visitTeam}`;
+    const headerRecord = document.getElementById('tgmRecord');
+    if (headerRecord) headerRecord.textContent = g.fecha;
+    document.getElementById('teamGamesBackdrop').classList.add('open');
+  }
 
   // Load shots in background
   if (SHOTS_MAP === null) loadShots();
@@ -2402,10 +2443,14 @@ function showGameDetail(g, teamName) {
     </div>`
   ).join('');
 
-  document.getElementById('tgmMainTabs').style.display = 'none';
-  document.getElementById('tgmStanding').style.display = 'none';
-  document.getElementById('tgmGamesPanel').style.display = 'none';
-  document.getElementById('tgmRosterPanel').style.display = 'none';
+  // En leagues sin "Ficha de equipo" (sin #sec-t-ficha), estos paneles viven
+  // dentro del modal y hay que ocultarlos para mostrar solo el detalle. En
+  // Liga Argentina ya no existen en el modal (se movieron a la sección), por
+  // eso están guardados con `if (el)`.
+  const mainTabs = document.getElementById('tgmMainTabs'); if (mainTabs) mainTabs.style.display = 'none';
+  const standingEl = document.getElementById('tgmStanding'); if (standingEl) standingEl.style.display = 'none';
+  const gamesPanel = document.getElementById('tgmGamesPanel'); if (gamesPanel) gamesPanel.style.display = 'none';
+  const rosterPanel = document.getElementById('tgmRosterPanel'); if (rosterPanel) rosterPanel.style.display = 'none';
   document.getElementById('tgmDetail').classList.add('visible');
 }
 
@@ -2416,13 +2461,18 @@ function onTgmBack() {
     _partidoMode = false;
   } else {
     closeGameDetail();
+    // Sin tgmGamesPanel (Liga Argentina) no hay nada a qué "volver" dentro
+    // del modal — cerrarlo directamente en vez de dejarlo abierto y vacío.
+    if (!document.getElementById('tgmGamesPanel')) {
+      document.getElementById('teamGamesBackdrop').classList.remove('open');
+    }
   }
 }
 
 function closeGameDetail() {
   document.getElementById('tgmDetail').classList.remove('visible');
-  document.getElementById('tgmMainTabs').style.display = '';
-  document.getElementById('tgmStanding').style.display = '';
+  const mainTabs = document.getElementById('tgmMainTabs'); if (mainTabs) mainTabs.style.display = '';
+  const standingEl = document.getElementById('tgmStanding'); if (standingEl) standingEl.style.display = '';
   switchTeamMainTab(_teamModalTab || 'games');
 }
 
@@ -2510,46 +2560,197 @@ function szcComputeStats(shots) {
 }
 
 function szcZoneColor(ps, ls) {
-  if (!ps || ps.att === 0) return [55, 58, 90, 220];
+  if (!ps || ps.att === 0) return [16, 19, 36, 255];
   const pPct = ps.makes / ps.att;
   const lPct = ls && ls.att > 0 ? ls.makes / ls.att : 0.44;
   const diff = pPct - lPct;
-  // Interpolación continua entre anclas de color (diff en tanto por uno)
+  // Escala hielo → amarillo → fuego: celeste (por debajo de la liga) · amarillo claro (promedio) · naranja → rojo (por encima)
   const stops = [
-    [-0.12, 29,  78, 216],   // azul oscuro
-    [-0.06, 96, 165, 250],   // azul medio
-    [-0.02, 147, 197, 253],  // azul muy claro
-    [ 0.00, 203, 213, 225],  // gris claro (promedio)
-    [ 0.02, 253, 186, 116],  // naranja muy claro
-    [ 0.06, 251, 146,  60],  // naranja
-    [ 0.12, 220,  38,  38],  // rojo oscuro
+    [-0.12,  49, 104, 190],  // azul hielo profundo
+    [-0.06, 104, 164, 236],
+    [-0.025,168, 214, 246],  // hielo claro
+    [-0.010,236, 240, 228],  // blanco cremoso (evita el verde al mezclar celeste con amarillo)
+    [ 0.00, 253, 240, 176],  // amarillo claro (promedio liga)
+    [ 0.03, 252, 198, 102],  // ámbar suave
+    [ 0.07, 244, 122,  52],  // naranja fuerte
+    [ 0.12, 206,  24,  44],  // rojo
   ];
-  if (diff <= stops[0][0])   return [...stops[0].slice(1), 220];
-  if (diff >= stops[stops.length-1][0]) return [...stops[stops.length-1].slice(1), 220];
+  if (diff <= stops[0][0]) return [...stops[0].slice(1), 255];
+  if (diff >= stops[stops.length-1][0]) return [...stops[stops.length-1].slice(1), 255];
   for (let i = 0; i < stops.length - 1; i++) {
     const [d0,r0,g0,b0] = stops[i], [d1,r1,g1,b1] = stops[i+1];
     if (diff >= d0 && diff <= d1) {
       const t = (diff - d0) / (d1 - d0);
-      return [Math.round(r0+t*(r1-r0)), Math.round(g0+t*(g1-g0)), Math.round(b0+t*(b1-b0)), 215];
+      return [Math.round(r0+t*(r1-r0)), Math.round(g0+t*(g1-g0)), Math.round(b0+t*(b1-b0)), 255];
     }
   }
-  return [203, 213, 225, 215];
+  return [253, 240, 176, 255];
+}
+
+// Mapa zona/sombra por píxel, cacheado por resolución (clasificar ~1M px en cada render sería caro)
+const _szcMapCache = new Map();
+function szcGetZoneMap(Wp, Hp, mp) {
+  const key = Wp + 'x' + Hp;
+  if (_szcMapCache.has(key)) return _szcMapCache.get(key);
+  const zi = new Int8Array(Wp * Hp), shade = new Float32Array(Wp * Hp);
+  for (let row = 0; row < Hp; row++) {
+    const y = (row + 0.5) / mp;
+    for (let col = 0; col < Wp; col++) {
+      const x = (col + 0.5) / mp;
+      const z = szcClassifyCoord(x, y);
+      const i = row * Wp + col;
+      zi[i] = z ? SZC_ZONES.indexOf(z) : -1;
+      const t = Math.min(1, Math.hypot(x - 1.575, y - 7.5) / 12.5);
+      shade[i] = 1.05 - 0.07 * Math.pow(t, 0.8);   // más luz cerca del aro, cae hacia el fondo
+    }
+  }
+  if (_szcMapCache.size >= 2) _szcMapCache.delete(_szcMapCache.keys().next().value);
+  const entry = { zi, shade };
+  _szcMapCache.set(key, entry);
+  return entry;
 }
 
 function szcDrawZoneColors(ctx, W, H, m, playerStats, leagueStats) {
-  const img = ctx.createImageData(W, H);
+  const canvas = ctx.canvas;
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  const Wp = Math.round(W * dpr), Hp = Math.round(H * dpr), mp = m * dpr;
+  canvas.width = Wp; canvas.height = Hp;       // CSS sigue en width:100%; solo sube la resolución interna
+
+  const { zi, shade } = szcGetZoneMap(Wp, Hp, mp);
+  const colors = SZC_ZONES.map(z => szcZoneColor(playerStats[z], leagueStats ? leagueStats[z] : null));
+
+  const off = document.createElement('canvas');
+  off.width = Wp; off.height = Hp;
+  const octx = off.getContext('2d');
+  const img = octx.createImageData(Wp, Hp);
   const d = img.data;
-  for (let row = 0; row < H; row++) {
-    for (let col = 0; col < W; col++) {
-      const zone = szcClassifyCoord(col / m, row / m);
-      const c = zone
-        ? szcZoneColor(playerStats[zone], leagueStats ? leagueStats[zone] : null)
-        : [11, 11, 22, 255];
-      const i = (row * W + col) * 4;
-      d[i] = c[0]; d[i+1] = c[1]; d[i+2] = c[2]; d[i+3] = c[3];
-    }
+  for (let i = 0, n = Wp * Hp; i < n; i++) {
+    const k = zi[i], o = i * 4;
+    if (k < 0) { d[o] = 11; d[o+1] = 11; d[o+2] = 22; d[o+3] = 255; continue; }
+    const c = colors[k], sh = shade[i];
+    d[o]   = Math.min(255, c[0] * sh);
+    d[o+1] = Math.min(255, c[1] * sh);
+    d[o+2] = Math.min(255, c[2] * sh);
+    d[o+3] = 255;
   }
-  ctx.putImageData(img, 0, 0);
+  octx.putImageData(img, 0, 0);
+
+  // Base oscura + zonas con borde suavizado (anti-alias de los límites entre zonas)
+  ctx.fillStyle = '#0a0c1c';
+  ctx.fillRect(0, 0, Wp, Hp);
+  if ('filter' in ctx) ctx.filter = `blur(${(0.7 * dpr).toFixed(2)}px)`;
+  ctx.drawImage(off, 0, 0);
+  if ('filter' in ctx) ctx.filter = 'none';
+
+  // Luz difusa desde el aro
+  const hx = 1.575 * mp, hy = 7.5 * mp;
+  const glow = ctx.createRadialGradient(hx, hy, 0, hx, hy, 8 * mp);
+  glow.addColorStop(0, 'rgba(255,255,255,.08)');
+  glow.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, Wp, Hp);
+
+  // Viñeta en los bordes
+  const vig = ctx.createRadialGradient(Wp * 0.42, Hp * 0.5, Hp * 0.35, Wp * 0.42, Hp * 0.5, Wp * 0.95);
+  vig.addColorStop(0, 'rgba(4,5,16,0)');
+  vig.addColorStop(1, 'rgba(4,5,16,.14)');
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, Wp, Hp);
+}
+
+// ── Mapa de calor de frecuencia de tiros (densidad continua, sin cortes por zona) ──
+const SZC_HEAT_STOPS = [
+  [0.00,   6,   5,  20],   // negro azulado
+  [0.12,  32,  10,  76],   // violeta muy oscuro
+  [0.30,  92,  18, 136],   // violeta
+  [0.50, 176,  36, 130],   // magenta
+  [0.68, 238,  92,  58],   // naranja
+  [0.85, 252, 164,  44],   // ámbar
+  [1.00, 254, 232, 150],   // amarillo pálido
+];
+let _szcHeatLut = null;
+function szcHeatLut() {
+  if (_szcHeatLut) return _szcHeatLut;
+  const lut = new Uint8Array(256 * 3), st = SZC_HEAT_STOPS;
+  for (let i = 0; i < 256; i++) {
+    const t = i / 255;
+    let k = 0;
+    while (k < st.length - 2 && t > st[k+1][0]) k++;
+    const [t0,r0,g0,b0] = st[k], [t1,r1,g1,b1] = st[k+1];
+    const u = Math.min(1, Math.max(0, (t - t0) / (t1 - t0)));
+    lut[i*3]   = r0 + u * (r1 - r0);
+    lut[i*3+1] = g0 + u * (g1 - g0);
+    lut[i*3+2] = b0 + u * (b1 - b0);
+  }
+  return (_szcHeatLut = lut);
+}
+
+function szcDrawHeatmap(ctx, W, H, m, shots) {
+  const canvas = ctx.canvas;
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  const Wp = Math.round(W * dpr), Hp = Math.round(H * dpr);
+  canvas.width = Wp; canvas.height = Hp;
+
+  // 1) Acumular tiros en una grilla de 0.1 m sobre la media cancha (14 × 15 m)
+  const CELL = 0.1, GW = 140, GH = 150;
+  let grid = new Float32Array(GW * GH);
+  let n = 0;
+  shots.forEach(s => {
+    if (s['Tipo'] === 'TIRO1') return;
+    const lPct = parseFloat(s['Left_pct']), tPct = parseFloat(s['Top_pct']);
+    if (isNaN(lPct) || isNaN(tPct)) return;
+    const normLeft = s['Local'] === 'True' ? lPct : 100 - lPct;
+    if (normLeft < 0 || normLeft > 53) return;
+    const gx = Math.floor((normLeft - 6.51) * 0.3219 / CELL);
+    const gy = Math.floor(tPct * 0.15 / CELL);
+    if (gx < 0 || gx >= GW || gy < 0 || gy >= GH) return;
+    grid[gy * GW + gx]++; n++;
+  });
+
+  // 2) Suavizado gaussiano separable (sigma ≈ 0.55 m; más tiros → algo más fino)
+  const sigma = (n > 3000 ? 4.5 : n > 600 ? 5.5 : 7) ;   // en celdas
+  const R = Math.ceil(sigma * 3), ker = new Float32Array(2 * R + 1);
+  let ks = 0;
+  for (let i = -R; i <= R; i++) { ker[i + R] = Math.exp(-(i * i) / (2 * sigma * sigma)); ks += ker[i + R]; }
+  for (let i = 0; i < ker.length; i++) ker[i] /= ks;
+  const tmp = new Float32Array(GW * GH);
+  for (let y = 0; y < GH; y++) for (let x = 0; x < GW; x++) {
+    let a = 0;
+    for (let k = -R; k <= R; k++) { const xx = x + k; if (xx >= 0 && xx < GW) a += grid[y * GW + xx] * ker[k + R]; }
+    tmp[y * GW + x] = a;
+  }
+  const dens = new Float32Array(GW * GH);
+  let max = 0;
+  for (let y = 0; y < GH; y++) for (let x = 0; x < GW; x++) {
+    let a = 0;
+    for (let k = -R; k <= R; k++) { const yy = y + k; if (yy >= 0 && yy < GH) a += tmp[yy * GW + x] * ker[k + R]; }
+    dens[y * GW + x] = a;
+    if (a > max) max = a;
+  }
+
+  // 3) Colorear con la paleta continua (gamma para que las zonas de poco volumen no se pierdan)
+  const lut = szcHeatLut();
+  const off = document.createElement('canvas');
+  off.width = GW; off.height = GH;
+  const octx = off.getContext('2d');
+  const img = octx.createImageData(GW, GH), d = img.data;
+  for (let i = 0; i < GW * GH; i++) {
+    const t = max > 0 ? Math.pow(dens[i] / max, 0.62) : 0;
+    const li = Math.round(t * 255) * 3, o = i * 4;
+    d[o] = lut[li]; d[o+1] = lut[li+1]; d[o+2] = lut[li+2]; d[o+3] = 255;
+  }
+  octx.putImageData(img, 0, 0);
+
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(off, 0, 0, Wp, Hp);
+
+  // Viñeta suave en los bordes
+  const vig = ctx.createRadialGradient(Wp * 0.42, Hp * 0.5, Hp * 0.4, Wp * 0.42, Hp * 0.5, Wp * 1.0);
+  vig.addColorStop(0, 'rgba(3,3,12,0)');
+  vig.addColorStop(1, 'rgba(3,3,12,.5)');
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, Wp, Hp);
 }
 
 function onSzcInput() {
