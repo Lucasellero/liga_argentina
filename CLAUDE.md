@@ -1222,7 +1222,7 @@ Según el historial de facturas del proyecto, el ciclo renueva el **día 11 de c
 
 ## Cache de CSVs servidos por Vercel (agosto 2026)
 
-El fix de cache-busting aplicado al PBP en el incidente de Supabase (arriba) nunca se había extendido a los CSVs que sirve **Vercel** (no Supabase): `liga_*.csv`, `liga_*_shots.csv`, `players_dob.csv`, `fixture_upcoming.csv`, `predicciones_upcoming.csv`. Estos fetches seguían con el mismo patrón agresivo:
+El fix de cache-busting aplicado al PBP en el incidente de Supabase (arriba) nunca se había extendido a los CSVs que sirve **Vercel** (no Supabase): `liga_*.csv`, `liga_*_shots.csv`, `players_dob.csv`, `fixture_upcoming.csv`. Estos fetches seguían con el mismo patrón agresivo:
 ```js
 fetch(SHOTS_CSV + '?v=' + Date.now(), { cache: 'no-store' })   // shots: hasta 10MB por liga
 ```
