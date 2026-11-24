@@ -55,6 +55,10 @@ log = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # HTTP
 # ---------------------------------------------------------------------------
+# Un mapa de tiros con menos de este % de los intentos del box se considera incompleto
+SHOTS_MIN_RATIO = 0.9
+
+
 def make_session():
     s = cloudscraper.create_scraper(
         browser={"browser": "chrome", "platform": "windows", "mobile": False}
@@ -180,6 +184,15 @@ def main():
 
     log.info(f"Total partidos: {len(games)}")
 
+    # Intentos de campo (T2I+T3I) del box score por partido, para detectar mapas de
+    # tiro guardados a medias (partido en curso al momento del scrape).
+    box_fga: dict[str, int] = {}
+    for _, row in totales.iterrows():
+        is_loc = str(row.get("Condicion equipos", "")) == "LOCAL"
+        k_ = (f"{row['Fecha']}|{row['Equipo']}|{row['Rival']}" if is_loc
+              else f"{row['Fecha']}|{row['Rival']}|{row['Equipo']}")
+        box_fga[k_] = box_fga.get(k_, 0) + int(row["T2I"]) + int(row["T3I"])
+
     # Cache: clave estable fecha|equipo_local|equipo_visitante desde el CSV de tiros
     cached_keys: set[str] = set()
     existing_df = None
@@ -189,7 +202,24 @@ def main():
             cached_keys.add(f"{_r['Fecha']}|{_r['Equipo_local']}|{_r['Equipo_visitante']}")
         log.info(f"Cache: {len(cached_keys)} partidos ya scrapeados")
 
-    new_game_keys = [k for k in games if k not in cached_keys]
+    # Partidos cacheados cuyos tiros son claramente menos que los intentos del box
+    # (< SHOTS_MIN_RATIO): se scrapearon incompletos y hay que rehacerlos. Se tolera
+    # un desfase chico (el sitio a veces omite 1-2 tiros) para no re-scrapear siempre.
+    old_shot_counts: dict[str, int] = {}
+    if existing_df is not None and not existing_df.empty:
+        _cnt = (existing_df[existing_df["Tipo"].isin(["TIRO2", "TIRO3"])]
+                .groupby(["Fecha", "Equipo_local", "Equipo_visitante"]).size())
+        old_shot_counts = {f"{f}|{l}|{v}": int(n) for (f, l, v), n in _cnt.items()}
+    incomplete_keys = {
+        k for k in games
+        if k in cached_keys and box_fga.get(k, 0) > 0
+        and old_shot_counts.get(k, 0) < SHOTS_MIN_RATIO * box_fga[k]
+    }
+    for k in sorted(incomplete_keys):
+        log.info(f"  Tiros incompletos: {k} ({old_shot_counts.get(k, 0)} tiros vs {box_fga[k]} intentos en el box) -> se re-scrapea")
+    # Sin intentos de campo en el box (ej. partido ganado por defecto) no hay mapa de tiros que scrapear
+    new_game_keys = [k for k in games
+                     if (k not in cached_keys or k in incomplete_keys) and box_fga.get(k, 0) > 0]
     log.info(f"A scrapear: {len(new_game_keys)} partidos")
 
     if args.dry_run:
@@ -204,6 +234,7 @@ def main():
 
     session  = make_session()
     new_rows = []
+    replaced_keys: set[str] = set()
 
     for i, k in enumerate(new_game_keys, 1):
         g = games[k]
@@ -212,8 +243,17 @@ def main():
         rows = scrape_game(session, g["game_id"], g["local"], g["visitante"])
         for r in rows:
             r["Fecha"] = g["fecha"]
-        new_rows.extend(rows)
-        log.info(f"  -> {len(rows)} tiros")
+        n_new = sum(1 for r in rows if r.get("Tipo") in ("TIRO2", "TIRO3"))
+        if k in incomplete_keys and n_new < old_shot_counts.get(k, 0):
+            # La fuente trae menos tiros que lo cacheado: se conserva lo viejo (sin duplicar).
+            # Seguirá apareciendo como incompleto en cada corrida (sin estado extra).
+            log.warning(f"  -> re-scrape trae {n_new} tiros TIRO2/3 < {old_shot_counts.get(k, 0)} cacheados; "
+                        f"se conserva lo cacheado (la fuente no tiene el mapa completo)")
+        else:
+            new_rows.extend(rows)
+            if k in incomplete_keys:
+                replaced_keys.add(k)
+            log.info(f"  -> {len(rows)} tiros")
 
         if i < len(new_game_keys):
             time.sleep(DELAY)
@@ -222,6 +262,12 @@ def main():
     new_df = pd.DataFrame(new_rows, columns=CSV_COLUMNS) if new_rows else pd.DataFrame(columns=CSV_COLUMNS)
 
     if existing_df is not None and not existing_df.empty:
+        if replaced_keys:
+            _rk = (existing_df["Fecha"].astype(str) + "|" + existing_df["Equipo_local"].astype(str)
+                   + "|" + existing_df["Equipo_visitante"].astype(str))
+            n_before = len(existing_df)
+            existing_df = existing_df[~_rk.isin(replaced_keys)]
+            log.info(f"Reemplazo: {n_before - len(existing_df)} tiros viejos de {len(replaced_keys)} partidos descartados")
         merged = pd.concat(
             [existing_df.astype(new_df.dtypes.to_dict(), errors="ignore"), new_df],
             ignore_index=True,
