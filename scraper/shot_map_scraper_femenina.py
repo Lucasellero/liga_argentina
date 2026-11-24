@@ -147,6 +147,30 @@ def parse_shots(html: str, game_id: str, local: str, visitante: str) -> list[dic
     return rows
 
 
+def sync_game_ids(df: pd.DataFrame, games: dict) -> tuple[pd.DataFrame, int]:
+    """
+    Alinea `IdPartido` de los tiros con el del CSV de stats (fila LOCAL TOTALES) por clave
+    estable fecha|local|visitante. Los IDs del sitio son dinámicos: si los stats de un partido
+    se re-scrapean después de sus tiros (boxes en curso / incompletos), el ID nuevo no cruza con
+    el que quedó en este CSV. Devuelve (df, filas_modificadas).
+    """
+    if df.empty:
+        return df, 0
+    key = df["Fecha"].astype(str) + "|" + df["Equipo_local"].astype(str) + "|" + df["Equipo_visitante"].astype(str)
+    want = key.map(lambda k: games[k]["game_id"] if k in games else None)
+    diff = want.notna() & (want != df["IdPartido"].astype(str))
+    if not diff.any():
+        return df, 0
+    df = df.copy()
+    df.loc[diff, "IdPartido"] = want[diff]
+    return df, int(diff.sum())
+
+
+def count_out_of_range(rows: list[dict]) -> int:
+    """Tiros con coordenadas fuera de la cancha (0-100%): la fuente trae mal el sistema de coordenadas de ese partido."""
+    return sum(1 for r in rows if not (0 <= r["Left_pct"] <= 100 and 0 <= r["Top_pct"] <= 100))
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -191,11 +215,15 @@ def main():
     # Cache: clave estable fecha|equipo_local|equipo_visitante desde el CSV de tiros
     cached_keys: set[str] = set()
     existing_df = None
+    n_ids_fixed = 0
     if not args.full and OUTPUT_CSV.exists():
         existing_df = pd.read_csv(OUTPUT_CSV, encoding="utf-8-sig")
         for _, _r in existing_df.drop_duplicates(subset=["Fecha", "Equipo_local", "Equipo_visitante"]).iterrows():
             cached_keys.add(f"{_r['Fecha']}|{_r['Equipo_local']}|{_r['Equipo_visitante']}")
         log.info(f"Cache: {len(cached_keys)} partidos ya scrapeados")
+        existing_df, n_ids_fixed = sync_game_ids(existing_df, games)
+        if n_ids_fixed:
+            log.info(f"IdPartido sincronizado con stats en {n_ids_fixed} filas de tiros")
 
     # Partidos cacheados cuyos tiros son claramente menos que los intentos del box
     # (< SHOTS_MIN_RATIO): se scrapearon incompletos y hay que rehacerlos. Se tolera
@@ -225,6 +253,9 @@ def main():
 
     if not new_game_keys:
         log.info("Nada nuevo.")
+        if existing_df is not None and n_ids_fixed:
+            existing_df.to_csv(OUTPUT_CSV, index=False, encoding="utf-8-sig")
+            log.info(f"Guardado -> {OUTPUT_CSV} (solo IDs sincronizados)")
         return
 
     session  = make_session()
@@ -239,6 +270,9 @@ def main():
         for r in rows:
             r["Fecha"] = g["fecha"]
         n_new = sum(1 for r in rows if r.get("Tipo") in ("TIRO2", "TIRO3"))
+        n_oor = count_out_of_range(rows)
+        if n_oor:
+            log.warning(f"  -> {n_oor} tiros con coordenadas fuera de 0-100% (la fuente trae mal las coordenadas de este partido; no se corrigen)")
         if k in incomplete_keys and n_new < old_shot_counts.get(k, 0):
             # La fuente trae menos tiros que lo cacheado: se conserva lo viejo (sin duplicar).
             # Seguirá apareciendo como incompleto en cada corrida (sin estado extra).

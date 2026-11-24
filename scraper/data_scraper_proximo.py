@@ -746,14 +746,51 @@ def _is_forfeit_score(hs: int, aws: int) -> bool:
     return (hs == 0) != (aws == 0)
 
 
+# Partidos ganados por defecto / resueltos en el Tribunal, cuyo resultado oficial NO sale
+# de la fuente de forma estable (la página del partido muestra 0-0 y el fixture 0-20, o cambia
+# entre corridas). Clave estable fecha|local|visitante -> (puntos_local, puntos_visitante).
+# El box se guarda SOLO con las filas TOTALES (sin jugadores): ver `forfeit_rows`.
+FORFEIT_GAMES: dict[str, tuple[int, int]] = {
+}
+
+
+def apply_forfeit_overrides(games: list[dict]) -> None:
+    """Pisa el marcador del fixture con el de FORFEIT_GAMES (si el partido está listado)."""
+    for g in games:
+        k = f"{g.get('date','')}|{g.get('home_team','')}|{g.get('away_team','')}"
+        if k in FORFEIT_GAMES:
+            g["home_score"], g["away_score"] = FORFEIT_GAMES[k]
+
+
+def forfeit_rows(rows: list[dict], game: dict) -> list[dict]:
+    """
+    Partido ganado por defecto (marcador con exactamente un 0, ej. 20-0): no hubo juego,
+    así que NO se guardan filas de jugadores (0 min / 0 pts falsos que ensuciarían PJ y
+    promedios). Quedan solo las 2 filas TOTALES con el marcador oficial y `Ganado` correcto.
+    """
+    hs, aws = game.get("home_score"), game.get("away_score")
+    if hs is None or aws is None or not _is_forfeit_score(hs, aws):
+        return rows
+    out = []
+    for r in rows:
+        if r["Nombre completo"] != "TOTALES":
+            continue
+        local = r["Condicion equipos"] == "LOCAL"
+        r["Puntos"] = hs if local else aws
+        r["Ganado"] = (hs > aws) if local else (aws > hs)
+        out.append(r)
+    return out
+
+
 def is_cached_game_incomplete(game: dict, cached: tuple[int, int, int, int] | None) -> bool:
     """True si el box cacheado no coincide con el marcador del fixture."""
     hs, aws = game.get("home_score"), game.get("away_score")
     if cached is None or hs is None or aws is None:
         return False
-    if _is_forfeit_score(hs, aws):
-        return False   # ganado por defecto: el sitio nunca tiene box que coincida
     tl, tv, sl, sv = cached
+    if _is_forfeit_score(hs, aws):
+        # Ganado por defecto: no hay jugadores; alcanza con que los TOTALES tengan el marcador oficial
+        return (tl, tv) != (hs, aws)
     return (tl, tv) != (hs, aws) or (sl, sv) != (hs, aws)
 
 
@@ -795,6 +832,7 @@ def main():
 
     # 2. Get fixture game list
     all_fixture_games = fetch_fixture_games(session, debug=args.debug)
+    apply_forfeit_overrides(all_fixture_games)
     if not all_fixture_games:
         log.warning("No hay partidos en el rango de fechas (temporada sin arrancar todavía o sin novedades). Nada que hacer.")
         sys.exit(0)
@@ -833,7 +871,10 @@ def main():
     stale_keys: set[str] = set()
     n_not_final = 0
     for g, was_cached in candidates:
-        fin = fetch_game_finalized(session, g["game_id"])
+        if _stable_key(g) in FORFEIT_GAMES:
+            fin = True   # resultado oficial fijado a mano (la página del partido puede decir 0-0)
+        else:
+            fin = fetch_game_finalized(session, g["game_id"])
         time.sleep(REQUEST_DELAY)
         if fin is True:
             new_games.append(g)
@@ -864,6 +905,7 @@ def main():
             continue
 
         rows = parse_stats_html(html, game)
+        rows = forfeit_rows(rows, game)
         if rows:
             log.info(f"  -> {len(rows)} player rows")
             tot_pts = [r["Puntos"] for r in rows if r["Nombre completo"] == "TOTALES"]

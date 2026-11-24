@@ -158,10 +158,16 @@ function buildRAW_T(rows) {
     if (_seenTot.has(k)) return false;
     _seenTot.add(k); return true;
   });
+  // Partido ganado por defecto (ver FORFEIT_GAMES en scraper/data_scraper.py): solo trae las filas
+  // TOTALES con el marcador oficial (ej. 20-0), 0 minutos y 0 intentos. No jugó nadie, así que no entra
+  // en PJ ni en promedios/ratings; solo cuenta para el récord de Posiciones (t._forfeits).
+  const isForfeitRow = r => (parseFloat(r['Segundos jugados'])||0) === 0 &&
+    ((parseFloat(r['T2I'])||0) + (parseFloat(r['T3I'])||0) + (parseFloat(r['T1I'])||0)) === 0;
+  const totsPlayed = totsDeduped.filter(r => !isForfeitRow(r));
 
   // Group by physical game: (Fecha, sorted teams). This pairs LOCAL and VISITANTE rows
   // that may have different IdPartido values but represent the same real game.
-  totsDeduped.forEach(r => {
+  totsPlayed.forEach(r => {
     const teams = [r['Equipo'], r['Rival']].sort().join('|');
     const key = r['Fecha'] + '||' + teams;
     if (!byGame[key]) byGame[key] = [];
@@ -172,13 +178,20 @@ function buildRAW_T(rows) {
     if (!map[eq]) map[eq] = {
       Equipo: eq, PJ: 0, Ganados: 0, Perdidos: 0, OPP_PTS: 0,
       LocalG: 0, LocalP: 0, VisitG: 0, VisitP: 0, OPP_DReb: 0, OPP_RO: 0,
-      _games: [], _gamelog: [],
+      _games: [], _gamelog: [], _forfeits: [],
       PTS: 0, T2A: 0, T2I: 0, T3A: 0, T3I: 0,
       T1A: 0, T1I: 0, RD: 0, RO: 0, RT: 0, AST: 0, REC: 0, PER: 0, TAP: 0, VAL: 0
     };
     const t = map[eq];
     const ganado = r['Ganado'] === 'True';
     const esLocal = r['Condicion equipos'] === 'LOCAL';
+    if (isForfeitRow(r)) {
+      const opp = totsDeduped.find(o => o['Fecha'] === r['Fecha'] && o['Equipo'] === r['Rival'] && o['Rival'] === r['Equipo']);
+      t._forfeits.push({ fecha: r['Fecha'], rival: r['Rival'], condicion: r['Condicion equipos'],
+        ptsFor: parseFloat(r['Puntos'])||0, ptsAgainst: opp ? (parseFloat(opp['Puntos'])||0) : 0,
+        ganado, forfeit: true });
+      return;
+    }
     t.PJ++; if (ganado) t.Ganados++; else t.Perdidos++;
     if (esLocal) { if (ganado) t.LocalG++; else t.LocalP++; }
     else         { if (ganado) t.VisitG++; else t.VisitP++; }
@@ -999,6 +1012,14 @@ function canonTeamRows(rows) {
 
 
 
+// Partidos que cuentan para el récord oficial: jugados (_gamelog) + ganados/perdidos por defecto (_forfeits), por fecha.
+function teamRecordGames(t) {
+  const all = (t._gamelog || []).concat(t._forfeits || []);
+  if (!(t._forfeits || []).length) return all;
+  const d = g => { const [a, b, c] = g.fecha.split('/'); return new Date(+c, +b - 1, +a); };
+  return all.slice().sort((x, y) => d(x) - d(y));
+}
+
 function getTeamStandingLabel(teamName) {
   const isNorte = CONF_NORTE.has(teamName), isSur = CONF_SUR.has(teamName);
   if (!isNorte && !isSur) return '';
@@ -1006,7 +1027,7 @@ function getTeamStandingLabel(teamName) {
   const confName = isNorte ? 'Conferencia Norte' : 'Conferencia Sur';
   const rows = TEAMS.filter(t => confSet.has(t.Equipo)).map(t => {
     let PJ = 0, G = 0, ptsFor = 0;
-    (t._gamelog || []).forEach(g => {
+    teamRecordGames(t).forEach(g => {
       const [fd, fm, fy] = g.fecha.split('/');
       if (new Date(+fy, +fm - 1, +fd) >= PLAYOFF_DATE) return;
       PJ++; ptsFor += g.ptsFor || 0;
@@ -1032,7 +1053,7 @@ function renderStandings() {
     TEAMS.filter(t => confSet.has(t.Equipo)).forEach(t => {
       let PJ=0,G=0,P=0,ptsFor=0,ptsAgainst=0,localG=0,localP=0,visitG=0,visitP=0;
       const results=[];
-      (t._gamelog||[]).forEach(g => {
+      teamRecordGames(t).forEach(g => {
         const [fd,fm,fy]=g.fecha.split('/');
         if (new Date(+fy,+fm-1,+fd) >= PLAYOFF_DATE) return;
         PJ++; ptsFor+=g.ptsFor||0; ptsAgainst+=g.ptsAgainst||0;
