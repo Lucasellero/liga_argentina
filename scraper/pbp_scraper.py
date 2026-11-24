@@ -290,11 +290,21 @@ def main():
 
     log.info(f"Total partidos: {len(games)}")
 
+    # Puntos finales del box por partido (para detectar PBP cacheado a medias: si el
+    # marcador final del PBP no coincide, el partido se scrapeó mientras estaba en curso).
+    box_pts: dict[str, list[int]] = {}
+    for _, row in totales.iterrows():
+        is_loc = str(row.get("Condicion equipos", "")) == "LOCAL"
+        k_ = (f"{row['Fecha']}|{row['Equipo']}|{row['Rival']}" if is_loc
+              else f"{row['Fecha']}|{row['Rival']}|{row['Equipo']}")
+        box_pts.setdefault(k_, []).append(int(row["Puntos"]))
+
     # Cache: clave estable fecha|equipo_local|equipo_visitante desde el CSV de PBP
     output_csv = Path(args.output) if args.output else OUTPUT_CSV
     cached_keys: set[str] = set()
     existing_df: pd.DataFrame | None = None
     pruned = False
+    incomplete_keys: set[str] = set()
     if not args.full and output_csv.exists():
         existing_df = pd.read_csv(output_csv, encoding="utf-8-sig")
         key_cols = ["Fecha", "Equipo_local", "Equipo_visitante"]
@@ -318,9 +328,26 @@ def main():
                 existing_keys = existing_keys[in_season]
                 pruned = True
             cached_keys = set(existing_keys)
+            # PBP incompleto: el último marcador no coincide con los puntos del box
+            # (se compara sin importar el orden local/visitante, el PBP puede venir
+            # con los lados invertidos). Partidos con 0 en un lado = ganados por defecto.
+            _tmp = pd.DataFrame({
+                "k": existing_keys.values,
+                "n": pd.to_numeric(existing_df["NumAccion"], errors="coerce").values,
+                "ml": pd.to_numeric(existing_df["Marcador_local"], errors="coerce").values,
+                "mv": pd.to_numeric(existing_df["Marcador_visitante"], errors="coerce").values,
+            })
+            for _, _l in _tmp.sort_values("n").groupby("k").tail(1).iterrows():
+                _pts = box_pts.get(_l["k"])
+                if not _pts or len(_pts) != 2 or (_pts[0] == 0) != (_pts[1] == 0):
+                    continue
+                if pd.isna(_l["ml"]) or pd.isna(_l["mv"]) or sorted([int(_l["ml"]), int(_l["mv"])]) != sorted(_pts):
+                    incomplete_keys.add(_l["k"])
+            for _k in sorted(incomplete_keys):
+                log.info(f"  PBP incompleto (marcador final != box {box_pts.get(_k)}): {_k} -> se re-scrapea")
         log.info(f"Cache: {len(cached_keys)} partidos ya scrapeados")
 
-    new_game_keys = [k for k in games if k not in cached_keys]
+    new_game_keys = [k for k in games if k not in cached_keys or k in incomplete_keys]
     log.info(f"A scrapear: {len(new_game_keys)} partidos")
 
     if args.dry_run:
@@ -335,6 +362,7 @@ def main():
 
     session  = make_session()
     new_rows: list[dict] = []
+    replaced_keys: set[str] = set()
 
     for i, k in enumerate(new_game_keys, 1):
         g = games[k]
@@ -345,6 +373,8 @@ def main():
             r["Fecha"] = g["fecha"]
         new_rows.extend(rows)
         log.info(f"  -> {len(rows)} acciones")
+        if rows and k in incomplete_keys:
+            replaced_keys.add(k)
 
         if i < len(new_game_keys):
             time.sleep(DELAY)
@@ -353,6 +383,12 @@ def main():
     new_df = pd.DataFrame(new_rows, columns=CSV_COLUMNS) if new_rows else pd.DataFrame(columns=CSV_COLUMNS)
 
     if existing_df is not None and not existing_df.empty:
+        if replaced_keys:
+            _rk = (existing_df["Fecha"].astype(str) + "|" + existing_df["Equipo_local"].astype(str)
+                   + "|" + existing_df["Equipo_visitante"].astype(str))
+            n_before = len(existing_df)
+            existing_df = existing_df[~_rk.isin(replaced_keys)]
+            log.info(f"Reemplazo: {n_before - len(existing_df)} acciones viejas de {len(replaced_keys)} partidos descartadas")
         shared_dtypes = {k: v for k, v in new_df.dtypes.to_dict().items() if k in existing_df.columns}
         merged = pd.concat(
             [existing_df.astype(shared_dtypes, errors="ignore"), new_df],

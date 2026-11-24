@@ -685,6 +685,78 @@ def load_cached_game_ids(csv_path: Path) -> set[str]:
         return set()
 
 
+def fetch_game_finalized(session, game_id: str) -> bool | None:
+    """
+    Consulta el marcador oficial del partido (endpoint liviano que usa la propia
+    página del partido para su pill "Finalizado / En Curso") y devuelve:
+      True  -> partido finalizado (`data-finalizada="true"`)
+      False -> en curso / no comenzado
+      None  -> no se pudo determinar (error de red, HTML inesperado)
+
+    El fixture muestra el marcador PARCIAL de los partidos en curso, así que
+    "tiene score" no alcanza para saber si el box score está completo.
+    """
+    url = f"{BASE_URL}{LEAGUE_PATH}/partido/Marcador/{game_id}"
+    try:
+        resp = get(session, url, params={"handler": "Recargar", "key": ""})
+    except Exception as e:
+        log.warning(f"  Marcador error {game_id}: {e}")
+        return None
+    m = re.search(r'data-finalizada="(true|false)"', resp.text)
+    if not m:
+        log.warning(f"  Marcador sin data-finalizada para {game_id}")
+        return None
+    return m.group(1) == "true"
+
+
+def _row_game_keys(df: pd.DataFrame) -> pd.Series:
+    """Clave estable fecha|local|visitante para cada fila del CSV de stats."""
+    base = df["Fecha"].astype(str)
+    eq = df["Equipo"].astype(str)
+    riv = df["Rival"].astype(str)
+    is_local = df["Condicion equipos"].astype(str) == "LOCAL"
+    return (base + "|" + eq + "|" + riv).where(is_local, base + "|" + riv + "|" + eq)
+
+
+def cached_game_scores(df: pd.DataFrame) -> dict[str, tuple[int, int, int, int]]:
+    """
+    Por cada partido cacheado: (pts_local_TOTALES, pts_visit_TOTALES,
+    suma_pts_jugadores_local, suma_pts_jugadores_visit). Sirve para detectar
+    boxes guardados incompletos (partido en curso al momento del scrape).
+    """
+    if df.empty:
+        return {}
+    d = pd.DataFrame({
+        "key": _row_game_keys(df),
+        "local": df["Condicion equipos"].astype(str) == "LOCAL",
+        "tot": df["Nombre completo"].astype(str) == "TOTALES",
+        "pts": pd.to_numeric(df["Puntos"], errors="coerce").fillna(0).astype(int),
+    })
+    out: dict[str, tuple[int, int, int, int]] = {}
+    for key, g in d.groupby("key"):
+        def s(tot: bool, local: bool) -> int:
+            return int(g.loc[(g["tot"] == tot) & (g["local"] == local), "pts"].sum())
+        out[key] = (s(True, True), s(True, False), s(False, True), s(False, False))
+    return out
+
+
+def _is_forfeit_score(hs: int, aws: int) -> bool:
+    """Marcador de partido ganado por defecto (ej. 20-0): exactamente un equipo en 0.
+    En un partido jugado ningún equipo termina en 0; el box queda en cero a propósito."""
+    return (hs == 0) != (aws == 0)
+
+
+def is_cached_game_incomplete(game: dict, cached: tuple[int, int, int, int] | None) -> bool:
+    """True si el box cacheado no coincide con el marcador del fixture."""
+    hs, aws = game.get("home_score"), game.get("away_score")
+    if cached is None or hs is None or aws is None:
+        return False
+    if _is_forfeit_score(hs, aws):
+        return False   # ganado por defecto: el sitio nunca tiene box que coincida
+    tl, tv, sl, sv = cached
+    return (tl, tv) != (hs, aws) or (sl, sv) != (hs, aws)
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -727,29 +799,61 @@ def main():
         log.warning("No hay partidos en el rango de fechas (temporada sin arrancar todavía o sin novedades). Nada que hacer.")
         sys.exit(0)
 
+    # Candidatos: partidos con marcador que (a) no están cacheados, o (b) están
+    # cacheados pero el box no coincide con el marcador del fixture (se guardó
+    # mientras el partido estaba en curso y nunca se re-scrapeó).
+    scores_cache = cached_game_scores(existing_df) if existing_df is not None else {}
+    no_score = [g for g in all_fixture_games if g.get("home_score") is None]
+    already_cached = [g for g in all_fixture_games if _stable_key(g) in cached_keys]
+    candidates: list[tuple[dict, bool]] = []   # (juego, está_cacheado_incompleto)
+    for g in all_fixture_games:
+        if g.get("home_score") is None:
+            continue
+        k = _stable_key(g)
+        if k not in cached_keys:
+            candidates.append((g, False))
+        elif is_cached_game_incomplete(g, scores_cache.get(k)):
+            candidates.append((g, True))
+
     if args.dry_run:
         log.info("--- DRY RUN ---")
         for g in all_fixture_games:
             tag = " [cached]" if _stable_key(g) in cached_keys else ""
+            if any(c is g and inc for c, inc in candidates):
+                tag = " [cached INCOMPLETO -> se re-scrapea si está finalizado]"
             log.info(f"  {g['date']}  {g.get('home_team','?')} "
                      f"{g.get('home_score','?')}-{g.get('away_score','?')} "
                      f"{g.get('away_team','?')}{tag}")
         return
 
-    # Filter to only games not yet scraped (played games only)
-    no_score = [g for g in all_fixture_games if g.get("home_score") is None]
-    already_cached = [g for g in all_fixture_games if _stable_key(g) in cached_keys]
-    new_games = [
-        g for g in all_fixture_games
-        if _stable_key(g) not in cached_keys
-        and g.get("home_score") is not None   # played games only
-    ]
-    log.info(f"Fixture total: {len(all_fixture_games)} | Sin resultado: {len(no_score)} | Ya cacheados: {len(already_cached)} | A scrapear: {len(new_games)}")
+    # Solo se guardan partidos FINALIZADOS (el fixture muestra marcador parcial
+    # de los partidos en curso). Un box cacheado incompleto cuyo partido sigue en
+    # curso se descarta del CSV para no mostrar datos parciales.
+    new_games: list[dict] = []
+    stale_keys: set[str] = set()
+    n_not_final = 0
+    for g, was_cached in candidates:
+        fin = fetch_game_finalized(session, g["game_id"])
+        time.sleep(REQUEST_DELAY)
+        if fin is True:
+            new_games.append(g)
+            continue
+        n_not_final += 1
+        state = "en curso / no finalizado" if fin is False else "estado desconocido"
+        log.info(f"  OMITIDO ({state}): {g.get('date','?')} {g.get('home_team','?')} "
+                 f"{g.get('home_score')}-{g.get('away_score')} {g.get('away_team','?')}")
+        if was_cached and fin is False:
+            stale_keys.add(_stable_key(g))
+
+    n_refresh = sum(1 for g in new_games if _stable_key(g) in cached_keys)
+    log.info(f"Fixture total: {len(all_fixture_games)} | Sin resultado: {len(no_score)} | Ya cacheados: {len(already_cached)} | "
+             f"A scrapear: {len(new_games)} ({n_refresh} re-scrapeos de boxes incompletos) | No finalizados: {n_not_final}")
     for g in new_games:
-        log.info(f"  NUEVO: {g.get('date','?')} {g.get('home_team','?')} {g.get('home_score')}-{g.get('away_score')} {g.get('away_team','?')} [{g['game_id']}]")
+        log.info(f"  {'RE-SCRAPE' if _stable_key(g) in cached_keys else 'NUEVO'}: {g.get('date','?')} {g.get('home_team','?')} {g.get('home_score')}-{g.get('away_score')} {g.get('away_team','?')} [{g['game_id']}]")
 
     # 3. Scrape new games
     new_rows: list[dict] = []
+    replaced_keys: set[str] = set(stale_keys)   # partidos cuyas filas viejas se reemplazan/descartan
     for i, game in enumerate(new_games, 1):
         gid = game["game_id"]
         log.info(f"[{i}/{len(new_games)}] {game.get('date','?')}  "
@@ -762,7 +866,12 @@ def main():
         rows = parse_stats_html(html, game)
         if rows:
             log.info(f"  -> {len(rows)} player rows")
+            tot_pts = [r["Puntos"] for r in rows if r["Nombre completo"] == "TOTALES"]
+            if tot_pts != [game["home_score"], game["away_score"]] and not _is_forfeit_score(game["home_score"], game["away_score"]):
+                log.warning(f"  Score del box {tot_pts} != fixture "
+                            f"[{game['home_score']}, {game['away_score']}] — se guarda igual (partido finalizado)")
             new_rows.extend(rows)
+            replaced_keys.add(_stable_key(game))
         else:
             log.debug("  -> no stats (unavailable)")
 
@@ -777,6 +886,12 @@ def main():
     new_df = pd.DataFrame(new_rows, columns=CSV_COLUMNS) if new_rows else pd.DataFrame(columns=CSV_COLUMNS)
 
     if existing_df is not None and not existing_df.empty:
+        # Reemplazo (no suma): las filas viejas de un partido re-scrapeado (o de uno
+        # cacheado a medias cuyo partido sigue en curso) se descartan por clave estable.
+        if replaced_keys:
+            n_before = len(existing_df)
+            existing_df = existing_df[~_row_game_keys(existing_df).isin(replaced_keys)]
+            log.info(f"Reemplazo: {n_before - len(existing_df)} filas viejas de {len(replaced_keys)} partidos descartadas")
         merged_df = pd.concat(
             [existing_df.astype(new_df.dtypes.to_dict(), errors="ignore"), new_df],
             ignore_index=True,
