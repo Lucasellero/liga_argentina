@@ -1693,66 +1693,93 @@ const SZC_CENTERS = {
 };
 
 
-function szcUpdateSvg(pStats, leagueStats, svgId='szcSvg') {
+function szcUpdateSvg(pStats, leagueStats, svgId='szcSvg', mode='zones') {
   const svg = document.getElementById(svgId);
   if (!svg) return;
+  const P = svgId + '_';                       // ids únicos por SVG (hay 3 en la página)
   const bx = 1.575, by = 7.5, R3 = 6.75;
-  const dy1 = 0.9 - by; // -6.6
-  const dx1 = Math.sqrt(R3*R3 - dy1*dy1); // ≈ 1.4151
+  const dy1 = 0.9 - by;
+  const dx1 = Math.sqrt(R3*R3 - dy1*dy1);
   const arcX = bx + dx1;
   const arcMidX = bx + Math.sqrt(R3*R3 - 2.25);
   const diagArcX = bx + R3 / Math.SQRT2;
   const diagArcDY = R3 / Math.SQRT2;
-  const diagEdgeX = bx + by; // 9.075
+  const diagEdgeX = bx + by;
   const f = n => n.toFixed(4);
-  const sw = 0.04;
-  const lc = 'rgba(255,255,255,.75)';
-  const sep = 'rgba(255,255,255,.45)';
+  const lighten = (c, t) => `rgb(${c.slice(0,3).map(v => Math.round(v + (255 - v) * t)).join(',')})`;
+
+  // Líneas de cancha (sólidas). Se dibujan dos veces: una difusa (glow) y una nítida encima.
+  const courtLines = (stroke, w) => `
+    <g fill="none" stroke="${stroke}" stroke-width="${w}" stroke-linecap="round">
+      <rect x="0.03" y="0.03" width="13.94" height="14.94"/>
+      <rect x="0.03" y="${by-2.45}" width="5.77" height="4.9"/>
+      <path d="M 5.8 ${by-1.8} A 1.8 1.8 0 0 1 5.8 ${by+1.8}"/>
+      <path d="M 5.8 ${by+1.8} A 1.8 1.8 0 0 0 5.8 ${by-1.8}" stroke-dasharray="0.2 0.2"/>
+      <path d="M ${bx} ${by-1.25} A 1.25 1.25 0 0 1 ${bx} ${by+1.25}"/>
+      <line x1="0.03" y1="0.9" x2="${f(arcX)}" y2="0.9"/>
+      <line x1="0.03" y1="14.1" x2="${f(arcX)}" y2="14.1"/>
+      <path d="M ${f(arcX)} 0.9 A ${R3} ${R3} 0 0 1 ${f(arcX)} 14.1"/>
+    </g>`;
+  const sepLines = `
+    <g fill="none" stroke="rgba(255,255,255,.34)" stroke-width="0.032" stroke-dasharray="0.16 0.2" stroke-linecap="round">
+      <line x1="5.8" y1="${by-1.5}" x2="${f(arcMidX)}" y2="${by-1.5}"/>
+      <line x1="5.8" y1="${by+1.5}" x2="${f(arcMidX)}" y2="${by+1.5}"/>
+      <line x1="${f(diagArcX)}" y1="${f(by-diagArcDY)}" x2="${f(diagEdgeX)}" y2="0"/>
+      <line x1="${f(diagArcX)}" y1="${f(by+diagArcDY)}" x2="${f(diagEdgeX)}" y2="15"/>
+    </g>`;
 
   let defs = `<defs>
-    <filter id="lblShadow" x="-60%" y="-60%" width="220%" height="220%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="0.14" result="b"/><feOffset in="b" dx="0" dy="0.07" result="o"/><feFlood flood-color="rgba(0,0,0,.85)" flood-opacity="1" result="f"/><feComposite in="f" in2="o" operator="in" result="s"/><feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>`;
+    <filter id="${P}glow" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="0.07"/></filter>
+    <filter id="${P}hoopGlow" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="0.12"/></filter>
+    <filter id="${P}shadow" x="-40%" y="-50%" width="180%" height="220%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="0.16" result="b"/><feOffset in="b" dx="0" dy="0.08" result="o"/><feFlood flood-color="#000" flood-opacity=".7" result="f"/><feComposite in="f" in2="o" operator="in" result="s"/><feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <linearGradient id="${P}paint" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity=".13"/><stop offset="1" stop-color="#fff" stop-opacity=".03"/>
+    </linearGradient>
+    <linearGradient id="${P}pill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#171b3a" stop-opacity=".94"/><stop offset="1" stop-color="#080a1c" stop-opacity=".92"/>
+    </linearGradient>`;
+
+  // Etiquetas por zona: tamaño/opacidad según volumen de tiros
+  const maxAtt = Math.max(1, ...SZC_ZONES.map(z => (pStats[z] ? pStats[z].att : 0)));
   let labels = '';
   SZC_ZONES.forEach(zone => {
     const ps = pStats[zone];
     if (!ps || ps.att === 0) return;
     const ls = leagueStats ? leagueStats[zone] : null;
     const [cx, cy] = SZC_CENTERS[zone];
-    const pct = (ps.makes / ps.att * 100).toFixed(1) + '%';
-    const att = `${ps.makes}/${ps.att}`;
     const zc = szcZoneColor(ps, ls);
-    const bc = `rgb(${zc[0]},${zc[1]},${zc[2]})`;
-    defs += `<linearGradient id="lbg_${zone}" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="${bc}" stop-opacity="0.2"/>
-      <stop offset="100%" stop-color="${bc}" stop-opacity="0.03"/>
-    </linearGradient>`;
-    labels += `<g filter="url(#lblShadow)">
-      <rect x="${cx-0.75}" y="${cy-0.425}" width="1.5" height="0.85" rx="0.14" fill="rgba(6,8,22,.92)"/>
-      <rect x="${cx-0.75}" y="${cy-0.425}" width="1.5" height="0.85" rx="0.14" fill="url(#lbg_${zone})"/>
-      <rect x="${cx-0.75}" y="${cy-0.425}" width="1.5" height="0.85" rx="0.14" fill="none" stroke="${bc}" stroke-width="0.045"/>
-      <text x="${cx}" y="${cy-0.06}" text-anchor="middle" dominant-baseline="auto" font-family="Inter,sans-serif" font-size="0.43" font-weight="800" fill="#fff">${pct}</text>
-      <text x="${cx}" y="${cy+0.34}" text-anchor="middle" dominant-baseline="auto" font-family="Inter,sans-serif" font-size="0.28" font-weight="600" fill="rgba(200,212,228,.8)">${att}</text>
+    const bc = lighten(zc, 0.45);
+    const scale = 0.86 + 0.2 * Math.sqrt(ps.att / maxAtt);
+    const op = ps.att < 5 ? 0.72 : 1;
+    const pct = (ps.makes / ps.att * 100).toFixed(1) + '%';
+    labels += `<g transform="translate(${cx} ${cy}) scale(${scale.toFixed(3)})" opacity="${op}" filter="url(#${P}shadow)">
+      <rect x="-0.85" y="-0.5" width="1.7" height="1" rx="0.2" fill="url(#${P}pill)"/>
+      <rect x="-0.85" y="-0.5" width="1.7" height="1" rx="0.2" fill="none" stroke="${bc}" stroke-width="0.05" stroke-opacity=".9"/>
+      <rect x="-0.52" y="-0.5" width="1.04" height="0.07" rx="0.035" fill="${bc}"/>
+      <text x="0" y="0.07" text-anchor="middle" font-family="Manrope,sans-serif" font-size="0.46" font-weight="800" letter-spacing="-0.01" fill="#fff">${pct}</text>
+      <text x="0" y="0.37" text-anchor="middle" font-family="Manrope,sans-serif" font-size="0.28" font-weight="600" fill="rgba(210,220,235,.85)">${ps.makes}/${ps.att}</text>
     </g>`;
   });
-  defs += '</defs>';
+
+  defs += `<radialGradient id="${P}vig" cx="0.42" cy="0.5" r="0.75">
+      <stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/>
+    </radialGradient></defs>`;
 
   svg.innerHTML = `
     ${defs}
-    <rect x="0" y="0" width="14" height="15" fill="none" stroke="${lc}" stroke-width="${sw}"/>
-    <rect x="0" y="${by-2.45}" width="5.8" height="4.9" fill="none" stroke="${lc}" stroke-width="${sw}"/>
-    <path d="M 5.8 ${by-1.8} A 1.8 1.8 0 0 1 5.8 ${by+1.8}" fill="none" stroke="${lc}" stroke-width="${sw}"/>
-    <path d="M 5.8 ${by+1.8} A 1.8 1.8 0 0 0 5.8 ${by-1.8}" fill="none" stroke="${lc}" stroke-width="${sw}" stroke-dasharray="0.18 0.18"/>
-    <path d="M ${bx} ${by-1.25} A 1.25 1.25 0 0 1 ${bx} ${by+1.25}" fill="none" stroke="${lc}" stroke-width="${sw}"/>
-    <circle cx="${bx}" cy="${by}" r="0.23" fill="none" stroke="rgba(251,146,60,.95)" stroke-width="${sw*1.5}"/>
-    <line x1="0" y1="0.9" x2="${f(arcX)}" y2="0.9" stroke="${lc}" stroke-width="${sw}"/>
-    <line x1="0" y1="14.1" x2="${f(arcX)}" y2="14.1" stroke="${lc}" stroke-width="${sw}"/>
-    <path d="M ${f(arcX)} 0.9 A ${R3} ${R3} 0 0 1 ${f(arcX)} 14.1" fill="none" stroke="${lc}" stroke-width="${sw}"/>
-    <line x1="5.8" y1="${by-1.5}" x2="${f(arcMidX)}" y2="${by-1.5}" stroke="${sep}" stroke-width="${sw}" stroke-dasharray="0.2 0.17"/>
-    <line x1="5.8" y1="${by+1.5}" x2="${f(arcMidX)}" y2="${by+1.5}" stroke="${sep}" stroke-width="${sw}" stroke-dasharray="0.2 0.17"/>
-    <line x1="${f(diagArcX)}" y1="${f(by-diagArcDY)}" x2="${f(diagEdgeX)}" y2="0" stroke="${sep}" stroke-width="${sw}" stroke-dasharray="0.2 0.17"/>
-    <line x1="${f(diagArcX)}" y1="${f(by+diagArcDY)}" x2="${f(diagEdgeX)}" y2="15" stroke="${sep}" stroke-width="${sw}" stroke-dasharray="0.2 0.17"/>
-    ${labels}
+    ${mode === 'zones' ? `<rect x="0" y="${by-2.45}" width="5.8" height="4.9" fill="url(#${P}paint)"/>` : ''}
+    ${mode === 'zones'
+      ? courtLines('rgba(18,36,84,.78)', 0.045)
+      : `<g filter="url(#${P}glow)" opacity=".7">${courtLines('rgba(180,200,255,.9)', 0.12)}</g>${courtLines('rgba(255,255,255,.93)', 0.052)}`}
+    ${mode === 'zones' ? `<g opacity=".55" style="mix-blend-mode:multiply">${sepLines.replace(/rgba\(255,255,255,\.34\)/, 'rgba(18,36,84,.9)')}</g>` : `<g opacity=".5">${sepLines}</g>`}
+    <line x1="1.2" y1="${by-0.9}" x2="1.2" y2="${by+0.9}" stroke="${mode === 'zones' ? 'rgba(18,36,84,.85)' : '#fff'}" stroke-width="0.07" stroke-linecap="round"/>
+    <line x1="1.2" y1="${by}" x2="${bx-0.23}" y2="${by}" stroke="rgba(251,146,60,.9)" stroke-width="0.05"/>
+    <circle cx="${bx}" cy="${by}" r="0.23" fill="none" stroke="#fb923c" stroke-width="0.12" filter="url(#${P}hoopGlow)" opacity=".85"/>
+    <circle cx="${bx}" cy="${by}" r="0.23" fill="none" stroke="#fdba74" stroke-width="0.06"/>
+    ${mode === 'zones' ? '' : `<rect x="0" y="0" width="14" height="15" fill="url(#${P}vig)"/>`}
+    ${mode === 'zones' ? labels : ''}
   `;
 }
 
@@ -1762,6 +1789,14 @@ const SZC_ZONE_LABELS = {
   ABOVE_BREAK: 'Arco',
 };
 
+
+let szcViewMode = 'zones';
+function setShotView(mode) {
+  szcViewMode = mode;
+  document.querySelectorAll('.shot-view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === mode));
+  if (szcCurrentIdx >= 0) selectSzcPlayer(szcCurrentIdx);
+  if (tzcCurrentTeam) onTzcTeamChange();
+}
 
 function szcRenderZoneCards(statsAll, statsL10, statsL5, lStats) {
   const el = document.getElementById('szcZoneCards');
@@ -1816,8 +1851,9 @@ function renderZoneChart(canvas, playerShots) {
   }
 
   const pStats = szcComputeStats(playerShots);
-  szcDrawZoneColors(ctx, W, H, m, pStats, LEAGUE_ZONE_STATS);
-  szcUpdateSvg(pStats, LEAGUE_ZONE_STATS);
+  if (szcViewMode === 'heat') szcDrawHeatmap(ctx, W, H, m, playerShots);
+  else szcDrawZoneColors(ctx, W, H, m, pStats, LEAGUE_ZONE_STATS);
+  szcUpdateSvg(pStats, LEAGUE_ZONE_STATS, 'szcSvg', szcViewMode);
   const _lvShots = szcApplyLocVis(szcPlayerAllShots);
   const _lvGIds = szcLocVis === 'all' ? szcPlayerGameIds : null;
   const statsAll = szcComputeStats(szcFilterByPeriod(_lvShots, 'all', _lvGIds));
@@ -1994,8 +2030,10 @@ function renderTzcZoneChart(canvas, teamShots, svgId='tzcSvg', cardsId='tzcZoneC
 
   const isLiga = tzcCurrentTeam === '__LIGA__';
   const pStats = szcComputeStats(teamShots);
-  szcDrawZoneColors(ctx, W, H, m, pStats, isLiga ? null : LEAGUE_ZONE_STATS);
-  szcUpdateSvg(pStats, isLiga ? null : LEAGUE_ZONE_STATS, svgId);
+  const viewMode = svgId === 'tzcSvg' ? szcViewMode : tfViewMode;   // la ficha de equipo tiene su propio toggle (arranca en zonas)
+  if (viewMode === 'heat') szcDrawHeatmap(ctx, W, H, m, teamShots);
+  else szcDrawZoneColors(ctx, W, H, m, pStats, isLiga ? null : LEAGUE_ZONE_STATS);
+  szcUpdateSvg(pStats, isLiga ? null : LEAGUE_ZONE_STATS, svgId, viewMode);
   const _tlvShots = tzcApplyLocVis(tzcTeamAllShots);
   const _tlvGIds = tzcLocVis === 'all' ? tzcTeamGameIds : null;
   const statsAll = szcComputeStats(szcFilterByPeriod(_tlvShots, 'all', _tlvGIds));
@@ -2291,6 +2329,14 @@ function renderTeamFichaGames(teamName, team) {
     tr.addEventListener('click', () => showGameDetail(g, teamName));
     tbody.appendChild(tr);
   });
+}
+
+// Vista del cuadro de tiro en la Ficha de equipo: arranca por zonas; independiente del toggle de t-tiro/j-tiro
+let tfViewMode = 'zones';
+function setTfView(mode) {
+  tfViewMode = mode;
+  document.querySelectorAll('.tf-view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === mode));
+  if (_tfCurrentTeam) renderTeamFichaShotChart(_tfCurrentTeam);
 }
 
 function renderTeamFichaShotChart(teamName) {

@@ -1370,6 +1370,10 @@
         <button id="szcLocVisLocal" onclick="setSzcLocVis('local')">Local</button>
         <button id="szcLocVisVisit" onclick="setSzcLocVis('visit')">Visitante</button>
       </div>
+      <div class="tbl-toggle">
+        <button class="active shot-view-btn" data-view="zones" onclick="setShotView('zones')">Zonas</button>
+        <button class="shot-view-btn" data-view="heat" onclick="setShotView('heat')">Calor</button>
+      </div>
     </div>
     <div id="szcEmpty" class="szc-empty">Buscá un jugador para ver su mapa de tiro por zonas</div>
     <div id="szcLoading" class="szc-loading" style="display:none">Cargando datos de tiro...</div>
@@ -1499,6 +1503,10 @@
         <button id="tzcLocVisLocal" onclick="setTzcLocVis('local')">Local</button>
         <button id="tzcLocVisVisit" onclick="setTzcLocVis('visit')">Visitante</button>
       </div>
+      <div class="tbl-toggle">
+        <button class="active shot-view-btn" data-view="zones" onclick="setShotView('zones')">Zonas</button>
+        <button class="shot-view-btn" data-view="heat" onclick="setShotView('heat')">Calor</button>
+      </div>
     </div>
     <div id="tzcEmpty" class="szc-empty">Seleccioná un equipo para ver su mapa de tiro por zonas</div>
     <div id="tzcLoading" class="szc-loading" style="display:none">Cargando datos de tiro...</div>
@@ -1598,6 +1606,10 @@
           <a class="tf-shot-link" href="#" onclick="event.preventDefault();tfOpenFullShotChart();">Ver completo →</a>
         </div>
         <div class="tf-card tf-shot-card">
+          <div class="tbl-toggle" style="margin:0 0 12px;">
+            <button class="active tf-view-btn" data-view="zones" onclick="setTfView('zones')">Zonas</button>
+            <button class="tf-view-btn" data-view="heat" onclick="setTfView('heat')">Calor</button>
+          </div>
           <div class="szc-body">
             <div class="szc-canvas-wrap">
               <canvas id="tfShotCanvas"></canvas>
