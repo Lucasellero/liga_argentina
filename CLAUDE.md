@@ -147,6 +147,7 @@ liga_argentina/
     pbp_scraper_femenina.py      # Scraper jugada a jugada (Liga Femenina)
     pbp_scraper_proximo.py       # Scraper jugada a jugada (Liga de Desarrollo)
     players_dob_scraper.py       # Scraper de fechas de nacimiento
+    player_photos_scraper.py     # Scraper de fotos de jugadores (lee players_dob.csv)
     mercado_scraper.py           # Scraper del Mercado de Pases en vivo (Liga Argentina, fuente pickandroll.com.ar)
     mercado_scraper_nacional.py  # Scraper del Mercado de Pases en vivo (Liga Nacional, fuente pickandroll.com.ar)
     requirements.txt             # cloudscraper, pandas, bs4, lxml, playwright
@@ -299,6 +300,13 @@ Columnas: `liga, nombre_completo, nombre_abreviado, fecha_nacimiento, url_perfil
 - **Homónimos** (ej. `GOMEZ, M.` en UNION (SF) y en CENTRAL ENTRERRIANO, ambos en Liga Argentina 2026/27): Liga Argentina y Liga Nacional arman `DOB_MAP` con `addDob()` y buscan con `lookupDob(DOB_MAP, nombre, equipo)` (`docs/shared/common.js`): clave `nombre||equipo`, con fallback a solo nombre, que queda en `null` si el nombre tiene fechas distintas en la liga (mejor `—` que la edad de otro jugador). Femenina, Desarrollo y Formativas siguen indexando solo por nombre.
 - `calcAge(dob)` calcula la edad exacta en años enteros (considera si el cumpleaños ya ocurrió en el año actual).
 - Si el archivo no existe o falla el fetch, la app continúa sin errores y los jugadores sin DOB muestran `—`.
+
+## CSV: players_photos.csv + docs/shared/fotos/
+Generado por `scraper/player_photos_scraper.py` (noviembre 2026). Columnas: `liga, nombre_abreviado, equipo, jugador_id, foto`
+- Fuente: endpoint `https://www.laliganacional.com.ar/fotos/{jugadorId}` (el mismo del `<img>` del perfil). El `jugadorId` sale de `url_perfil` de `players_dob.csv` — no visita perfiles, así que **correr `players_dob_scraper.py` antes** si cambiaron los rosters.
+- El endpoint devuelve JPEG 162x200 (~5KB) si hay foto, o un SVG de silueta genérica si no hay: en ese caso no se guarda archivo y `foto` queda vacía.
+- Fotos en `docs/shared/fotos/{jugadorId}.jpg`; `foto` es la ruta relativa a `docs/shared/`. Matching igual que DOB: `nombre_abreviado` + `equipo`.
+- Incremental (no re-baja fotos existentes; `--force` para refrescar). `--ligas` conserva las filas de las demás ligas. No está en el cron ni conectado al frontend todavía.
 
 ## CSV: liga_argentina_shots.csv
 Columnas: `IdPartido, Fecha, Equipo_local, Equipo_visitante, Local, Equipo, Dorsal, Periodo, Tipo, Resultado, Zona, Left_pct, Top_pct`
