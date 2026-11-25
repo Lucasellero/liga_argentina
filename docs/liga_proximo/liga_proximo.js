@@ -1925,9 +1925,9 @@ function renderTeamFichaShotChart(teamName) {
 
 // Índice de carga/cansancio (primera versión, heurística con pesos ajustables):
 // combina minutos recientes del jugador + km de viaje reciente del equipo + back-to-back.
-const ENERGY_N = 5;
-const ENERGY_MIN_REF = 32;  // minutos/partido de referencia para "carga alta"
-const ENERGY_KM_REF = 1200; // km del equipo en los últ. 5 partidos de referencia para "carga alta"
+const ENERGY_WINDOW_DAYS = 14; // ventana temporal (días calendario) previa al próximo partido
+const ENERGY_MIN_REF = 150;    // minutos jugados en la ventana que equivalen a "carga alta" (~4-5 partidos de 32-34')
+const ENERGY_KM_REF = 1200;    // km del equipo en la ventana de referencia para "carga alta"
 const ENERGY_LABEL = { alta: 'Alta', media: 'Media', baja: 'Baja' };
 
 // Color de la batería: interpola rojo (vacía/cansado) → ámbar → verde (llena/descansado)
@@ -1948,7 +1948,7 @@ function energyColor(pct) {
 function energyBatteryHtml(e) {
   const pct = Math.max(0, Math.min(100, 100 - e.score));
   const color = energyColor(pct);
-  const tip = `Frescura: ${pct}% (fatiga ${ENERGY_LABEL[e.level]}) · Min/P últ.5: ${e.minutosProm.toFixed(1)} · KM equipo últ.5: ${e.kmRecientes != null ? e.kmRecientes.toLocaleString('es-AR') : '—'} · Back-to-back: ${e.b2b ? 'Sí' : 'No'}`;
+  const tip = `Frescura: ${pct}% (fatiga ${ENERGY_LABEL[e.level]}) · Min últ.${ENERGY_WINDOW_DAYS}d: ${Math.round(e.minVentana)} en ${e.juegosVentana} PJ (${e.ratio.toFixed(2)}x su carga habitual) · Descanso previo al próximo partido: ${e.restDays} ${e.restDays === 1 ? 'día' : 'días'} · KM equipo: ${e.kmRecientes != null ? e.kmRecientes.toLocaleString('es-AR') : '—'}`;
   return `<span class="energy-battery" title="${tip}">
     <span class="energy-battery-body"><span class="energy-battery-fill" style="width:${pct}%;background:${color}"></span></span>
     <span class="energy-battery-nub"></span>
@@ -1971,31 +1971,66 @@ function energyFullBatteryHtml() {
 function computeEnergyIndex(player, team) {
   const games = (player && player._games) || [];
   if (games.length < 2) return null;
-  const recent = games.slice(-ENERGY_N);
-  const minutosProm = recent.reduce((s, g) => s + (parseFloat(g['Segundos jugados']) || 0), 0) / recent.length / 60;
-  const minutosScore = Math.min(minutosProm / ENERGY_MIN_REF, 1) * 100;
+  const DAY = 86400000;
+  const log = (team && team._gamelog) || [];
 
-  let kmRecientes = null, b2b = false;
+  // Fecha de referencia = próximo partido del equipo (el descanso que importa es el previo a ese juego).
+  // Sin próximo partido cargado (temporada archivada / fixture sin publicar): último partido del equipo + 2 días.
+  let refT = null;
+  if (team && typeof GAMES_ALL !== 'undefined') {
+    const ups = GAMES_ALL.filter(g => g.upcoming && (g.local === team.Equipo || g.visit === team.Equipo))
+      .map(g => _partidoFechaToDate(g.fecha).getTime()).sort((a, b) => a - b);
+    if (ups.length) refT = ups[0];
+  }
+  if (refT == null) {
+    const lastTeamT = log.length ? Math.max(...log.map(g => _partidoFechaToDate(g.fecha).getTime())) : null;
+    const lastPlayerT = Math.max(...games.map(g => _partidoFechaToDate(g['Fecha']).getTime()));
+    refT = (lastTeamT != null ? Math.max(lastTeamT, lastPlayerT) : lastPlayerT) + 2 * DAY;
+  }
+
+  const dated = games
+    .map(g => ({ t: _partidoFechaToDate(g['Fecha']).getTime(), min: (parseFloat(g['Segundos jugados']) || 0) / 60 }))
+    .filter(x => x.t < refT);
+  if (dated.length < 2) return null;
+
+  // 1) Minutos: ventana por tiempo (no por cantidad de partidos) y relativos a la carga habitual del propio jugador.
+  const winStart = refT - ENERGY_WINDOW_DAYS * DAY;
+  const recent = dated.filter(x => x.t >= winStart);
+  const minVentana = recent.reduce((s, x) => s + x.min, 0);
+  const totalMin = dated.reduce((s, x) => s + x.min, 0);
+  const firstT = Math.min(...dated.map(x => x.t));
+  const spanDays = Math.max((refT - firstT) / DAY, ENERGY_WINDOW_DAYS);
+  const cronico = totalMin / spanDays * ENERGY_WINDOW_DAYS;          // carga típica por ventana de 14 días
+  const ratio = cronico > 0 ? minVentana / cronico : 1;              // aguda / crónica
+  const absScore = Math.min(minVentana / ENERGY_MIN_REF, 1) * 100;   // cuánto jugó en términos absolutos
+  const acwrScore = Math.max(0, Math.min((ratio - 0.8) / 0.7, 1)) * 100; // cuánto más de lo habitual (0.8 → 0, 1.5+ → 100)
+  const minutosScore = 0.5 * absScore + 0.5 * acwrScore;
+
+  // 2) Descanso: días entre SU último partido y el próximo (si no jugó el último del equipo, llega más fresco).
+  const lastT = Math.max(...dated.map(x => x.t));
+  const restDays = Math.max(0, Math.round((refT - lastT) / DAY));
+  const restScore = Math.max(0, Math.min((5 - restDays) / 4, 1)) * 100; // 1 día → 100, 3 → 50, 5+ → 0
+  const b2b = restDays <= 1;
+
+  // 3) Viaje del equipo en la misma ventana temporal.
+  let kmRecientes = null;
   if (team) {
-    kmRecientes = computeTeamTravelKmWindow(team, ENERGY_N);
-    const log = team._gamelog || [];
-    if (log.length >= 2) {
-      const d1 = _partidoFechaToDate(log[log.length - 1].fecha);
-      const d2 = _partidoFechaToDate(log[log.length - 2].fecha);
-      b2b = Math.abs(d1 - d2) / 86400000 <= 1;
-    }
+    const nWin = log.filter(g => { const t = _partidoFechaToDate(g.fecha).getTime(); return t >= winStart && t < refT; }).length;
+    kmRecientes = nWin > 0
+      ? computeTeamTravelKmWindow(team, nWin)
+      : (computeTeamTravelKmWindow(team, 1) != null ? 0 : null);
   }
 
   let score;
   if (kmRecientes != null) {
     const kmScore = Math.min(kmRecientes / ENERGY_KM_REF, 1) * 100;
-    score = 0.55 * minutosScore + 0.30 * kmScore + 0.15 * (b2b ? 100 : 0);
+    score = 0.50 * minutosScore + 0.20 * kmScore + 0.30 * restScore;
   } else {
-    score = 0.7 * minutosScore + 0.3 * (b2b ? 100 : 0);
+    score = 0.70 * minutosScore + 0.30 * restScore;
   }
   score = Math.round(score);
   const level = score >= 70 ? 'alta' : score >= 40 ? 'media' : 'baja';
-  return { score, level, minutosProm, kmRecientes, b2b };
+  return { score, level, minVentana, juegosVentana: recent.length, ratio, kmRecientes, b2b, restDays };
 }
 
 // ============================================================
