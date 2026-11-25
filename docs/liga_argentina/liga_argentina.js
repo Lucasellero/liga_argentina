@@ -1566,7 +1566,8 @@ async function initApp() {
   try {
     const [resp, dobResp] = await Promise.all([
       fetch(CSV_PATH + '?v=' + new Date().toISOString().slice(0, 10)),
-      fetch(DOB_PATH + '?v=' + new Date().toISOString().slice(0, 10)).catch(()=>null)
+      fetch(DOB_PATH + '?v=' + new Date().toISOString().slice(0, 10)).catch(()=>null),
+      loadPhotos('Liga Argentina')
     ]);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const text = await resp.text();
@@ -2191,6 +2192,7 @@ function selectSzcPlayer(idx) {
   document.getElementById('szcMain').style.display = 'none';
   document.getElementById('szcLoading').style.display = 'block';
   document.getElementById('szcPlayerName').textContent = player['Nombre completo'];
+  { const ph = document.getElementById('szcPlayerPhoto'); if (ph) ph.innerHTML = playerAvatarHtml(player['Nombre completo'], player.Equipo, 52); }
   document.getElementById('szcPlayerTeam').textContent = player.Equipo + (player.DORSAL ? ` · #${Math.round(parseFloat(player.DORSAL))}` : '');
 
   const doRender = () => {
@@ -2517,7 +2519,7 @@ function renderTeamFichaRoster(teamName, team) {
     const ptsHtml = `<div class="tf-pts-cell"><span class="tf-pts-val">${ppg.toFixed(1)}</span><span class="tf-pts-bar-wrap"><span class="tf-pts-bar" style="width:${ptsBarPct}%"></span></span></div>`;
     return `<tr class="${i === 0 && ppg > 0 ? 'tf-top-scorer' : ''}">
       <td><span class="tf-dorsal-badge">${dorsal}</span></td>
-      <td style="text-align:left;color:var(--text-bright)">${p['Nombre completo']}</td>
+      <td style="text-align:left;color:var(--text-bright)"><span class="tf-name-cell">${playerAvatarHtml(p['Nombre completo'], p.Equipo, 30)}${p['Nombre completo']}</span></td>
       <td>${edad}</td>
       <td>${p.PJ || 0}</td>
       <td>${ptsHtml}</td>
@@ -3476,7 +3478,9 @@ function radarRender() {
   content.style.display = '';
 
   // SVG
-  svgWrap.innerHTML = radarBuildSvg(entries);
+  const facesHtml = '<div class="radar-faces">' + entries.map(e =>
+    `<div class="radar-face" style="color:${e.color.stroke}">${playerAvatarHtml(e.p['Nombre completo'], e.p.Equipo, 44)}<span>${e.p['Nombre completo']}</span></div>`).join('') + '</div>';
+  svgWrap.innerHTML = facesHtml + radarBuildSvg(entries);
 
   // FIFA-style percentile cards
   let cardsHtml = '';
@@ -3502,7 +3506,7 @@ function radarRender() {
       const pct = Math.round(sim * 100);
       simHtml += `<div class="radar-sim-item">
         <div class="radar-sim-header">
-          <span class="radar-sim-name">${p['Nombre completo']}</span>
+          <span class="radar-sim-name">${playerAvatarHtml(p['Nombre completo'], p.Equipo, 26)}${p['Nombre completo']}</span>
           <span class="radar-sim-score">${pct}%</span>
         </div>
         <div class="radar-sim-meta">${p.Equipo}</div>

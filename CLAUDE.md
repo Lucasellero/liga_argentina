@@ -707,6 +707,8 @@ Si no se puede inferir ningún equipo (partido sin eventos LOCAL con jugador), e
 ```
 
 **Sección "Home" / Posiciones (`posiciones`):**
+
+**⚠️ Cambios de noviembre 2026 en el Home (Liga Argentina y Liga Nacional):** se **sacó el tab "Post Temporada"** (y la barra de tabs completa: con un solo tab no tenía sentido) — el Home muestra directo las tablas de posiciones. En Liga Argentina además se **sacaron las tarjetas de Home Insights** (`#homeInsights`: Próximo partido / Goleador últ. 5 / Mejor Net Rating), por pedido del usuario ("muy feas"). Solo se borró el HTML: `switchPosTab`, `renderPostSeason` y `buildHomeInsights` siguen en los `.js` como código muerto (`buildHomeInsights` retorna solo si no existe el contenedor; las otras no se llaman desde ningún lado), y el CSS `.home-insights`/`.insight-card*` sigue en `common.css`. Lo que sigue describe el diseño anterior: tomarlo como referencia histórica del Home, no como estado actual de esos dos elementos.
 La sección Home tiene dos tabs internos: **Temporada Regular** y **Post Temporada**.
 
 - `PLAYOFF_DATE = new Date(2026, 3, 1)` — constante que delimita el fin de la temporada regular (1/04/2026). Definida antes de `CONF_NORTE` en el JS.
@@ -762,6 +764,13 @@ La sección Home tiene dos tabs internos: **Temporada Regular** y **Post Tempora
 - Paleta: local = `#a78bfa` (purple-l), visitante = `#5eead4` (teal-l)
 - Tiros convertidos: círculo relleno. Fallados: círculo vacío con X
 - IDs de partido son strings Base64 (`IdPartido`)
+
+## Fotos de jugadores (noviembre 2026) — Liga Argentina y Liga Nacional
+
+- **Fuente**: `scraper/player_photos_scraper.py` baja `https://www.laliganacional.com.ar/fotos/{jugadorId}` (el `jugadorId` sale de `url_perfil` de `players_dob.csv`) a `docs/shared/fotos/{id}.jpg` y arma `docs/shared/players_photos.csv` (`liga, nombre_abreviado, equipo, jugador_id, foto`). Si el sitio devuelve SVG (silueta genérica) no se guarda y `foto` queda vacía. **El workflow diario NO lo corre**: son las fotos del media day de la temporada y no van a cambiar en toda la season. Cobertura al 24/11/2026: Argentina 482/485, Nacional 312/317 (Femenina y Desarrollo tienen el CSV pero la UI no las usa todavía).
+- **Frontend** (helpers en `docs/shared/common.js`, estilos en `common.css` bloque "Fotos de jugadores"): `loadPhotos(ligaName)` se pide **en paralelo** con el stats CSV y el de DOB dentro del `Promise.all` de `initApp()` (no con `await` aparte, que serializaba la carga). `PHOTO_MAP` se indexa como `DOB_MAP` (`nombre||equipo` + fallback por nombre, `null` si hay homónimos con fotos distintas). `playerAvatarHtml(nombre, equipo, size)` devuelve un `<img class="p-avatar" loading="lazy">`; **sin foto o si la imagen falla (`onerror`) se muestra la silueta** (`PHOTO_SILHOUETTE`, SVG inline) — decisión explícita del usuario.
+- **Dónde se ven**: Jugadores > Tabla (básica y avanzada, `.p-name-cell`), Ficha de equipo > Plantel (`.tf-name-cell`), header de Tiro por jugador (`#szcPlayerPhoto`, 52px; hubo que envolver el header en `.szc-player-id` en el HTML de ambas ligas), y Radar (fila `.radar-faces` arriba del gráfico + avatar en "jugadores similares").
+- **Pendiente**: Liga Femenina y Desarrollo (helpers ya compartidos, falta enganchar `loadPhotos` y los puntos de render), y la Ficha de Desarrollo.
 
 ## Tooltips en encabezados de tabla
 
@@ -1308,6 +1317,9 @@ Y en `vercel.json`:
 La app sigue invalidando el query param una vez por día (mismo comportamiento percibido por el usuario), pero ahora dentro de ese día el navegador y el edge de Vercel pueden servir el CSV desde caché en vez de re-transferirlo entero en cada tab switch.
 
 **Regla al agregar un nuevo fetch de CSV**: nunca usar `cache:'no-store'` ni `Date.now()` como cache-buster — usar `new Date().toISOString().slice(0, 10)` (bust diario) y dejar que el header de `vercel.json` maneje el resto.
+
+**Optimización de consumo de plan (noviembre 2026)** — objetivo explícito del usuario: no pagar más. `vercel.json` ahora tiene: `.js`/`.css` con `max-age=300, s-maxage=86400, stale-while-revalidate=86400` (antes `max-age=0, must-revalidate` → una revalidación por archivo por visita; Vercel purga el edge en cada deploy, el peor caso de staleness es ~5 min); imágenes (`jpg|jpeg|png|svg|webp|ico`, o sea logos) con `max-age=604800, s-maxage=2592000`; y **`/shared/fotos/*` con `max-age=31536000, immutable`** porque las fotos no cambian en la temporada. **Consecuencia de `immutable`**: si alguna foto *existente* se reemplaza, los navegadores que ya la tienen no la ven actualizada — hay que cambiarle el nombre al archivo o agregar `?v=` en la URL (un archivo nuevo, ej. un fichaje, no tiene problema). El `.html` sigue con `must-revalidate`. **Pendientes que no se pueden resolver desde el código**: el scraper pushea 2 veces por día y cada push dispara un deploy (el 24/11 hubo 8 commits → cuota de builds de Vercel); bajar a una corrida diaria sería el mayor ahorro restante, decisión de producto. Y subir los CSV de PBP al bucket de Supabase con `cacheControl: '86400'` (desde su dashboard). Tailwind por CDN es de un tercero (no consume el plan, solo velocidad de carga).
+
 
 ## Bugs en el shots CSV — documentados (junio 2026)
 

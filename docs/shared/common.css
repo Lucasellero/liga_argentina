@@ -1513,3 +1513,15 @@ input[type=date]::-webkit-calendar-picker-indicator:hover{opacity:1;}
   .table-card th:nth-child(2){background:var(--surface2);}
   .table-card td:nth-child(2){background:var(--bg);box-shadow:8px 0 10px -8px rgba(0,0,0,.8);}
 }
+
+/* ── Fotos de jugadores ── */
+.p-avatar{border-radius:50%;object-fit:cover;object-position:center top;background:var(--surface2);flex:none;vertical-align:middle;border:1px solid var(--border2);}
+.p-avatar-empty{opacity:.85;}
+.p-name-cell{display:inline-flex;align-items:center;gap:8px;}
+.szc-player-id{display:flex;align-items:center;gap:12px;}
+.radar-faces{display:flex;justify-content:center;gap:18px;margin-bottom:6px;flex-wrap:wrap;}
+.radar-face{display:flex;align-items:center;gap:8px;font-size:.74rem;font-weight:700;color:var(--text-bright);}
+.radar-face .p-avatar{border-width:2px;}
+.radar-sim-header .p-avatar{margin-right:8px;}
+.radar-sim-header{align-items:center;}
+.tf-name-cell{display:inline-flex;align-items:center;gap:8px;}

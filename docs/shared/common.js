@@ -29,6 +29,38 @@ function lookupDob(map, name, team) {
   return map[name + '||' + team] || map[name];
 }
 
+
+// ── Fotos de jugadores (docs/shared/players_photos.csv) ───────────────────────
+// Indexado como DOB_MAP: "nombre||equipo" y fallback por nombre solo (null si hay homónimos
+// con fotos distintas). Sin foto en el sitio → silueta genérica.
+let PHOTO_MAP = {};
+const PHOTO_SILHOUETTE = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="#232846"/>' +
+  '<circle cx="20" cy="15" r="7" fill="#5b6290"/><path d="M5 40c0-9 6.5-14 15-14s15 5 15 14z" fill="#5b6290"/></svg>');
+function addPhoto(map, r) {
+  const name = r.nombre_abreviado, foto = r.foto;
+  if (!name || !foto) return;
+  if (r.equipo) map[name + '||' + r.equipo] = foto;
+  if (!(name in map)) map[name] = foto;
+  else if (map[name] !== foto) map[name] = null;
+}
+async function loadPhotos(ligaName) {
+  try {
+    const resp = await fetch('../shared/players_photos.csv?v=' + new Date().toISOString().slice(0, 10));
+    if (!resp.ok) return;
+    parseCSV(await resp.text()).forEach(r => { if (r.liga === ligaName) addPhoto(PHOTO_MAP, r); });
+  } catch (e) { /* sin fotos: todo queda con silueta */ }
+}
+function lookupPhoto(name, team) {
+  const f = PHOTO_MAP[name + '||' + team] || PHOTO_MAP[name];
+  return f ? '../shared/' + f : null;
+}
+function playerAvatarHtml(name, team, size) {
+  size = size || 28;
+  const src = lookupPhoto(name, team);
+  return `<img class="p-avatar${src ? '' : ' p-avatar-empty'}" src="${src || PHOTO_SILHOUETTE}" width="${size}" height="${size}" loading="lazy" alt="" style="width:${size}px;height:${size}px" onerror="this.onerror=null;this.src=PHOTO_SILHOUETTE;this.classList.add('p-avatar-empty')">`;
+}
+
 function parseCSVLine(line) {
   const result = []; let cur = '', inQ = false;
   for (let i = 0; i < line.length; i++) {
@@ -202,7 +234,7 @@ function renderJTable() {
     if(jSort==='PPG'||jSort==='VPG'){if(i===0)tr.className='top1';else if(i===1)tr.className='top2';else if(i===2)tr.className='top3';}
     const vc=d.VPG>=0?'val-pos':'val-neg';
     const tcc=d['TC%'];
-    tr.innerHTML=`<td class="rank-cell">${i+1}</td><td>${p.name}</td><td style="background:var(--bg)"><span style="display:flex;align-items:center;gap:5px">${teamLogoHtml(p.Equipo)}${p.Equipo}</span></td>
+    tr.innerHTML=`<td class="rank-cell">${i+1}</td><td><span class="p-name-cell">${playerAvatarHtml(p.name,p.Equipo,26)}${p.name}</span></td><td style="background:var(--bg)"><span style="display:flex;align-items:center;gap:5px">${teamLogoHtml(p.Equipo)}${p.Equipo}</span></td>
       <td style="color:var(--muted)">${p.Edad != null ? p.Edad : '—'}</td>
       <td>${d.PJ}</td>
       <td style="color:var(--muted)">${f1(d.MPG)}</td>
@@ -259,7 +291,7 @@ function renderJAdvTable() {
     const fVal=v=>v==null||isNaN(v)?'—':v.toFixed(2);
     const efg=d['EFG%'], ts=d['TS%'], toP=d['TO%'];
     tr.innerHTML=`<td class="rank-cell">${i+1}</td>
-      <td>${p.name}</td><td style="background:var(--bg)"><span style="display:flex;align-items:center;gap:5px">${teamLogoHtml(p.Equipo)}${p.Equipo}</span></td>
+      <td><span class="p-name-cell">${playerAvatarHtml(p.name,p.Equipo,26)}${p.name}</span></td><td style="background:var(--bg)"><span style="display:flex;align-items:center;gap:5px">${teamLogoHtml(p.Equipo)}${p.Equipo}</span></td>
       <td style="color:var(--muted)">${p.Edad != null ? p.Edad : '—'}</td>
       <td>${d.PJ}</td>
       <td style="color:var(--muted)">${f1(d.MPG)}</td>
