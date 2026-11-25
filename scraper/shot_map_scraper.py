@@ -80,6 +80,37 @@ def get_html(session, url, referer=None):
 # ---------------------------------------------------------------------------
 # Scrape one game
 # ---------------------------------------------------------------------------
+# Correcciones fijas de coordenadas por partido (clave estable fecha|local|visitante; el IdPartido es dinámico).
+# El sitio entrega algunos partidos con el sistema de coordenadas corrido; no hay transformación exacta
+# en la fuente, así que se aplica una estimación (traslación, opcionalmente espejado previo) sobre los
+# valores crudos Left_pct/Top_pct. Cada fix: equipo, períodos, dx, dy, mirror, y `raw_left_gt`: guarda de
+# idempotencia (solo se toca una fila si su Left_pct crudo es > ese valor, o sea todavía está corrida).
+# Se aplica SOLO a filas recién scrapeadas (nunca al CSV cacheado).
+COORD_FIXES: dict[str, list[dict]] = {
+    # RIVER 1.er tiempo: Left 107-135 (fuera de cancha). Estimado con la `Zona` del sitio como ancla
+    # (centroides de la liga + RIVER 3.er/4.º cuarto del mismo partido): Left -46.5, Top +13.7.
+    "17/10/2026|UNIÓN (MDP)|RIVER": [
+        {"equipo": "RIVER", "periodos": {1, 2}, "dx": -46.5, "dy": 13.7, "mirror": False, "raw_left_gt": 100.0},
+    ],
+}
+
+
+def apply_coord_fixes(rows: list[dict], key: str) -> int:
+    """Aplica COORD_FIXES a filas recién scrapeadas del partido `key`. Devuelve filas corregidas."""
+    n = 0
+    for fx in COORD_FIXES.get(key, []):
+        for r in rows:
+            if r["Equipo"] != fx["equipo"] or int(r["Periodo"]) not in fx["periodos"]:
+                continue
+            if not r["Left_pct"] > fx["raw_left_gt"]:
+                continue
+            left = 100 - r["Left_pct"] if fx["mirror"] else r["Left_pct"]
+            r["Left_pct"] = round(left + fx["dx"], 2)
+            r["Top_pct"] = round(r["Top_pct"] + fx["dy"], 2)
+            n += 1
+    return n
+
+
 def scrape_game(session, game_id: str, local: str, visitante: str) -> list[dict]:
     url = f"{BASE_URL}{LEAGUE}/partido/mapa-tiro/{game_id}"
     html = get_html(session, url)
@@ -269,10 +300,13 @@ def main():
         rows = scrape_game(session, g["game_id"], g["local"], g["visitante"])
         for r in rows:
             r["Fecha"] = g["fecha"]
+        n_fix = apply_coord_fixes(rows, k)
+        if n_fix:
+            log.info(f"  -> {n_fix} tiros con coordenadas corregidas por COORD_FIXES")
         n_new = sum(1 for r in rows if r.get("Tipo") in ("TIRO2", "TIRO3"))
         n_oor = count_out_of_range(rows)
         if n_oor:
-            log.warning(f"  -> {n_oor} tiros con coordenadas fuera de 0-100% (la fuente trae mal las coordenadas de este partido; no se corrigen)")
+            log.warning(f"  -> {n_oor} tiros con coordenadas fuera de 0-100% (la fuente trae mal las coordenadas de este partido; solo se corrigen los de COORD_FIXES)")
         if k in incomplete_keys and n_new < old_shot_counts.get(k, 0):
             # La fuente trae menos tiros que lo cacheado: se conserva lo viejo (sin duplicar).
             # Seguirá apareciendo como incompleto en cada corrida (sin estado extra).
