@@ -344,11 +344,11 @@ const f1=v=>v==null||isNaN(v)?'—':v.toFixed(1);
 // NAV
 // ============================================================
 const _SUB_GROUP = {
-  't-tabla':'equipos','t-tcmp':'equipos','t-chart':'equipos','quintetos':'equipos','trios':'equipos','duplas':'equipos','t-tiro':'equipos','t-conexiones':'equipos',
+  't-tabla':'equipos','t-tcmp':'equipos','t-chart':'equipos','quintetos':'equipos','trios':'equipos','duplas':'equipos','t-tiro':'equipos','t-conexiones':'equipos','t-ficha':'equipos',
   'j-tabla':'jugadores','j-tiro':'jugadores','j-chart':'jugadores','j-conexiones':'jugadores','j-radar':'jugadores'
 };
 const _SUB_IDX = {
-  't-tabla':0,'t-tcmp':1,'t-chart':2,'quintetos':3,'trios':4,'duplas':5,'t-tiro':6,'t-conexiones':7,
+  't-tabla':0,'t-tcmp':1,'t-chart':2,'quintetos':3,'trios':4,'duplas':5,'t-tiro':6,'t-conexiones':7,'t-ficha':8,
   'j-tabla':0,'j-tiro':1,'j-chart':2,'j-conexiones':3,'j-radar':4
 };
 
@@ -405,6 +405,12 @@ function switchSection(id) {
   if(id==='trios') { trioInit(); }
   if(id==='duplas') { dupInit(); }
   if(id==='t-tiro') { tzcInit(); }
+  if(id==='t-ficha') {
+    tfInit();
+    const sel = document.getElementById('tfTeam');
+    const target = _tfCurrentTeam || (sel && sel.options[1] && sel.options[1].value);
+    if (target) renderTeamFicha(target);
+  }
   if(id==='t-conexiones') { tCnxInit(); }
   if(id==='t-chart') setTimeout(drawTChart,30);
   if(id==='j-tabla') setTimeout(()=>remeasureScroll('jTableWrap'), 50);
@@ -1932,8 +1938,8 @@ function selectSzcPlayer(idx) {
 // TIRO POR ZONAS — EQUIPOS
 // ============================================================
 
-function tzcRenderZoneCards(statsAll, statsL10, statsL5, lStats) {
-  const el = document.getElementById('tzcZoneCards');
+function tzcRenderZoneCards(statsAll, statsL10, statsL5, lStats, cardsId='tzcZoneCards') {
+  const el = document.getElementById(cardsId);
   if (!el) return;
   const aps = tzcPeriod === 'all' ? statsAll : tzcPeriod === 'last10' ? statsL10 : statsL5;
   el.innerHTML = SZC_ZONES.map(zone => {
@@ -1969,11 +1975,11 @@ function tzcRenderZoneCards(statsAll, statsL10, statsL5, lStats) {
   }).join('');
 }
 
-function renderTzcZoneChart(canvas, teamShots) {
+function renderTzcZoneChart(canvas, teamShots, svgId='tzcSvg', cardsId='tzcZoneCards') {
   const W = canvas.offsetWidth || 400;
   const H = Math.round(W * 15 / 14);
   canvas.width = W; canvas.height = H;
-  const svg = document.getElementById('tzcSvg');
+  const svg = document.getElementById(svgId);
   if (svg) svg.style.height = H + 'px';
   const ctx = canvas.getContext('2d');
   const m = W / 14;
@@ -1987,13 +1993,13 @@ function renderTzcZoneChart(canvas, teamShots) {
   const isLiga = tzcCurrentTeam === '__LIGA__';
   const pStats = szcComputeStats(teamShots);
   szcDrawZoneColors(ctx, W, H, m, pStats, isLiga ? null : LEAGUE_ZONE_STATS);
-  szcUpdateSvg(pStats, isLiga ? null : LEAGUE_ZONE_STATS, 'tzcSvg');
+  szcUpdateSvg(pStats, isLiga ? null : LEAGUE_ZONE_STATS, svgId);
   const _tlvShots = tzcApplyLocVis(tzcTeamAllShots);
   const _tlvGIds = tzcLocVis === 'all' ? tzcTeamGameIds : null;
   const statsAll = szcComputeStats(szcFilterByPeriod(_tlvShots, 'all', _tlvGIds));
   const statsL10 = szcComputeStats(szcFilterByPeriod(_tlvShots, 'last10', _tlvGIds));
   const statsL5  = szcComputeStats(szcFilterByPeriod(_tlvShots, 'last5', _tlvGIds));
-  tzcRenderZoneCards(statsAll, statsL10, statsL5, isLiga ? null : LEAGUE_ZONE_STATS);
+  tzcRenderZoneCards(statsAll, statsL10, statsL5, isLiga ? null : LEAGUE_ZONE_STATS, cardsId);
 }
 
 function setTzcPeriod(period) {
@@ -2105,6 +2111,282 @@ function onTzcTeamChange() {
   };
 
   if (SHOTS_MAP === null) loadShots().then(doRender); else doRender();
+}
+
+// ============================================================
+// FICHA DE EQUIPO (sección, no modal)
+// ============================================================
+let _tfCurrentTeam = null;
+
+function tfInit() {
+  const sel = document.getElementById('tfTeam');
+  if (!sel || sel.options.length > 1) return;
+  [...TEAMS].sort((a, b) => a.Equipo.localeCompare(b.Equipo)).forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.Equipo; opt.textContent = t.Equipo;
+    sel.appendChild(opt);
+  });
+}
+
+// Entry point usado por showTeamGames() (common.js) cuando existe #sec-t-ficha
+function goToTeamFicha(teamName) {
+  _tfCurrentTeam = teamName;
+  openGroup('equipos', 't-ficha');
+}
+
+function onTfTeamChange() {
+  const sel = document.getElementById('tfTeam');
+  if (sel && sel.value) renderTeamFicha(sel.value);
+}
+
+function tfOpenFullShotChart() {
+  if (!_tfCurrentTeam) return;
+  switchSection('t-tiro');
+  tzcInit();
+  const sel = document.getElementById('tzcTeam');
+  if (sel) { sel.value = _tfCurrentTeam; onTzcTeamChange(); }
+}
+
+function renderTeamFicha(teamName) {
+  const t = TEAMS.find(x => x.Equipo === teamName);
+  if (!t) return;
+  _tfCurrentTeam = teamName;
+  const sel = document.getElementById('tfTeam');
+  if (sel) sel.value = teamName;
+
+  const logoSrc = LOGOS[teamName];
+  const logo = document.getElementById('tfLogo');
+  if (logo) { logo.src = logoSrc || ''; logo.style.display = logoSrc ? '' : 'none'; }
+  const titleEl = document.getElementById('tfTitle');
+  if (titleEl) titleEl.textContent = teamName;
+  const recordEl = document.getElementById('tfRecord');
+  if (recordEl) recordEl.textContent = `${t.Ganados}G - ${t.Perdidos}P`;
+  const kmEl = document.getElementById('tfKm');
+  if (kmEl) {
+    kmEl.textContent = t.KM != null ? `${t.KM.toLocaleString('es-AR')} km` : '';
+    kmEl.title = t.KM != null ? `${t.KM.toLocaleString('es-AR')} km recorridos en la temporada` : '';
+  }
+
+  const standingEl = document.getElementById('tfStanding');
+  if (standingEl) standingEl.textContent = (typeof getTeamStandingLabel === 'function' ? getTeamStandingLabel(teamName) : '') || '';
+
+  renderTeamFichaUpcoming(teamName);
+  renderTeamFichaRoster(teamName, t);
+  renderTeamFichaGames(teamName, t);
+  renderTeamFichaShotChart(teamName);
+}
+
+// Km de viaje de cada partido próximo, respetando el concepto de gira: arranca
+// desde la ciudad donde quedó el equipo tras su último partido jugado (no
+// siempre la sede) y la va actualizando partido a próximo partido en orden
+// cronológico — así varios partidos de visitante seguidos sin volver a la sede
+// no se calculan cada uno desde la sede, sino ciudad→ciudad real.
+// Devuelve Map<game, km> solo para los partidos que juega de visitante.
+function computeUpcomingTravelKm(teamName, upcomingGamesSorted) {
+  const kmByGame = new Map();
+  const teamCity = (typeof TEAM_CITY !== 'undefined') ? TEAM_CITY : null;
+  const homeCity = teamCity ? teamCity[teamName] : null;
+  if (!homeCity) return kmByGame;
+  const team = (typeof TEAM_MAP !== 'undefined') ? TEAM_MAP[teamName] : null;
+  let currentCity = homeCity;
+  (team && team._gamelog || []).forEach(g => {
+    const gameCity = g.condicion === 'LOCAL' ? homeCity : teamCity[g.rival];
+    if (gameCity) currentCity = gameCity;
+  });
+  upcomingGamesSorted.forEach(g => {
+    const isLocal = g.local === teamName;
+    const rival = isLocal ? g.visit : g.local;
+    const gameCity = isLocal ? homeCity : teamCity[rival];
+    if (!gameCity) return;
+    const d = getRouteKm(currentCity, gameCity);
+    if (!isLocal && d != null) kmByGame.set(g, Math.round(d));
+    currentCity = gameCity;
+  });
+  return kmByGame;
+}
+
+function renderTeamFichaUpcoming(teamName) {
+  const el = document.getElementById('tfUpcoming');
+  if (!el) return;
+  const allUpcoming = (typeof GAMES_ALL !== 'undefined' ? GAMES_ALL : [])
+    .filter(g => g.upcoming && (g.local === teamName || g.visit === teamName))
+    .sort((a, b) => _partidoFechaToDate(a.fecha) - _partidoFechaToDate(b.fecha));
+  const next = allUpcoming.slice(0, 3);
+  if (!next.length) { el.innerHTML = ''; return; }
+  const kmByGame = computeUpcomingTravelKm(teamName, allUpcoming);
+  el.innerHTML = next.map(g => {
+    const rival = g.local === teamName ? g.visit : g.local;
+    const isLocal = g.local === teamName;
+    const km = kmByGame.get(g);
+    return `<div class="tf-timeline-item">
+      <span class="tf-timeline-dot"></span>
+      <span class="tf-timeline-date">${g.fecha}${g.hora ? ' · ' + g.hora : ''}</span>
+      <span class="tf-timeline-vs">${teamLogoHtml(rival, 16)}<span>vs ${rival}</span></span>
+      <span class="tf-timeline-cond ${isLocal ? 'local' : 'visit'}">${isLocal ? 'Local' : 'Visitante'}</span>
+      ${km != null ? `<span class="tf-timeline-km">${km.toLocaleString('es-AR')} km</span>` : ''}
+      ${g.estadio ? `<span class="tf-timeline-estadio">${g.estadio}</span>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderTeamFichaRoster(teamName, team) {
+  const tbody = document.getElementById('tfRosterTbody');
+  if (!tbody) return;
+  const roster = (typeof PLAYERS !== 'undefined' ? PLAYERS : [])
+    .filter(p => p.Equipo === teamName)
+    .slice()
+    .sort((a, b) => (b.PPG || 0) - (a.PPG || 0));
+  if (!roster.length) {
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">Sin datos de plantel disponibles.</td></tr>';
+    return;
+  }
+  const maxPpg = Math.max(...roster.map(p => p.PPG || 0), 1);
+  tbody.innerHTML = roster.map((p, i) => {
+    const dorsal = p.DORSAL != null && p.DORSAL !== '' && !isNaN(parseFloat(p.DORSAL)) ? '#' + Math.round(parseFloat(p.DORSAL)) : '—';
+    const edad = p.Edad != null ? p.Edad : '—';
+    const e = computeEnergyIndex(p, team);
+    const energyHtml = e ? energyBatteryHtml(e) : energyFullBatteryHtml();
+    const ppg = p.PPG || 0;
+    const ptsBarPct = Math.round(ppg / maxPpg * 100);
+    const ptsHtml = `<div class="tf-pts-cell"><span class="tf-pts-val">${ppg.toFixed(1)}</span><span class="tf-pts-bar-wrap"><span class="tf-pts-bar" style="width:${ptsBarPct}%"></span></span></div>`;
+    return `<tr class="${i === 0 && ppg > 0 ? 'tf-top-scorer' : ''}">
+      <td><span class="tf-dorsal-badge">${dorsal}</span></td>
+      <td style="text-align:left;color:var(--text-bright)">${p['Nombre completo']}</td>
+      <td>${edad}</td>
+      <td>${p.PJ || 0}</td>
+      <td>${ptsHtml}</td>
+      <td>${(p.RPG || 0).toFixed(1)}</td>
+      <td>${(p.APG || 0).toFixed(1)}</td>
+      <td>${(p.SPG || 0).toFixed(1)}</td>
+      <td>${(p.BPG || 0).toFixed(1)}</td>
+      <td>${energyHtml}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderTeamFichaGames(teamName, team) {
+  const tbody = document.getElementById('tfTbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  (team._gamelog || []).slice().reverse().forEach(g => {
+    const rivalLogo = LOGOS[g.rival]
+      ? `<img src="${LOGOS[g.rival]}" style="width:16px;height:16px;object-fit:contain;vertical-align:middle;margin-right:5px" onerror="this.style.display='none'">`
+      : '';
+    const condHtml = g.condicion === 'LOCAL'
+      ? '<span class="tgm-cond tgm-cond-l">Local</span>'
+      : '<span class="tgm-cond tgm-cond-v">Visita</span>';
+    const resHtml = g.ganado ? '<span class="tgm-win">V</span>' : '<span class="tgm-loss">D</span>';
+    const scoreColor = g.ganado ? 'var(--green)' : 'var(--red)';
+    const tr = document.createElement('tr');
+    tr.className = 'tgm-clickable';
+    tr.innerHTML = `
+      <td>${g.fecha}</td>
+      <td>${condHtml}</td>
+      <td>${rivalLogo}${g.rival}</td>
+      <td><span style="font-weight:700;color:${scoreColor}">${g.ptsFor}</span><span style="color:var(--muted2);margin:0 4px">—</span><span style="color:var(--muted)">${g.ptsAgainst}</span></td>
+      <td>${resHtml}</td>
+      <td><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></td>`;
+    tr.addEventListener('click', () => showGameDetail(g, teamName));
+    tbody.appendChild(tr);
+  });
+}
+
+function renderTeamFichaShotChart(teamName) {
+  const canvas = document.getElementById('tfShotCanvas');
+  if (!canvas) return;
+  const doRender = () => {
+    const shots = [];
+    SHOTS_MAP.forEach(rows => rows.forEach(s => { if (s['Equipo'] === teamName) shots.push(s); }));
+    // Reusa el pipeline de t-tiro (renderTzcZoneChart) con IDs propios; pisa
+    // temporalmente el estado global de t-tiro (tzc*) y lo restaura después
+    // del render síncrono para no afectar esa sección si el usuario la visita después.
+    const prev = { team: tzcCurrentTeam, shots: tzcTeamAllShots, gids: tzcTeamGameIds, period: tzcPeriod, locvis: tzcLocVis };
+    tzcCurrentTeam = teamName;
+    tzcTeamAllShots = shots;
+    tzcTeamGameIds = (TEAM_MAP[teamName] && TEAM_MAP[teamName]._gamelog) ? TEAM_MAP[teamName]._gamelog.map(g => g.gameId) : null;
+    tzcPeriod = 'all';
+    tzcLocVis = 'all';
+    requestAnimationFrame(() => {
+      renderTzcZoneChart(canvas, shots, 'tfShotSvg', 'tfZoneCards');
+      tzcCurrentTeam = prev.team; tzcTeamAllShots = prev.shots; tzcTeamGameIds = prev.gids; tzcPeriod = prev.period; tzcLocVis = prev.locvis;
+    });
+  };
+  if (SHOTS_MAP === null) loadShots().then(doRender); else doRender();
+}
+
+// Índice de carga/cansancio (primera versión, heurística con pesos ajustables):
+// combina minutos recientes del jugador + km de viaje reciente del equipo + back-to-back.
+const ENERGY_N = 5;
+const ENERGY_MIN_REF = 32;  // minutos/partido de referencia para "carga alta"
+const ENERGY_KM_REF = 1200; // km del equipo en los últ. 5 partidos de referencia para "carga alta"
+const ENERGY_LABEL = { alta: 'Alta', media: 'Media', baja: 'Baja' };
+
+// Color de la batería: interpola rojo (vacía/cansado) → ámbar → verde (llena/descansado)
+function energyColor(pct) {
+  const stops = [[0, [239, 68, 68]], [50, [251, 191, 36]], [100, [34, 197, 94]]];
+  for (let i = 0; i < stops.length - 1; i++) {
+    const [p0, c0] = stops[i], [p1, c1] = stops[i + 1];
+    if (pct <= p1) {
+      const t = (pct - p0) / (p1 - p0);
+      return `rgb(${Math.round(c0[0] + (c1[0] - c0[0]) * t)},${Math.round(c0[1] + (c1[1] - c0[1]) * t)},${Math.round(c0[2] + (c1[2] - c0[2]) * t)})`;
+    }
+  }
+  return 'rgb(34,197,94)';
+}
+
+// Batería 0-100: muestra energía restante (100 - carga), llena y verde cuando
+// el jugador está descansado, vacía y roja cuando llega con mucha carga encima.
+function energyBatteryHtml(e) {
+  const pct = Math.max(0, Math.min(100, 100 - e.score));
+  const color = energyColor(pct);
+  const tip = `Frescura: ${pct}% (fatiga ${ENERGY_LABEL[e.level]}) · Min/P últ.5: ${e.minutosProm.toFixed(1)} · KM equipo últ.5: ${e.kmRecientes != null ? e.kmRecientes.toLocaleString('es-AR') : '—'} · Back-to-back: ${e.b2b ? 'Sí' : 'No'}`;
+  return `<span class="energy-battery" title="${tip}">
+    <span class="energy-battery-body"><span class="energy-battery-fill" style="width:${pct}%;background:${color}"></span></span>
+    <span class="energy-battery-nub"></span>
+    <span class="energy-battery-pct" style="color:${color}">${pct}%</span>
+  </span>`;
+}
+
+// Sin partidos recientes suficientes para estimar carga — se asume descansado al 100%,
+// en vez de dejar la celda vacía ("—").
+function energyFullBatteryHtml() {
+  const color = energyColor(100);
+  const tip = 'Frescura: 100% · Sin partidos recientes suficientes para estimar carga — se asume descansado';
+  return `<span class="energy-battery" title="${tip}">
+    <span class="energy-battery-body"><span class="energy-battery-fill" style="width:100%;background:${color}"></span></span>
+    <span class="energy-battery-nub"></span>
+    <span class="energy-battery-pct" style="color:${color}">100%</span>
+  </span>`;
+}
+
+function computeEnergyIndex(player, team) {
+  const games = (player && player._games) || [];
+  if (games.length < 2) return null;
+  const recent = games.slice(-ENERGY_N);
+  const minutosProm = recent.reduce((s, g) => s + (parseFloat(g['Segundos jugados']) || 0), 0) / recent.length / 60;
+  const minutosScore = Math.min(minutosProm / ENERGY_MIN_REF, 1) * 100;
+
+  let kmRecientes = null, b2b = false;
+  if (team) {
+    kmRecientes = computeTeamTravelKmWindow(team, ENERGY_N);
+    const log = team._gamelog || [];
+    if (log.length >= 2) {
+      const d1 = _partidoFechaToDate(log[log.length - 1].fecha);
+      const d2 = _partidoFechaToDate(log[log.length - 2].fecha);
+      b2b = Math.abs(d1 - d2) / 86400000 <= 1;
+    }
+  }
+
+  let score;
+  if (kmRecientes != null) {
+    const kmScore = Math.min(kmRecientes / ENERGY_KM_REF, 1) * 100;
+    score = 0.55 * minutosScore + 0.30 * kmScore + 0.15 * (b2b ? 100 : 0);
+  } else {
+    score = 0.7 * minutosScore + 0.3 * (b2b ? 100 : 0);
+  }
+  score = Math.round(score);
+  const level = score >= 70 ? 'alta' : score >= 40 ? 'media' : 'baja';
+  return { score, level, minutosProm, kmRecientes, b2b };
 }
 
 // ============================================================

@@ -123,6 +123,10 @@
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="12" r="3"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><path d="M12 12l5-4M12 12l5 4"/></svg>
     Conexiones
   </button>
+  <button class="sub-tab" onclick="switchSection('t-ficha')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 13h3M8 16h5"/></svg>
+    Ficha
+  </button>
   <div class="sub-tabs-spacer"></div>
 </div>
 
@@ -1252,36 +1256,6 @@
       <span class="tgm-record" id="tgmRecord"></span>
       <button class="tgm-close" onclick="closeTeamGames()">✕</button>
     </div>
-    <div class="tgm-standing" id="tgmStanding"></div>
-    <div class="tgm-detail-tabs" id="tgmMainTabs">
-      <button class="tgm-tab active" id="tgmMainTabGames" onclick="switchTeamMainTab('games')">Partidos</button>
-      <button class="tgm-tab" id="tgmMainTabRoster" onclick="switchTeamMainTab('roster')">Plantel</button>
-    </div>
-    <div id="tgmGamesPanel">
-      <div id="tgmUpcoming"></div>
-      <div class="tgm-body" id="tgmBody">
-        <table class="tgm-games-table">
-          <thead><tr>
-            <th>Fecha</th><th>Cond.</th><th>Rival</th>
-            <th>Score</th><th>Res.</th><th></th>
-          </tr></thead>
-          <tbody id="tgmTbody"></tbody>
-        </table>
-      </div>
-    </div>
-    <div id="tgmRosterPanel" class="tgm-body" style="display:none">
-      <table class="tgm-roster-table">
-        <thead><tr>
-          <th>#</th><th>Jugador</th><th>Edad</th><th>PJ</th>
-          <th data-tip="Puntos por partido">PTS/P</th>
-          <th data-tip="Rebotes por partido">REB/P</th>
-          <th data-tip="Asistencias por partido">AST/P</th>
-          <th data-tip="Recuperos por partido">REC/P</th>
-          <th data-tip="Tapones por partido">TAP/P</th>
-        </tr></thead>
-        <tbody id="tgmRosterTbody"></tbody>
-      </table>
-    </div>
     <div id="tgmDetail">
       <button class="tgm-back" onclick="onTgmBack()">‹ Volver</button>
       <div class="tgm-scoreboard" id="tgmScoreboard"></div>
@@ -1357,10 +1331,6 @@
 
 <!-- ============================= POSICIONES ============================= -->
 <div class="section active" id="sec-posiciones">
-  <div class="pos-tab-bar">
-    <button class="pos-tab active" id="posTabReg" onclick="switchPosTab('regular')">Temporada Regular</button>
-    <button class="pos-tab" id="posTabPost" onclick="switchPosTab('post')">Post Temporada</button>
-  </div>
   <div id="posRegPanel">
     <div class="pos-outer">
       <div class="pos-conf-block">
@@ -1378,9 +1348,6 @@
         </div>
       </div>
     </div>
-  </div>
-  <div id="posPostPanel" style="display:none">
-    <div id="playoffContent"></div>
   </div>
 </div>
 
@@ -1574,6 +1541,79 @@
         <table class="qnt-table" id="tCnxTable">
           <thead id="tCnxThead"></thead>
           <tbody id="tCnxTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= FICHA DE EQUIPO ============================= -->
+<div class="section" id="sec-t-ficha">
+  <div class="tf-outer tgm-scope">
+    <div class="tf-card tf-header-card">
+      <div class="tgm-header">
+        <img id="tfLogo" class="tgm-logo" alt="" onerror="this.style.display='none'">
+        <div class="tf-header-main">
+          <div class="tgm-title" id="tfTitle"></div>
+          <div class="tf-chips">
+            <span class="tf-chip" id="tfRecord"></span>
+            <span class="tf-chip tf-chip-purple" id="tfStanding"></span>
+            <span class="tf-chip tf-chip-teal" id="tfKm"></span>
+          </div>
+        </div>
+        <select id="tfTeam" onchange="onTfTeamChange()">
+          <option value="">Seleccioná un equipo...</option>
+        </select>
+      </div>
+      <div class="tf-timeline" id="tfUpcoming"></div>
+    </div>
+
+    <div class="tf-grid">
+      <div class="tf-col-main">
+        <div class="tf-section-title">Plantel</div>
+        <div class="tf-card">
+          <div class="tgm-body" style="max-height:600px">
+            <table class="tgm-roster-table">
+              <thead><tr>
+                <th>#</th><th>Jugador</th><th>Edad</th><th>PJ</th>
+                <th data-tip="Puntos por partido">PTS/P</th>
+                <th data-tip="Rebotes por partido">REB/P</th>
+                <th data-tip="Asistencias por partido">AST/P</th>
+                <th data-tip="Recuperos por partido">REC/P</th>
+                <th data-tip="Tapones por partido">TAP/P</th>
+                <th data-tip="Frescura física: combina minutos jugados + viajes recientes del equipo (últ. 5 partidos). Primera versión, heurística ajustable.">Frescura</th>
+              </tr></thead>
+              <tbody id="tfRosterTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="tf-col-side">
+        <div class="tf-section-title">
+          Cuadro de tiro
+          <a class="tf-shot-link" href="#" onclick="event.preventDefault();tfOpenFullShotChart();">Ver completo →</a>
+        </div>
+        <div class="tf-card tf-shot-card">
+          <div class="szc-body">
+            <div class="szc-canvas-wrap">
+              <canvas id="tfShotCanvas"></canvas>
+              <svg id="tfShotSvg" viewBox="0 0 14 15" xmlns="http://www.w3.org/2000/svg"></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tf-section-title">Historial de partidos</div>
+    <div class="tf-card">
+      <div class="tgm-body" style="max-height:420px">
+        <table class="tgm-games-table">
+          <thead><tr>
+            <th>Fecha</th><th>Cond.</th><th>Rival</th>
+            <th>Score</th><th>Res.</th><th></th>
+          </tr></thead>
+          <tbody id="tfTbody"></tbody>
         </table>
       </div>
     </div>
