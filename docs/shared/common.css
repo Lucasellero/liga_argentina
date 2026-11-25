@@ -737,7 +737,7 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .energy-battery-pct{font-size:.68rem;font-weight:700;min-width:30px;text-align:left;}
 
 @media (max-width:980px){
-  .tf-grid{grid-template-columns:1fr;}
+  .tf-grid{grid-template-columns:minmax(0,1fr);}
 }
 
 /* ── GAME DETAIL ── */
