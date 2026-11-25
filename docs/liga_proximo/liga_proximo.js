@@ -1408,7 +1408,7 @@ function szcUpdateSvg(pStats, leagueStats, svgId='szcSvg') {
 
   let defs = `<defs>
     <filter id="lblShadow" x="-60%" y="-60%" width="220%" height="220%">
-      <feDropShadow dx="0" dy="0.07" stdDeviation="0.14" flood-color="rgba(0,0,0,.85)"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="0.14" result="b"/><feOffset in="b" dx="0" dy="0.07" result="o"/><feFlood flood-color="rgba(0,0,0,.85)" flood-opacity="1" result="f"/><feComposite in="f" in2="o" operator="in" result="s"/><feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>`;
   let labels = '';
   SZC_ZONES.forEach(zone => {

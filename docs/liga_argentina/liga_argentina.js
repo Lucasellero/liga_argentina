@@ -1992,7 +1992,7 @@ function szcUpdateSvg(pStats, leagueStats, svgId='szcSvg', mode='zones') {
     <filter id="${P}glow" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="0.07"/></filter>
     <filter id="${P}hoopGlow" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="0.12"/></filter>
     <filter id="${P}shadow" x="-40%" y="-50%" width="180%" height="220%">
-      <feDropShadow dx="0" dy="0.08" stdDeviation="0.16" flood-color="#000" flood-opacity=".7"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="0.16" result="b"/><feOffset in="b" dx="0" dy="0.08" result="o"/><feFlood flood-color="#000" flood-opacity=".7" result="f"/><feComposite in="f" in2="o" operator="in" result="s"/><feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
     <linearGradient id="${P}paint" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#fff" stop-opacity=".13"/><stop offset="1" stop-color="#fff" stop-opacity=".03"/>

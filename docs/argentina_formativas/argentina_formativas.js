@@ -2870,7 +2870,7 @@ function szcUpdateSvg(pStats, leagueStats, svgId='szcSvg') {
 
   let defs = `<defs>
     <filter id="lblShadow" x="-60%" y="-60%" width="220%" height="220%">
-      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="rgba(0,0,0,.85)"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="b"/><feOffset in="b" dx="0" dy="2" result="o"/><feFlood flood-color="rgba(0,0,0,.85)" flood-opacity="1" result="f"/><feComposite in="f" in2="o" operator="in" result="s"/><feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>`;
   let labels = '';
   SZC_ZONES.forEach(zone => {
@@ -4266,7 +4266,7 @@ function drawConnections() {
       <stop offset="100%" stop-color="#6d28d9" stop-opacity=".85"/>
     </radialGradient>
     <filter id="cnxShadow" x="-25%" y="-25%" width="150%" height="150%">
-      <feDropShadow dx="0" dy="2" stdDeviation="5" flood-color="#000" flood-opacity=".45"/>
+      <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="b"/><feOffset in="b" dx="0" dy="2" result="o"/><feFlood flood-color="#000" flood-opacity=".45" result="f"/><feComposite in="f" in2="o" operator="in" result="s"/><feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
     <filter id="cnxGlow" x="-40%" y="-40%" width="180%" height="180%">
       <feGaussianBlur stdDeviation="4" result="b"/>
