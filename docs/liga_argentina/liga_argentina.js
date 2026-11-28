@@ -361,12 +361,12 @@ const f1=v=>v==null||isNaN(v)?'—':v.toFixed(1);
 // NAV
 // ============================================================
 const _SUB_GROUP = {
-  't-tabla':'equipos','t-tcmp':'equipos','t-chart':'equipos','quintetos':'equipos','trios':'equipos','duplas':'equipos','t-tiro':'equipos','t-conexiones':'equipos','t-ficha':'equipos',
-  'j-tabla':'jugadores','j-tiro':'jugadores','j-chart':'jugadores','j-conexiones':'jugadores','j-radar':'jugadores'
+  't-tabla':'equipos','t-tcmp':'equipos','t-chart':'equipos','quintetos':'equipos','trios':'equipos','duplas':'equipos','t-tiro':'equipos','t-conexiones':'equipos','t-ficha':'equipos','t-clutch':'equipos',
+  'j-tabla':'jugadores','j-tiro':'jugadores','j-chart':'jugadores','j-conexiones':'jugadores','j-radar':'jugadores','j-clutch':'jugadores'
 };
 const _SUB_IDX = {
-  't-tabla':0,'t-tcmp':1,'t-chart':2,'quintetos':3,'trios':4,'duplas':5,'t-tiro':6,'t-conexiones':7,'t-ficha':8,
-  'j-tabla':0,'j-tiro':1,'j-chart':2,'j-conexiones':3,'j-radar':4
+  't-tabla':0,'t-tcmp':1,'t-chart':2,'quintetos':3,'trios':4,'duplas':5,'t-tiro':6,'t-conexiones':7,'t-ficha':8,'t-clutch':9,
+  'j-tabla':0,'j-tiro':1,'j-chart':2,'j-conexiones':3,'j-radar':4,'j-clutch':5
 };
 
 
@@ -426,6 +426,8 @@ function switchSection(id) {
     }
   }
   if(id==='t-conexiones') { tCnxInit(); }
+  if(id==='j-clutch') openClutch('j');
+  if(id==='t-clutch') openClutch('t');
   if(id==='t-chart') setTimeout(drawTChart,30);
   if(id==='j-tabla') setTimeout(()=>remeasureScroll('jTableWrap'), 50);
   if(id==='t-tabla'||isTcmp) setTimeout(()=>remeasureScroll('tTableWrap'), 50);
@@ -1615,6 +1617,8 @@ async function initApp() {
       const playerMinTotal = p.SEG/60;
       const tmMinTotal = (tm.PJ||1)*200;
       d['USG%'] = (tmPossUsed>0 && playerMinTotal>0) ? Math.round(pos*tmMinTotal/(5*playerMinTotal*tmPossUsed)*1000)/10 : null;
+      const astDen = playerMinTotal>0 ? playerMinTotal/(tmMinTotal/5)*((tm.T2A||0)+(tm.T3A||0)) - ((p.T2A||0)+(p.T3A||0)) : 0;
+      d['AST%'] = astDen>0 ? Math.round((p.AST||0)/astDen*1000)/10 : null;
       const tmRO = tm.RO||0;
       const tmOppDReb = tm.OPP_DReb||0;
       d['ORB%'] = ((tmRO+tmOppDReb)>0 && playerMinTotal>0) ? Math.round((p.RO||0)*(tmMinTotal/5)/(playerMinTotal*(tmRO+tmOppDReb))*1000)/10 : null;
@@ -1692,6 +1696,8 @@ async function initApp() {
       d['TS%'] = tsAdj>0 ? Math.round((t.PTS||0)/tsAdj*1000)/10 : null;
       const tovDenom = tci+0.44*(t.T1I||0)+(t.PER||0);
       d['TOV%'] = tovDenom>0 ? Math.round((t.PER||0)/tovDenom*1000)/10 : null;
+      const tmFGM = (t.T2A||0)+(t.T3A||0);
+      d['AST%'] = tmFGM>0 ? Math.round((t.AST||0)/tmFGM*1000)/10 : null;
       const orbDenom = (t.RO||0)+(t.OPP_DReb||0);
       d['ORB%'] = orbDenom>0 ? Math.round((t.RO||0)/orbDenom*1000)/10 : null;
       d['FTr'] = tci>0 ? Math.round((t.T1I||0)/tci*1000)/1000 : null;

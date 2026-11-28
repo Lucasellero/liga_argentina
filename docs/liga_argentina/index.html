@@ -127,6 +127,10 @@
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 13h3M8 16h5"/></svg>
     Ficha
   </button>
+  <button class="sub-tab" onclick="switchSection('t-clutch')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>
+    Clutch
+  </button>
   <div class="sub-tabs-spacer"></div>
 </div>
 
@@ -151,6 +155,10 @@
   <button class="sub-tab" onclick="switchSection('j-radar')">
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="8.5" x2="22" y2="8.5"/><line x1="2" y1="15.5" x2="22" y2="15.5"/></svg>
     Radar
+  </button>
+  <button class="sub-tab" onclick="switchSection('j-clutch')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>
+    Clutch
   </button>
   <div class="sub-tabs-spacer"></div>
 </div>
@@ -532,6 +540,7 @@
           <th data-ca="3PI/TI" data-da="desc" data-tip="% de tiros convertidos que son triples · T3I / (T2I + T3I)">3PI/TI</th>
           <th data-ca="ORtg" data-da="desc" data-tip="Puntos producidos por 100 posesiones individuales">ORtg</th>
           <th data-ca="USG%" data-da="desc" data-tip="% de posesiones del equipo usadas por el jugador mientras está en cancha">USG%</th>
+          <th data-ca="AST%" data-da="desc" data-tip="% de las canastas de sus compañeros que asistió mientras estaba en cancha (estimado) · AST / ((Min / (MinEq/5)) × TCCEq − TCC)">AST%</th>
           <th data-ca="ORB%" data-da="desc" data-tip="% de rebotes ofensivos disponibles capturados por el jugador">ORB%</th>
           <th data-ca="DRB%" data-da="desc" data-tip="% de rebotes defensivos disponibles capturados por el jugador · DReb × (MinEq/5) / (Min × (DRebEq + ORebRival))">DRB%</th>
           <th data-ca="FTr" data-da="desc" data-tip="Free Throw Rate: tiros libres intentados por tiro de campo intentado · T1I / (T2I + T3I)">FTr</th>
@@ -1099,6 +1108,7 @@
           <th data-ca="TS%" data-da="desc" data-tip="True Shooting: eficiencia real incluyendo libres · PTS / (2×(TCA + 0.44×T1A))">TS%</th>
           <th data-ca="TOV%" data-da="asc" data-tip="Pérdidas por cada 100 posesiones (menor = mejor)">TOV%</th>
           <th data-ca="ORB%" data-da="desc" data-tip="% de rebotes ofensivos disponibles capturados">ORB%</th>
+          <th data-ca="AST%" data-da="desc" data-tip="% de las canastas de campo del equipo que fueron asistidas · AST / TCC">AST%</th>
           <th data-ca="FTr" data-da="desc" data-tip="Free Throw Rate: tiros libres intentados por tiro de campo intentado · T1I / (T2I + T3I)">FTr</th>
         </tr></thead>
         <tbody id="tTbodyAdv"></tbody>
@@ -1739,6 +1749,62 @@
   </div>
 </div>
 
+<div class="section" id="sec-j-clutch">
+  <div class="qnt-outer clutch-outer">
+    <div class="qnt-header">
+      <span class="qnt-title">Jugadores en el clutch</span>
+      <div class="qnt-filters">
+        <input type="search" id="cljSearch" class="clutch-search" placeholder="Buscar jugador..." aria-label="Buscar jugador" oninput="renderClutch('j')">
+        <select id="cljTeam" aria-label="Equipo" onchange="renderClutch('j')">
+          <option value="">Todos los equipos</option>
+        </select>
+        <select id="cljConf" aria-label="Conferencia" onchange="renderClutch('j')">
+          <option value="">Ambas conferencias</option>
+          <option value="norte">Conferencia Norte</option>
+          <option value="sur">Conferencia Sur</option>
+        </select>
+      </div>
+      <span class="qnt-count" id="cljCount"></span>
+    </div>
+    <div id="cljMsg" class="qnt-empty">Cargando datos del clutch...</div>
+    <div id="cljContent" style="display:none">
+      <p class="clutch-note" id="cljNote"></p>
+      <div class="qnt-table-wrap">
+        <table class="qnt-table clutch-table clutch-table-j">
+          <thead id="cljThead"></thead>
+          <tbody id="cljTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="sec-t-clutch">
+  <div class="qnt-outer clutch-outer">
+    <div class="qnt-header">
+      <span class="qnt-title">Equipos en el clutch</span>
+      <div class="qnt-filters">
+        <select id="cltConf" aria-label="Conferencia" onchange="renderClutch('t')">
+          <option value="">Ambas conferencias</option>
+          <option value="norte">Conferencia Norte</option>
+          <option value="sur">Conferencia Sur</option>
+        </select>
+      </div>
+      <span class="qnt-count" id="cltCount"></span>
+    </div>
+    <div id="cltMsg" class="qnt-empty">Cargando datos del clutch...</div>
+    <div id="cltContent" style="display:none">
+      <p class="clutch-note" id="cltNote"></p>
+      <div class="qnt-table-wrap">
+        <table class="qnt-table clutch-table clutch-table-t">
+          <thead id="cltThead"></thead>
+          <tbody id="cltTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ============================= TRÍOS ============================= -->
 <div class="section" id="sec-trios">
   <div class="qnt-outer">
@@ -1831,6 +1897,7 @@
 <div id="thTip"></div>
 
 <script src="../shared/common.js"></script>
+<script src="../shared/clutch.js"></script>
 <script src="liga_argentina.js"></script>
 <footer style="text-align:center;padding:18px 40px;margin-top:12px;border-top:1px solid var(--border);color:var(--muted);font-size:.78rem;display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;">
   <a href="mailto:scoutea2@gmail.com" style="color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:color .2s;" onmouseover="this.style.color='var(--purple-l)'" onmouseout="this.style.color='var(--muted)'">✉ scoutea2@gmail.com</a>

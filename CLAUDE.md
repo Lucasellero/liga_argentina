@@ -586,6 +586,18 @@ Bloque "REDISEÑO UI" al final de `docs/shared/common.css`. Puntos a tener en cu
 - **Mínimo PJ de Jugadores**: `applyDefaultMinGames()` (common.js) baja el default del HTML (20+) según los PJ de la temporada; sin eso, al arranque de temporada la tabla y el gráfico quedaban vacíos.
 - **Celular**: columna 2 (equipo/jugador) `position:sticky` en `.pos-table` y `.table-card`; `.main-tabs`/`.sub-tabs` con fade a la derecha.
 
+## Clutch — Jugadores > Clutch y Equipos > Clutch (noviembre 2026, solo Liga Argentina)
+
+**Definición (criterio NBA, decisión del usuario):** últimos 5 minutos del 4.º cuarto y **prórrogas enteras**, con diferencia ≤ 5 puntos **antes** de cada jugada (la situación puede entrar y salir del clutch). Constantes `WINDOW_SECS`, `OT_SECS`, `MAX_MARGIN` en `scraper/clutch_stats.py`.
+
+- `scraper/clutch_stats.py <argentina|nacional|proximo> [--season 2025-26] [--pbp ruta]` lee el stats CSV + el PBP y escribe `docs/<liga>/clutch.json` (solo stdlib). Corre en `scraper.yml` después del PBP scraper (`continue-on-error`), así el navegador no baja el PBP de Supabase (egress).
+- **No usar `Marcador_local/visitante` del PBP**: la fuente inserta jugadas fuera de orden con marcadores que no corresponden. Se ordena por período/reloj/`NumAccion` y se reconstruye el marcador sumando canastas. Un partido entra solo si el reconstruido coincide con el box; si valen menos del 80 %, se conserva el JSON anterior. Los ganados por defecto se excluyen.
+- **`Dorsal` en el PBP solo viene en cambios y rebotes**: `dorsal_map()` arma `(lado, nombre) -> dorsal` por partido y el nombre se resuelve contra el stats CSV por `(fecha, equipo, dorsal)`. Validado contra el box (partido completo): ≥ 99,9 % de coincidencia por jugador-partido en las 12 estadísticas, en Argentina, Nacional y Desarrollo.
+- **La `ASISTENCIA` viene después de su canasta**: hereda si esa canasta fue clutch (`ASSIST_GAP_SECS`).
+- No incluye faltas ni tapones (el PBP que se sube a Supabase no los conserva), ni minutos o +/- por jugador (haría falta seguir quién está en cancha). `PJ` de jugador = partidos con al menos una jugada registrada en el clutch.
+- Frontend: `docs/shared/clutch.js` (IDs `clj*` / `clt*`, secciones `sec-j-clutch` / `sec-t-clutch`). Los % de jugadores solo cuentan al ordenar con un mínimo de intentos (`CLUTCH_MIN_ATT`: TC 5, 3P 3, TL 4). La temporada archivada 2025/26 de Argentina tiene su `archive/2025-26/clutch.json` (estático, generado una vez con `--season 2025-26`; **incluye playoffs**, sin separar por etapa). Una temporada sin `clutch.json` muestra un aviso.
+- **Pendiente:** portar a Nacional y Desarrollo (sumar HTML, `_SUB_GROUP`/`_SUB_IDX`, `switchSection`, script, step y archivo en `scraper.yml`), resumen en la Ficha de equipo, y minutos / +/- por jugador.
+
 ## Responsive
 El frontend debe funcionar y verse bien tanto en celular como en computadora. Cualquier cambio de UI debe considerar ambos contextos.
 
@@ -657,6 +669,7 @@ Promise.all([
 | `USG%` | `posesiones_jugador * min_equipo / (5 * min_jugador * posesiones_equipo)` |
 | `ORtg` | `PTS / posesiones * 100` |
 | `DRtg` | Tomado de `TEAM_MAP[equipo].DRtg` |
+| `AST%` | Jugador: `AST / ((Min_jugador / (MinEq/5)) × TCC_Eq − TCC_jugador)` (fórmula de Basketball-Reference): % estimado de canastas de sus compañeros que asistió estando en cancha; `null` si el denominador es ≤ 0. Equipo: `AST / TCC`. Se calcula en `computeStatsFromGames()`, `computeTeamStatsFromGames()` e `initApp()`. Tablas avanzadas de jugadores (verde ≥ 25%) y equipos (verde ≥ 52%, rojo < 43%). No confundir con la columna `AST%` de Quintetos (`AST / FGM` del quinteto). |
 | `ORB%` | `OReb_jugador × (MinEq/5) / (Min_jugador × (ORebEq + OPP_DReb))` — % de rebotes ofensivos disponibles capturados. Calculado en `computeStatsFromGames()` y en `initApp()` usando `tm.RO` y `tm.OPP_DReb`. |
 | `DRB%` | `DReb_jugador × (MinEq/5) / (Min_jugador × (DRebEq + ORebRival))` — % de rebotes defensivos disponibles capturados. Calculado en `computeStatsFromGames()` usando `tm.RD` y `tm.OPP_RO`. `OPP_RO` se acumula en `buildRAW_T` como rebotes ofensivos del rival por partido. Verde ≥ 75%, rojo < 60%. |
 | `FTr` | `T1I / (T2I+T3I)` — Free Throw Rate (tiros libres intentados / tiros de campo intentados). Calculado en `initApp()`, `computeStatsFromGames()` y `computeTeamStatsFromGames()`. Aparece en la tabla avanzada de jugadores (verde ≥ 0.35) y equipos (verde ≥ 0.28, rojo < 0.18). Usa `fVal()` (2 decimales, sin %). |

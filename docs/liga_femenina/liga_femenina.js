@@ -1082,6 +1082,8 @@ async function initApp() {
       const playerMinTotal = p.SEG/60;
       const tmMinTotal = (tm.PJ||1)*200;
       d['USG%'] = (tmPossUsed>0 && playerMinTotal>0) ? Math.round(pos*tmMinTotal/(5*playerMinTotal*tmPossUsed)*1000)/10 : null;
+      const astDen = playerMinTotal>0 ? playerMinTotal/(tmMinTotal/5)*((tm.T2A||0)+(tm.T3A||0)) - ((p.T2A||0)+(p.T3A||0)) : 0;
+      d['AST%'] = astDen>0 ? Math.round((p.AST||0)/astDen*1000)/10 : null;
       const tmRO = tm.RO||0;
       const tmOppDReb = tm.OPP_DReb||0;
       d['ORB%'] = ((tmRO+tmOppDReb)>0 && playerMinTotal>0) ? Math.round((p.RO||0)*(tmMinTotal/5)/(playerMinTotal*(tmRO+tmOppDReb))*1000)/10 : null;
@@ -1150,6 +1152,8 @@ async function initApp() {
       d['TS%'] = tsAdj>0 ? Math.round((t.PTS||0)/tsAdj*1000)/10 : null;
       const tovDenom = tci+0.44*(t.T1I||0)+(t.PER||0);
       d['TOV%'] = tovDenom>0 ? Math.round((t.PER||0)/tovDenom*1000)/10 : null;
+      const tmFGM = (t.T2A||0)+(t.T3A||0);
+      d['AST%'] = tmFGM>0 ? Math.round((t.AST||0)/tmFGM*1000)/10 : null;
       const orbDenom = (t.RO||0)+(t.OPP_DReb||0);
       d['ORB%'] = orbDenom>0 ? Math.round((t.RO||0)/orbDenom*1000)/10 : null;
       d['FTr'] = tci>0 ? Math.round((t.T1I||0)/tci*1000)/1000 : null;

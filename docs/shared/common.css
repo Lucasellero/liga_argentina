@@ -1016,6 +1016,25 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .qnt-loading{color:var(--muted);font-size:.82rem;text-align:center;padding:32px 20px;}
 .qnt-count{font-size:.72rem;color:var(--muted);margin-left:auto;}
 
+/* ── Clutch ── */
+.clutch-outer{max-width:1400px;}
+.clutch-note{font-size:.75rem;color:var(--muted);margin-bottom:12px;line-height:1.5;}
+.clutch-search{background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--text);font:inherit;font-size:.8rem;padding:7px 12px;min-width:180px;}
+.clutch-table th{white-space:nowrap;cursor:pointer;}
+.clutch-table th.clutch-rank,.clutch-table td.clutch-rank{text-align:center;color:var(--muted);width:36px;min-width:36px;cursor:default;}
+.clutch-table th.clutch-name,.clutch-table td.clutch-name,.clutch-table th.clutch-team,.clutch-table td.clutch-team{text-align:left;white-space:nowrap;min-width:150px;cursor:default;}
+.clutch-cell{display:flex;align-items:center;gap:6px;}
+.clutch-low{color:var(--muted);opacity:.65;}
+html body .clutch-outer select{padding-right:32px;}
+@media (max-width:640px){
+  .clutch-search{width:100%;}
+  .clutch-table-j th.clutch-team,.clutch-table-j td.clutch-team{min-width:44px;}
+  .clutch-table-j th.clutch-team{font-size:0;}
+  .clutch-table-j td.clutch-team .team-name-link{display:none;}
+  .clutch-table th.clutch-rank,.clutch-table td.clutch-rank{display:none;}
+  .clutch-table th.clutch-name,.clutch-table td.clutch-name{position:sticky;left:0;z-index:1;background:var(--bg);min-width:128px;}
+}
+
 /* ── CONEXIONES ──────────────────────────────────── */
 .cnx-outer{padding:24px 40px 48px;max-width:1100px;margin:0 auto;}
 .cnx-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap;}

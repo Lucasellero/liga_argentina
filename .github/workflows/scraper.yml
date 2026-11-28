@@ -51,6 +51,11 @@ jobs:
       - name: Jugada a jugada – Liga Argentina
         run: python scraper/pbp_scraper.py
 
+      # continue-on-error: si falla, se conserva el clutch.json anterior y no frena el resto.
+      - name: Clutch – Liga Argentina
+        continue-on-error: true
+        run: python scraper/clutch_stats.py argentina
+
       # ── Liga Nacional ───────────────────────────────────────────────────────
       - name: Stats – Liga Nacional
         run: python scraper/data_scraper_nacional.py
@@ -181,6 +186,7 @@ jobs:
             docs/liga_argentina/liga_argentina.csv
             docs/liga_argentina/liga_argentina_shots.csv
             docs/liga_argentina/fixture_upcoming.csv
+            docs/liga_argentina/clutch.json
             docs/liga_nacional/liga_nacional.csv
             docs/liga_nacional/liga_nacional_shots.csv
             docs/liga_nacional/fixture_upcoming.csv
