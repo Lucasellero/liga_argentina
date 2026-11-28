@@ -6,6 +6,7 @@ Busca ser una herramienta util para equipos y aficionados con conocimientos del 
 Desplegado en **Vercel** desde `docs/` (configurado en `vercel.json`).
 
 ## Deployment
+- **Versionado de JS/CSS (noviembre 2026)**: el mismo `scripts/minify.js` agrega `?v=<hash del contenido>` a cada `.js`/`.css` local referenciado en los HTML (solo en el build de Vercel). Necesario porque `vercel.json` permite reutilizar JS/CSS hasta un día (`stale-while-revalidate`) y el HTML no se cachea: tras un deploy el navegador mezclaba HTML nuevo con JS viejo y rompía la navegación (caso real: pestaña Clutch en blanco, 28/11/2026). Referenciar los assets sin query string en el HTML; una referencia a un archivo inexistente hace fallar el build.
 - **Plataforma**: Vercel. El repo es `Lucasellero/liga_argentina` en GitHub. Vercel deploya automáticamente al hacer push a `main`.
 - **Root servido**: `docs/` (definido en `vercel.json` → `outputDirectory: "docs"`).
 - **URL base**: `https://<proyecto>.vercel.app/` → sirve `docs/index.html`.
