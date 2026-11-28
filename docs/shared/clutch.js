@@ -235,7 +235,7 @@ function _clutchBuild(kind) {
       </div>
       </div>
       <div class="sidebar-main">
-        <p class="clutch-note" id="${x}Note"></p>
+        <p class="clutch-note">Clutch: últimos 5 minutos del 4.º cuarto y prórrogas completas, con 5 puntos o menos de diferencia.</p>
         <div class="scroll-bar-outer" id="${x}ScrollOuter"><div class="scroll-bar-inner" id="${x}ScrollInner"></div></div>
         <div class="table-wrap" id="${x}TableWrap">
           <div class="table-card clutch-card-${kind}" id="${x}Card">
@@ -315,13 +315,6 @@ function _clutchShow(kind, message) {
   _clutchEl(kind, 'Content').style.display = message ? 'none' : '';
 }
 
-// Qué abarcan los datos. Solo las ligas con PLAYOFF_DATE tienen identificados los playoffs.
-function clutchScopeNote(data) {
-  if (data.desde) return `Desde el ${data.desde} (Segunda Vuelta).`;
-  if (!SEASON_DIR) return 'Son muestras chicas.';
-  return typeof PLAYOFF_DATE !== 'undefined' ? 'Incluye playoffs.' : 'Temporada completa.';
-}
-
 async function openClutch(kind) {
   _clutchBuild(kind);
   try {
@@ -334,11 +327,6 @@ async function openClutch(kind) {
   if (!CLUTCH_DATA.equipos.length) { _clutchShow(kind, 'Todavía no hubo partidos con situaciones de clutch.'); return; }
 
   _clutchPopulate(kind);
-  const p = CLUTCH_DATA.partidos;
-  _clutchEl(kind, 'Note').textContent =
-    `Últimos 5 minutos del 4.º cuarto y prórrogas completas, con 5 puntos o menos de diferencia antes de cada jugada. ` +
-    `${p.clutch} de ${p.validos} partidos tuvieron clutch. ` +
-    clutchScopeNote(CLUTCH_DATA);
   _clutchShow(kind, '');
   renderClutch(kind);
 }
@@ -407,10 +395,11 @@ function renderClutch(kind) {
   const rows = _clutchSortRows(_clutchFiltered(kind), cols, st);
 
   const arrow = key => st.sort === key ? (st.dir === 'desc' ? 'sd' : 'sa') : '';
-  const th = (key, label, tip) => `<th data-k="${key}" data-tip="${_cEsc(tip)}" class="${arrow(key)}">${label}</th>`;
+  // cl-text: nombre / equipo (a la izquierda) · cl-stat: estadísticas (ancho parejo, centradas)
+  const th = (key, label, tip, type = 'cl-stat') => `<th data-k="${key}" data-tip="${_cEsc(tip)}" class="${type} ${arrow(key)}">${label}</th>`;
   const nameHead = '<th class="rank-th">#</th>' + (kind === 'j'
-    ? th('nombre', 'Jugador', 'Nombre del jugador') + th('equipo', 'Equipo', 'Equipo del jugador')
-    : th('equipo', 'Equipo', 'Nombre del equipo'));
+    ? th('nombre', 'Jugador', 'Nombre del jugador', 'cl-text') + th('equipo', 'Equipo', 'Equipo del jugador', 'cl-text')
+    : th('equipo', 'Equipo', 'Nombre del equipo', 'cl-text'));
   const thead = _clutchEl(kind, 'Thead');
   thead.innerHTML = '<tr>' + nameHead + cols.map(c => th(c.key, c.label, c.tip)).join('') + '</tr>';
   thead.querySelectorAll('th[data-k]').forEach(el => el.addEventListener('click', () => {
@@ -425,9 +414,9 @@ function renderClutch(kind) {
   const tbody = _clutchEl(kind, 'Tbody');
   tbody.innerHTML = rows.map((r, i) => {
     const lead = kind === 'j'
-      ? `<td><span class="p-name-cell">${playerAvatarHtml(r.nombre, r.equipo, 26)}${_cEsc(r.nombre)}</span></td><td style="background:var(--bg)">${teamHtml(r.equipo)}</td>`
-      : `<td style="background:var(--bg)">${teamHtml(r.equipo)}</td>`;
-    return `<tr class="${medals && i < 3 ? 'top' + (i + 1) : ''}"><td class="rank-cell">${i + 1}</td>${lead}${cols.map(c => `<td>${c.html(r)}</td>`).join('')}</tr>`;
+      ? `<td class="cl-text"><span class="p-name-cell">${playerAvatarHtml(r.nombre, r.equipo, 26)}${_cEsc(r.nombre)}</span></td><td class="cl-text" style="background:var(--bg)">${teamHtml(r.equipo)}</td>`
+      : `<td class="cl-text" style="background:var(--bg)">${teamHtml(r.equipo)}</td>`;
+    return `<tr class="${medals && i < 3 ? 'top' + (i + 1) : ''}"><td class="rank-cell">${i + 1}</td>${lead}${cols.map(c => `<td class="cl-stat">${c.html(r)}</td>`).join('')}</tr>`;
   }).join('') || `<tr><td colspan="${cols.length + 3}" class="clutch-none">Sin resultados para esos filtros</td></tr>`;
   tbody.querySelectorAll('[data-team]').forEach(el =>
     el.addEventListener('click', () => showTeamGames(el.dataset.team)));

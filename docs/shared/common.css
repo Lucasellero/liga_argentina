@@ -1020,6 +1020,13 @@ canvas{display:block;width:100%;cursor:crosshair;}
 /* Usa los mismos componentes que Tabla; acá solo va lo propio */
 .clutch-note{font-size:.72rem;color:var(--muted);line-height:1.5;padding:12px 40px 0;}
 .clutch-low{color:var(--muted);opacity:.65;}
+/* Columnas: el texto ocupa lo justo; las estadísticas se reparten el resto en partes iguales */
+#cljCard .rank-th,#cltCard .rank-th{width:44px;}
+#cljCard .cl-text,#cltCard .cl-text{text-align:left;width:1%;white-space:nowrap;padding-left:12px;padding-right:18px;}
+#cljCard .cl-stat,#cltCard .cl-stat{text-align:center;min-width:56px;padding-left:6px;padding-right:6px;}
+/* el % depende de la cantidad de columnas (13 jugadores, 17 equipos): no debe sumar más de 100 */
+#cljCard .cl-stat{width:6.4%;}
+#cltCard .cl-stat{width:5%;}
 .table-card td.clutch-none{text-align:center;color:var(--muted);font-style:italic;font-weight:500;padding:40px 12px;}
 /* columnas fijas, igual que en la tabla de jugadores */
 #cljCard td:nth-child(1){position:sticky;left:0;z-index:1;background:var(--bg);}
