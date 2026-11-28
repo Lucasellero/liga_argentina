@@ -108,10 +108,6 @@
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
     Tabla
   </button>
-  <button class="sub-tab" onclick="switchSection('t-tcmp')">
-    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    Comparar T-T
-  </button>
   <button class="sub-tab" onclick="switchSection('t-chart')">
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="5" cy="18" r="2"/><circle cx="12" cy="10" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="8" cy="14" r="2"/><circle cx="16" cy="16" r="2"/></svg>
     Gráfico
@@ -123,6 +119,10 @@
   <button class="sub-tab" onclick="switchSection('t-conexiones')">
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="12" r="3"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><path d="M12 12l5-4M12 12l5 4"/></svg>
     Conexiones
+  </button>
+  <button class="sub-tab" onclick="switchSection('t-clutch')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>
+    Clutch
   </button>
   <div class="sub-tabs-spacer"></div>
 </div>
@@ -144,6 +144,10 @@
   <button class="sub-tab" onclick="switchSection('j-conexiones')">
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="12" r="3"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><path d="M12 12l5-4M12 12l5 4"/></svg>
     Conexiones
+  </button>
+  <button class="sub-tab" onclick="switchSection('j-clutch')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>
+    Clutch
   </button>
   <div class="sub-tabs-spacer"></div>
 </div>
@@ -708,14 +712,6 @@
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2V12.46L22 3z"/></svg>
     Filtros
     <svg class="cct-chevron" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-  </div>
-  <!-- TEAM COMPARISON PANEL -->
-  <div id="cmpPanel" class="cmp-panel" style="display:none">
-    <div class="cmp-panel-title">Comparador de Equipos <span style="font-size:.72rem;font-weight:500;color:var(--muted);margin-left:4px">— hacé clic en filas de la tabla para seleccionar hasta 4 equipos</span></div>
-    <div id="cmpChips" class="cmp-chips-row">
-      <span class="cmp-chips-empty">Ningún equipo seleccionado — hacé clic en las filas de la tabla ↓</span>
-    </div>
-    <div id="cmpResult"><p class="cmp-empty-msg">Seleccioná al menos 2 equipos para ver la comparación.</p></div>
   </div>
   <div class="sidebar-layout">
     <!-- LEFT SIDEBAR -->
@@ -1453,6 +1449,10 @@
   </div>
 </div>
 
+<div class="section" id="sec-j-clutch" data-conf></div>
+
+<div class="section" id="sec-t-clutch" data-conf></div>
+
 <!-- ============================= QUINTETOS ============================= -->
 <div class="section" id="sec-quintetos">
   <div class="qnt-outer">
@@ -1498,6 +1498,7 @@
 <div id="thTip"></div>
 
 <script src="../shared/common.js"></script>
+<script src="../shared/clutch.js"></script>
 <script src="liga_femenina.js"></script>
 <footer style="text-align:center;padding:18px 40px;margin-top:12px;border-top:1px solid var(--border);color:var(--muted);font-size:.78rem;display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;">
   <a href="mailto:scoutea2@gmail.com" style="color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:color .2s;" onmouseover="this.style.color='var(--purple-l)'" onmouseout="this.style.color='var(--muted)'">✉ scoutea2@gmail.com</a>

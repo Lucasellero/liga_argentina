@@ -28,16 +28,22 @@ import json
 import sys
 import unicodedata
 from collections import Counter, defaultdict
+from datetime import datetime
 from pathlib import Path
 
 DOCS = Path(__file__).parent.parent / "docs"
-LEAGUES = {"argentina": "liga_argentina", "nacional": "liga_nacional", "proximo": "liga_proximo"}
+LEAGUES = {"argentina": "liga_argentina", "nacional": "liga_nacional", "proximo": "liga_proximo",
+           "femenina": "liga_femenina"}
 
 WINDOW_SECS = 300    # últimos N segundos del 4.º cuarto
 OT_SECS = 300        # las prórrogas cuentan enteras
 MAX_MARGIN = 5
 ASSIST_GAP_SECS = 10 # distancia máxima en el reloj entre una canasta y su asistencia
 MIN_VALID_RATIO = 0.8  # con menos partidos válidos que esto no se pisa el JSON anterior
+
+# (liga, temporada) -> primera fecha que cuenta. Mismo recorte que el dashboard:
+# Femenina 2025/26 solo muestra la Segunda Vuelta (START_DATE en liga_femenina.js).
+START_DATES = {("femenina", "2025-26"): "09/01/2026"}
 
 # Tipo de evento -> contadores que suma
 EVENTS = {
@@ -263,7 +269,15 @@ def main() -> None:
         print(f"Falta {box_path if not box_path.exists() else pbp_path}: no se actualiza {output.name}")
         return
 
-    data, warnings = build(read_csv(box_path), read_csv(pbp_path))
+    box_rows = read_csv(box_path)
+    start = START_DATES.get((args.liga, args.season))
+    if start:
+        day = lambda s: datetime.strptime(s, "%d/%m/%Y")
+        box_rows = [r for r in box_rows if day(r["Fecha"]) >= day(start)]
+
+    data, warnings = build(box_rows, read_csv(pbp_path))
+    if start:
+        data["desde"] = start
     for w in warnings:
         print(f"AVISO  {w}")
     p = data["partidos"]

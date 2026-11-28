@@ -29,6 +29,8 @@ Con --ligas solo se re-scrapean esas ligas; las filas de las demás ligas del CS
 existente se conservan tal cual.
 """
 
+from __future__ import annotations
+
 import re
 import sys
 import time

@@ -361,22 +361,20 @@ const f1=v=>v==null||isNaN(v)?'—':v.toFixed(1);
 // NAV
 // ============================================================
 const _SUB_GROUP = {
-  't-tabla':'equipos','t-tcmp':'equipos','t-chart':'equipos','quintetos':'equipos','trios':'equipos','duplas':'equipos','t-tiro':'equipos','t-conexiones':'equipos','t-ficha':'equipos','t-clutch':'equipos',
+  't-tabla':'equipos','t-chart':'equipos','quintetos':'equipos','trios':'equipos','duplas':'equipos','t-tiro':'equipos','t-conexiones':'equipos','t-ficha':'equipos','t-clutch':'equipos',
   'j-tabla':'jugadores','j-tiro':'jugadores','j-chart':'jugadores','j-conexiones':'jugadores','j-radar':'jugadores','j-clutch':'jugadores'
 };
 const _SUB_IDX = {
-  't-tabla':0,'t-tcmp':1,'t-chart':2,'quintetos':3,'trios':4,'duplas':5,'t-tiro':6,'t-conexiones':7,'t-ficha':8,'t-clutch':9,
+  't-tabla':0,'t-chart':2,'quintetos':3,'trios':4,'duplas':5,'t-tiro':6,'t-conexiones':7,'t-ficha':1,'t-clutch':8,
   'j-tabla':0,'j-tiro':1,'j-chart':2,'j-conexiones':3,'j-radar':4,'j-clutch':5
 };
 
 
 function switchSection(id) {
-  const isTcmp = id === 't-tcmp';
-  const domId = isTcmp ? 't-tabla' : id;
   document.querySelectorAll('.main-tab').forEach(b=>b.classList.remove('active','grp-active'));
   document.querySelectorAll('.sub-tab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.getElementById('sec-'+domId).classList.add('active');
+  document.getElementById('sec-'+id).classList.add('active');
   const grp = _SUB_GROUP[id];
   if (grp) {
     const grpBtn = document.getElementById(grp==='equipos'?'grpEquipos':'grpJugadores');
@@ -394,11 +392,6 @@ function switchSection(id) {
   }
   const _grpName = _SUB_GROUP[id];
   history.replaceState(null, '', '#' + (_grpName ? _grpName + '/' + id : id));
-  // t-tcmp: show cmpPanel full-width, hide sidebar; t-tabla: hide cmpPanel, show sidebar
-  if (domId === 't-tabla') {
-    document.getElementById('cmpPanel').style.display = isTcmp ? 'block' : 'none';
-    document.getElementById('tCtrlBody').style.display = isTcmp ? 'none' : '';
-  }
   if(id==='partidos') showUpcomingDefault();
   if(id==='t-tiro') { tzcInit(); }
   if(id==='t-ficha') {
@@ -430,7 +423,7 @@ function switchSection(id) {
   if(id==='t-clutch') openClutch('t');
   if(id==='t-chart') setTimeout(drawTChart,30);
   if(id==='j-tabla') setTimeout(()=>remeasureScroll('jTableWrap'), 50);
-  if(id==='t-tabla'||isTcmp) setTimeout(()=>remeasureScroll('tTableWrap'), 50);
+  if(id==='t-tabla') setTimeout(()=>remeasureScroll('tTableWrap'), 50);
   if(id==='quintetos') {
     const sel = document.getElementById('qntTeam');
     if (sel.options.length <= 1) {
@@ -749,8 +742,6 @@ window.addEventListener('resize',()=>{
 // ============================================================
 // TEAM COMPARISON — click-to-select
 // ============================================================
-const CMP_COLORS = ['#7c3aed','#0d9488','#d97706','#dc2626'];
-let selectedTeams = []; // array of team names, max 4
 
 
 // ============================================================
@@ -1938,7 +1929,7 @@ initApp().then(() => {
   const _h = window.location.hash.slice(1);
   if (_h) {
     const _sid = _h.includes('/') ? _h.split('/')[1] : _h;
-    if (document.getElementById('sec-' + (_sid === 't-tcmp' ? 't-tabla' : _sid))) switchSection(_sid);
+    if (document.getElementById('sec-' + _sid)) switchSection(_sid);
   }
 });
 

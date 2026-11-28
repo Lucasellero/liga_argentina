@@ -104,6 +104,11 @@ jobs:
               print(f'{f}: {before} → {len(df)} filas')
           "
 
+      # Después de la limpieza de torneos especiales, para no contarlos.
+      - name: Clutch – Liga Nacional
+        continue-on-error: true
+        run: python scraper/clutch_stats.py nacional
+
       # ── Liga Femenina ───────────────────────────────────────────────────────
       # Desactivada (septiembre 2026): la temporada 2026/27 de Liga Femenina
       # todavía no arrancó. Descomentar estos 3 steps cuando arranque.
@@ -115,6 +120,11 @@ jobs:
       #
       # - name: Jugada a jugada – Liga Femenina
       #   run: python scraper/pbp_scraper_femenina.py
+      #
+      # Al reactivar: sumar también docs/liga_femenina/clutch.json a FILES (abajo).
+      # - name: Clutch – Liga Femenina
+      #   continue-on-error: true
+      #   run: python scraper/clutch_stats.py femenina
 
       # ── Liga de Desarrollo ──────────────────────────────────────────────────
       - name: Stats – Liga de Desarrollo
@@ -125,6 +135,10 @@ jobs:
 
       - name: Jugada a jugada – Liga de Desarrollo
         run: python scraper/pbp_scraper_proximo.py
+
+      - name: Clutch – Liga de Desarrollo
+        continue-on-error: true
+        run: python scraper/clutch_stats.py proximo
 
       - name: Fixture próximos partidos – Liga de Desarrollo
         run: python scraper/fixture_scraper_proximo.py
@@ -190,9 +204,11 @@ jobs:
             docs/liga_nacional/liga_nacional.csv
             docs/liga_nacional/liga_nacional_shots.csv
             docs/liga_nacional/fixture_upcoming.csv
+            docs/liga_nacional/clutch.json
             docs/liga_proximo/liga_proximo.csv
             docs/liga_proximo/liga_proximo_shots.csv
             docs/liga_proximo/fixture_upcoming.csv
+            docs/liga_proximo/clutch.json
           )
           for f in "${FILES[@]}"; do
             [ -f "$f" ] && git add "$f" || echo "skip (no existe): $f"

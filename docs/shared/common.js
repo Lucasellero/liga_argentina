@@ -454,16 +454,9 @@ function renderTTable() {
   rows.forEach((t,i)=>{
     const d=getTeamData(t);
     const tr=document.createElement('tr');
-    const selIdx = selectedTeams.indexOf(t.Equipo);
-    const selClass = selIdx >= 0 ? ` team-sel-${selIdx}` : '';
-    if(i===0)tr.className='top1 team-row-selectable'+selClass;
-    else if(i===1)tr.className='top2 team-row-selectable'+selClass;
-    else if(i===2)tr.className='top3 team-row-selectable'+selClass;
-    else tr.className='team-row-selectable'+selClass;
-    tr.addEventListener('click', ()=>toggleTeamSelection(t.Equipo));
-    const indicator = selIdx >= 0 ? `<span class="team-sel-indicator" style="background:${CMP_COLORS[selIdx]}">${selIdx+1}</span>` : '';
+    if(i<3)tr.className='top'+(i+1);
     const wc=d['W%']>=60?'win-rate-high':d['W%']>=40?'win-rate-mid':'win-rate-low';
-    tr.innerHTML=`<td class="rank-cell">${i+1}</td><td style="background:var(--bg)"><span style="display:flex;align-items:center;gap:5px">${indicator}${teamLogoHtml(t.Equipo)}<span class="team-name-link" onclick="event.stopPropagation();showTeamGames('${t.Equipo.replace(/'/g,"\\'")}')">${t.Equipo}</span></span></td>
+    tr.innerHTML=`<td class="rank-cell">${i+1}</td><td style="background:var(--bg)"><span style="display:flex;align-items:center;gap:5px">${teamLogoHtml(t.Equipo)}<span class="team-name-link" onclick="event.stopPropagation();showTeamGames('${t.Equipo.replace(/'/g,"\\'")}')">${t.Equipo}</span></span></td>
       <td>${d.PJ}</td>
       <td style="color:var(--green);font-weight:700">${d.Ganados}</td>
       <td style="color:var(--red)">${d.Perdidos}</td>
@@ -502,17 +495,10 @@ function renderTAdvTable() {
   rows.forEach((t,i)=>{
     const d=getTeamData(t);
     const tr=document.createElement('tr');
-    const selIdx = selectedTeams.indexOf(t.Equipo);
-    const selClass = selIdx >= 0 ? ` team-sel-${selIdx}` : '';
-    if(i===0)tr.className='top1 team-row-selectable'+selClass;
-    else if(i===1)tr.className='top2 team-row-selectable'+selClass;
-    else if(i===2)tr.className='top3 team-row-selectable'+selClass;
-    else tr.className='team-row-selectable'+selClass;
-    tr.addEventListener('click', ()=>toggleTeamSelection(t.Equipo));
-    const indicator = selIdx >= 0 ? `<span class="team-sel-indicator" style="background:${CMP_COLORS[selIdx]}">${selIdx+1}</span>` : '';
+    if(i<3)tr.className='top'+(i+1);
     const wc=d['W%']>=60?'win-rate-high':d['W%']>=40?'win-rate-mid':'win-rate-low';
     const nc=d.NetRtg>=0?'netrtg-pos':'netrtg-neg';
-    tr.innerHTML=`<td class="rank-cell">${i+1}</td><td style="background:var(--bg)"><span style="display:flex;align-items:center;gap:5px">${indicator}${teamLogoHtml(t.Equipo)}<span class="team-name-link" onclick="event.stopPropagation();showTeamGames('${t.Equipo.replace(/'/g,"\\'")}')">${t.Equipo}</span></span></td>
+    tr.innerHTML=`<td class="rank-cell">${i+1}</td><td style="background:var(--bg)"><span style="display:flex;align-items:center;gap:5px">${teamLogoHtml(t.Equipo)}<span class="team-name-link" onclick="event.stopPropagation();showTeamGames('${t.Equipo.replace(/'/g,"\\'")}')">${t.Equipo}</span></span></td>
       <td>${d.PJ}</td>
       <td style="color:var(--green);font-weight:700">${d.Ganados}</td>
       <td class="${wc}">${d['W%'].toFixed(1)}%</td>
@@ -679,123 +665,6 @@ function buildTLegend(){
   const el=document.getElementById('tLegend');
   const teams=tFiltered.map(t=>t.Equipo);
   el.innerHTML=teams.map(t=>`<span><span class="ldot" style="background:${T_COLORS[t]}"></span>${t}</span>`).join('');
-}
-
-function toggleTeamSelection(teamName) {
-  const idx = selectedTeams.indexOf(teamName);
-  if (idx >= 0) {
-    selectedTeams.splice(idx, 1);
-  } else {
-    if (selectedTeams.length >= 4) return; // max 4
-    selectedTeams.push(teamName);
-  }
-  updateCmpBtn();
-  updateCmpChips();
-  renderTTable();
-  if (selectedTeams.length >= 2) {
-    const panel = document.getElementById('cmpPanel');
-    if (panel.style.display === 'none') {
-      switchSection('t-tcmp');
-    }
-    renderCmp();
-  } else if (selectedTeams.length < 2) {
-    renderCmp();
-  }
-}
-
-function updateCmpBtn() {
-  // cmpToggleBtn removed; count visible in cmpChips
-}
-
-function updateCmpChips() {
-  const el = document.getElementById('cmpChips');
-  if (!el) return;
-  if (selectedTeams.length === 0) {
-    el.innerHTML = '<span class="cmp-chips-empty">Ningún equipo seleccionado — hacé clic en las filas de la tabla ↓</span>';
-    return;
-  }
-  el.innerHTML = selectedTeams.map((name, i) => {
-    const color = CMP_COLORS[i];
-    return `<span class="cmp-chip" style="background:${color}" onclick="toggleTeamSelection('${name.replace(/'/g,"\\'")}')">
-      <span>${name}</span><span class="cmp-chip-x">×</span>
-    </span>`;
-  }).join('') + (selectedTeams.length > 0 ? `<span style="font-size:.73rem;color:var(--muted);margin-left:6px;cursor:pointer;text-decoration:underline" onclick="clearCmp()">Limpiar todo</span>` : '');
-}
-
-function clearCmp(){
-  selectedTeams = [];
-  updateCmpBtn();
-  updateCmpChips();
-  renderTTable();
-  renderCmp();
-  document.getElementById('cmpPanel').style.display = 'none';
-  document.getElementById('tCtrlBody').style.display = '';
-  document.querySelectorAll('#subEquipos .sub-tab').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('#subEquipos .sub-tab')[0].classList.add('active');
-}
-
-function renderCmp(){
-  const el = document.getElementById('cmpResult');
-  if (selectedTeams.length < 2) {
-    el.innerHTML='<p class="cmp-empty-msg">Seleccioná al menos 2 equipos para ver la comparación.</p>';
-    return;
-  }
-  const teams = selectedTeams.map(name=>TEAMS.find(t=>t.Equipo===name)).filter(Boolean);
-  const colors = CMP_COLORS;
-
-  const stats = [
-    {key:'W%', label:'W%', fmt:v=>v!=null?v.toFixed(1)+'%':'—', higher:true},
-    {key:'ORtg', label:'ORtg', fmt:v=>v!=null?v.toFixed(1):'—', higher:true},
-    {key:'DRtg', label:'DRtg', fmt:v=>v!=null?v.toFixed(1):'—', higher:false},
-    {key:'NetRtg', label:'Net Rtg', fmt:v=>v!=null?(v>=0?'+':'')+v.toFixed(1):'—', higher:true},
-    {key:'EFG%', label:'EFG%', fmt:v=>v!=null?v.toFixed(1)+'%':'—', higher:true},
-    {key:'TS%', label:'TS%', fmt:v=>v!=null?v.toFixed(1)+'%':'—', higher:true},
-    {key:'TOV%', label:'TOV%', fmt:v=>v!=null?v.toFixed(1)+'%':'—', higher:false},
-    {key:'ORB%', label:'ORB%', fmt:v=>v!=null?v.toFixed(1)+'%':'—', higher:true},
-    {key:'PTSPG', label:'PTS/p', fmt:v=>v!=null?v.toFixed(1):'—', higher:true},
-    {key:'ASTPG', label:'AST/p', fmt:v=>v!=null?v.toFixed(1):'—', higher:true},
-    {key:'RTPG', label:'REB/p', fmt:v=>v!=null?v.toFixed(1):'—', higher:true},
-    {key:'PACE', label:'PACE', fmt:v=>v!=null?v.toFixed(1):'—', higher:true},
-  ];
-
-  const cardsHtml = teams.map((t,i)=>{
-    const hdr = `<div class="cmp-card-header" style="background:${colors[i]}">${t.Equipo} <span style="font-weight:500;font-size:.72rem;opacity:.85">${t.Ganados}G-${t.Perdidos}P</span></div>`;
-    const rows = stats.map(s=>{
-      const vals = teams.map(tt=>tt[s.key]);
-      const best = s.higher ? Math.max(...vals.filter(v=>v!=null)) : Math.min(...vals.filter(v=>v!=null));
-      const isBest = t[s.key] != null && Math.abs(t[s.key] - best) < 0.001;
-      return `<div class="cmp-stat-row"><span class="cmp-stat-label">${s.label}</span><span class="cmp-stat-val${isBest?' best':''}">${s.fmt(t[s.key])}</span></div>`;
-    }).join('');
-    return `<div class="cmp-card">${hdr}<div class="cmp-stat-list">${rows}</div></div>`;
-  }).join('');
-
-  const barStats = [
-    {key:'ORtg',label:'ORtg'},
-    {key:'DRtg',label:'DRtg (↓mejor)'},
-    {key:'EFG%',label:'EFG%'},
-    {key:'TS%',label:'TS%'},
-    {key:'ORB%',label:'ORB%'},
-    {key:'PTSPG',label:'PTS/p'},
-  ];
-  const barsHtml = barStats.map(s=>{
-    const vals = teams.map(t=>t[s.key]||0);
-    const maxV = Math.max(...vals)||1;
-    const chips = teams.map((t,i)=>{
-      const w = Math.round((vals[i]/maxV)*100);
-      return `<div style="margin-bottom:4px">
-        <div style="font-size:.66rem;color:${colors[i]};font-weight:700;margin-bottom:2px">${t.Equipo.split(' ')[0]}: ${vals[i].toFixed(1)}</div>
-        <div class="cmp-bar-track"><div class="cmp-bar-fill" style="width:${w}%;background:${colors[i]}"></div></div>
-      </div>`;
-    }).join('');
-    return `<div class="cmp-bar-group"><div class="cmp-bar-lbl">${s.label}</div>${chips}</div>`;
-  }).join('');
-
-  el.innerHTML = `
-    <div style="overflow-x:auto;margin-bottom:16px"><div class="cmp-cards">${cardsHtml}</div></div>
-    <div class="cmp-chart-wrap">
-      <div class="cmp-chart-title">Comparación visual de métricas clave</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">${barsHtml}</div>
-    </div>`;
 }
 
 // ── Scroll sync / helpers UI ──

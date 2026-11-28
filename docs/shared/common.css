@@ -1017,22 +1017,20 @@ canvas{display:block;width:100%;cursor:crosshair;}
 .qnt-count{font-size:.72rem;color:var(--muted);margin-left:auto;}
 
 /* ── Clutch ── */
-.clutch-outer{max-width:1400px;}
-.clutch-note{font-size:.75rem;color:var(--muted);margin-bottom:12px;line-height:1.5;}
-.clutch-search{background:var(--surface);border:1px solid var(--border2);border-radius:8px;color:var(--text);font:inherit;font-size:.8rem;padding:7px 12px;min-width:180px;}
-.clutch-table th{white-space:nowrap;cursor:pointer;}
-.clutch-table th.clutch-rank,.clutch-table td.clutch-rank{text-align:center;color:var(--muted);width:36px;min-width:36px;cursor:default;}
-.clutch-table th.clutch-name,.clutch-table td.clutch-name,.clutch-table th.clutch-team,.clutch-table td.clutch-team{text-align:left;white-space:nowrap;min-width:150px;cursor:default;}
-.clutch-cell{display:flex;align-items:center;gap:6px;}
+/* Usa los mismos componentes que Tabla; acá solo va lo propio */
+.clutch-note{font-size:.72rem;color:var(--muted);line-height:1.5;padding:12px 40px 0;}
 .clutch-low{color:var(--muted);opacity:.65;}
-html body .clutch-outer select{padding-right:32px;}
+.table-card td.clutch-none{text-align:center;color:var(--muted);font-style:italic;font-weight:500;padding:40px 12px;}
+/* columnas fijas, igual que en la tabla de jugadores */
+#cljCard td:nth-child(1){position:sticky;left:0;z-index:1;background:var(--bg);}
+#cljCard td:nth-child(2){position:sticky;left:32px;z-index:1;background:var(--bg);min-width:120px;box-shadow:4px 0 8px rgba(0,0,0,.4);}
+#cljCard td:nth-child(3){min-width:150px;}
+#cljCard thead th:nth-child(1){left:0;z-index:20;}
+#cljCard thead th:nth-child(2){left:32px;min-width:120px;box-shadow:4px 0 8px rgba(0,0,0,.4);z-index:20;}
+#cljCard thead th:nth-child(3){min-width:150px;}
+#cljCard tr:hover td:nth-child(-n+3){background:rgba(139,92,246,.08);}
 @media (max-width:640px){
-  .clutch-search{width:100%;}
-  .clutch-table-j th.clutch-team,.clutch-table-j td.clutch-team{min-width:44px;}
-  .clutch-table-j th.clutch-team{font-size:0;}
-  .clutch-table-j td.clutch-team .team-name-link{display:none;}
-  .clutch-table th.clutch-rank,.clutch-table td.clutch-rank{display:none;}
-  .clutch-table th.clutch-name,.clutch-table td.clutch-name{position:sticky;left:0;z-index:1;background:var(--bg);min-width:128px;}
+  .clutch-note{padding:10px 12px 0;}
 }
 
 /* ── CONEXIONES ──────────────────────────────────── */
@@ -1544,3 +1542,87 @@ input[type=date]::-webkit-calendar-picker-indicator:hover{opacity:1;}
 .radar-sim-header .p-avatar{margin-right:8px;}
 .radar-sim-header{align-items:center;}
 .tf-name-cell{display:inline-flex;align-items:center;gap:8px;}
+
+/* ── Ficha de equipo: proporciones compactas, sin scroll dentro de las tablas ── */
+.tf-outer{max-width:1280px;padding:14px 24px 32px;}
+.tf-header-card{margin-bottom:14px;}
+.tgm-scope .tgm-header{padding:12px 18px;gap:14px;}
+.tf-header-main{gap:5px;}
+.tf-timeline{padding:10px 14px 9px;}
+.tf-timeline::before{top:14px;}
+.tf-timeline-item{gap:3px;}
+.tf-grid{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;}
+.tf-section-title{margin:16px 0 8px;}
+.tf-shot-card{padding:12px;}
+.tf-shot-card .tbl-toggle{margin-bottom:8px !important;}
+.tf-shot-card .szc-canvas-wrap{width:min(400px,100%);}
+.tgm-scope .tgm-body{overflow:visible;}
+.tgm-scope thead th{position:static;padding:8px 6px;}
+.tgm-scope tbody td{padding:3px 6px;}
+.tgm-scope .tgm-games-table tbody td{padding-top:6px;padding-bottom:6px;}
+.tgm-scope .tgm-games-table img{display:inline-block;}
+.tgm-scope .tgm-roster-table thead th,.tgm-scope .tgm-roster-table tbody td{padding-left:5px;padding-right:5px;}
+.tgm-scope .tgm-roster-table thead th:nth-child(2),.tgm-scope .tgm-roster-table tbody td:nth-child(2){min-width:0;padding-left:6px;}
+.tgm-scope .tf-name-cell .p-avatar{width:24px !important;height:24px !important;}
+.tgm-scope .tf-name-cell{display:flex;}
+.tf-pts-cell{gap:1px;line-height:1.15;}
+.tf-dorsal-badge{height:19px;}
+
+/* Desktop ancho: datos del equipo y próximos partidos en una sola franja */
+@media (min-width:1100px){
+  .tf-header-card{display:flex;align-items:stretch;}
+  .tf-header-card > .tgm-header{width:430px;flex:none;align-content:center;row-gap:8px;}
+  .tf-header-card .tf-header-main{flex:1 1 calc(100% - 62px);min-width:0;}
+  .tf-header-card .tgm-header select{width:100%;}
+  .tf-header-card > .tf-timeline{flex:1;min-width:0;border-top:0;border-left:1px solid var(--border2);align-items:center;}
+  .tf-header-card .tf-timeline::before{top:50%;display:none;}
+}
+@media (max-width:980px){
+  .tf-grid{grid-template-columns:minmax(0,1fr);gap:0;}
+  .tf-grid .tf-col-side .tf-section-title{margin-top:16px;}
+}
+
+@media (max-width:640px){
+  .tf-outer{padding:10px 8px 24px;}
+  .tgm-scope .tgm-header{padding:12px;gap:10px;}
+  .tgm-scope .tgm-logo{width:40px;height:40px;}
+  .tf-header-main{order:0;min-width:0;flex:1 1 calc(100% - 50px);}
+  .tgm-scope .tgm-title{font-size:1.05rem;}
+  .tf-chips{gap:4px;}
+  .tf-chip{font-size:.62rem;padding:2px 8px;}
+
+  /* Próximos partidos: nombres completos en hasta 2 líneas */
+  .tf-timeline{padding:10px 4px;}
+  .tf-timeline::before{display:none;}
+  .tf-timeline-dot{display:none;}
+  .tf-timeline-item{padding:0 3px;}
+  .tf-timeline-date{font-size:.56rem;letter-spacing:0;}
+  .tf-timeline-vs{flex-direction:column;gap:3px;font-size:.66rem;line-height:1.2;}
+  .tf-timeline-vs span{max-width:100%;white-space:normal;}
+  .tf-timeline-estadio{display:none;}
+
+  /* Plantel: las columnas entran en el ancho de la pantalla (sin dorsal) */
+  .tgm-scope table{font-size:.68rem;}
+  .tgm-scope thead th{font-size:.52rem;letter-spacing:0;padding:7px 1px;}
+  .tgm-scope .tgm-roster-table thead th,.tgm-scope .tgm-roster-table tbody td{padding-left:1px;padding-right:1px;}
+  .tgm-scope .tgm-roster-table tr > :first-child{display:none;}
+  .tgm-scope .tgm-roster-table thead th:nth-child(2),.tgm-scope .tgm-roster-table tbody td:nth-child(2){padding-left:6px;white-space:normal;line-height:1.15;}
+  .tgm-scope .tgm-roster-table tbody tr.tf-top-scorer td:nth-child(2){box-shadow:inset 3px 0 0 var(--purple);}
+  .tgm-scope .tgm-roster-table tbody td{height:30px;}
+  .tgm-scope .tf-name-cell{gap:4px;}
+  .tgm-scope .tf-name-cell .p-avatar{width:18px !important;height:18px !important;}
+  .tf-pts-bar-wrap{width:22px;}
+  .tgm-roster-table .energy-battery-body,.tgm-roster-table .energy-battery-nub{display:none;}
+  .tgm-roster-table .energy-battery-pct{font-size:.64rem;min-width:0;}
+
+  /* Historial */
+  .tgm-scope .tgm-games-table thead th,.tgm-scope .tgm-games-table tbody td{padding-left:3px;padding-right:3px;}
+  .tgm-scope .tgm-games-table tr > :first-child{padding-left:8px;}
+  .tgm-scope .tgm-games-table tbody td:nth-child(3){white-space:normal;line-height:1.2;}
+  .tgm-scope .tgm-games-table tr > :nth-child(6){display:none;}
+  .tgm-scope .tgm-games-table .tgm-cond{font-size:.56rem;padding:2px 4px;}
+}
+@media (max-width:359px){
+  .tgm-scope .tgm-roster-table tr > :nth-child(3){display:none;}
+  .tgm-scope .tf-name-cell .p-avatar{display:none;}
+}

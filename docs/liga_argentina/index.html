@@ -95,9 +95,9 @@
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
     Tabla
   </button>
-  <button class="sub-tab" onclick="switchSection('t-tcmp')">
-    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    Comparar T-T
+  <button class="sub-tab" onclick="switchSection('t-ficha')">
+    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 13h3M8 16h5"/></svg>
+    Ficha
   </button>
   <button class="sub-tab" onclick="switchSection('t-chart')">
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="5" cy="18" r="2"/><circle cx="12" cy="10" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="8" cy="14" r="2"/><circle cx="16" cy="16" r="2"/></svg>
@@ -122,10 +122,6 @@
   <button class="sub-tab" onclick="switchSection('t-conexiones')">
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="12" r="3"/><circle cx="19" cy="6" r="2"/><circle cx="19" cy="18" r="2"/><path d="M12 12l5-4M12 12l5 4"/></svg>
     Conexiones
-  </button>
-  <button class="sub-tab" onclick="switchSection('t-ficha')">
-    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 13h3M8 16h5"/></svg>
-    Ficha
   </button>
   <button class="sub-tab" onclick="switchSection('t-clutch')">
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg>
@@ -747,14 +743,6 @@
     <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2V12.46L22 3z"/></svg>
     Filtros
     <svg class="cct-chevron" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-  </div>
-  <!-- TEAM COMPARISON PANEL -->
-  <div id="cmpPanel" class="cmp-panel" style="display:none">
-    <div class="cmp-panel-title">Comparador de Equipos <span style="font-size:.72rem;font-weight:500;color:var(--muted);margin-left:4px">— hacé clic en filas de la tabla para seleccionar hasta 4 equipos</span></div>
-    <div id="cmpChips" class="cmp-chips-row">
-      <span class="cmp-chips-empty">Ningún equipo seleccionado — hacé clic en las filas de la tabla ↓</span>
-    </div>
-    <div id="cmpResult"><p class="cmp-empty-msg">Seleccioná al menos 2 equipos para ver la comparación.</p></div>
   </div>
   <div class="sidebar-layout">
     <!-- LEFT SIDEBAR -->
@@ -1666,7 +1654,7 @@
       <div class="tf-col-main">
         <div class="tf-section-title">Plantel</div>
         <div class="tf-card">
-          <div class="tgm-body" style="max-height:600px">
+          <div class="tgm-body">
             <table class="tgm-roster-table">
               <thead><tr>
                 <th>#</th><th>Jugador</th><th>Edad</th><th>PJ</th>
@@ -1705,7 +1693,7 @@
 
     <div class="tf-section-title">Historial de partidos</div>
     <div class="tf-card">
-      <div class="tgm-body" style="max-height:420px">
+      <div class="tgm-body">
         <table class="tgm-games-table">
           <thead><tr>
             <th>Fecha</th><th>Cond.</th><th>Rival</th>
@@ -1749,61 +1737,9 @@
   </div>
 </div>
 
-<div class="section" id="sec-j-clutch">
-  <div class="qnt-outer clutch-outer">
-    <div class="qnt-header">
-      <span class="qnt-title">Jugadores en el clutch</span>
-      <div class="qnt-filters">
-        <input type="search" id="cljSearch" class="clutch-search" placeholder="Buscar jugador..." aria-label="Buscar jugador" oninput="renderClutch('j')">
-        <select id="cljTeam" aria-label="Equipo" onchange="renderClutch('j')">
-          <option value="">Todos los equipos</option>
-        </select>
-        <select id="cljConf" aria-label="Conferencia" onchange="renderClutch('j')">
-          <option value="">Ambas conferencias</option>
-          <option value="norte">Conferencia Norte</option>
-          <option value="sur">Conferencia Sur</option>
-        </select>
-      </div>
-      <span class="qnt-count" id="cljCount"></span>
-    </div>
-    <div id="cljMsg" class="qnt-empty">Cargando datos del clutch...</div>
-    <div id="cljContent" style="display:none">
-      <p class="clutch-note" id="cljNote"></p>
-      <div class="qnt-table-wrap">
-        <table class="qnt-table clutch-table clutch-table-j">
-          <thead id="cljThead"></thead>
-          <tbody id="cljTbody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
+<div class="section" id="sec-j-clutch" data-conf></div>
 
-<div class="section" id="sec-t-clutch">
-  <div class="qnt-outer clutch-outer">
-    <div class="qnt-header">
-      <span class="qnt-title">Equipos en el clutch</span>
-      <div class="qnt-filters">
-        <select id="cltConf" aria-label="Conferencia" onchange="renderClutch('t')">
-          <option value="">Ambas conferencias</option>
-          <option value="norte">Conferencia Norte</option>
-          <option value="sur">Conferencia Sur</option>
-        </select>
-      </div>
-      <span class="qnt-count" id="cltCount"></span>
-    </div>
-    <div id="cltMsg" class="qnt-empty">Cargando datos del clutch...</div>
-    <div id="cltContent" style="display:none">
-      <p class="clutch-note" id="cltNote"></p>
-      <div class="qnt-table-wrap">
-        <table class="qnt-table clutch-table clutch-table-t">
-          <thead id="cltThead"></thead>
-          <tbody id="cltTbody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
+<div class="section" id="sec-t-clutch" data-conf></div>
 
 <!-- ============================= TRÍOS ============================= -->
 <div class="section" id="sec-trios">
